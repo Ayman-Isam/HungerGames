@@ -65,8 +65,10 @@ public class ChestRefillCommand implements CommandExecutor {
             }
 
             List<ItemStack> chestItems = new ArrayList<>();
+            List<Integer> chestItemWeights = new ArrayList<>();
             for (Map<?, ?> itemMap : itemsConfig.getMapList("chest-items")) {
                 String type = (String) itemMap.get("type");
+                int weight = (int) itemMap.get("weight");
                 ItemStack item = new ItemStack(Material.valueOf(type));
                 if (itemMap.containsKey("enchantments")) {
                     for (Map<?, ?> enchantmentMap : (List<Map<?, ?>>) itemMap.get("enchantments")) {
@@ -85,11 +87,14 @@ public class ChestRefillCommand implements CommandExecutor {
                     }
                 }
                 chestItems.add(item);
+                chestItemWeights.add(weight);
             }
 
             List<ItemStack> bonusChestItems = new ArrayList<>();
+            List<Integer> bonusChestItemWeights = new ArrayList<>();
             for (Map<?, ?> itemMap : itemsConfig.getMapList("bonus-chest-items")) {
                 String type = (String) itemMap.get("type");
+                int weight = (int) itemMap.get("weight");
                 ItemStack item = new ItemStack(Material.valueOf(type));
                 if (itemMap.containsKey("enchantments")) {
                     for (Map<?, ?> enchantmentMap : (List<Map<?, ?>>) itemMap.get("enchantments")) {
@@ -108,6 +113,7 @@ public class ChestRefillCommand implements CommandExecutor {
                     }
                 }
                 bonusChestItems.add(item);
+                bonusChestItemWeights.add(weight);
             }
 
 
@@ -127,8 +133,11 @@ public class ChestRefillCommand implements CommandExecutor {
 
 
                             // Shuffle the chestItems list and get the first 5 items
-                            Collections.shuffle(chestItems);
-                            List<ItemStack> randomItems = chestItems.subList(0, numItems);
+                            List<ItemStack> randomItems = new ArrayList<>();
+                            for (int i = 0; i < numItems; i++) {
+                                int index = getRandomWeightedIndex(chestItemWeights);
+                                randomItems.add(chestItems.get(index));
+                            }
 
                             // Add the random items to random slots in the chest inventory
                             Set<Integer> usedSlots = new HashSet<>();
@@ -163,9 +172,11 @@ public class ChestRefillCommand implements CommandExecutor {
                                 int numItems = rand.nextInt(maxBonusChestContent - minBonusChestContent + 1) + minBonusChestContent;
                                 numItems = Math.min(numItems, bonusChestItems.size());
 
-                                // Shuffle the bonusChestItems list and get the first numItems items
-                                Collections.shuffle(bonusChestItems);
-                                List<ItemStack> randomItems = bonusChestItems.subList(0, numItems);
+                                List<ItemStack> randomItems = new ArrayList<>();
+                                for (int i = 0; i < numItems; i++) {
+                                    int index = getRandomWeightedIndex(bonusChestItemWeights);
+                                    randomItems.add(bonusChestItems.get(index));
+                                }
 
                                 // Add the random items to random slots in the bonus chest inventory
                                 Set<Integer> usedSlots = new HashSet<>();
@@ -188,4 +199,19 @@ public class ChestRefillCommand implements CommandExecutor {
         }
         return false;
     }
+    private int getRandomWeightedIndex(List<Integer> weights) {
+        int totalWeight = 0;
+        for (int weight : weights) {
+            totalWeight += weight;
+        }
+        int randInt = new Random().nextInt(totalWeight);
+        for (int i = 0; i < weights.size(); i++) {
+            randInt -= weights.get(i);
+            if (randInt < 0) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }
+
