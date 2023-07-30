@@ -9,4 +9,7 @@ commands:
   create:
     description: "Create an arena in HungerGames"
     usage: /<command>
+  chestrefill:
+    description: "Refills Chests an arena in HungerGames"
+    usage: /<command>
 
