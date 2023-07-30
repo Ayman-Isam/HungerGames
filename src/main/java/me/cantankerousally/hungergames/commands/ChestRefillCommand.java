@@ -4,23 +4,24 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.block.Barrel;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ChestRefillCommand implements CommandExecutor {
     private JavaPlugin plugin;
@@ -86,6 +87,30 @@ public class ChestRefillCommand implements CommandExecutor {
                 chestItems.add(item);
             }
 
+            List<ItemStack> bonusChestItems = new ArrayList<>();
+            for (Map<?, ?> itemMap : itemsConfig.getMapList("bonus-chest-items")) {
+                String type = (String) itemMap.get("type");
+                ItemStack item = new ItemStack(Material.valueOf(type));
+                if (itemMap.containsKey("enchantments")) {
+                    for (Map<?, ?> enchantmentMap : (List<Map<?, ?>>) itemMap.get("enchantments")) {
+                        String enchantmentType = (String) enchantmentMap.get("type");
+                        int level = (int) enchantmentMap.get("level");
+                        Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(enchantmentType.toLowerCase()));
+                        if (enchantment != null) {
+                            if (item.getType() == Material.ENCHANTED_BOOK) {
+                                EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+                                meta.addStoredEnchant(enchantment, level, true);
+                                item.setItemMeta(meta);
+                            } else {
+                                item.addEnchantment(enchantment, level);
+                            }
+                        }
+                    }
+                }
+                bonusChestItems.add(item);
+            }
+
+
             for (int x = minX; x <= maxX; x++) {
                 for (int y = minY; y <= maxY; y++) {
                     for (int z = minZ; z <= maxZ; z++) {
@@ -93,7 +118,66 @@ public class ChestRefillCommand implements CommandExecutor {
                         if (block.getType() == Material.CHEST) {
                             Chest chest = (Chest) block.getState();
                             chest.getInventory().clear();
-                            chest.getInventory().addItem(chestItems.toArray(new ItemStack[0]));
+
+                            int minChestContent = config.getInt("min-chest-content");
+                            int maxChestContent = config.getInt("max-chest-content");
+                            Random rand = new Random();
+                            int numItems = rand.nextInt(maxChestContent - minChestContent + 1) + minChestContent;
+                            numItems = Math.min(numItems, chestItems.size());
+
+
+                            // Shuffle the chestItems list and get the first 5 items
+                            Collections.shuffle(chestItems);
+                            List<ItemStack> randomItems = chestItems.subList(0, numItems);
+
+                            // Add the random items to random slots in the chest inventory
+                            Set<Integer> usedSlots = new HashSet<>();
+                            for (ItemStack item : randomItems) {
+                                int slot = rand.nextInt(chest.getInventory().getSize());
+                                while (usedSlots.contains(slot)) {
+                                    slot = rand.nextInt(chest.getInventory().getSize());
+                                }
+                                usedSlots.add(slot);
+                                chest.getInventory().setItem(slot, item);
+                            }
+                        } else {
+                            List<String> bonusChestTypes = config.getStringList("bonus-chest-types");
+                            if (bonusChestTypes.contains(block.getType().name())) {
+                                Inventory bonusChest;
+                                if (block.getType() == Material.BARREL) {
+                                    Barrel barrel = (Barrel) block.getState();
+                                    bonusChest = barrel.getInventory();
+                                } else if (block.getType() == Material.TRAPPED_CHEST) {
+                                    Chest chest = (Chest) block.getState();
+                                    bonusChest = chest.getInventory();
+                                } else {
+                                    ShulkerBox shulkerBox = (ShulkerBox) block.getState();
+                                    bonusChest = shulkerBox.getInventory();
+                                }
+                                bonusChest.clear();
+
+                                // Get the min and max bonus chest content values from the config
+                                int minBonusChestContent = config.getInt("min-bonus-chest-content");
+                                int maxBonusChestContent = config.getInt("max-bonus-chest-content");
+                                Random rand = new Random();
+                                int numItems = rand.nextInt(maxBonusChestContent - minBonusChestContent + 1) + minBonusChestContent;
+                                numItems = Math.min(numItems, bonusChestItems.size());
+
+                                // Shuffle the bonusChestItems list and get the first numItems items
+                                Collections.shuffle(bonusChestItems);
+                                List<ItemStack> randomItems = bonusChestItems.subList(0, numItems);
+
+                                // Add the random items to random slots in the bonus chest inventory
+                                Set<Integer> usedSlots = new HashSet<>();
+                                for (ItemStack item : randomItems) {
+                                    int slot = rand.nextInt(bonusChest.getSize());
+                                    while (usedSlots.contains(slot)) {
+                                        slot = rand.nextInt(bonusChest.getSize());
+                                    }
+                                    usedSlots.add(slot);
+                                    bonusChest.setItem(slot, item);
+                                }
+                            }
                         }
                     }
                 }
