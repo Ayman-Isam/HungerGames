@@ -1,0 +1,9 @@
+chest-items:
+  - type: DIAMOND_SWORD
+    enchantments:
+      - type: DAMAGE_ALL
+        level: 5
+  - type: ENCHANTED_BOOK
+    enchantments:
+      - type: PROTECTION_ENVIRONMENTAL
+        level: 4
