@@ -12,4 +12,16 @@ commands:
   chestrefill:
     description: "Refills Chests an arena in HungerGames"
     usage: /<command>
+  supplydrop:
+    description: "Drops a Supply Crate in HungerGames"
+    usage: /<command>
+  setspawn:
+    description: "Sets SpawnPoints for Arenas in HungerGames"
+    usage: /<command>
+  start:
+    description: "Starts the game in HungerGames"
+    usage: /<command>
+  end:
+    description: "Forcefully Ends the game in HungerGames"
+    usage: /<command>
 
