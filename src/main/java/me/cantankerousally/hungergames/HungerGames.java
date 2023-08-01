@@ -32,7 +32,7 @@ public final class HungerGames extends JavaPlugin {
         getCommand("end").setExecutor(new EndGameCommand(this));
         getServer().getPluginManager().registerEvents(new SetArenaHandler(this), this);
         getServer().getPluginManager().registerEvents(new SetSpawnHandler(this), this);
-        getServer().getPluginManager().registerEvents(new WorldBorderHandler(this, world), this);
+        getServer().getPluginManager().registerEvents(new WorldBorderHandler(this), this);
         getServer().getPluginManager().registerEvents(gameHandler, this);
     }
     public GameHandler getGameHandler() {

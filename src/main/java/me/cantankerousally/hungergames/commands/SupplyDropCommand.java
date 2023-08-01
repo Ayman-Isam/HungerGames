@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 public class SupplyDropCommand implements CommandExecutor {
     private JavaPlugin plugin;
+    private List<Location> supplyDropLocations;
 
     public SupplyDropCommand(JavaPlugin plugin) {
         this.plugin = plugin;
