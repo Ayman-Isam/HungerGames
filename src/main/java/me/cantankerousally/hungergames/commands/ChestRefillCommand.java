@@ -189,79 +189,125 @@ public class ChestRefillCommand implements CommandExecutor {
 
             }
 
-            for (int x = minX; x <= maxX; x++) {
-                for (int y = minY; y <= maxY; y++) {
-                    for (int z = minZ; z <= maxZ; z++) {
-                        Block block = world.getBlockAt(x, y, z);
-                        if (block.getType() == Material.CHEST) {
-                            Chest chest = (Chest) block.getState();
-                            chest.getInventory().clear();
-
-                            int minChestContent = config.getInt("min-chest-content");
-                            int maxChestContent = config.getInt("max-chest-content");
-                            Random rand = new Random();
-                            int numItems = rand.nextInt(maxChestContent - minChestContent + 1) + minChestContent;
-                            numItems = Math.min(numItems, chestItems.size());
-
-
-                            // Shuffle the chestItems list and get the first 5 items
-                            List<ItemStack> randomItems = new ArrayList<>();
-                            for (int i = 0; i < numItems; i++) {
-                                int index = getRandomWeightedIndex(chestItemWeights);
-                                randomItems.add(chestItems.get(index));
-                            }
-
-                            // Add the random items to random slots in the chest inventory
-                            Set<Integer> usedSlots = new HashSet<>();
-                            for (ItemStack item : randomItems) {
-                                int slot = rand.nextInt(chest.getInventory().getSize());
-                                while (usedSlots.contains(slot)) {
-                                    slot = rand.nextInt(chest.getInventory().getSize());
-                                }
-                                usedSlots.add(slot);
-                                chest.getInventory().setItem(slot, item);
-                            }
-                        } else {
-                            List<String> bonusChestTypes = config.getStringList("bonus-chest-types");
-                            if (bonusChestTypes.contains(block.getType().name())) {
-                                Inventory bonusChest;
-                                if (block.getType() == Material.BARREL) {
-                                    Barrel barrel = (Barrel) block.getState();
-                                    bonusChest = barrel.getInventory();
-                                } else if (block.getType() == Material.TRAPPED_CHEST) {
-                                    Chest chest = (Chest) block.getState();
-                                    bonusChest = chest.getInventory();
-                                } else {
-                                    ShulkerBox shulkerBox = (ShulkerBox) block.getState();
-                                    bonusChest = shulkerBox.getInventory();
-                                }
-                                bonusChest.clear();
-
-                                // Get the min and max bonus chest content values from the config
-                                int minBonusChestContent = config.getInt("min-bonus-chest-content");
-                                int maxBonusChestContent = config.getInt("max-bonus-chest-content");
-                                Random rand = new Random();
-                                int numItems = rand.nextInt(maxBonusChestContent - minBonusChestContent + 1) + minBonusChestContent;
-                                numItems = Math.min(numItems, bonusChestItems.size());
-
-                                List<ItemStack> randomItems = new ArrayList<>();
-                                for (int i = 0; i < numItems; i++) {
-                                    int index = getRandomWeightedIndex(bonusChestItemWeights);
-                                    randomItems.add(bonusChestItems.get(index));
-                                }
-
-                                // Add the random items to random slots in the bonus chest inventory
-                                Set<Integer> usedSlots = new HashSet<>();
-                                for (ItemStack item : randomItems) {
-                                    int slot = rand.nextInt(bonusChest.getSize());
-                                    while (usedSlots.contains(slot)) {
-                                        slot = rand.nextInt(bonusChest.getSize());
-                                    }
-                                    usedSlots.add(slot);
-                                    bonusChest.setItem(slot, item);
-                                }
+            File chestLocationsFile = new File(plugin.getDataFolder(), "chest-locations.yml");
+            if (!chestLocationsFile.exists()) {
+                // chest locations file does not exist, scan the region for chests
+                List<Location> chestLocations = new ArrayList<>();
+                List<Location> bonusChestLocations = new ArrayList<>();
+                List<String> bonusChestTypes = config.getStringList("bonus-chest-types");
+                for (int x = minX; x <= maxX; x++) {
+                    for (int y = minY; y <= maxY; y++) {
+                        for (int z = minZ; z <= maxZ; z++) {
+                            Block block = world.getBlockAt(x, y, z);
+                            if (block.getType() == Material.CHEST) {
+                                chestLocations.add(block.getLocation());
+                            } else if (bonusChestTypes.contains(block.getType().name())) {
+                                bonusChestLocations.add(block.getLocation());
                             }
                         }
+                    }
+                }
+
+                // save the chest locations to the file
+                FileConfiguration chestLocationsConfig = new YamlConfiguration();
+                chestLocationsConfig.set("locations", chestLocations.stream()
+                        .map(location -> location.serialize())
+                        .collect(Collectors.toList()));
+                chestLocationsConfig.set("bonus-locations", bonusChestLocations.stream()
+                        .map(location -> location.serialize())
+                        .collect(Collectors.toList()));
+                try {
+                    chestLocationsConfig.save(chestLocationsFile);
+                } catch (IOException e) {
+                    sender.sendMessage(ChatColor.RED + "Could not save chest locations to file!");
+                    return true;
+                }
+            }
+
+            // load the chest locations from the file
+            FileConfiguration chestLocationsConfig = YamlConfiguration.loadConfiguration(chestLocationsFile);
+            List<Location> chestLocations = chestLocationsConfig.getList("locations").stream()
+                    .map(map -> Location.deserialize((Map<String, Object>) map))
+                    .collect(Collectors.toList());
+            List<Location> bonusChestLocations = chestLocationsConfig.getList("bonus-locations").stream()
+                    .map(map -> Location.deserialize((Map<String, Object>) map))
+                    .collect(Collectors.toList());
+
+            // refill the chests
+            for (Location location : chestLocations) {
+                Block block = location.getBlock();
+                if (block.getType() == Material.CHEST) {
+                    Chest chest = (Chest) block.getState();
+                    chest.getInventory().clear();
+
+
+                    int minChestContent = config.getInt("min-chest-content");
+                    int maxChestContent = config.getInt("max-chest-content");
+                    Random rand = new Random();
+                    int numItems = rand.nextInt(maxChestContent - minChestContent + 1) + minChestContent;
+                    numItems = Math.min(numItems, chestItems.size());
+
+
+                    // Shuffle the chestItems list and get the first 5 items
+                    List<ItemStack> randomItems = new ArrayList<>();
+                    for (int i = 0; i < numItems; i++) {
+                        int index = getRandomWeightedIndex(chestItemWeights);
+                        randomItems.add(chestItems.get(index));
+                    }
+
+                    // Add the random items to random slots in the chest inventory
+                    Set<Integer> usedSlots = new HashSet<>();
+                    for (ItemStack item : randomItems) {
+                        int slot = rand.nextInt(chest.getInventory().getSize());
+                        while (usedSlots.contains(slot)) {
+                            slot = rand.nextInt(chest.getInventory().getSize());
+                        }
+                        usedSlots.add(slot);
+                        chest.getInventory().setItem(slot, item);
+                    }
+                }
+            }
+
+            // refill the bonus chests
+            for (Location location : bonusChestLocations) {
+                Block block = location.getBlock();
+                List<String> bonusChestTypes = config.getStringList("bonus-chest-types");
+                if (bonusChestTypes.contains(block.getType().name())) {
+                    Inventory bonusChest;
+                    if (block.getType() == Material.BARREL) {
+                        Barrel barrel = (Barrel) block.getState();
+                        bonusChest = barrel.getInventory();
+                    } else if (block.getType() == Material.TRAPPED_CHEST) {
+                        Chest chest = (Chest) block.getState();
+                        bonusChest = chest.getInventory();
+                    } else {
+                        ShulkerBox shulkerBox = (ShulkerBox) block.getState();
+                        bonusChest = shulkerBox.getInventory();
+                    }
+                    bonusChest.clear();
+
+                    // Get the min and max bonus chest content values from the config
+                    int minBonusChestContent = config.getInt("min-bonus-chest-content");
+                    int maxBonusChestContent = config.getInt("max-bonus-chest-content");
+                    Random rand = new Random();
+                    int numItems = rand.nextInt(maxBonusChestContent - minBonusChestContent + 1) + minBonusChestContent;
+                    numItems = Math.min(numItems, bonusChestItems.size());
+
+                    List<ItemStack> randomItems = new ArrayList<>();
+                    for (int i = 0; i < numItems; i++) {
+                        int index = getRandomWeightedIndex(bonusChestItemWeights);
+                        randomItems.add(bonusChestItems.get(index));
+                    }
+
+                    // Add the random items to random slots in the bonus chest inventory
+                    Set<Integer> usedSlots = new HashSet<>();
+                    for (ItemStack item : randomItems) {
+                        int slot = rand.nextInt(bonusChest.getSize());
+                        while (usedSlots.contains(slot)) {
+                            slot = rand.nextInt(bonusChest.getSize());
+                        }
+                        usedSlots.add(slot);
+                        bonusChest.setItem(slot, item);
                     }
                 }
             }
@@ -271,6 +317,7 @@ public class ChestRefillCommand implements CommandExecutor {
         }
         return false;
     }
+
     private int getRandomWeightedIndex(List<Integer> weights) {
         int totalWeight = 0;
         for (int weight : weights) {
@@ -286,4 +333,6 @@ public class ChestRefillCommand implements CommandExecutor {
         return -1;
     }
 }
+
+
 

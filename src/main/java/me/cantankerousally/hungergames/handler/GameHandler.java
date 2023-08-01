@@ -104,6 +104,7 @@ public class GameHandler implements Listener {
 
                 // Decrement the time left
                 timeLeft--;
+                timeLeftScore.setScore(timeLeft);
 
                 // Check if there is only one player alive
                 if (playersAlive.size() == 1) {
@@ -172,21 +173,41 @@ public class GameHandler implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
-
         if (playersAlive != null) {
             // Remove player from list of players alive
             playersAlive.remove(player);
         }
+        player.setGameMode(GameMode.SPECTATOR);
+        updatePlayersAliveScore();
     }
+
+    public void updatePlayersAliveScore() {
+        // Get the scoreboard
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+
+        // Get the playersAliveScore
+        Objective objective = scoreboard.getObjective("gameinfo");
+        Score playersAliveScore = objective.getScore("Players Alive:");
+
+        // Update the playersAliveScore
+        playersAliveScore.setScore(playersAlive.size());
+    }
+
 
     public void endGame() {
         // End game
         plugin.gameStarted = false;
         System.out.println("game ended");
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.setGameMode(GameMode.SURVIVAL);
+        }
 
         // Remove players from boss bar and clear list of players alive
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        Scoreboard emptyScoreboard = manager.getNewScoreboard();
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             plugin.bossBar.removePlayer(player);
+            player.setScoreboard(emptyScoreboard);
         }
         playersAlive.clear();
 
