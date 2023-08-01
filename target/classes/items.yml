@@ -1,9 +1,136 @@
 chest-items:
+  - type: IRON_SWORD
+    amount: 1
+    weight: 1
+  - type: MUSHROOM_STEW
+    amount: 1
+    weight: 1
+  - type: IRON_HELMET
+    amount: 1
+    weight: 1
+  - type: IRON_CHESTPLATE
+    amount: 1
+    weight: 1
+  - type: IRON_LEGGINGS
+    amount: 1
+    weight: 1
+  - type: IRON_BOOTS
+    amount: 1
+    weight: 1
+  - type: SHIELD
+    amount: 1
+    weight: 1
+  - type: BOW
+    amount: 1
+    weight: 1
+  - type: CROSSBOW
+    amount: 1
+    weight: 1
+  - type: ARROW
+    amount: 20
+    weight: 1
+  - type: MILK_BUCKET
+    amount: 1
+    weight: 1
+  - type: FISHING_ROD
+    amount: 1
+    weight: 1
+  - type: GOLDEN_HELMET
+    amount: 1
+    weight: 1
+  - type: GOLDEN_CHESTPLATE
+    amount: 1
+    weight: 1
+  - type: GOLDEN_LEGGINGS
+    amount: 1
+    weight: 1
+  - type: GOLDEN_BOOTS
+    amount: 1
+    weight: 1
+  - type: GOLDEN_APPLE
+    amount: 1
+    weight: 1
+  - type: GOLDEN_CARROT
+    amount: 8
+    weight: 1
+  - type: COOKED_BEEF
+    amount: 4
+    weight: 1
+
+
+
+bonus-chest-items:
+  - type: DIAMOND_HELMET
+    amount: 1
+    weight: 1
+  - type: DIAMOND_CHESTPLATE
+    amount: 1
+    weight: 1
+  - type: DIAMOND_LEGGINGS
+    amount: 1
+    weight: 1
+  - type: DIAMOND_BOOTS
+    amount: 1
+    weight: 10
   - type: DIAMOND_SWORD
+    amount: 1
+    weight: 1
+  - type: ENCHANTED_BOOK
+    weight: 1
     enchantments:
-      - type: DAMAGE_ALL
+      - type: SHARPNESS
         level: 5
   - type: ENCHANTED_BOOK
+    weight: 10
     enchantments:
-      - type: PROTECTION_ENVIRONMENTAL
+      - type: PROTECTION
         level: 4
+  - type: ENCHANTED_BOOK
+    weight: 1
+    enchantments:
+      - type: PUNCH
+        level: 2
+  - type: ENCHANTED_BOOK
+    weight: 1
+    enchantments:
+      - type: FLAME
+        level: 1
+  - type: ENCHANTED_BOOK
+    weight: 1
+    enchantments:
+      - type: MULTISHOT
+        level: 1
+  - type: FIREWORK_ROCKET
+    weight: 10
+    amount: 8
+    power: 1
+    effects:
+      - type: BALL
+        colors:
+          - 16711680 # red
+        fade-colors:
+          - 16753920 # orange
+        flicker: false
+        trail: false
+
+supply-drop-items:
+
+  - type: POTION
+    weight: 1
+    potion-type: TURTLE_MASTER
+    level: 2
+  - type: POTION
+    weight: 1
+    potion-type: STRENGTH
+    level: 2
+
+
+
+
+
+
+
+
+
+
+
