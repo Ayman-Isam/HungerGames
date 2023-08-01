@@ -69,6 +69,8 @@ public class SetSpawnHandler implements Listener {
                         occupiedSpawnPoints.add(spawnPoint);
                         player.setGameMode(GameMode.ADVENTURE);
                         player.getInventory().clear();
+                        player.setExp(0);
+                        player.setLevel(0);
                         player.setHealth(20);
                         for (PotionEffect effect : player.getActivePotionEffects()) {
                             player.removePotionEffect(effect.getType());

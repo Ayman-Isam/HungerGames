@@ -4,6 +4,8 @@ import me.cantankerousally.hungergames.commands.*;
 import me.cantankerousally.hungergames.handler.GameHandler;
 import me.cantankerousally.hungergames.handler.SetArenaHandler;
 import me.cantankerousally.hungergames.handler.SetSpawnHandler;
+import me.cantankerousally.hungergames.handler.WorldBorderHandler;
+import org.bukkit.World;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -18,6 +20,8 @@ public final class HungerGames extends JavaPlugin {
     public void onEnable() {
         bossBar = getServer().createBossBar("Time Remaining", BarColor.BLUE, BarStyle.SOLID);
         gameHandler = new GameHandler(this);
+        World world = getServer().getWorld("world");
+
         saveDefaultConfig();
         getCommand("supplydrop").setExecutor(new SupplyDropCommand(this));
         getCommand("create").setExecutor(new ArenaSelectorCommand(this));
@@ -28,6 +32,7 @@ public final class HungerGames extends JavaPlugin {
         getCommand("end").setExecutor(new EndGameCommand(this));
         getServer().getPluginManager().registerEvents(new SetArenaHandler(this), this);
         getServer().getPluginManager().registerEvents(new SetSpawnHandler(this), this);
+        getServer().getPluginManager().registerEvents(new WorldBorderHandler(this, world), this);
         getServer().getPluginManager().registerEvents(gameHandler, this);
     }
     public GameHandler getGameHandler() {

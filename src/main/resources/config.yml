@@ -1,0 +1,57 @@
+region:
+  world: world
+  pos1:
+    x: -323.0
+    y: 128.0
+    z: -337.0
+  pos2:
+    x: 349.0
+    y: 51.0
+    z: 319.0
+min-chest-content: 3
+max-chest-content: 6
+min-bonus-chest-content: 2
+max-bonus-chest-content: 5
+bonus-chest-types:
+  - BARREL
+  - TRAPPED_CHEST
+  - SHULKER_BOX
+num-supply-drops: 1
+min-supply-drop-content: 2
+max-supply-drop-content: 9
+spawnpoints:
+  - world,-20.0,52.0,-3.0
+  - world,-19.0,52.0,-8.0
+  - world,-16.0,52.0,-12.0
+  - world,-12.0,52.0,-16.0
+  - world,-8.0,52.0,-19.0
+  - world,-3.0,52.0,-20.0
+  - world,-20.0,52.0,3.0
+  - world,-19.0,52.0,8.0
+  - world,-16.0,52.0,12.0
+  - world,-12.0,52.0,16.0
+  - world,-8.0,52.0,19.0
+  - world,-3.0,52.0,20.0
+  - world,3.0,52.0,20.0
+  - world,8.0,52.0,19.0
+  - world,12.0,52.0,16.0
+  - world,16.0,52.0,12.0
+  - world,19.0,52.0,8.0
+  - world,20.0,52.0,3.0
+  - world,20.0,52.0,-3.0
+  - world,19.0,52.0,-8.0
+  - world,16.0,52.0,-12.0
+  - world,12.0,52.0,-16.0
+  - world,8.0,52.0,-19.0
+  - world,3.0,52.0,-20.0
+game-time: 900
+grace-period: 15
+supplydrop:
+  interval: 30
+chestrefill:
+  time: 600
+
+border:
+  x: 0.0
+  z: 0.0
+  size: 700.0

@@ -5,14 +5,18 @@ import me.cantankerousally.hungergames.commands.ChestRefillCommand;
 import me.cantankerousally.hungergames.commands.SupplyDropCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.*;
 
 import java.util.ArrayList;
@@ -31,6 +35,9 @@ public class GameHandler implements Listener {
     private List<Player> playersAlive;
 
     private int gracePeriodTaskId;
+
+    private BukkitTask supplyDropTask;
+
 
     public void startGame() {
         // Start game
@@ -131,7 +138,8 @@ public class GameHandler implements Listener {
         int supplyDropInterval = plugin.getConfig().getInt("supplydrop.interval") * 20; // Convert seconds to ticks
         SupplyDropCommand supplyDropCommand = new SupplyDropCommand(plugin);
         PluginCommand supplyDropPluginCommand = plugin.getCommand("supplydrop");
-        new BukkitRunnable() {
+
+        supplyDropTask = new BukkitRunnable() {
             @Override
             public void run() {
                 supplyDropCommand.onCommand(plugin.getServer().getConsoleSender(), supplyDropPluginCommand, "supplydrop", new String[0]);
@@ -193,9 +201,35 @@ public class GameHandler implements Listener {
             player.teleport(spawnLocation);
         }
 
+        if (supplyDropTask != null) {
+            supplyDropTask.cancel();
+            supplyDropTask = null;
+        }
+
         // Send message to players
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             player.sendMessage("The game has ended!");
+        }
+
+        FileConfiguration config = plugin.getConfig();
+
+        double x1 = config.getDouble("region.pos1.x");
+        double y1 = config.getDouble("region.pos1.y");
+        double z1 = config.getDouble("region.pos1.z");
+
+        double x2 = config.getDouble("region.pos2.x");
+        double y2 = config.getDouble("region.pos2.y");
+        double z2 = config.getDouble("region.pos2.z");
+
+        for (double x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) {
+            for (double y = Math.min(y1, y2); y <= Math.max(y1, y2); y++) {
+                for (double z = Math.min(z1, z2); z <= Math.max(z1, z2); z++) {
+                    Block block = world.getBlockAt((int) x, (int) y, (int) z);
+                    if (block.getType() == Material.RED_SHULKER_BOX) {
+                        block.setType(Material.AIR);
+                    }
+                }
+            }
         }
     }
 }
