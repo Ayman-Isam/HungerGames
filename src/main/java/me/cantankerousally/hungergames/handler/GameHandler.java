@@ -39,7 +39,6 @@ public class GameHandler implements Listener {
         plugin.gameStarted = true;
         WorldBorderHandler worldBorderHandler = new WorldBorderHandler(plugin);
         worldBorderHandler.startBorderShrink();
-        System.out.println("game started");
 
         // Set the time left
         timeLeft = plugin.getConfig().getInt("game-time");
@@ -199,7 +198,6 @@ public class GameHandler implements Listener {
     public void endGame() {
         // End game
         plugin.gameStarted = false;
-        System.out.println("game ended");
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setGameMode(GameMode.SURVIVAL);
         }
@@ -231,11 +229,6 @@ public class GameHandler implements Listener {
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             player.sendMessage("The game has ended!");
         }
-
-        WorldBorder border = world.getWorldBorder();
-        double originalSize = plugin.getConfig().getDouble("border.size");
-        border.setSize(originalSize);
-
 
         // Remove all red shulker boxes in the world
         for (Chunk chunk : world.getLoadedChunks()) {

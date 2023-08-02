@@ -4,6 +4,7 @@ import me.cantankerousally.hungergames.commands.*;
 import me.cantankerousally.hungergames.handler.*;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -29,7 +30,6 @@ public final class HungerGames extends JavaPlugin {
         World world = getServer().getWorld("world");
         playersAlive = new ArrayList<>();
 
-
         saveDefaultConfig();
         getCommand("supplydrop").setExecutor(new SupplyDropCommand(this));
         getCommand("create").setExecutor(new ArenaSelectorCommand(this));
@@ -50,6 +50,11 @@ public final class HungerGames extends JavaPlugin {
                 for (Player player : getServer().getOnlinePlayers()) {
                     if (player.getName().startsWith(".")) {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20, 0, true, false));
+                    }
+                    if (!gameStarted) {
+                        WorldBorder border = world.getWorldBorder();
+                        double originalSize = getConfig().getDouble("border.size");
+                        border.setSize(originalSize);
                     }
                 }
             }
