@@ -114,7 +114,6 @@ bonus-chest-items:
         trail: false
 
 supply-drop-items:
-
   - type: POTION
     weight: 1
     potion-type: TURTLE_MASTER

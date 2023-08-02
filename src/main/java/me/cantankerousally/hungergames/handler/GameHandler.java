@@ -16,8 +16,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class GameHandler implements Listener {
 
@@ -30,10 +29,9 @@ public class GameHandler implements Listener {
     private int timerTaskId;
     private int timeLeft;
     private List<Player> playersAlive;
-
     private int gracePeriodTaskId;
-
     private BukkitTask supplyDropTask;
+    public Map<UUID, Location> deathLocations = new HashMap<>();
 
 
     public void startGame() {
@@ -173,24 +171,28 @@ public class GameHandler implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
+        plugin.deathLocations.put(player.getUniqueId(), player.getLocation());
         if (playersAlive != null) {
             // Remove player from list of players alive
             playersAlive.remove(player);
         }
-        player.setGameMode(GameMode.SPECTATOR);
         updatePlayersAliveScore();
     }
 
+
     public void updatePlayersAliveScore() {
-        // Get the scoreboard
-        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        // Update the playersAliveScore for each player
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            // Get the player's scoreboard
+            Scoreboard scoreboard = player.getScoreboard();
 
-        // Get the playersAliveScore
-        Objective objective = scoreboard.getObjective("gameinfo");
-        Score playersAliveScore = objective.getScore("Players Alive:");
+            // Get the playersAliveScore
+            Objective objective = scoreboard.getObjective("gameinfo");
+            Score playersAliveScore = objective.getScore("Players Alive:");
 
-        // Update the playersAliveScore
-        playersAliveScore.setScore(playersAlive.size());
+            // Update the playersAliveScore
+            playersAliveScore.setScore(playersAlive.size());
+        }
     }
 
 
@@ -201,6 +203,8 @@ public class GameHandler implements Listener {
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setGameMode(GameMode.SURVIVAL);
         }
+
+        plugin.getServer().getScheduler().cancelTask(timerTaskId);
 
         // Remove players from boss bar and clear list of players alive
         ScoreboardManager manager = Bukkit.getScoreboardManager();

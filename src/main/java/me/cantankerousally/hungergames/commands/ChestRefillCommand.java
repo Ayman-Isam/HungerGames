@@ -73,11 +73,12 @@ public class ChestRefillCommand implements CommandExecutor {
                 int weight = (int) itemMap.get("weight");
                 int amount = itemMap.containsKey("amount") ? (int) itemMap.get("amount") : 1;
                 ItemStack item = new ItemStack(Material.valueOf(type), amount);
-                if (item.getType() == Material.POTION) {
+                if (item.getType() == Material.POTION || item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION) {
                     PotionMeta meta = (PotionMeta) item.getItemMeta();
                     String potionType = (String) itemMap.get("potion-type");
                     int level = (int) itemMap.get("level");
-                    meta.setBasePotionData(new PotionData(PotionType.valueOf(potionType), false, level > 1));
+                    boolean extended = itemMap.containsKey("extended") ? (boolean) itemMap.get("extended") : false;
+                    meta.setBasePotionData(new PotionData(PotionType.valueOf(potionType), extended, level > 1));
                     item.setItemMeta(meta);
                 } else if (item.getType() == Material.FIREWORK_ROCKET) {
                     FireworkMeta meta = (FireworkMeta) item.getItemMeta();
@@ -312,8 +313,7 @@ public class ChestRefillCommand implements CommandExecutor {
                 }
             }
 
-            sender.sendMessage(ChatColor.GREEN + "Chests have been refilled!");
-            return true;
+            plugin.getServer().broadcastMessage(ChatColor.GREEN + "Chests have been refilled!");
         }
         return false;
     }

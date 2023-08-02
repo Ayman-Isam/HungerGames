@@ -2,6 +2,7 @@ package me.cantankerousally.hungergames;
 
 import me.cantankerousally.hungergames.commands.*;
 import me.cantankerousally.hungergames.handler.*;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -11,17 +12,23 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.*;
+
 
 public final class HungerGames extends JavaPlugin {
     public boolean gameStarted = false;
     public BossBar bossBar;
     private GameHandler gameHandler;
     private CompassHandler compassHandler;
+    public Map<UUID, Location> deathLocations = new HashMap<>();
+    public List<Player> playersAlive;
     @Override
     public void onEnable() {
         bossBar = getServer().createBossBar("Time Remaining", BarColor.BLUE, BarStyle.SOLID);
         gameHandler = new GameHandler(this);
         World world = getServer().getWorld("world");
+        playersAlive = new ArrayList<>();
+
 
         saveDefaultConfig();
         getCommand("supplydrop").setExecutor(new SupplyDropCommand(this));

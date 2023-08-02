@@ -50,7 +50,6 @@ supplydrop:
   interval: 30
 chestrefill:
   time: 600
-
 border:
   x: 0.0
   z: 0.0

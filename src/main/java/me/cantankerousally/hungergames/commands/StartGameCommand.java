@@ -6,7 +6,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 public class StartGameCommand implements CommandExecutor {
-
     private HungerGames plugin;
 
     public StartGameCommand(HungerGames plugin) {
@@ -27,11 +26,39 @@ public class StartGameCommand implements CommandExecutor {
             return true;
         }
 
-        // Start the game
-        plugin.getGameHandler().startGame();
-        sender.sendMessage("The game has started!");
+        // Schedule a delayed task to start the game after 20 seconds
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+            @Override
+            public void run() {
+                // Start the game
+                plugin.getGameHandler().startGame();
+                sender.sendMessage("The game has started!");
+            }
+        }, 20L * 20);
+
+        // Schedule additional delayed tasks to send countdown messages
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+            @Override
+            public void run() {
+                sender.sendMessage("15 seconds left!");
+            }
+        }, 20L * 5);
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+            @Override
+            public void run() {
+                sender.sendMessage("10 seconds left!");
+            }
+        }, 20L * 10);
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+            @Override
+            public void run() {
+                sender.sendMessage("5 seconds left!");
+            }
+        }, 20L * 15);
+
+        // Send a message to the sender
+        sender.sendMessage("The game will start in 20 seconds!");
 
         return true;
     }
 }
-
