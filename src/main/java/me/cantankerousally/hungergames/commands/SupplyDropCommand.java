@@ -36,20 +36,6 @@ public class SupplyDropCommand implements CommandExecutor {
         if (command.getName().equalsIgnoreCase("supplydrop")) {
             FileConfiguration config = plugin.getConfig();
             World world = plugin.getServer().getWorld(config.getString("region.world"));
-            double pos1x = config.getDouble("region.pos1.x");
-            double pos1y = config.getDouble("region.pos1.y");
-            double pos1z = config.getDouble("region.pos1.z");
-            double pos2x = config.getDouble("region.pos2.x");
-            double pos2y = config.getDouble("region.pos2.y");
-            double pos2z = config.getDouble("region.pos2.z");
-
-            int minX = (int) Math.min(pos1x, pos2x);
-            int minY = (int) Math.min(pos1y, pos2y);
-            int minZ = (int) Math.min(pos1z, pos2z);
-            int maxX = (int) Math.max(pos1x, pos2x);
-            int maxY = (int) Math.max(pos1y, pos2y);
-            int maxZ = (int) Math.max(pos1z, pos2z);
-
 
             FileConfiguration itemsConfig;
             File itemsFile = new File(plugin.getDataFolder(), "items.yml");
@@ -140,9 +126,22 @@ public class SupplyDropCommand implements CommandExecutor {
             // Generate numSupplyDrops random supply drops
             Random rand = new Random();
             for (int i = 0; i < numSupplyDrops; i++) {
-                // Generate random x and z coordinates within the bounds of the arena
-                int x = rand.nextInt(maxX - minX + 1) + minX;
-                int z = rand.nextInt(maxZ - minZ + 1) + minZ;
+                // Get the world border
+                WorldBorder border = world.getWorldBorder();
+
+                // Get the center and size of the world border
+                Location center = border.getCenter();
+                double size = border.getSize();
+
+                // Calculate the minimum and maximum x and z coordinates of the world border
+                double minX = center.getX() - size / 2;
+                double minZ = center.getZ() - size / 2;
+                double maxX = center.getX() + size / 2;
+                double maxZ = center.getZ() + size / 2;
+
+                // Generate random x and z coordinates within the bounds of the world border
+                int x = (int) (rand.nextDouble() * (maxX - minX) + minX);
+                int z = (int) (rand.nextDouble() * (maxZ - minZ) + minZ);
 
                 // Get the highest non-air block at the generated coordinates
                 Block highestBlock = world.getHighestBlockAt(x, z);

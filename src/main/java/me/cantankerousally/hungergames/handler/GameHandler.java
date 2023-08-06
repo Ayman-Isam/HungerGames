@@ -31,7 +31,7 @@ public class GameHandler implements Listener {
     private List<Player> playersAlive;
     private int gracePeriodTaskId;
     private BukkitTask supplyDropTask;
-    public Map<UUID, Location> deathLocations = new HashMap<>();
+    private int chestRefillTaskId;
 
 
     public void startGame() {
@@ -54,8 +54,8 @@ public class GameHandler implements Listener {
 
         // Send message to players
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            player.sendMessage("The game has started!");
-            player.sendMessage("The grace period has started! PvP is disabled!");
+            player.sendMessage(ChatColor.AQUA + "The game has started!");
+            player.sendMessage(ChatColor.AQUA + "The grace period has started! PvP is disabled!");
         }
 
         // Turn off PvP
@@ -73,15 +73,25 @@ public class GameHandler implements Listener {
 
             // Send message to players
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                player.sendMessage("The grace period has ended! PvP is now enabled!");
+                player.sendMessage(ChatColor.AQUA + "The grace period has ended! PvP is now enabled!");
             }
         }, gracePeriod * 20L);
 
-        // Create a scoreboard to display the timer and number of players alive
+        // Create a scoreboard to display the timer, number of players alive, and world border size
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         Scoreboard scoreboard = manager.getNewScoreboard();
         Objective objective = scoreboard.registerNewObjective("gameinfo", "dummy", "Game Info");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+        // Add a new Score object to display the world border size
+        Score worldBorderSizeScore = objective.getScore("World Border Size:");
+
+        // Set the initial value of the world border size score
+        WorldBorder worldBorder = plugin.getServer().getWorlds().get(0).getWorldBorder();
+        int initialSize = (int) Math.floor(worldBorder.getSize());
+        worldBorderSizeScore.setScore(initialSize);
+
+        // Add the other Score objects after adding the world border size score
         Score timeLeftScore = objective.getScore("Time Left:");
         timeLeftScore.setScore(timeLeft);
         Score playersAliveScore = objective.getScore("Players Alive:");
@@ -99,6 +109,9 @@ public class GameHandler implements Listener {
                 // Update the boss bar's progress
                 plugin.bossBar.setProgress((double) timeLeft / plugin.getConfig().getInt("game-time"));
 
+                int newSize = (int) Math.floor(worldBorder.getSize());
+                worldBorderSizeScore.setScore(newSize);
+
                 // Decrement the time left
                 timeLeft--;
                 timeLeftScore.setScore(timeLeft);
@@ -111,7 +124,9 @@ public class GameHandler implements Listener {
                     // Declare the winner
                     Player winner = playersAlive.get(0);
                     for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        player.sendMessage(winner.getName() + " is the winner!");
+                        player.sendMessage(ChatColor.AQUA + winner.getName() + " is the winner!");
+                        // Play a sound to the player
+                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
                     }
 
                     // End the game
@@ -128,7 +143,8 @@ public class GameHandler implements Listener {
                 }
             }
         }, 0L, 20L);
-// Schedule supply drops
+
+        // Schedule supply drops
         int supplyDropInterval = plugin.getConfig().getInt("supplydrop.interval") * 20; // Convert seconds to ticks
         SupplyDropCommand supplyDropCommand = new SupplyDropCommand(plugin);
         PluginCommand supplyDropPluginCommand = plugin.getCommand("supplydrop");
@@ -147,7 +163,7 @@ public class GameHandler implements Listener {
 
         // Schedule a delayed task to refill chests again at specified time
         int chestRefillTime = plugin.getConfig().getInt("chestrefill.time") * 20; // Convert seconds to ticks
-        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+        chestRefillTaskId = plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
                 chestRefillCommand.onCommand(plugin.getServer().getConsoleSender(), chestRefillPluginCommand, "chestrefill", new String[0]);
@@ -165,16 +181,20 @@ public class GameHandler implements Listener {
             plugin.bossBar.removePlayer(player);
             playersAlive.remove(player);
         }
+        Location spawnLocation = player.getWorld().getSpawnLocation();
+        player.teleport(spawnLocation);
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
-        plugin.deathLocations.put(player.getUniqueId(), player.getLocation());
         if (playersAlive != null) {
             // Remove player from list of players alive
             playersAlive.remove(player);
         }
+        // Send a message to the player
+        int place = playersAlive.size() + 1;
+        player.sendMessage(ChatColor.AQUA + "You finished in " + place + "th place");
         updatePlayersAliveScore();
     }
 
@@ -199,10 +219,14 @@ public class GameHandler implements Listener {
         // End game
         plugin.gameStarted = false;
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.setGameMode(GameMode.SURVIVAL);
+            player.setGameMode(GameMode.ADVENTURE);
         }
 
+        Server server = plugin.getServer();
+        server.dispatchCommand(server.getConsoleSender(), "kill @e[type=item]");
+
         plugin.getServer().getScheduler().cancelTask(timerTaskId);
+        plugin.getServer().getScheduler().cancelTask(chestRefillTaskId);
 
         // Remove players from boss bar and clear list of players alive
         ScoreboardManager manager = Bukkit.getScoreboardManager();
@@ -213,8 +237,13 @@ public class GameHandler implements Listener {
         }
         playersAlive.clear();
 
+        for (World world : plugin.getServer().getWorlds()) {
+            world.setPVP(true);
+        }
+
         // Teleport players to world spawn location
         World world = plugin.getServer().getWorld("world");
+
         Location spawnLocation = world.getSpawnLocation();
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             player.teleport(spawnLocation);
@@ -227,7 +256,7 @@ public class GameHandler implements Listener {
 
         // Send message to players
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            player.sendMessage("The game has ended!");
+            player.sendMessage(ChatColor.AQUA + "The game has ended!");
         }
 
         // Remove all red shulker boxes in the world
