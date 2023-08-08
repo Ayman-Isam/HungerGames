@@ -54,6 +54,10 @@ public class SetSpawnHandler implements Listener {
             if (block.getType() == Material.OAK_SIGN || block.getType() == Material.OAK_WALL_SIGN) {
                 Sign sign = (Sign) block.getState();
                 if (sign.getLine(0).equalsIgnoreCase("[Join]")) {
+                    if (plugin.gameStarted) {
+                        player.sendMessage(ChatColor.RED + "The game has already started!");
+                        return;
+                    }
                     // Teleport player to an unoccupied spawn point
                     List<String> spawnPoints = plugin.getConfig().getStringList("spawnpoints");
                     List<String> availableSpawnPoints = new ArrayList<>(spawnPoints);
@@ -72,6 +76,7 @@ public class SetSpawnHandler implements Listener {
                         player.setExp(0);
                         player.setLevel(30);
                         player.setHealth(20);
+                        player.setFoodLevel(20);
                         for (PotionEffect effect : player.getActivePotionEffects()) {
                             player.removePotionEffect(effect.getType());
                         }
