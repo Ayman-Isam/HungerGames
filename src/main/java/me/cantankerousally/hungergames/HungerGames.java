@@ -21,14 +21,18 @@ public final class HungerGames extends JavaPlugin {
     public BossBar bossBar;
     private GameHandler gameHandler;
     private CompassHandler compassHandler;
+    private SetSpawnHandler setSpawnHandler;
+
     public Map<UUID, Location> deathLocations = new HashMap<>();
     public List<Player> playersAlive;
     @Override
     public void onEnable() {
         bossBar = getServer().createBossBar("Time Remaining", BarColor.BLUE, BarStyle.SOLID);
-        gameHandler = new GameHandler(this);
+        setSpawnHandler = new SetSpawnHandler(this);
+        gameHandler = new GameHandler(this,setSpawnHandler);
         World world = getServer().getWorld("world");
         playersAlive = new ArrayList<>();
+        compassHandler = new CompassHandler(this);
 
         saveDefaultConfig();
         getCommand("supplydrop").setExecutor(new SupplyDropCommand(this));
@@ -39,10 +43,10 @@ public final class HungerGames extends JavaPlugin {
         getCommand("start").setExecutor(new StartGameCommand(this));
         getCommand("end").setExecutor(new EndGameCommand(this));
         getServer().getPluginManager().registerEvents(new SetArenaHandler(this), this);
-        getServer().getPluginManager().registerEvents(new SetSpawnHandler(this), this);
+        // Register the setSpawnHandler instance as an event listener
+        getServer().getPluginManager().registerEvents(setSpawnHandler, this);
         getServer().getPluginManager().registerEvents(new WorldBorderHandler(this), this);
         getServer().getPluginManager().registerEvents(gameHandler, this);
-        compassHandler = new CompassHandler(this);
 
         getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             @Override

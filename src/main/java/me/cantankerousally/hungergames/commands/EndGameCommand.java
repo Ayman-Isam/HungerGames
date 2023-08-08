@@ -1,6 +1,7 @@
 package me.cantankerousally.hungergames.commands;
 
 import me.cantankerousally.hungergames.HungerGames;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -26,9 +27,11 @@ public class EndGameCommand implements CommandExecutor {
             return true;
         }
 
+
+
         // End the game
         plugin.getGameHandler().endGame();
-        sender.sendMessage("The game has ended!");
+        sender.sendMessage(ChatColor.LIGHT_PURPLE + "The game has ended!");
 
         return true;
     }

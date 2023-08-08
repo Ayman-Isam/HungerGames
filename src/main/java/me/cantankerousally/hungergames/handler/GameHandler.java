@@ -21,9 +21,11 @@ import java.util.*;
 public class GameHandler implements Listener {
 
     private HungerGames plugin;
+    private SetSpawnHandler setSpawnHandler;
 
-    public GameHandler(HungerGames plugin) {
+    public GameHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
         this.plugin = plugin;
+        this.setSpawnHandler = setSpawnHandler;
     }
 
     private int timerTaskId;
@@ -54,8 +56,8 @@ public class GameHandler implements Listener {
 
         // Send message to players
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            player.sendMessage("The game has started!");
-            player.sendMessage("The grace period has started! PvP is disabled!");
+            player.sendMessage(ChatColor.LIGHT_PURPLE + "The game has started!");
+            player.sendMessage(ChatColor.LIGHT_PURPLE + "The grace period has started! PvP is disabled!");
         }
 
         // Turn off PvP
@@ -73,7 +75,7 @@ public class GameHandler implements Listener {
 
             // Send message to players
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                player.sendMessage("The grace period has ended! PvP is now enabled!");
+                player.sendMessage(ChatColor.LIGHT_PURPLE + "The grace period has ended! PvP is now enabled!");
             }
         }, gracePeriod * 20L);
 
@@ -108,10 +110,16 @@ public class GameHandler implements Listener {
                     // Cancel the task
                     plugin.getServer().getScheduler().cancelTask(timerTaskId);
 
+                    // Send message to players
+                    for (Player player : plugin.getServer().getOnlinePlayers()) {
+                        player.sendMessage(ChatColor.LIGHT_PURPLE + "The game has ended!");
+                    }
+
                     // Declare the winner
                     Player winner = playersAlive.get(0);
                     for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        player.sendMessage(winner.getName() + " is the winner!");
+                        player.sendMessage(ChatColor.LIGHT_PURPLE + winner.getName() + " is the winner!");
+                        player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
                     }
 
                     // End the game
@@ -199,8 +207,18 @@ public class GameHandler implements Listener {
         // End game
         plugin.gameStarted = false;
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.setGameMode(GameMode.SURVIVAL);
+            player.setGameMode(GameMode.ADVENTURE);
         }
+
+        // Get the server
+        Server server = plugin.getServer();
+
+        // Execute the /kill command to remove all item entities
+        server.dispatchCommand(server.getConsoleSender(), "kill @e[type=item]");
+
+        // Execute the /kill command to remove all experience orb entities
+        server.dispatchCommand(server.getConsoleSender(), "kill @e[type=experience_orb]");
+
 
         plugin.getServer().getScheduler().cancelTask(timerTaskId);
 
@@ -213,6 +231,8 @@ public class GameHandler implements Listener {
         }
         playersAlive.clear();
 
+        setSpawnHandler.clearOccupiedSpawnPoints();
+
         // Teleport players to world spawn location
         World world = plugin.getServer().getWorld("world");
         Location spawnLocation = world.getSpawnLocation();
@@ -223,11 +243,6 @@ public class GameHandler implements Listener {
         if (supplyDropTask != null) {
             supplyDropTask.cancel();
             supplyDropTask = null;
-        }
-
-        // Send message to players
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
-            player.sendMessage("The game has ended!");
         }
 
         // Remove all red shulker boxes in the world

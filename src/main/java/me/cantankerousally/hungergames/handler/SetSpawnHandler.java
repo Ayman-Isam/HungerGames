@@ -75,12 +75,19 @@ public class SetSpawnHandler implements Listener {
                         for (PotionEffect effect : player.getActivePotionEffects()) {
                             player.removePotionEffect(effect.getType());
                         }
+                        // Broadcast a message to all players
+                        plugin.getServer().broadcastMessage(ChatColor.AQUA + player.getName() + " has joined [" + occupiedSpawnPoints.size() + "/" + spawnPoints.size() + "]");
+
                     } else {
                         player.sendMessage(ChatColor.RED + "All spawn points are currently occupied!");
                     }
                 }
             }
         }
+    }
+
+    public void clearOccupiedSpawnPoints() {
+        occupiedSpawnPoints.clear();
     }
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onSignChange(SignChangeEvent event) {
@@ -120,5 +127,4 @@ public class SetSpawnHandler implements Listener {
             }
         }
     }
-
 }

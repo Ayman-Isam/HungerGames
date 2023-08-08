@@ -67,8 +67,6 @@ public class SupplyDropCommand implements CommandExecutor {
                 }
             }
 
-            Bukkit.getLogger().info("itemsConfig: " + itemsConfig.saveToString());
-
             List<ItemStack> supplyDropItems = new ArrayList<>();
             List<Integer> supplyDropItemWeights = new ArrayList<>();
             for (Map<?, ?> itemMap : itemsConfig.getMapList("supply-drop-items")) {

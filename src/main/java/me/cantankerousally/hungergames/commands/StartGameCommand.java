@@ -1,9 +1,12 @@
 package me.cantankerousally.hungergames.commands;
 
 import me.cantankerousally.hungergames.HungerGames;
+import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public class StartGameCommand implements CommandExecutor {
     private HungerGames plugin;
@@ -16,13 +19,13 @@ public class StartGameCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         // Check if the sender has permission to start the game
         if (!sender.hasPermission("hungergames.start")) {
-            sender.sendMessage("You do not have permission to start the game!");
+            sender.sendMessage(ChatColor.RED + "You do not have permission to start the game!");
             return true;
         }
 
         // Check if the game has already started
         if (plugin.gameStarted) {
-            sender.sendMessage("The game has already started!");
+            sender.sendMessage(ChatColor.RED + "The game has already started!");
             return true;
         }
 
@@ -32,7 +35,10 @@ public class StartGameCommand implements CommandExecutor {
             public void run() {
                 // Start the game
                 plugin.getGameHandler().startGame();
-                sender.sendMessage("The game has started!");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "The game has started!");
+                for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                }
             }
         }, 20L * 20);
 
@@ -40,25 +46,24 @@ public class StartGameCommand implements CommandExecutor {
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
-                sender.sendMessage("15 seconds left!");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "15 seconds left!");
             }
         }, 20L * 5);
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
-                sender.sendMessage("10 seconds left!");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "10 seconds left!");
             }
         }, 20L * 10);
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
-                sender.sendMessage("5 seconds left!");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "5 seconds left!");
             }
         }, 20L * 15);
 
         // Send a message to the sender
-        sender.sendMessage("The game will start in 20 seconds!");
-
+        sender.sendMessage(ChatColor.LIGHT_PURPLE + "The game will start in 20 seconds!");
         return true;
     }
 }
