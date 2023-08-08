@@ -1,6 +1,7 @@
 package me.cantankerousally.hungergames.commands;
 
 import me.cantankerousally.hungergames.HungerGames;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 
 public class StartGameCommand implements CommandExecutor {
     private HungerGames plugin;
+    private boolean gameStarting = false;
 
     public StartGameCommand(HungerGames plugin) {
         this.plugin = plugin;
@@ -29,16 +31,27 @@ public class StartGameCommand implements CommandExecutor {
             return true;
         }
 
+        // Check if a game start countdown is already in progress
+        if (gameStarting) {
+            sender.sendMessage(ChatColor.RED + "The game is already starting!");
+            return true;
+        }
+
+        // Set the gameStarting flag to true
+        gameStarting = true;
+
         // Schedule a delayed task to start the game after 20 seconds
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
                 // Start the game
                 plugin.getGameHandler().startGame();
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "The game has started!");
+                Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + "The game has started!");
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
                 }
+                // Set the gameStarting flag back to false
+                gameStarting = false;
             }
         }, 20L * 20);
 
@@ -46,24 +59,25 @@ public class StartGameCommand implements CommandExecutor {
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "15 seconds left!");
+                Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + "15 seconds left!");
             }
         }, 20L * 5);
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "10 seconds left!");
+                Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + "10 seconds left!");
             }
         }, 20L * 10);
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "5 seconds left!");
+                Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + "5 seconds left!");
             }
         }, 20L * 15);
 
         // Send a message to the sender
-        sender.sendMessage(ChatColor.LIGHT_PURPLE + "The game will start in 20 seconds!");
+        Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + "The game will start in 20 seconds!");
         return true;
     }
 }
+

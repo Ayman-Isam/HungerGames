@@ -17,6 +17,11 @@ import java.util.*;
 
 
 public final class HungerGames extends JavaPlugin {
+
+    private HungerGames plugin;
+    public HungerGames() {
+        plugin = this;
+    }
     public boolean gameStarted = false;
     public BossBar bossBar;
     private GameHandler gameHandler;
@@ -25,6 +30,8 @@ public final class HungerGames extends JavaPlugin {
 
     public Map<UUID, Location> deathLocations = new HashMap<>();
     public List<Player> playersAlive;
+
+
     @Override
     public void onEnable() {
         bossBar = getServer().createBossBar("Time Remaining", BarColor.BLUE, BarStyle.SOLID);
@@ -43,7 +50,6 @@ public final class HungerGames extends JavaPlugin {
         getCommand("start").setExecutor(new StartGameCommand(this));
         getCommand("end").setExecutor(new EndGameCommand(this));
         getServer().getPluginManager().registerEvents(new SetArenaHandler(this), this);
-        // Register the setSpawnHandler instance as an event listener
         getServer().getPluginManager().registerEvents(setSpawnHandler, this);
         getServer().getPluginManager().registerEvents(new WorldBorderHandler(this), this);
         getServer().getPluginManager().registerEvents(gameHandler, this);
@@ -59,6 +65,8 @@ public final class HungerGames extends JavaPlugin {
                         WorldBorder border = world.getWorldBorder();
                         double originalSize = getConfig().getDouble("border.size");
                         border.setSize(originalSize);
+                        WorldBorderHandler worldBorderHandler = new WorldBorderHandler(plugin);
+                        worldBorderHandler.cancelBorderShrink();
                     }
                 }
             }

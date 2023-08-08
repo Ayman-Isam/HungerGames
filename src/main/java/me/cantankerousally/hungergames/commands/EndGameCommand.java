@@ -27,8 +27,6 @@ public class EndGameCommand implements CommandExecutor {
             return true;
         }
 
-
-
         // End the game
         plugin.getGameHandler().endGame();
         sender.sendMessage(ChatColor.LIGHT_PURPLE + "The game has ended!");

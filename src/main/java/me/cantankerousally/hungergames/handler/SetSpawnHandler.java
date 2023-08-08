@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -51,7 +52,7 @@ public class SetSpawnHandler implements Listener {
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Block block = event.getClickedBlock();
-            if (block.getType() == Material.OAK_SIGN || block.getType() == Material.OAK_WALL_SIGN) {
+            if (block.getType() == Material.BAMBOO_HANGING_SIGN || block.getType() == Material.OAK_WALL_SIGN) {
                 Sign sign = (Sign) block.getState();
                 if (sign.getLine(0).equalsIgnoreCase("[Join]")) {
                     if (plugin.gameStarted) {
@@ -98,7 +99,7 @@ public class SetSpawnHandler implements Listener {
     public void onSignChange(SignChangeEvent event) {
         Player player = event.getPlayer();
         Block block = event.getBlock();
-        if (block.getType() == Material.OAK_SIGN || block.getType() == Material.OAK_WALL_SIGN) {
+        if (block.getType() == Material.BAMBOO_HANGING_SIGN || block.getType() == Material.OAK_WALL_SIGN) {
             Sign sign = (Sign) block.getState();
             if (sign.getLine(0).equalsIgnoreCase("[Join]")) {
                 event.setCancelled(true);
@@ -130,6 +131,12 @@ public class SetSpawnHandler implements Listener {
                     event.setCancelled(true);
                 }
             }
+        }
+    }
+    @EventHandler
+    public void onBlockDamage(BlockDamageEvent event) {
+        if (event.getBlock().getType() == Material.ANVIL || event.getBlock().getType() == Material.CHIPPED_ANVIL || event.getBlock().getType() == Material.DAMAGED_ANVIL) {
+            event.setCancelled(true);
         }
     }
 }
