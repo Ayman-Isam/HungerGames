@@ -191,12 +191,76 @@ public class ChestRefillCommand implements CommandExecutor {
 
             }
 
+            List<ItemStack> midChestItems = new ArrayList<>();
+            List<Integer> midChestItemWeights = new ArrayList<>();
+            for (Map<?, ?> itemMap : itemsConfig.getMapList("mid-chest-items")) {
+                String type = (String) itemMap.get("type");
+                int weight = (int) itemMap.get("weight");
+                int amount = itemMap.containsKey("amount") ? (int) itemMap.get("amount") : 1;
+                ItemStack item = new ItemStack(Material.valueOf(type), amount);
+                if (item.getType() == Material.POTION || item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION) {
+                    PotionMeta meta = (PotionMeta) item.getItemMeta();
+                    String potionType = (String) itemMap.get("potion-type");
+                    int level = (int) itemMap.get("level");
+                    boolean extended = itemMap.containsKey("extended") ? (boolean) itemMap.get("extended") : false;
+                    meta.setBasePotionData(new PotionData(PotionType.valueOf(potionType), extended, level > 1));
+                    item.setItemMeta(meta);
+                } else if (item.getType() == Material.FIREWORK_ROCKET) {
+                    FireworkMeta meta = (FireworkMeta) item.getItemMeta();
+                    int power = (int) itemMap.get("power");
+                    meta.setPower(power);
+                    List<Map<String, Object>> effectsList = (List<Map<String, Object>>) itemMap.get("effects");
+                    for (Map<String, Object> effectMap : effectsList) {
+                        String effectType = (String) effectMap.get("type");
+                        List<Integer> colorsList = (List<Integer>) effectMap.get("colors");
+                        List<Color> colors = colorsList.stream()
+                                .map(color -> Color.fromRGB(color))
+                                .collect(Collectors.toList());
+                        List<Integer> fadeColorsList = (List<Integer>) effectMap.get("fade-colors");
+                        List<Color> fadeColors = fadeColorsList.stream()
+                                .map(color -> Color.fromRGB(color))
+                                .collect(Collectors.toList());
+                        boolean flicker = (boolean) effectMap.get("flicker");
+                        boolean trail = (boolean) effectMap.get("trail");
+                        FireworkEffect effect = FireworkEffect.builder()
+                                .with(FireworkEffect.Type.valueOf(effectType))
+                                .withColor(colors)
+                                .withFade(fadeColors)
+                                .flicker(flicker)
+                                .trail(trail)
+                                .build();
+                        meta.addEffect(effect);
+                    }
+                    item.setItemMeta(meta);
+                } else if (itemMap.containsKey("enchantments")) {
+                    for (Map<?, ?> enchantmentMap : (List<Map<?, ?>>) itemMap.get("enchantments")) {
+                        String enchantmentType = (String) enchantmentMap.get("type");
+                        int level = (int) enchantmentMap.get("level");
+                        Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(enchantmentType.toLowerCase()));
+                        if (enchantment != null) {
+                            if (item.getType() == Material.ENCHANTED_BOOK) {
+                                EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+                                meta.addStoredEnchant(enchantment, level, true);
+                                item.setItemMeta(meta);
+                            } else {
+                                item.addEnchantment(enchantment, level);
+                            }
+                        }
+                    }
+                }
+                midChestItems.add(item);
+                midChestItemWeights.add(weight);
+
+            }
+
             File chestLocationsFile = new File(plugin.getDataFolder(), "chest-locations.yml");
             if (!chestLocationsFile.exists()) {
                 // chest locations file does not exist, scan the region for chests
                 List<Location> chestLocations = new ArrayList<>();
                 List<Location> bonusChestLocations = new ArrayList<>();
+                List<Location> midChestLocations = new ArrayList<>();
                 List<String> bonusChestTypes = config.getStringList("bonus-chest-types");
+                List<String> midChestTypes = config.getStringList("mid-chest-types");
                 for (int x = minX; x <= maxX; x++) {
                     for (int y = minY; y <= maxY; y++) {
                         for (int z = minZ; z <= maxZ; z++) {
@@ -205,6 +269,8 @@ public class ChestRefillCommand implements CommandExecutor {
                                 chestLocations.add(block.getLocation());
                             } else if (bonusChestTypes.contains(block.getType().name())) {
                                 bonusChestLocations.add(block.getLocation());
+                            } else if (midChestTypes.contains(block.getType().name())) {
+                               midChestLocations.add(block.getLocation());
                             }
                         }
                     }
@@ -216,6 +282,9 @@ public class ChestRefillCommand implements CommandExecutor {
                         .map(location -> location.serialize())
                         .collect(Collectors.toList()));
                 chestLocationsConfig.set("bonus-locations", bonusChestLocations.stream()
+                        .map(location -> location.serialize())
+                        .collect(Collectors.toList()));
+                chestLocationsConfig.set("mid-locations", midChestLocations.stream()
                         .map(location -> location.serialize())
                         .collect(Collectors.toList()));
                 try {
@@ -232,6 +301,9 @@ public class ChestRefillCommand implements CommandExecutor {
                     .map(map -> Location.deserialize((Map<String, Object>) map))
                     .collect(Collectors.toList());
             List<Location> bonusChestLocations = chestLocationsConfig.getList("bonus-locations").stream()
+                    .map(map -> Location.deserialize((Map<String, Object>) map))
+                    .collect(Collectors.toList());
+            List<Location> midChestLocations = chestLocationsConfig.getList("mid-locations").stream()
                     .map(map -> Location.deserialize((Map<String, Object>) map))
                     .collect(Collectors.toList());
 
@@ -310,6 +382,50 @@ public class ChestRefillCommand implements CommandExecutor {
                         }
                         usedSlots.add(slot);
                         bonusChest.setItem(slot, item);
+                    }
+                }
+            }
+
+            // refill the mid-chests
+            for (Location location : midChestLocations) {
+                Block block = location.getBlock();
+                List<String> midChestTypes = config.getStringList("mid-chest-types");
+                if (midChestTypes.contains(block.getType().name())) {
+                    Inventory midChest;
+                    if (block.getType() == Material.BARREL) {
+                        Barrel barrel = (Barrel) block.getState();
+                        midChest = barrel.getInventory();
+                    } else if (block.getType() == Material.TRAPPED_CHEST) {
+                        Chest chest = (Chest) block.getState();
+                        midChest = chest.getInventory();
+                    } else {
+                        ShulkerBox shulkerBox = (ShulkerBox) block.getState();
+                        midChest = shulkerBox.getInventory();
+                    }
+                    midChest.clear();
+
+                    // Get the min and max mid-chest content values from the config
+                    int minMidChestContent = config.getInt("min-mid-chest-content");
+                    int maxMidChestContent = config.getInt("max-mid-chest-content");
+                    Random rand = new Random();
+                    int numItems = rand.nextInt(maxMidChestContent - minMidChestContent + 1) + minMidChestContent;
+                    numItems = Math.min(numItems, midChestItems.size());
+
+                    List<ItemStack> randomItems = new ArrayList<>();
+                    for (int i = 0; i < numItems; i++) {
+                        int index = getRandomWeightedIndex(midChestItemWeights);
+                        randomItems.add(midChestItems.get(index));
+                    }
+
+                    // Add the random items to random slots in the mid-chest inventory
+                    Set<Integer> usedSlots = new HashSet<>();
+                    for (ItemStack item : randomItems) {
+                        int slot = rand.nextInt(midChest.getSize());
+                        while (usedSlots.contains(slot)) {
+                            slot = rand.nextInt(midChest.getSize());
+                        }
+                        usedSlots.add(slot);
+                        midChest.setItem(slot, item);
                     }
                 }
             }

@@ -203,17 +203,22 @@ public class GameHandler implements Listener {
             // Remove player from boss bar and list of players alive
             plugin.bossBar.removePlayer(player);
             playersAlive.remove(player);
+            World world = plugin.getServer().getWorld("world");
+            Location spawnLocation = world.getSpawnLocation();
+            player.teleport(spawnLocation);
         }
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
-        plugin.deathLocations.put(player.getUniqueId(), player.getLocation());
         if (playersAlive != null) {
             // Remove player from list of players alive
             playersAlive.remove(player);
         }
+        World world = plugin.getServer().getWorld("world");
+        Location spawnLocation = world.getSpawnLocation();
+        player.teleport(spawnLocation);
         Player killer = event.getEntity().getKiller();
         if (killer != null) {
             killer.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 300, 0));
@@ -266,6 +271,9 @@ public class GameHandler implements Listener {
             player.setScoreboard(emptyScoreboard);
         }
         playersAlive.clear();
+
+        WorldBorderHandler worldBorderHandler = new WorldBorderHandler(plugin);
+        worldBorderHandler.cancelBorderShrink();
 
         setSpawnHandler.clearOccupiedSpawnPoints();
 
