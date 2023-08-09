@@ -36,7 +36,6 @@ public class GameHandler implements Listener {
     private List<Player> playersAlive;
     private int gracePeriodTaskId;
     private BukkitTask supplyDropTask;
-    public Map<UUID, Location> deathLocations = new HashMap<>();
 
 
     public void startGame() {
@@ -186,12 +185,13 @@ public class GameHandler implements Listener {
 
         // Schedule a delayed task to refill chests again at specified time
         int chestRefillTime = plugin.getConfig().getInt("chestrefill.time") * 20; // Convert seconds to ticks
-        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+        BukkitRunnable chestRefillTask = new BukkitRunnable() {
             @Override
             public void run() {
                 chestRefillCommand.onCommand(plugin.getServer().getConsoleSender(), chestRefillPluginCommand, "chestrefill", new String[0]);
             }
-        }, chestRefillTime);
+        };
+        chestRefillTask.runTaskLater(plugin, chestRefillTime);
     }
 
     @EventHandler
