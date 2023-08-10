@@ -13,7 +13,6 @@ me\cantankerousally\hungergames\HungerGames.class
 me\cantankerousally\hungergames\commands\StartGameCommand$1.class
 me\cantankerousally\hungergames\handler\GameHandler$3.class
 me\cantankerousally\hungergames\handler\SetSpawnHandler.class
-me\cantankerousally\hungergames\HungerGames$1.class
 me\cantankerousally\hungergames\commands\EndGameCommand.class
 me\cantankerousally\hungergames\commands\StartGameCommand$4.class
 me\cantankerousally\hungergames\handler\SetArenaHandler.class

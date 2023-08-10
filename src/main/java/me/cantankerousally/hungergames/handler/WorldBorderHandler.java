@@ -1,5 +1,6 @@
 package me.cantankerousally.hungergames.handler;
 
+import me.cantankerousally.hungergames.HungerGames;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
@@ -17,18 +18,6 @@ public class WorldBorderHandler implements Listener {
     public WorldBorderHandler(JavaPlugin plugin) {
         this.plugin = plugin;
     }
-
-    public void loadConfigValues() {
-        FileConfiguration config = plugin.getConfig();
-        double x = config.getDouble("border.x");
-        double z = config.getDouble("border.z");
-        double size = config.getDouble("border.size");
-
-        World world = plugin.getServer().getWorlds().get(0);
-        WorldBorder border = world.getWorldBorder();
-        border.setCenter(x, z);
-        border.setSize(size);
-    }
     public void startBorderShrink() {
         FileConfiguration config = plugin.getConfig();
         long startTime = config.getLong("border.start-time");
@@ -40,15 +29,15 @@ public class WorldBorderHandler implements Listener {
 
         long duration = endTime - startTime;
         borderShrinkTask = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            border.setSize(finalSize, duration);
-            for (Player player : plugin.getServer().getOnlinePlayers()) {
-                player.sendMessage(ChatColor.GOLD + "The world border has started to shrink!");
+            if (((HungerGames) plugin).gameStarted) {
+                border.setSize(finalSize, duration);
+                for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    player.sendMessage(ChatColor.GOLD + "The world border has started to shrink!");
+                }
+            } else {
+                double borderSize = plugin.getConfig().getDouble("border.size");
+                border.setSize(borderSize);
             }
         }, startTime * 20);
-    }
-    public void cancelBorderShrink() {
-        if (borderShrinkTask != null) {
-            borderShrinkTask.cancel();
-        }
     }
 }

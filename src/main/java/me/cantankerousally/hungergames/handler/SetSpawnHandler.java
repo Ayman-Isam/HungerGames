@@ -28,6 +28,8 @@ public class SetSpawnHandler implements Listener {
     }
 
     private Set<String> occupiedSpawnPoints = new HashSet<>();
+    private Map<Player, String> playerSpawnPoints = new HashMap<>();
+
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
@@ -83,7 +85,8 @@ public class SetSpawnHandler implements Listener {
                         }
                         // Broadcast a message to all players
                         plugin.getServer().broadcastMessage(ChatColor.AQUA + player.getName() + " has joined [" + occupiedSpawnPoints.size() + "/" + spawnPoints.size() + "]");
-
+                        // Add player to the map of players and their spawn points
+                        playerSpawnPoints.put(player, spawnPoint);
                     } else {
                         player.sendMessage(ChatColor.RED + "All spawn points are currently occupied!");
                     }
@@ -95,6 +98,15 @@ public class SetSpawnHandler implements Listener {
     public void clearOccupiedSpawnPoints() {
         occupiedSpawnPoints.clear();
     }
+
+    public void removeOccupiedSpawnPoint(String spawnPoint) {
+        occupiedSpawnPoints.remove(spawnPoint);
+    }
+
+    public Map<Player, String> getPlayerSpawnPoints() {
+        return playerSpawnPoints;
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onSignChange(SignChangeEvent event) {
         Player player = event.getPlayer();

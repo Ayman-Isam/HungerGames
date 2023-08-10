@@ -4,14 +4,11 @@ import me.cantankerousally.hungergames.commands.*;
 import me.cantankerousally.hungergames.handler.*;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.WorldBorder;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
 
@@ -53,24 +50,6 @@ public final class HungerGames extends JavaPlugin {
         getServer().getPluginManager().registerEvents(setSpawnHandler, this);
         getServer().getPluginManager().registerEvents(new WorldBorderHandler(this), this);
         getServer().getPluginManager().registerEvents(gameHandler, this);
-
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-            @Override
-            public void run() {
-                for (Player player : getServer().getOnlinePlayers()) {
-                    if (player.getName().startsWith(".")) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20, 0, true, false));
-                    }
-                    if (!gameStarted) {
-                        WorldBorder border = world.getWorldBorder();
-                        double originalSize = getConfig().getDouble("border.size");
-                        border.setSize(originalSize);
-                        WorldBorderHandler worldBorderHandler = new WorldBorderHandler(plugin);
-                        worldBorderHandler.cancelBorderShrink();
-                    }
-                }
-            }
-        }, 0L, 20L);
     }
     public GameHandler getGameHandler() {
         return gameHandler;

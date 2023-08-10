@@ -8,6 +8,8 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,7 +21,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class GameHandler implements Listener {
 
@@ -82,6 +86,9 @@ public class GameHandler implements Listener {
         for (Player player : playersAlive) {
             player.sendMessage(ChatColor.LIGHT_PURPLE + "The game has started!");
             player.sendMessage(ChatColor.LIGHT_PURPLE + "The grace period has started! PvP is disabled!");
+            if (player.getName().startsWith(".")) {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20, 0, true, false));
+            }
         }
 
         // Turn off PvP
@@ -188,7 +195,9 @@ public class GameHandler implements Listener {
         BukkitRunnable chestRefillTask = new BukkitRunnable() {
             @Override
             public void run() {
-                chestRefillCommand.onCommand(plugin.getServer().getConsoleSender(), chestRefillPluginCommand, "chestrefill", new String[0]);
+                if (plugin.gameStarted) {
+                    chestRefillCommand.onCommand(plugin.getServer().getConsoleSender(), chestRefillPluginCommand, "chestrefill", new String[0]);
+                }
             }
         };
         chestRefillTask.runTaskLater(plugin, chestRefillTime);
@@ -197,8 +206,6 @@ public class GameHandler implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-
-        // Remove player from boss bar and list of players alive
         if (playersAlive != null) {
             // Remove player from boss bar and list of players alive
             plugin.bossBar.removePlayer(player);
@@ -206,6 +213,9 @@ public class GameHandler implements Listener {
             World world = plugin.getServer().getWorld("world");
             Location spawnLocation = world.getSpawnLocation();
             player.teleport(spawnLocation);
+            Map<Player, String> playerSpawnPoints = setSpawnHandler.getPlayerSpawnPoints();
+            String spawnPoint = playerSpawnPoints.get(player);
+            setSpawnHandler.removeOccupiedSpawnPoint(spawnPoint);
         }
     }
 
@@ -219,6 +229,9 @@ public class GameHandler implements Listener {
         World world = plugin.getServer().getWorld("world");
         Location spawnLocation = world.getSpawnLocation();
         player.teleport(spawnLocation);
+        Map<Player, String> playerSpawnPoints = setSpawnHandler.getPlayerSpawnPoints();
+        String spawnPoint = playerSpawnPoints.get(player);
+        setSpawnHandler.removeOccupiedSpawnPoint(spawnPoint);
         Player killer = event.getEntity().getKiller();
         if (killer != null) {
             killer.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 300, 0));
@@ -252,14 +265,24 @@ public class GameHandler implements Listener {
             player.setGameMode(GameMode.ADVENTURE);
         }
 
+        World world = plugin.getServer().getWorld("world");
+        WorldBorder border = world.getWorldBorder();
+        double borderSize = plugin.getConfig().getDouble("border.size");
+        border.setSize(borderSize);
+
         // Get the server
         Server server = plugin.getServer();
 
-        // Execute the /kill command to remove all item entities
-        server.dispatchCommand(server.getConsoleSender(), "kill @e[type=item]");
+        if (!world.getEntitiesByClass(Item.class).isEmpty()) {
+            // Execute the /kill command to remove all item entities
+            server.dispatchCommand(server.getConsoleSender(), "kill @e[type=item]");
+        }
 
-        // Execute the /kill command to remove all experience orb entities
-        server.dispatchCommand(server.getConsoleSender(), "kill @e[type=experience_orb]");
+        // Check if there are any experience orb entities
+        if (!world.getEntitiesByClass(ExperienceOrb.class).isEmpty()) {
+            // Execute the /kill command to remove all experience orb entities
+            server.dispatchCommand(server.getConsoleSender(), "kill @e[type=experience_orb]");
+        }
 
         plugin.getServer().getScheduler().cancelTask(timerTaskId);
 
@@ -272,13 +295,9 @@ public class GameHandler implements Listener {
         }
         playersAlive.clear();
 
-        WorldBorderHandler worldBorderHandler = new WorldBorderHandler(plugin);
-        worldBorderHandler.cancelBorderShrink();
-
         setSpawnHandler.clearOccupiedSpawnPoints();
 
         // Teleport players to world spawn location
-        World world = plugin.getServer().getWorld("world");
         Location spawnLocation = world.getSpawnLocation();
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             player.teleport(spawnLocation);
