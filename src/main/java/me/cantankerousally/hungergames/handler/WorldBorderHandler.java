@@ -8,12 +8,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 
 public class WorldBorderHandler implements Listener {
-    private JavaPlugin plugin;
-
-    private BukkitTask borderShrinkTask;
+    private final JavaPlugin plugin;
 
     public WorldBorderHandler(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -27,8 +24,16 @@ public class WorldBorderHandler implements Listener {
         World world = plugin.getServer().getWorlds().get(0);
         WorldBorder border = world.getWorldBorder();
 
+        // Set the center of the world border
+        double centerX = config.getDouble("border.center-x");
+        double centerZ = config.getDouble("border.center-z");
+        border.setCenter(centerX, centerZ);
+
         long duration = endTime - startTime;
-        borderShrinkTask = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+        // Assign the task to the borderShrinkTask field
+        // Add a new field to store a reference to the borderShrinkTask
+        // Assign the task to the borderShrinkTask field
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> { // Assign the task to the borderShrinkTask field
             if (((HungerGames) plugin).gameStarted) {
                 border.setSize(finalSize, duration);
                 for (Player player : plugin.getServer().getOnlinePlayers()) {

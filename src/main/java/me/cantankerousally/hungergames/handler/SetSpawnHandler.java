@@ -21,14 +21,14 @@ import java.util.*;
 
 public class SetSpawnHandler implements Listener {
 
-    private HungerGames plugin;
+    private final HungerGames plugin;
 
     public SetSpawnHandler(HungerGames plugin) {
         this.plugin = plugin;
     }
 
-    private Set<String> occupiedSpawnPoints = new HashSet<>();
-    private Map<Player, String> playerSpawnPoints = new HashMap<>();
+    private final Set<String> occupiedSpawnPoints = new HashSet<>();
+    private final Map<Player, String> playerSpawnPoints = new HashMap<>();
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
@@ -36,13 +36,14 @@ public class SetSpawnHandler implements Listener {
         ItemStack item = event.getItem();
         if (item != null && item.getType() == Material.STICK && item.hasItemMeta()) {
             ItemMeta meta = item.getItemMeta();
+            assert meta != null;
             if (meta.getDisplayName().equals(ChatColor.AQUA + "Spawn Point Selector")) {
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-                    Location location = event.getClickedBlock().getLocation();
+                    Location location = Objects.requireNonNull(event.getClickedBlock()).getLocation();
                     // Save location to config.yml
                     List<String> spawnPoints = plugin.getConfig().getStringList("spawnpoints");
                     if (spawnPoints.size() < 24) {
-                        spawnPoints.add(location.getWorld().getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ());
+                        spawnPoints.add(Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ());
                         plugin.getConfig().set("spawnpoints", spawnPoints);
                         plugin.saveConfig();
                         player.sendMessage(ChatColor.GREEN + "Spawn point set at X: " + location.getBlockX() + " Y: " + location.getBlockY() + " Z: " + location.getBlockZ());
@@ -54,6 +55,7 @@ public class SetSpawnHandler implements Listener {
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Block block = event.getClickedBlock();
+            assert block != null;
             if (block.getType() == Material.BAMBOO_HANGING_SIGN || block.getType() == Material.OAK_WALL_SIGN) {
                 Sign sign = (Sign) block.getState();
                 if (sign.getLine(0).equalsIgnoreCase("[Join]")) {
@@ -109,7 +111,7 @@ public class SetSpawnHandler implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onSignChange(SignChangeEvent event) {
-        Player player = event.getPlayer();
+        event.getPlayer();
         Block block = event.getBlock();
         if (block.getType() == Material.BAMBOO_HANGING_SIGN || block.getType() == Material.OAK_WALL_SIGN) {
             Sign sign = (Sign) block.getState();
@@ -119,13 +121,12 @@ public class SetSpawnHandler implements Listener {
         }
     }
 
-    private boolean gameStarted = false;
-
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
         Location from = event.getFrom();
         Location to = event.getTo();
+        assert to != null;
         if (from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ()) {
             // Retrieve the coordinates from the config.yml file
             double x1 = plugin.getConfig().getDouble("region.pos1.x");

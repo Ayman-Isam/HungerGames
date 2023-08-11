@@ -8,21 +8,20 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 public class SetSpawnCommand implements CommandExecutor {
-    private JavaPlugin plugin;
 
-    public SetSpawnCommand(JavaPlugin plugin) {
-        this.plugin = plugin;
+    public SetSpawnCommand() {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("setspawn")) {
             Player player = (Player) sender;
             ItemStack stick = new ItemStack(Material.STICK);
             ItemMeta meta = stick.getItemMeta();
+            assert meta != null;
             meta.setDisplayName(ChatColor.AQUA + "Spawn Point Selector");
             stick.setItemMeta(meta);
             player.getInventory().addItem(stick);

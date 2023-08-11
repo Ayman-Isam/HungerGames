@@ -18,6 +18,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,17 +26,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SupplyDropCommand implements CommandExecutor {
-    private JavaPlugin plugin;
-    private List<Location> supplyDropLocations;
+    private final JavaPlugin plugin;
+    Map<String, Color> colorMap = new HashMap<>();
 
     public SupplyDropCommand(JavaPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("supplydrop")) {
             FileConfiguration config = plugin.getConfig();
-            World world = plugin.getServer().getWorld(config.getString("region.world"));
+            World world = plugin.getServer().getWorld(Objects.requireNonNull(config.getString("region.world")));
 
             FileConfiguration itemsConfig;
             File itemsFile = new File(plugin.getDataFolder(), "items.yml");
@@ -64,48 +65,68 @@ public class SupplyDropCommand implements CommandExecutor {
                     PotionMeta meta = (PotionMeta) item.getItemMeta();
                     String potionType = (String) itemMap.get("potion-type");
                     int level = (int) itemMap.get("level");
-                    boolean extended = itemMap.containsKey("extended") ? (boolean) itemMap.get("extended") : false;
+                    boolean extended = itemMap.containsKey("extended") && (boolean) itemMap.get("extended");
+                    assert meta != null;
                     meta.setBasePotionData(new PotionData(PotionType.valueOf(potionType), extended, level > 1));
                     item.setItemMeta(meta);
                 } else if (item.getType() == Material.FIREWORK_ROCKET) {
                     FireworkMeta meta = (FireworkMeta) item.getItemMeta();
                     int power = (int) itemMap.get("power");
+                    assert meta != null;
                     meta.setPower(power);
-                    List<Map<?, ?>> effectsList = (List<Map<?, ?>>) itemMap.get("effects");
-                    for (Map<?, ?> effectMap : effectsList) {
-                        String effectType = (String) effectMap.get("type");
-                        List<Integer> colorsList = (List<Integer>) effectMap.get("colors");
-                        List<Color> colors = colorsList.stream()
-                                .map(color -> Color.fromRGB(color))
-                                .collect(Collectors.toList());
-                        List<Integer> fadeColorsList = (List<Integer>) effectMap.get("fade-colors");
-                        List<Color> fadeColors = fadeColorsList.stream()
-                                .map(color -> Color.fromRGB(color))
-                                .collect(Collectors.toList());
-                        boolean flicker = (boolean) effectMap.get("flicker");
-                        boolean trail = (boolean) effectMap.get("trail");
-                        FireworkEffect effect = FireworkEffect.builder()
-                                .with(FireworkEffect.Type.valueOf(effectType))
-                                .withColor(colors)
-                                .withFade(fadeColors)
-                                .flicker(flicker)
-                                .trail(trail)
-                                .build();
-                        meta.addEffect(effect);
+                    Object effectsObj = itemMap.get("effects");
+                    if (effectsObj instanceof List<?> effectsList) {
+                        for (Object effectObj : effectsList) {
+                            if (effectObj instanceof Map<?, ?> effectMap) {
+                                String effectType = (String) effectMap.get("type");
+                                Object colorsObj = effectMap.get("colors");
+                                if (colorsObj instanceof List<?> colorsList) {
+                                    List<Color> colors = colorsList.stream()
+                                            .filter(String.class::isInstance)
+                                            .map(String.class::cast)
+                                            .map(colorName -> colorMap.getOrDefault(colorName.toUpperCase(), Color.RED))
+                                            .collect(Collectors.toList());
+                                    Object fadeColorsObj = effectMap.get("fade-colors");
+                                    if (fadeColorsObj instanceof List<?> fadeColorsList) {
+                                        List<Color> fadeColors = fadeColorsList.stream()
+                                                .filter(String.class::isInstance)
+                                                .map(String.class::cast)
+                                                .map(colorName -> colorMap.getOrDefault(colorName.toUpperCase(), Color.RED))
+                                                .collect(Collectors.toList());
+                                        boolean flicker = (boolean) effectMap.get("flicker");
+                                        boolean trail = (boolean) effectMap.get("trail");
+                                        FireworkEffect effect = FireworkEffect.builder()
+                                                .with(FireworkEffect.Type.valueOf(effectType))
+                                                .withColor(colors)
+                                                .withFade(fadeColors)
+                                                .flicker(flicker)
+                                                .trail(trail)
+                                                .build();
+                                        meta.addEffect(effect);
+                                    }
+                                }
+                            }
+                        }
+                        item.setItemMeta(meta);
                     }
-                    item.setItemMeta(meta);
                 } else if (itemMap.containsKey("enchantments")) {
-                    for (Map<?, ?> enchantmentMap : (List<Map<?, ?>>) itemMap.get("enchantments")) {
-                        String enchantmentType = (String) enchantmentMap.get("type");
-                        int level = (int) enchantmentMap.get("level");
-                        Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(enchantmentType.toLowerCase()));
-                        if (enchantment != null) {
-                            if (item.getType() == Material.ENCHANTED_BOOK) {
-                                EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
-                                meta.addStoredEnchant(enchantment, level, true);
-                                item.setItemMeta(meta);
-                            } else {
-                                item.addEnchantment(enchantment, level);
+                    Object enchantmentsObj = itemMap.get("enchantments");
+                    if (enchantmentsObj instanceof List<?> enchantmentsList) {
+                        for (Object enchantmentObj : enchantmentsList) {
+                            if (enchantmentObj instanceof Map<?, ?> enchantmentMap) {
+                                String enchantmentType = (String) enchantmentMap.get("type");
+                                int level = (int) enchantmentMap.get("level");
+                                Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(enchantmentType.toLowerCase()));
+                                if (enchantment != null) {
+                                    if (item.getType() == Material.ENCHANTED_BOOK) {
+                                        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+                                        assert meta != null;
+                                        meta.addStoredEnchant(enchantment, level, true);
+                                        item.setItemMeta(meta);
+                                    } else {
+                                        item.addEnchantment(enchantment, level);
+                                    }
+                                }
                             }
                         }
                     }
@@ -125,6 +146,7 @@ public class SupplyDropCommand implements CommandExecutor {
             Random rand = new Random();
             for (int i = 0; i < numSupplyDrops; i++) {
                 // Get the world border
+                assert world != null;
                 WorldBorder border = world.getWorldBorder();
 
                 // Get the center and size of the world border

@@ -2,8 +2,6 @@ package me.cantankerousally.hungergames;
 
 import me.cantankerousally.hungergames.commands.*;
 import me.cantankerousally.hungergames.handler.*;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -15,37 +13,32 @@ import java.util.*;
 
 public final class HungerGames extends JavaPlugin {
 
-    private HungerGames plugin;
     public HungerGames() {
-        plugin = this;
     }
     public boolean gameStarted = false;
     public BossBar bossBar;
     private GameHandler gameHandler;
-    private CompassHandler compassHandler;
-    private SetSpawnHandler setSpawnHandler;
 
-    public Map<UUID, Location> deathLocations = new HashMap<>();
     public List<Player> playersAlive;
 
 
     @Override
     public void onEnable() {
         bossBar = getServer().createBossBar("Time Remaining", BarColor.BLUE, BarStyle.SOLID);
-        setSpawnHandler = new SetSpawnHandler(this);
-        gameHandler = new GameHandler(this,setSpawnHandler);
-        World world = getServer().getWorld("world");
+        SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this);
+        gameHandler = new GameHandler(this, setSpawnHandler);
+        getServer().getWorld("world");
         playersAlive = new ArrayList<>();
-        compassHandler = new CompassHandler(this);
+        new CompassHandler(this);
 
         saveDefaultConfig();
-        getCommand("supplydrop").setExecutor(new SupplyDropCommand(this));
-        getCommand("create").setExecutor(new ArenaSelectorCommand(this));
-        getCommand("select").setExecutor(new ArenaSelectorCommand(this));
-        getCommand("setspawn").setExecutor(new SetSpawnCommand(this));
-        getCommand("chestrefill").setExecutor(new ChestRefillCommand(this));
-        getCommand("start").setExecutor(new StartGameCommand(this));
-        getCommand("end").setExecutor(new EndGameCommand(this));
+        Objects.requireNonNull(getCommand("supplydrop")).setExecutor(new SupplyDropCommand(this));
+        Objects.requireNonNull(getCommand("create")).setExecutor(new ArenaSelectorCommand(this));
+        Objects.requireNonNull(getCommand("select")).setExecutor(new ArenaSelectorCommand(this));
+        Objects.requireNonNull(getCommand("setspawn")).setExecutor(new SetSpawnCommand());
+        Objects.requireNonNull(getCommand("chestrefill")).setExecutor(new ChestRefillCommand(this));
+        Objects.requireNonNull(getCommand("start")).setExecutor(new StartGameCommand(this));
+        Objects.requireNonNull(getCommand("end")).setExecutor(new EndGameCommand(this));
         getServer().getPluginManager().registerEvents(new SetArenaHandler(this), this);
         getServer().getPluginManager().registerEvents(setSpawnHandler, this);
         getServer().getPluginManager().registerEvents(new WorldBorderHandler(this), this);
