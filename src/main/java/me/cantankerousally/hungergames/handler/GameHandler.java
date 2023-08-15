@@ -93,7 +93,7 @@ public class GameHandler implements Listener {
             player.sendMessage(ChatColor.LIGHT_PURPLE + "The game has started!");
             player.sendMessage(ChatColor.LIGHT_PURPLE + "The grace period has started! PvP is disabled!");
             if (player.getName().startsWith(".")) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20, 0, true, false));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 200000, 1, true, false));
             }
         }
 
