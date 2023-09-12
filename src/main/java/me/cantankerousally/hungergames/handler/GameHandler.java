@@ -242,6 +242,7 @@ public class GameHandler implements Listener {
         Map<Player, String> playerSpawnPoints = setSpawnHandler.getPlayerSpawnPoints();
         String spawnPoint = playerSpawnPoints.get(player);
         setSpawnHandler.removeOccupiedSpawnPoint(spawnPoint);
+        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, Integer.MAX_VALUE, 4));
         Player killer = event.getEntity().getKiller();
         if (killer != null) {
             killer.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 300, 0));

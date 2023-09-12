@@ -33,194 +33,198 @@ public class SupplyDropCommand implements CommandExecutor {
         this.plugin = plugin;
     }
 
-    public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
-        if (command.getName().equalsIgnoreCase("supplydrop")) {
-            FileConfiguration config = plugin.getConfig();
-            World world = plugin.getServer().getWorld(Objects.requireNonNull(config.getString("region.world")));
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+        if (sender.isOp()) {
+            if (command.getName().equalsIgnoreCase("supplydrop")) {
+                FileConfiguration config = plugin.getConfig();
+                World world = plugin.getServer().getWorld(Objects.requireNonNull(config.getString("region.world")));
 
-            FileConfiguration itemsConfig;
-            File itemsFile = new File(plugin.getDataFolder(), "items.yml");
-            if (itemsFile.exists()) {
-                itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
-            } else {
-                try {
-                    itemsConfig = new YamlConfiguration();
-                    itemsConfig.set("chest-items", new ArrayList<>());
-                    itemsConfig.save(itemsFile);
-                    sender.sendMessage(ChatColor.YELLOW + "Created new items.yml file!");
-                } catch (IOException e) {
-                    sender.sendMessage(ChatColor.RED + "Could not create items.yml file!");
-                    return true;
+                FileConfiguration itemsConfig;
+                File itemsFile = new File(plugin.getDataFolder(), "items.yml");
+                if (itemsFile.exists()) {
+                    itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
+                } else {
+                    try {
+                        itemsConfig = new YamlConfiguration();
+                        itemsConfig.set("chest-items", new ArrayList<>());
+                        itemsConfig.save(itemsFile);
+                        sender.sendMessage(ChatColor.YELLOW + "Created new items.yml file!");
+                    } catch (IOException e) {
+                        sender.sendMessage(ChatColor.RED + "Could not create items.yml file!");
+                        return true;
+                    }
                 }
-            }
 
-            List<ItemStack> supplyDropItems = new ArrayList<>();
-            List<Integer> supplyDropItemWeights = new ArrayList<>();
-            for (Map<?, ?> itemMap : itemsConfig.getMapList("supply-drop-items")) {
-                String type = (String) itemMap.get("type");
-                int weight = (int) itemMap.get("weight");
-                int amount = itemMap.containsKey("amount") ? (int) itemMap.get("amount") : 1;
-                ItemStack item = new ItemStack(Material.valueOf(type), amount);
-                if (item.getType() == Material.POTION || item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION) {
-                    PotionMeta meta = (PotionMeta) item.getItemMeta();
-                    String potionType = (String) itemMap.get("potion-type");
-                    int level = (int) itemMap.get("level");
-                    boolean extended = itemMap.containsKey("extended") && (boolean) itemMap.get("extended");
-                    assert meta != null;
-                    meta.setBasePotionData(new PotionData(PotionType.valueOf(potionType), extended, level > 1));
-                    item.setItemMeta(meta);
-                } else if (item.getType() == Material.FIREWORK_ROCKET) {
-                    FireworkMeta meta = (FireworkMeta) item.getItemMeta();
-                    int power = (int) itemMap.get("power");
-                    assert meta != null;
-                    meta.setPower(power);
-                    Object effectsObj = itemMap.get("effects");
-                    if (effectsObj instanceof List<?> effectsList) {
-                        for (Object effectObj : effectsList) {
-                            if (effectObj instanceof Map<?, ?> effectMap) {
-                                String effectType = (String) effectMap.get("type");
-                                Object colorsObj = effectMap.get("colors");
-                                if (colorsObj instanceof List<?> colorsList) {
-                                    List<Color> colors = colorsList.stream()
-                                            .filter(String.class::isInstance)
-                                            .map(String.class::cast)
-                                            .map(colorName -> colorMap.getOrDefault(colorName.toUpperCase(), Color.RED))
-                                            .collect(Collectors.toList());
-                                    Object fadeColorsObj = effectMap.get("fade-colors");
-                                    if (fadeColorsObj instanceof List<?> fadeColorsList) {
-                                        List<Color> fadeColors = fadeColorsList.stream()
+                List<ItemStack> supplyDropItems = new ArrayList<>();
+                List<Integer> supplyDropItemWeights = new ArrayList<>();
+                for (Map<?, ?> itemMap : itemsConfig.getMapList("supply-drop-items")) {
+                    String type = (String) itemMap.get("type");
+                    int weight = (int) itemMap.get("weight");
+                    int amount = itemMap.containsKey("amount") ? (int) itemMap.get("amount") : 1;
+                    ItemStack item = new ItemStack(Material.valueOf(type), amount);
+                    if (item.getType() == Material.POTION || item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION) {
+                        PotionMeta meta = (PotionMeta) item.getItemMeta();
+                        String potionType = (String) itemMap.get("potion-type");
+                        int level = (int) itemMap.get("level");
+                        boolean extended = itemMap.containsKey("extended") && (boolean) itemMap.get("extended");
+                        assert meta != null;
+                        meta.setBasePotionData(new PotionData(PotionType.valueOf(potionType), extended, level > 1));
+                        item.setItemMeta(meta);
+                    } else if (item.getType() == Material.FIREWORK_ROCKET) {
+                        FireworkMeta meta = (FireworkMeta) item.getItemMeta();
+                        int power = (int) itemMap.get("power");
+                        assert meta != null;
+                        meta.setPower(power);
+                        Object effectsObj = itemMap.get("effects");
+                        if (effectsObj instanceof List<?> effectsList) {
+                            for (Object effectObj : effectsList) {
+                                if (effectObj instanceof Map<?, ?> effectMap) {
+                                    String effectType = (String) effectMap.get("type");
+                                    Object colorsObj = effectMap.get("colors");
+                                    if (colorsObj instanceof List<?> colorsList) {
+                                        List<Color> colors = colorsList.stream()
                                                 .filter(String.class::isInstance)
                                                 .map(String.class::cast)
                                                 .map(colorName -> colorMap.getOrDefault(colorName.toUpperCase(), Color.RED))
                                                 .collect(Collectors.toList());
-                                        boolean flicker = (boolean) effectMap.get("flicker");
-                                        boolean trail = (boolean) effectMap.get("trail");
-                                        FireworkEffect effect = FireworkEffect.builder()
-                                                .with(FireworkEffect.Type.valueOf(effectType))
-                                                .withColor(colors)
-                                                .withFade(fadeColors)
-                                                .flicker(flicker)
-                                                .trail(trail)
-                                                .build();
-                                        meta.addEffect(effect);
+                                        Object fadeColorsObj = effectMap.get("fade-colors");
+                                        if (fadeColorsObj instanceof List<?> fadeColorsList) {
+                                            List<Color> fadeColors = fadeColorsList.stream()
+                                                    .filter(String.class::isInstance)
+                                                    .map(String.class::cast)
+                                                    .map(colorName -> colorMap.getOrDefault(colorName.toUpperCase(), Color.RED))
+                                                    .collect(Collectors.toList());
+                                            boolean flicker = (boolean) effectMap.get("flicker");
+                                            boolean trail = (boolean) effectMap.get("trail");
+                                            FireworkEffect effect = FireworkEffect.builder()
+                                                    .with(FireworkEffect.Type.valueOf(effectType))
+                                                    .withColor(colors)
+                                                    .withFade(fadeColors)
+                                                    .flicker(flicker)
+                                                    .trail(trail)
+                                                    .build();
+                                            meta.addEffect(effect);
+                                        }
+                                    }
+                                }
+                            }
+                            item.setItemMeta(meta);
+                        }
+                    } else if (itemMap.containsKey("enchantments")) {
+                        Object enchantmentsObj = itemMap.get("enchantments");
+                        if (enchantmentsObj instanceof List<?> enchantmentsList) {
+                            for (Object enchantmentObj : enchantmentsList) {
+                                if (enchantmentObj instanceof Map<?, ?> enchantmentMap) {
+                                    String enchantmentType = (String) enchantmentMap.get("type");
+                                    int level = (int) enchantmentMap.get("level");
+                                    Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(enchantmentType.toLowerCase()));
+                                    if (enchantment != null) {
+                                        if (item.getType() == Material.ENCHANTED_BOOK) {
+                                            EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+                                            assert meta != null;
+                                            meta.addStoredEnchant(enchantment, level, true);
+                                            item.setItemMeta(meta);
+                                        } else {
+                                            item.addEnchantment(enchantment, level);
+                                        }
                                     }
                                 }
                             }
                         }
-                        item.setItemMeta(meta);
                     }
-                } else if (itemMap.containsKey("enchantments")) {
-                    Object enchantmentsObj = itemMap.get("enchantments");
-                    if (enchantmentsObj instanceof List<?> enchantmentsList) {
-                        for (Object enchantmentObj : enchantmentsList) {
-                            if (enchantmentObj instanceof Map<?, ?> enchantmentMap) {
-                                String enchantmentType = (String) enchantmentMap.get("type");
-                                int level = (int) enchantmentMap.get("level");
-                                Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(enchantmentType.toLowerCase()));
-                                if (enchantment != null) {
-                                    if (item.getType() == Material.ENCHANTED_BOOK) {
-                                        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
-                                        assert meta != null;
-                                        meta.addStoredEnchant(enchantment, level, true);
-                                        item.setItemMeta(meta);
-                                    } else {
-                                        item.addEnchantment(enchantment, level);
-                                    }
-                                }
-                            }
+                    supplyDropItems.add(item);
+                    supplyDropItemWeights.add(weight);
+
+                }
+                // Get the supply drop parameters from the config
+                int numSupplyDrops = config.getInt("num-supply-drops");
+                int minSupplyDropContent = config.getInt("min-supply-drop-content");
+                int maxSupplyDropContent = config.getInt("max-supply-drop-content");
+
+                List<String> coords = new ArrayList<>();
+
+                // Generate numSupplyDrops random supply drops
+                Random rand = new Random();
+                for (int i = 0; i < numSupplyDrops; i++) {
+                    // Get the world border
+                    assert world != null;
+                    WorldBorder border = world.getWorldBorder();
+
+                    // Get the center and size of the world border
+                    Location center = border.getCenter();
+                    double size = border.getSize();
+
+                    // Calculate the minimum and maximum x and z coordinates of the world border
+                    double minX = center.getX() - size / 2;
+                    double minZ = center.getZ() - size / 2;
+                    double maxX = center.getX() + size / 2;
+                    double maxZ = center.getZ() + size / 2;
+
+                    // Generate random x and z coordinates within the bounds of the world border
+                    int x = (int) (rand.nextDouble() * (maxX - minX) + minX);
+                    int z = (int) (rand.nextDouble() * (maxZ - minZ) + minZ);
+
+                    // Get the highest non-air block at the generated coordinates
+                    Block highestBlock = world.getHighestBlockAt(x, z);
+
+                    // Spawn a red shulker box one block above the highest block
+                    Block block = highestBlock.getRelative(0, 1, 0);
+                    block.setType(Material.RED_SHULKER_BOX);
+                    ShulkerBox shulkerBox = (ShulkerBox) block.getState();
+
+                    Location location = block.getLocation().add(0.5, 1, 0.5);
+                    Firework firework = (Firework) world.spawnEntity(location, EntityType.FIREWORK);
+                    FireworkMeta meta = firework.getFireworkMeta();
+
+                    meta.setPower(3); // set the flight duration to 1
+                    FireworkEffect effect = FireworkEffect.builder()
+                            .with(FireworkEffect.Type.BALL)
+                            .withColor(Color.RED)
+                            .withFade(Color.ORANGE)
+                            .build();
+                    meta.addEffect(effect);
+                    firework.setFireworkMeta(meta);
+
+                    // Add items to the shulker box
+                    int numItems = rand.nextInt(maxSupplyDropContent - minSupplyDropContent + 1) + minSupplyDropContent;
+                    numItems = Math.min(numItems, supplyDropItems.size());
+
+                    // Get numItems random items from the supplyDropItems list
+                    List<ItemStack> randomItems = new ArrayList<>();
+                    for (int j = 0; j < numItems; j++) {
+                        int index = getRandomWeightedIndex(supplyDropItemWeights);
+                        randomItems.add(supplyDropItems.get(index));
+                    }
+
+                    coords.add("(" + x + ", " + highestBlock.getY() + ", " + z + ")");
+
+                    // Add the random items to random slots in the shulker box inventory
+                    Set<Integer> usedSlots = new HashSet<>();
+                    for (ItemStack item : randomItems) {
+                        int slot = rand.nextInt(shulkerBox.getInventory().getSize());
+                        while (usedSlots.contains(slot)) {
+                            slot = rand.nextInt(shulkerBox.getInventory().getSize());
                         }
+                        usedSlots.add(slot);
+                        shulkerBox.getInventory().setItem(slot, item);
                     }
                 }
-                supplyDropItems.add(item);
-                supplyDropItemWeights.add(weight);
 
-            }
-            // Get the supply drop parameters from the config
-            int numSupplyDrops = config.getInt("num-supply-drops");
-            int minSupplyDropContent = config.getInt("min-supply-drop-content");
-            int maxSupplyDropContent = config.getInt("max-supply-drop-content");
-
-            List<String> coords = new ArrayList<>();
-
-            // Generate numSupplyDrops random supply drops
-            Random rand = new Random();
-            for (int i = 0; i < numSupplyDrops; i++) {
-                // Get the world border
-                assert world != null;
-                WorldBorder border = world.getWorldBorder();
-
-                // Get the center and size of the world border
-                Location center = border.getCenter();
-                double size = border.getSize();
-
-                // Calculate the minimum and maximum x and z coordinates of the world border
-                double minX = center.getX() - size / 2;
-                double minZ = center.getZ() - size / 2;
-                double maxX = center.getX() + size / 2;
-                double maxZ = center.getZ() + size / 2;
-
-                // Generate random x and z coordinates within the bounds of the world border
-                int x = (int) (rand.nextDouble() * (maxX - minX) + minX);
-                int z = (int) (rand.nextDouble() * (maxZ - minZ) + minZ);
-
-                // Get the highest non-air block at the generated coordinates
-                Block highestBlock = world.getHighestBlockAt(x, z);
-
-                // Spawn a red shulker box one block above the highest block
-                Block block = highestBlock.getRelative(0, 1, 0);
-                block.setType(Material.RED_SHULKER_BOX);
-                ShulkerBox shulkerBox = (ShulkerBox) block.getState();
-
-                Location location = block.getLocation().add(0.5, 1, 0.5);
-                Firework firework = (Firework) world.spawnEntity(location, EntityType.FIREWORK);
-                FireworkMeta meta = firework.getFireworkMeta();
-
-                meta.setPower(3); // set the flight duration to 1
-                FireworkEffect effect = FireworkEffect.builder()
-                        .with(FireworkEffect.Type.BALL)
-                        .withColor(Color.RED)
-                        .withFade(Color.ORANGE)
-                        .build();
-                meta.addEffect(effect);
-                firework.setFireworkMeta(meta);
-
-                // Add items to the shulker box
-                int numItems = rand.nextInt(maxSupplyDropContent - minSupplyDropContent + 1) + minSupplyDropContent;
-                numItems = Math.min(numItems, supplyDropItems.size());
-
-                // Get numItems random items from the supplyDropItems list
-                List<ItemStack> randomItems = new ArrayList<>();
-                for (int j = 0; j < numItems; j++) {
-                    int index = getRandomWeightedIndex(supplyDropItemWeights);
-                    randomItems.add(supplyDropItems.get(index));
-                }
-
-                coords.add("(" + x + ", " + highestBlock.getY() + ", " + z + ")");
-
-                // Add the random items to random slots in the shulker box inventory
-                Set<Integer> usedSlots = new HashSet<>();
-                for (ItemStack item : randomItems) {
-                    int slot = rand.nextInt(shulkerBox.getInventory().getSize());
-                    while (usedSlots.contains(slot)) {
-                        slot = rand.nextInt(shulkerBox.getInventory().getSize());
+                StringBuilder sb = new StringBuilder();
+                sb.append(ChatColor.GREEN).append("Spawned ").append(numSupplyDrops).append(" supply drops at ");
+                for (int i = 0; i < coords.size(); i++) {
+                    sb.append(coords.get(i));
+                    if (i < coords.size() - 1) {
+                        sb.append(", ");
                     }
-                    usedSlots.add(slot);
-                    shulkerBox.getInventory().setItem(slot, item);
                 }
-            }
+                sb.append("!");
 
-            StringBuilder sb = new StringBuilder();
-            sb.append(ChatColor.GREEN).append("Spawned ").append(numSupplyDrops).append(" supply drops at ");
-            for (int i = 0; i < coords.size(); i++) {
-                sb.append(coords.get(i));
-                if (i < coords.size() - 1) {
-                    sb.append(", ");
-                }
+                plugin.getServer().broadcastMessage(sb.toString());
+                return true;
             }
-            sb.append("!");
-
-            plugin.getServer().broadcastMessage(sb.toString());
-            return true;
+        } else {
+            sender.sendMessage(ChatColor.RED + "You must be an operator to use this command.");
         }
         return false;
     }
