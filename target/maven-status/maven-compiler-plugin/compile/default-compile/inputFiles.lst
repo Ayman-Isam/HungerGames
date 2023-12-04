@@ -3,6 +3,7 @@ C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hunger
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\HungerGames.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\ScanArenaCommand.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\handler\WorldBorderHandler.java
+C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\BorderSetCommand.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\SupplyDropCommand.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\ChestRefillCommand.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\StartGameCommand.java

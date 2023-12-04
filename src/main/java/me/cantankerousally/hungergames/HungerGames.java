@@ -2,13 +2,16 @@ package me.cantankerousally.hungergames;
 
 import me.cantankerousally.hungergames.commands.*;
 import me.cantankerousally.hungergames.handler.*;
+import org.bukkit.World;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 
 public final class HungerGames extends JavaPlugin {
@@ -31,6 +34,12 @@ public final class HungerGames extends JavaPlugin {
         playersAlive = new ArrayList<>();
         new CompassHandler(this);
 
+        World world = getServer().getWorld("world");
+        if (world != null) {
+            double borderSize = getConfig().getDouble("border.size");
+            world.getWorldBorder().setSize(borderSize);
+        }
+
         saveDefaultConfig();
         Objects.requireNonNull(getCommand("supplydrop")).setExecutor(new SupplyDropCommand(this));
         Objects.requireNonNull(getCommand("create")).setExecutor(new ArenaSelectorCommand(this));
@@ -39,7 +48,10 @@ public final class HungerGames extends JavaPlugin {
         Objects.requireNonNull(getCommand("chestrefill")).setExecutor(new ChestRefillCommand(this));
         Objects.requireNonNull(getCommand("start")).setExecutor(new StartGameCommand(this));
         Objects.requireNonNull(getCommand("end")).setExecutor(new EndGameCommand(this));
-        this.getCommand("scanarena").setExecutor(new ScanArenaCommand(this));
+        Objects.requireNonNull(getCommand("scanarena")).setExecutor(new ScanArenaCommand(this));
+        BorderSetCommand borderSetCommand = new BorderSetCommand(this);
+        Objects.requireNonNull(getCommand("border")).setExecutor(borderSetCommand);
+        Objects.requireNonNull(getCommand("border")).setTabCompleter(borderSetCommand);
         getServer().getPluginManager().registerEvents(new SetArenaHandler(this), this);
         getServer().getPluginManager().registerEvents(setSpawnHandler, this);
         getServer().getPluginManager().registerEvents(new WorldBorderHandler(this), this);
