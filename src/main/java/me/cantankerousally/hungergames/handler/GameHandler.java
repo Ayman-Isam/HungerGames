@@ -8,10 +8,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.ExperienceOrb;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -72,11 +69,9 @@ public class GameHandler implements Listener {
         double y2 = pos2Section.getDouble("y");
         double z2 = pos2Section.getDouble("z");
 
-        // Create a cuboid selection for the arena region
         Location minLocation = new Location(world, Math.min(x1, x2), Math.min(y1, y2), Math.min(z1, z2));
         Location maxLocation = new Location(world, Math.max(x1, x2), Math.max(y1, y2), Math.max(z1, z2));
 
-        // Add players inside the arena to boss bar and list of players alive
         assert world != null;
         for (Player player : world.getPlayers()) {
             Location playerLocation = player.getLocation();
@@ -88,7 +83,6 @@ public class GameHandler implements Listener {
             }
         }
 
-        // Send message to players
         for (Player player : playersAlive) {
             player.sendMessage(ChatColor.LIGHT_PURPLE + "The game has started!");
             player.sendMessage(ChatColor.LIGHT_PURPLE + "The grace period has started! PvP is disabled!");
@@ -97,23 +91,15 @@ public class GameHandler implements Listener {
             }
         }
 
-        // Turn off PvP
         world.setPVP(false);
-        // Schedule a delayed task to turn PvP back on
         int gracePeriod = plugin.getConfig().getInt("grace-period");
-        // Turn PvP back on
-        // Send message to players
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-            // Turn PvP back on
             world.setPVP(true);
-
-            // Send message to players
             for (Player player : playersAlive) {
                 player.sendMessage(ChatColor.LIGHT_PURPLE + "The grace period has ended! PvP is now enabled!");
             }
         }, gracePeriod * 20L);
 
-        // Create a scoreboard to display the timer and number of players alive
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         assert manager != null;
         Scoreboard scoreboard = manager.getNewScoreboard();
@@ -126,60 +112,43 @@ public class GameHandler implements Listener {
         Score worldBorderSizeScore = objective.getScore("World Border Size:");
         worldBorderSizeScore.setScore((int) world.getWorldBorder().getSize());
 
-        // Schedule a repeating task to update the world border size score
         plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             // Update the world border size score
             worldBorderSizeScore.setScore((int) world.getWorldBorder().getSize());
         }, 0L, 20L);
 
-        // Set the scoreboard for all players
         for (Player player : playersAlive) {
             player.setScoreboard(scoreboard);
         }
 
-        // Schedule a repeating task to update the boss bar's progress
         timerTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-            // Update the boss bar's progress
             plugin.bossBar.setProgress((double) timeLeft / plugin.getConfig().getInt("game-time"));
-
-            // Decrement the time left
             timeLeft--;
             timeLeftScore.setScore(timeLeft);
 
-            // Check if there is only one player alive
             if (playersAlive.size() == 1) {
-                // Cancel the task
                 plugin.getServer().getScheduler().cancelTask(timerTaskId);
 
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     player.sendMessage(ChatColor.LIGHT_PURPLE + "The game has ended!");
                 }
 
-
-                // Declare the winner
                 Player winner = playersAlive.get(0);
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     player.sendMessage(ChatColor.LIGHT_PURPLE + winner.getName() + " is the winner!");
                     player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
                 }
-
-                // End the game
                 endGame();
             }
 
-            // Check if the time is up
             if (timeLeft < 0) {
-                // Cancel the task
                 plugin.getServer().getScheduler().cancelTask(timerTaskId);
-                // Send message to players
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     player.sendMessage(ChatColor.LIGHT_PURPLE + "The time is up! No one won the game!");
                 }
-                // End the game
                 endGame();
             }
         }, 0L, 20L);
-        // Schedule supply drops
         int supplyDropInterval = plugin.getConfig().getInt("supplydrop.interval") * 20; // Convert seconds to ticks
         SupplyDropCommand supplyDropCommand = new SupplyDropCommand(plugin);
         PluginCommand supplyDropPluginCommand = plugin.getCommand("supplydrop");
@@ -215,7 +184,6 @@ public class GameHandler implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         if (playersAlive != null) {
-            // Remove player from boss bar and list of players alive
             plugin.bossBar.removePlayer(player);
             playersAlive.remove(player);
             World world = plugin.getServer().getWorld("world");
@@ -233,7 +201,6 @@ public class GameHandler implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
         if (playersAlive != null) {
-            // Remove player from list of players alive
             playersAlive.remove(player);
         }
         World world = plugin.getServer().getWorld("world");
@@ -255,24 +222,17 @@ public class GameHandler implements Listener {
 
 
     public void updatePlayersAliveScore() {
-        // Update the playersAliveScore for each player
         for (Player player : playersAlive) {
-            // Get the player's scoreboard
             Scoreboard scoreboard = player.getScoreboard();
-
-            // Get the playersAliveScore
             Objective objective = scoreboard.getObjective("gameinfo");
             assert objective != null;
             Score playersAliveScore = objective.getScore("Players Alive:");
-
-            // Update the playersAliveScore
             playersAliveScore.setScore(playersAlive.size());
         }
     }
 
 
     public void endGame() {
-        // End game
         plugin.gameStarted = false;
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             player.setGameMode(GameMode.ADVENTURE);
@@ -283,30 +243,26 @@ public class GameHandler implements Listener {
         WorldBorder border = world.getWorldBorder();
         double borderSize = plugin.getConfig().getDouble("border.size");
         border.setSize(borderSize);
-
-        // Get the server
         Server server = plugin.getServer();
 
         if (!world.getEntitiesByClass(Item.class).isEmpty()) {
-            // Execute the /kill command to remove all item entities
             server.dispatchCommand(server.getConsoleSender(), "kill @e[type=item]");
         }
 
-        // Check if there are any experience orb entities
         if (!world.getEntitiesByClass(ExperienceOrb.class).isEmpty()) {
-            // Execute the /kill command to remove all experience orb entities
             server.dispatchCommand(server.getConsoleSender(), "kill @e[type=experience_orb]");
         }
 
-        // Check if there are any arrow entities
         if (!world.getEntitiesByClass(Arrow.class).isEmpty()) {
-            // Execute the /kill command to remove all experience orb entities
             server.dispatchCommand(server.getConsoleSender(), "kill @e[type=arrow]");
+        }
+
+        if (!world.getEntitiesByClass(Trident.class).isEmpty()) {
+            server.dispatchCommand(server.getConsoleSender(), "kill @e[type=trident]");
         }
 
         plugin.getServer().getScheduler().cancelTask(timerTaskId);
 
-        // Remove players from boss bar and clear list of players alive
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         assert manager != null;
         Scoreboard emptyScoreboard = manager.getNewScoreboard();
@@ -318,7 +274,6 @@ public class GameHandler implements Listener {
 
         setSpawnHandler.clearOccupiedSpawnPoints();
 
-        // Teleport players to world spawn location
         Location spawnLocation = world.getSpawnLocation();
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             player.teleport(spawnLocation);
@@ -341,7 +296,6 @@ public class GameHandler implements Listener {
             borderShrinkTask = null;
         }
 
-        // Remove all red shulker boxes in the world
         for (Chunk chunk : world.getLoadedChunks()) {
             for (BlockState blockState : chunk.getTileEntities()) {
                 if (blockState instanceof ShulkerBox shulkerBox) {

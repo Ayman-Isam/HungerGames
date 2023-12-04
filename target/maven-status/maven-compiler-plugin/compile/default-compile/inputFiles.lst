@@ -1,12 +1,13 @@
-C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\SupplyDropCommand.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\handler\CompassHandler.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\ArenaSelectorCommand.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\HungerGames.java
+C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\ScanArenaCommand.java
+C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\handler\WorldBorderHandler.java
+C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\SupplyDropCommand.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\ChestRefillCommand.java
-C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\CommandRestrictor.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\StartGameCommand.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\handler\SetArenaHandler.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\handler\SetSpawnHandler.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\EndGameCommand.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\handler\GameHandler.java
-C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\handler\WorldBorderHandler.java
+C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\SetSpawnCommand.java

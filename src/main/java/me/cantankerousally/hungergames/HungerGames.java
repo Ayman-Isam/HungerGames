@@ -39,6 +39,7 @@ public final class HungerGames extends JavaPlugin {
         Objects.requireNonNull(getCommand("chestrefill")).setExecutor(new ChestRefillCommand(this));
         Objects.requireNonNull(getCommand("start")).setExecutor(new StartGameCommand(this));
         Objects.requireNonNull(getCommand("end")).setExecutor(new EndGameCommand(this));
+        this.getCommand("scanarena").setExecutor(new ScanArenaCommand(this));
         getServer().getPluginManager().registerEvents(new SetArenaHandler(this), this);
         getServer().getPluginManager().registerEvents(setSpawnHandler, this);
         getServer().getPluginManager().registerEvents(new WorldBorderHandler(this), this);

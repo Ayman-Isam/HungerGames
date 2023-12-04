@@ -17,19 +17,11 @@ public class EndGameCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        // Check if the sender has permission to end the game
-        if (!sender.hasPermission("hungergames.end")) {
-            sender.sendMessage("You do not have permission to end the game!");
-            return true;
-        }
-
-        // Check if the game has already ended
         if (!plugin.gameStarted) {
             sender.sendMessage("The game has already ended!");
             return true;
         }
 
-        // End the game
         plugin.getGameHandler().endGame();
         Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + "The game has ended!");
         return true;

@@ -24,16 +24,12 @@ public class WorldBorderHandler implements Listener {
         World world = plugin.getServer().getWorlds().get(0);
         WorldBorder border = world.getWorldBorder();
 
-        // Set the center of the world border
         double centerX = config.getDouble("border.center-x");
         double centerZ = config.getDouble("border.center-z");
         border.setCenter(centerX, centerZ);
 
         long duration = endTime - startTime;
-        // Assign the task to the borderShrinkTask field
-        // Add a new field to store a reference to the borderShrinkTask
-        // Assign the task to the borderShrinkTask field
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> { // Assign the task to the borderShrinkTask field
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             if (((HungerGames) plugin).gameStarted) {
                 border.setSize(finalSize, duration);
                 for (Player player : plugin.getServer().getOnlinePlayers()) {

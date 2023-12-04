@@ -128,7 +128,6 @@ public class SetSpawnHandler implements Listener {
         Location to = event.getTo();
         assert to != null;
         if (from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ()) {
-            // Retrieve the coordinates from the config.yml file
             double x1 = plugin.getConfig().getDouble("region.pos1.x");
             double y1 = plugin.getConfig().getDouble("region.pos1.y");
             double z1 = plugin.getConfig().getDouble("region.pos1.z");
@@ -136,11 +135,8 @@ public class SetSpawnHandler implements Listener {
             double y2 = plugin.getConfig().getDouble("region.pos2.y");
             double z2 = plugin.getConfig().getDouble("region.pos2.z");
 
-            // Check if the player is within the specified coordinates and the game has not started
             if (!plugin.gameStarted && to.getX() >= Math.min(x1, x2) && to.getX() <= Math.max(x1, x2) && to.getY() >= Math.min(y1, y2) && to.getY() <= Math.max(y1, y2) && to.getZ() >= Math.min(z1, z2) && to.getZ() <= Math.max(z1, z2)) {
-                // Cancel the event to prevent the player from moving
                 if (player.getGameMode() != GameMode.CREATIVE && player.getGameMode() != GameMode.SPECTATOR) {
-                    // Cancel the event to prevent non-creative and non-spectator players from moving
                     event.setCancelled(true);
                 }
             }

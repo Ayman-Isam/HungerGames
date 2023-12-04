@@ -17,20 +17,16 @@ public class SetSpawnCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (sender.isOp()) {
-            if (command.getName().equalsIgnoreCase("setspawn")) {
-                Player player = (Player) sender;
-                ItemStack stick = new ItemStack(Material.STICK);
-                ItemMeta meta = stick.getItemMeta();
-                assert meta != null;
-                meta.setDisplayName(ChatColor.AQUA + "Spawn Point Selector");
-                stick.setItemMeta(meta);
-                player.getInventory().addItem(stick);
-                sender.sendMessage(ChatColor.BLUE + "You have been given a Spawn Point Selector!");
-                return true;
-            }
-        } else {
-            sender.sendMessage(ChatColor.RED + "You must be an operator to use this command.");
+        if (command.getName().equalsIgnoreCase("setspawn")) {
+            Player player = (Player) sender;
+            ItemStack stick = new ItemStack(Material.STICK);
+            ItemMeta meta = stick.getItemMeta();
+            assert meta != null;
+            meta.setDisplayName(ChatColor.AQUA + "Spawn Point Selector");
+            stick.setItemMeta(meta);
+            player.getInventory().addItem(stick);
+            sender.sendMessage(ChatColor.BLUE + "You have been given a Spawn Point Selector!");
+            return true;
         }
         return false;
     }
