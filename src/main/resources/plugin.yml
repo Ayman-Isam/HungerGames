@@ -5,28 +5,31 @@ api-version: '1.20'
 commands:
   select:
     description: "Select an arena in HungerGames"
-    usage: /hg <command>
+    usage: <command>
   create:
     description: "Create an arena in HungerGames"
-    usage: /hg <command>
+    usage: <command>
   chestrefill:
     description: "Refills Chests an arena in HungerGames"
-    usage: /hg <command>
+    usage: <command>
   supplydrop:
     description: "Drops a Supply Crate in HungerGames"
-    usage: /hg <command>
+    usage: <command>
   setspawn:
     description: "Sets SpawnPoints for Arenas in HungerGames"
-    usage: /hg <command>
+    usage: <command>
   start:
     description: "Starts the game in HungerGames"
-    usage: /hg <command>
+    usage: <command>
   end:
     description: "Forcefully Ends the game in HungerGames"
-    usage: /hg <command>
+    usage: <command>
   scanarena:
     description: "Scans the arena for chests"
-    usage: /hg <command>
+    usage: <command>
+  border:
+    description: "Changes the world border in HungerGames"
+    usage: <command> <size>
 permissions:
   hungergames.select:
     description: "Allows you to select an arena in HungerGames"
@@ -51,5 +54,8 @@ permissions:
     default: op
   hungergames.scanarena:
     description: "Allows you to scan the arena for chests in HungerGames"
+    default: op
+  hungergames.border:
+    description: "Allows you to change the world border in HungerGames"
     default: op
 

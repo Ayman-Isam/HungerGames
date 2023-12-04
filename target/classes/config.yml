@@ -16,7 +16,6 @@ min-mid-chest-content: 4
 max-mid-chest-content: 7
 bonus-chest-types:
   - BARREL
-  - SHULKER_BOX
 mid-chest-types:
   - TRAPPED_CHEST
 num-supply-drops: 1
@@ -53,11 +52,23 @@ supplydrop:
   interval: 30
 chestrefill:
   time: 600
-
 border:
-  x: 0.0
-  z: 0.0
-  size: 700.0
+  size: 100.0
   start-time: 180
   end-time: 780
   final-size: 40
+bedrock-buff:
+  enabled: false
+  effects:
+    - DAMAGE_RESISTANCE
+    - SPEED
+killer-effects:
+  - effect: DAMAGE_RESISTANCE
+    duration: 300
+    level: 0
+  - effect: INCREASE_DAMAGE
+    duration: 300
+    level: 0
+  - effect: REGENERATION
+    duration: 600
+    level: 0

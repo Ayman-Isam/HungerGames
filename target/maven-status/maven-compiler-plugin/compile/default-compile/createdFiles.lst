@@ -3,6 +3,8 @@ me\cantankerousally\hungergames\HungerGames.class
 me\cantankerousally\hungergames\handler\GameHandler.class
 me\cantankerousally\hungergames\handler\SetSpawnHandler.class
 me\cantankerousally\hungergames\commands\StartGameCommand.class
+me\cantankerousally\hungergames\commands\ScanArenaCommand.class
+me\cantankerousally\hungergames\commands\BorderSetCommand.class
 me\cantankerousally\hungergames\commands\EndGameCommand.class
 me\cantankerousally\hungergames\commands\ChestRefillCommand.class
 me\cantankerousally\hungergames\handler\SetArenaHandler.class

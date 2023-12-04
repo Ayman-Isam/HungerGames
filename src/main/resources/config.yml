@@ -52,9 +52,23 @@ supplydrop:
   interval: 30
 chestrefill:
   time: 600
-
 border:
-  size: 700.0
+  size: 100.0
   start-time: 180
   end-time: 780
   final-size: 40
+bedrock-buff:
+  enabled: false
+  effects:
+    - DAMAGE_RESISTANCE
+    - SPEED
+killer-effects:
+  - effect: DAMAGE_RESISTANCE
+    duration: 300
+    level: 0
+  - effect: INCREASE_DAMAGE
+    duration: 300
+    level: 0
+  - effect: REGENERATION
+    duration: 600
+    level: 0

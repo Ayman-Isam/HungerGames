@@ -111,9 +111,18 @@ public class SetSpawnHandler implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onSignChange(SignChangeEvent event) {
-        event.getPlayer();
         Block block = event.getBlock();
-        if (block.getType() == Material.BAMBOO_HANGING_SIGN || block.getType() == Material.OAK_WALL_SIGN) {
+        Material type = block.getType();
+        if (type == Material.ACACIA_SIGN || type == Material.ACACIA_WALL_SIGN ||
+                type == Material.BIRCH_SIGN || type == Material.BIRCH_WALL_SIGN ||
+                type == Material.DARK_OAK_SIGN || type == Material.DARK_OAK_WALL_SIGN ||
+                type == Material.JUNGLE_SIGN || type == Material.JUNGLE_WALL_SIGN ||
+                type == Material.OAK_SIGN || type == Material.OAK_WALL_SIGN ||
+                type == Material.SPRUCE_SIGN || type == Material.SPRUCE_WALL_SIGN ||
+                type == Material.CRIMSON_SIGN || type == Material.CRIMSON_WALL_SIGN ||
+                type == Material.WARPED_SIGN || type == Material.WARPED_WALL_SIGN ||
+                type == Material.BAMBOO_SIGN || type == Material.BAMBOO_WALL_SIGN ||
+                type == Material.CHERRY_SIGN || type == Material.CHERRY_WALL_SIGN) {
             Sign sign = (Sign) block.getState();
             if (sign.getLine(0).equalsIgnoreCase("[Join]")) {
                 event.setCancelled(true);

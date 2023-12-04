@@ -86,8 +86,14 @@ public class GameHandler implements Listener {
         for (Player player : playersAlive) {
             player.sendMessage(ChatColor.LIGHT_PURPLE + "The game has started!");
             player.sendMessage(ChatColor.LIGHT_PURPLE + "The grace period has started! PvP is disabled!");
-            if (player.getName().startsWith(".")) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 200000, 1, true, false));
+            if (plugin.getConfig().getBoolean("bedrock-buff.enabled") && player.getName().startsWith(".")) {
+                List<String> effectNames = plugin.getConfig().getStringList("bedrock-buff.effects");
+                for (String effectName : effectNames) {
+                    PotionEffectType effectType = PotionEffectType.getByName(effectName);
+                    if (effectType != null) {
+                        player.addPotionEffect(new PotionEffect(effectType, 200000, 1, true, false));
+                    }
+                }
             }
         }
 
@@ -162,7 +168,6 @@ public class GameHandler implements Listener {
         }.runTaskTimer(plugin, supplyDropInterval, supplyDropInterval);
 
 
-
         ChestRefillCommand chestRefillCommand = new ChestRefillCommand(plugin);
         PluginCommand chestRefillPluginCommand = plugin.getCommand("chestrefill");
         assert chestRefillPluginCommand != null;
@@ -213,11 +218,19 @@ public class GameHandler implements Listener {
         player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, Integer.MAX_VALUE, 4));
         Player killer = event.getEntity().getKiller();
         if (killer != null) {
-            killer.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 300, 0));
-            killer.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 300, 0));
-            killer.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 600, 0));
+            List<Map<?, ?>> effectMaps = plugin.getConfig().getMapList("killer-effects");
+            for (Map<?, ?> effectMap : effectMaps) {
+                String effectName = (String) effectMap.get("effect");
+                int duration = (int) effectMap.get("duration");
+                int level = (int) effectMap.get("level");
+                PotionEffectType effectType = PotionEffectType.getByName(effectName);
+                if (effectType != null) {
+                    killer.addPotionEffect(new PotionEffect(effectType, duration, level));
+                }
+            }
         }
         updatePlayersAliveScore();
+        player.setGameMode(GameMode.SPECTATOR);
     }
 
 
