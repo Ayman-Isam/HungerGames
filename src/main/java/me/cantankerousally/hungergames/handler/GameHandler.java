@@ -31,6 +31,7 @@ public class GameHandler implements Listener {
     public GameHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
         this.plugin = plugin;
         this.setSpawnHandler = setSpawnHandler;
+        this.playersAlive = new ArrayList<>();
     }
 
     private int timerTaskId;
@@ -198,7 +199,6 @@ public class GameHandler implements Listener {
             Map<Player, String> playerSpawnPoints = setSpawnHandler.getPlayerSpawnPoints();
             String spawnPoint = playerSpawnPoints.get(player);
             setSpawnHandler.removeOccupiedSpawnPoint(spawnPoint);
-            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, Integer.MAX_VALUE, 4));
         }
     }
 
@@ -215,7 +215,6 @@ public class GameHandler implements Listener {
         Map<Player, String> playerSpawnPoints = setSpawnHandler.getPlayerSpawnPoints();
         String spawnPoint = playerSpawnPoints.get(player);
         setSpawnHandler.removeOccupiedSpawnPoint(spawnPoint);
-        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, Integer.MAX_VALUE, 4));
         Player killer = event.getEntity().getKiller();
         if (killer != null) {
             List<Map<?, ?>> effectMaps = plugin.getConfig().getMapList("killer-effects");

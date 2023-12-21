@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ScanArenaCommand implements CommandExecutor {
@@ -31,7 +30,14 @@ public class ScanArenaCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("scanarena")) {
             FileConfiguration config = plugin.getConfig();
-            World world = plugin.getServer().getWorld(Objects.requireNonNull(config.getString("region.world")));
+
+            if (!config.isSet("region.pos1.x") || !config.isSet("region.pos1.y") || !config.isSet("region.pos1.z")
+                    || !config.isSet("region.pos2.x") || !config.isSet("region.pos2.y") || !config.isSet("region.pos2.z")) {
+                sender.sendMessage(ChatColor.RED + "The arena region is not defined in the config!");
+                return true;
+            }
+
+            World world = plugin.getServer().getWorld("world");
             double pos1x = config.getDouble("region.pos1.x");
             double pos1y = config.getDouble("region.pos1.y");
             double pos1z = config.getDouble("region.pos1.z");
@@ -51,8 +57,6 @@ public class ScanArenaCommand implements CommandExecutor {
             List<Location> chestLocations = new ArrayList<>();
             List<Location> bonusChestLocations = new ArrayList<>();
             List<Location> midChestLocations = new ArrayList<>();
-            List<String> bonusChestTypes = config.getStringList("bonus-chest-types");
-            List<String> midChestTypes = config.getStringList("mid-chest-types");
             for (int x = minX; x <= maxX; x++) {
                 for (int y = minY; y <= maxY; y++) {
                     for (int z = minZ; z <= maxZ; z++) {
@@ -60,16 +64,15 @@ public class ScanArenaCommand implements CommandExecutor {
                         Block block = world.getBlockAt(x, y, z);
                         if (block.getType() == Material.CHEST) {
                             chestLocations.add(block.getLocation());
-                        } else if (bonusChestTypes.contains(block.getType().name())) {
+                        } else if (block.getType() == Material.BARREL) {
                             bonusChestLocations.add(block.getLocation());
-                        } else if (midChestTypes.contains(block.getType().name())) {
+                        } else if (block.getType() == Material.TRAPPED_CHEST) {
                             midChestLocations.add(block.getLocation());
                         }
                     }
                 }
             }
 
-            // save the chest locations to the file
             FileConfiguration chestLocationsConfig = new YamlConfiguration();
             chestLocationsConfig.set("locations", chestLocations.stream()
                     .map(Location::serialize)

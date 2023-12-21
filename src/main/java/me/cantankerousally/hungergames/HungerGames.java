@@ -3,6 +3,7 @@ package me.cantankerousally.hungergames;
 import me.cantankerousally.hungergames.commands.*;
 import me.cantankerousally.hungergames.handler.*;
 import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -18,6 +19,7 @@ public final class HungerGames extends JavaPlugin {
 
     public HungerGames() {
     }
+
     public boolean gameStarted = false;
     public BossBar bossBar;
     private GameHandler gameHandler;
@@ -37,10 +39,15 @@ public final class HungerGames extends JavaPlugin {
         World world = getServer().getWorld("world");
         if (world != null) {
             double borderSize = getConfig().getDouble("border.size");
-            world.getWorldBorder().setSize(borderSize);
+            double centerX = getConfig().getDouble("border.center-x");
+            double centerZ = getConfig().getDouble("border.center-z");
+            WorldBorder border = world.getWorldBorder();
+            border.setSize(borderSize);
+            border.setCenter(centerX, centerZ);
         }
 
         saveDefaultConfig();
+        saveResource("items.yml", false);
         Objects.requireNonNull(getCommand("supplydrop")).setExecutor(new SupplyDropCommand(this));
         Objects.requireNonNull(getCommand("create")).setExecutor(new ArenaSelectorCommand(this));
         Objects.requireNonNull(getCommand("select")).setExecutor(new ArenaSelectorCommand(this));
@@ -57,6 +64,7 @@ public final class HungerGames extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new WorldBorderHandler(this), this);
         getServer().getPluginManager().registerEvents(gameHandler, this);
     }
+
     public GameHandler getGameHandler() {
         return gameHandler;
     }

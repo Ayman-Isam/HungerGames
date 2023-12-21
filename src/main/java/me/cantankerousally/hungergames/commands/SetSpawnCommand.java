@@ -10,11 +10,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
 public class SetSpawnCommand implements CommandExecutor {
 
     public SetSpawnCommand() {
     }
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("setspawn")) {
@@ -26,6 +28,9 @@ public class SetSpawnCommand implements CommandExecutor {
             stick.setItemMeta(meta);
             player.getInventory().addItem(stick);
             sender.sendMessage(ChatColor.BLUE + "You have been given a Spawn Point Selector!");
+            Objects.requireNonNull(player.getServer().getPluginManager().getPlugin("HungerGames")).getConfig().set("spawnpoints", new ArrayList<>());
+            Objects.requireNonNull(player.getServer().getPluginManager().getPlugin("HungerGames")).saveConfig();
+            sender.sendMessage(ChatColor.GREEN + "Spawn points have been reset.");
             return true;
         }
         return false;

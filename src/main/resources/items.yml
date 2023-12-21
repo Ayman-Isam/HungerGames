@@ -104,7 +104,7 @@ chest-items:
     amount: 1
     weight: 2
 
-mid-chest-items:
+trapped-chest-items:
   - type: IRON_SWORD
     amount: 1
     weight: 1
@@ -182,7 +182,7 @@ mid-chest-items:
     level: 2
 
 
-bonus-chest-items:
+barrel-items:
   - type: IRON_HELMET
     amount: 1
     weight: 2

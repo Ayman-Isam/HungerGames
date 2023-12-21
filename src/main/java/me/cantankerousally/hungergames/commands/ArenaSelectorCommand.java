@@ -12,6 +12,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ArenaSelectorCommand implements CommandExecutor {
@@ -29,9 +31,13 @@ public class ArenaSelectorCommand implements CommandExecutor {
                 ItemMeta meta = blazeRod.getItemMeta();
                 assert meta != null;
                 meta.setDisplayName(ChatColor.AQUA + "Arena Selector");
+                List<String> lore = new ArrayList<>();
+                lore.add(ChatColor.LIGHT_PURPLE + "Left-click to select position 1");
+                lore.add(ChatColor.LIGHT_PURPLE + "Right-click to select position 2");
+                meta.setLore(lore);
                 blazeRod.setItemMeta(meta);
                 player.getInventory().addItem(blazeRod);
-                sender.sendMessage(ChatColor.BLUE + "You have been given an Arena Selector!");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "You have been given an Arena Selector!");
             } else {
                 sender.sendMessage(ChatColor.RED + "This command can only be executed by players.");
             }

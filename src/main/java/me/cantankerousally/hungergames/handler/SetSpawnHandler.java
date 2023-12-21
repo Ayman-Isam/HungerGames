@@ -40,14 +40,12 @@ public class SetSpawnHandler implements Listener {
             if (meta.getDisplayName().equals(ChatColor.AQUA + "Spawn Point Selector")) {
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                     Location location = Objects.requireNonNull(event.getClickedBlock()).getLocation();
-                    // Save location to config.yml
                     List<String> spawnPoints = plugin.getConfig().getStringList("spawnpoints");
                     if (spawnPoints.size() < 24) {
                         spawnPoints.add(Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ());
                         plugin.getConfig().set("spawnpoints", spawnPoints);
                         plugin.saveConfig();
-                        player.sendMessage(ChatColor.GREEN + "Spawn point set at X: " + location.getBlockX() + " Y: " + location.getBlockY() + " Z: " + location.getBlockZ());
-                    } else if (spawnPoints.size() ==  24){
+                        player.sendMessage(ChatColor.LIGHT_PURPLE + "Spawn point " + ChatColor.GOLD + spawnPoints.size() + ChatColor.LIGHT_PURPLE + " set at X: " + location.getBlockX() + " Y: " + location.getBlockY() + " Z: " + location.getBlockZ());                    } else if (spawnPoints.size() ==  24){
                         player.sendMessage(ChatColor.RED + "You have reached the maximum number of spawn points!");
                     }
                     event.setCancelled(true);

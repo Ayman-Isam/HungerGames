@@ -1,51 +1,18 @@
-region:
-  world: world
-  pos1:
-    x: 349.0
-    y: 45.0
-    z: 319.0
-  pos2:
-    x: -320.0
-    y: 108.0
-    z: -336.0
+# Minimum and Maximum stacks of different items for regular chests
 min-chest-content: 3
 max-chest-content: 6
-min-bonus-chest-content: 4
-max-bonus-chest-content: 7
-min-mid-chest-content: 4
-max-mid-chest-content: 7
-bonus-chest-types:
-  - BARREL
-mid-chest-types:
-  - TRAPPED_CHEST
+# Minimum and Maximum stacks of different items for bonus chests (Barrels by default)
+min-barrel-content: 4
+max-barrel-content: 7
+# Minimum and Maximum stacks of different items for center chests (Trapped Chests by default)
+min-trapped-chest-content: 4
+max-trapped-chest-content: 7
+# Number of supply-drops dropped simultaneously, 1 by default
 num-supply-drops: 1
+# Minimum and Maximum stacks of different items for supply drops (Shulker Boxes by default)
 min-supply-drop-content: 2
 max-supply-drop-content: 6
-spawnpoints:
-  - world,-20.0,52.0,-3.0
-  - world,-19.0,52.0,-8.0
-  - world,-16.0,52.0,-12.0
-  - world,-12.0,52.0,-16.0
-  - world,-8.0,52.0,-19.0
-  - world,-3.0,52.0,-20.0
-  - world,-20.0,52.0,3.0
-  - world,-19.0,52.0,8.0
-  - world,-16.0,52.0,12.0
-  - world,-12.0,52.0,16.0
-  - world,-8.0,52.0,19.0
-  - world,-3.0,52.0,20.0
-  - world,3.0,52.0,20.0
-  - world,8.0,52.0,19.0
-  - world,12.0,52.0,16.0
-  - world,16.0,52.0,12.0
-  - world,19.0,52.0,8.0
-  - world,20.0,52.0,3.0
-  - world,20.0,52.0,-3.0
-  - world,19.0,52.0,-8.0
-  - world,16.0,52.0,-12.0
-  - world,12.0,52.0,-16.0
-  - world,8.0,52.0,-19.0
-  - world,3.0,52.0,-20.0
+# Minimum and Maximum stacks of different items for supply drops (Shulker Boxes by default)
 game-time: 900
 grace-period: 30
 supplydrop:
@@ -57,6 +24,8 @@ border:
   start-time: 180
   end-time: 780
   final-size: 40
+  center-x: 0
+  center-z: 0
 bedrock-buff:
   enabled: false
   effects:

@@ -1,6 +1,8 @@
 package me.cantankerousally.hungergames.commands;
 
+import org.bukkit.ChatColor;
 import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,28 +20,34 @@ public class BorderSetCommand implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
     }
 
-    @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("border")) {
-            if (args.length != 1) {
-                sender.sendMessage("Usage: border <size>");
+            if (args.length != 3) {
+                sender.sendMessage("Usage: border <size> <center-x> <center-z>");
                 return true;
             }
             int newSize;
+            double centerX, centerZ;
             try {
                 newSize = Integer.parseInt(args[0]);
+                centerX = Double.parseDouble(args[1]);
+                centerZ = Double.parseDouble(args[2]);
             } catch (NumberFormatException e) {
-                sender.sendMessage("Invalid border size. Please enter a number.");
+                sender.sendMessage(ChatColor.RED + "Invalid arguments. Please enter valid numbers.");
                 return true;
             }
             World world = plugin.getServer().getWorld("world");
             if (world != null) {
-                world.getWorldBorder().setSize(newSize);
-                sender.sendMessage("World border size set to " + newSize);
-                plugin.getConfig().set("border-size", newSize);
+                WorldBorder border = world.getWorldBorder();
+                border.setSize(newSize);
+                border.setCenter(centerX, centerZ);
+                sender.sendMessage("World border size set to " + newSize + " and center set to (" + centerX + ", " + centerZ + ")");
+                plugin.getConfig().set("border.size", newSize);
+                plugin.getConfig().set("border.center-x", centerX);
+                plugin.getConfig().set("border.center-z", centerZ);
                 plugin.saveConfig();
             } else {
-                sender.sendMessage("World not found.");
+                sender.sendMessage(ChatColor.RED + "Arena not set. Please set the arena first.");
             }
         }
         return true;
@@ -47,9 +55,15 @@ public class BorderSetCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
         if (command.getName().equalsIgnoreCase("border")) {
+            List<String> completions = new ArrayList<>();
             if (args.length == 1) {
-                return new ArrayList<>();
+                completions.add("<size>");
+            } else if (args.length == 2) {
+                completions.add("<center-x>");
+            } else if (args.length == 3) {
+                completions.add("<center-z>");
             }
+            return completions;
         }
         return null;
     }
