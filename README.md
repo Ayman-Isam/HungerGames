@@ -13,7 +13,7 @@ There is an official server for this plugin on [Discord](https://discord.gg/qcRf
 ## Setup: 
 To set up the game, check out the [Setup Wiki](https://github.com/cantankerous-ally/Hunger-Games/wiki/Setup). You can find guides on how to set up arena dimensions, world border, starting points, etc.
 ## Gameplay
-To understand how the game works better, check out the [Gameplay Wiki](https://github.com/cantankerous-ally/Hunger-Games/wiki/Setup). You can find information about how the game works, different strategies etc.
+To understand how the game works better, check out the [Gameplay Wiki](https://github.com/cantankerous-ally/Hunger-Games/wiki/Gameplay). You can find information about how the game works, different strategies etc.
 ## Config: 
 To change the settings for the game, check out the [Config Wiki](https://github.com/Ayman-Isam/cantankerous-ally/Hunger-Games/wiki/Config). You can find guides on how to change game settings such as game time, border shrink rate, chest item numbers, frequency and number of supply drops, etc.
 ## Items:
