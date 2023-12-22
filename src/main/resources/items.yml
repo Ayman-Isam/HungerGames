@@ -2,7 +2,6 @@
 #Link for getting potion names https://hub.spigotmc.org/javadocs/spigot/org/bukkit/potion/PotionType.html
 #Link for getting enchantment names https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/enchantments/Enchantment.html
 
-
 chest-items:
   - type: WOODEN_SWORD
     amount: 1

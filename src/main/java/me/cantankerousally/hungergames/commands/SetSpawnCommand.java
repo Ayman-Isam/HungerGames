@@ -1,5 +1,7 @@
 package me.cantankerousally.hungergames.commands;
 
+import me.cantankerousally.hungergames.HungerGames;
+import me.cantankerousally.hungergames.handler.SetSpawnHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -11,11 +13,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class SetSpawnCommand implements CommandExecutor {
 
-    public SetSpawnCommand() {
+    private final HungerGames plugin;
+
+    public SetSpawnCommand(HungerGames plugin) {
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
@@ -28,8 +32,9 @@ public class SetSpawnCommand implements CommandExecutor {
             stick.setItemMeta(meta);
             player.getInventory().addItem(stick);
             sender.sendMessage(ChatColor.BLUE + "You have been given a Spawn Point Selector!");
-            Objects.requireNonNull(player.getServer().getPluginManager().getPlugin("HungerGames")).getConfig().set("spawnpoints", new ArrayList<>());
-            Objects.requireNonNull(player.getServer().getPluginManager().getPlugin("HungerGames")).saveConfig();
+            SetSpawnHandler setSpawnHandler = plugin.getSetSpawnHandler();
+            setSpawnHandler.getSetSpawnConfig().set("spawnpoints", new ArrayList<>());
+            setSpawnHandler.saveSetSpawnConfig();
             sender.sendMessage(ChatColor.GREEN + "Spawn points have been reset.");
             return true;
         }

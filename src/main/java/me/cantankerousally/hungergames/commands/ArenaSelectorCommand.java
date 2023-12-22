@@ -6,21 +6,53 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class ArenaSelectorCommand implements CommandExecutor {
     private final JavaPlugin plugin;
+    private FileConfiguration arenaConfig = null;
+    private File arenaFile = null;
 
     public ArenaSelectorCommand(JavaPlugin plugin) {
         this.plugin = plugin;
+        createArenaConfig();
+    }
+
+    public void createArenaConfig() {
+        arenaFile = new File(plugin.getDataFolder(), "arena.yml");
+        if (!arenaFile.exists()) {
+            arenaFile.getParentFile().mkdirs();
+            plugin.saveResource("arena.yml", false);
+        }
+
+        arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
+    }
+
+    public FileConfiguration getArenaConfig() {
+        if (arenaConfig == null) {
+            createArenaConfig();
+        }
+        return arenaConfig;
+    }
+
+    public void saveArenaConfig() {
+        try {
+            getArenaConfig().save(arenaFile);
+        } catch (IOException ex) {
+            plugin.getLogger().severe("Could not save config to " + arenaFile);
+        }
     }
 
     @Override
@@ -48,15 +80,15 @@ public class ArenaSelectorCommand implements CommandExecutor {
                     Location pos1 = (Location) player.getMetadata("arena_pos1").get(0).value();
                     Location pos2 = (Location) player.getMetadata("arena_pos2").get(0).value();
                     if (pos1 != null && pos2 != null) {
-                        plugin.getConfig().set("region.world", Objects.requireNonNull(pos1.getWorld()).getName());
-                        plugin.getConfig().set("region.pos1.x", pos1.getX());
-                        plugin.getConfig().set("region.pos1.y", pos1.getY());
-                        plugin.getConfig().set("region.pos1.z", pos1.getZ());
-                        plugin.getConfig().set("region.pos2.x", pos2.getX());
-                        plugin.getConfig().set("region.pos2.y", pos2.getY());
-                        plugin.getConfig().set("region.pos2.z", pos2.getZ());
-                        plugin.saveConfig();
-                        sender.sendMessage(ChatColor.GREEN + "Region created and saved to config.yml!");
+                        getArenaConfig().set("region.world", Objects.requireNonNull(pos1.getWorld()).getName());
+                        getArenaConfig().set("region.pos1.x", pos1.getX());
+                        getArenaConfig().set("region.pos1.y", pos1.getY());
+                        getArenaConfig().set("region.pos1.z", pos1.getZ());
+                        getArenaConfig().set("region.pos2.x", pos2.getX());
+                        getArenaConfig().set("region.pos2.y", pos2.getY());
+                        getArenaConfig().set("region.pos2.z", pos2.getZ());
+                        saveArenaConfig();
+                        sender.sendMessage(ChatColor.GREEN + "Region created and saved to arena.yml!");
                     } else {
                         sender.sendMessage(ChatColor.RED + "Invalid position values.");
                     }

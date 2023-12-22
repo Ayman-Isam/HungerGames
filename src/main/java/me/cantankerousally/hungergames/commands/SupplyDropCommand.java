@@ -27,15 +27,36 @@ import java.util.stream.Collectors;
 
 public class SupplyDropCommand implements CommandExecutor {
     private final JavaPlugin plugin;
+    private FileConfiguration arenaConfig = null;
+    private File arenaFile = null;
     Map<String, Color> colorMap = new HashMap<>();
 
     public SupplyDropCommand(JavaPlugin plugin) {
         this.plugin = plugin;
+        createArenaConfig();
     }
 
+    public void createArenaConfig() {
+        arenaFile = new File(plugin.getDataFolder(), "arena.yml");
+        if (!arenaFile.exists()) {
+            arenaFile.getParentFile().mkdirs();
+            plugin.saveResource("arena.yml", false);
+        }
+
+        arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
+    }
+
+    public FileConfiguration getArenaConfig() {
+        if (arenaConfig == null) {
+            createArenaConfig();
+        }
+        return arenaConfig;
+    }
+
+    @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("supplydrop")) {
-            FileConfiguration config = plugin.getConfig();
+            FileConfiguration config = getArenaConfig();
             World world = plugin.getServer().getWorld(Objects.requireNonNull(config.getString("region.world")));
 
             FileConfiguration itemsConfig;

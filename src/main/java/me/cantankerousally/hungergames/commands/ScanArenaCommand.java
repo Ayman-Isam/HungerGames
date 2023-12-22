@@ -17,19 +17,41 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ScanArenaCommand implements CommandExecutor {
     private final JavaPlugin plugin;
+    private FileConfiguration arenaConfig = null;
+    private File arenaFile = null;
 
     public ScanArenaCommand(JavaPlugin plugin) {
         this.plugin = plugin;
+        createArenaConfig();
     }
+
+    public void createArenaConfig() {
+        arenaFile = new File(plugin.getDataFolder(), "arena.yml");
+        if (!arenaFile.exists()) {
+            arenaFile.getParentFile().mkdirs();
+            plugin.saveResource("arena.yml", false);
+        }
+
+        arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
+    }
+
+    public FileConfiguration getArenaConfig() {
+        if (arenaConfig == null) {
+            createArenaConfig();
+        }
+        return arenaConfig;
+    }
+
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("scanarena")) {
-            FileConfiguration config = plugin.getConfig();
+            FileConfiguration config = getArenaConfig();
 
             if (!config.isSet("region.pos1.x") || !config.isSet("region.pos1.y") || !config.isSet("region.pos1.z")
                     || !config.isSet("region.pos2.x") || !config.isSet("region.pos2.y") || !config.isSet("region.pos2.z")) {
@@ -37,7 +59,7 @@ public class ScanArenaCommand implements CommandExecutor {
                 return true;
             }
 
-            World world = plugin.getServer().getWorld("world");
+            World world = plugin.getServer().getWorld(Objects.requireNonNull(config.getString("region.world")));
             double pos1x = config.getDouble("region.pos1.x");
             double pos1y = config.getDouble("region.pos1.y");
             double pos1z = config.getDouble("region.pos1.z");
@@ -55,8 +77,8 @@ public class ScanArenaCommand implements CommandExecutor {
             File chestLocationsFile = new File(plugin.getDataFolder(), "chest-locations.yml");
 
             List<Location> chestLocations = new ArrayList<>();
-            List<Location> bonusChestLocations = new ArrayList<>();
-            List<Location> midChestLocations = new ArrayList<>();
+            List<Location> barrelLocations = new ArrayList<>();
+            List<Location> trappedChestLocations = new ArrayList<>();
             for (int x = minX; x <= maxX; x++) {
                 for (int y = minY; y <= maxY; y++) {
                     for (int z = minZ; z <= maxZ; z++) {
@@ -65,9 +87,9 @@ public class ScanArenaCommand implements CommandExecutor {
                         if (block.getType() == Material.CHEST) {
                             chestLocations.add(block.getLocation());
                         } else if (block.getType() == Material.BARREL) {
-                            bonusChestLocations.add(block.getLocation());
+                            barrelLocations.add(block.getLocation());
                         } else if (block.getType() == Material.TRAPPED_CHEST) {
-                            midChestLocations.add(block.getLocation());
+                            trappedChestLocations.add(block.getLocation());
                         }
                     }
                 }
@@ -77,10 +99,10 @@ public class ScanArenaCommand implements CommandExecutor {
             chestLocationsConfig.set("locations", chestLocations.stream()
                     .map(Location::serialize)
                     .collect(Collectors.toList()));
-            chestLocationsConfig.set("bonus-locations", bonusChestLocations.stream()
+            chestLocationsConfig.set("bonus-locations", barrelLocations.stream()
                     .map(Location::serialize)
                     .collect(Collectors.toList()));
-            chestLocationsConfig.set("mid-locations", midChestLocations.stream()
+            chestLocationsConfig.set("mid-locations", trappedChestLocations.stream()
                     .map(Location::serialize)
                     .collect(Collectors.toList()));
             try {

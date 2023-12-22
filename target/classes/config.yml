@@ -1,36 +1,48 @@
 # Minimum and Maximum stacks of different items for regular chests
 min-chest-content: 3
 max-chest-content: 6
-# Minimum and Maximum stacks of different items for bonus chests (Barrels by default)
+# Minimum and Maximum stacks of different items for Barrels
 min-barrel-content: 4
 max-barrel-content: 7
-# Minimum and Maximum stacks of different items for center chests (Trapped Chests by default)
+# Minimum and Maximum stacks of different items for Trapped Chests
 min-trapped-chest-content: 4
 max-trapped-chest-content: 7
 # Number of supply-drops dropped simultaneously, 1 by default
 num-supply-drops: 1
-# Minimum and Maximum stacks of different items for supply drops (Shulker Boxes by default)
+# Minimum and Maximum stacks of different items for supply drops
 min-supply-drop-content: 2
 max-supply-drop-content: 6
-# Minimum and Maximum stacks of different items for supply drops (Shulker Boxes by default)
+# Length of the game in seconds (default: 900)
 game-time: 900
+# Length of the grace period (time after which PvP is enabled) in seconds, use 0 for no grace period,(default: 30)
 grace-period: 30
+# Interval of supplydrops landing inside the map in seconds, use any time higher than game-time for no supplydrops, (default: 30)
 supplydrop:
   interval: 30
+# Interval of chests being refilled in seconds, use any time higher than game-time for no chestrefills, (default: 600)
 chestrefill:
   time: 600
+# Border settings
 border:
+  # Border size in blocks, use size bigger than arena for no border, (default: 100)
   size: 100.0
+  # Time in seconds after which border starts shrinking, use any time higher than game-time for no border, (default: 180)
   start-time: 180
+  # Time in seconds after which border stops shrinking (default: 780)
   end-time: 780
+  # Final border size in blocks, use size bigger than arena for no border, (default: 40)
   final-size: 40
+  # X and Z Coordinates of the center of the border, (default: 0, 0)
   center-x: 0
   center-z: 0
+# Buffing bedrock players when playing using geyser
 bedrock-buff:
   enabled: false
+  # Effects applied to bedrock players
   effects:
     - DAMAGE_RESISTANCE
     - SPEED
+# Applying temporary buffs for killing players
 killer-effects:
   - effect: DAMAGE_RESISTANCE
     duration: 300
@@ -41,3 +53,4 @@ killer-effects:
   - effect: REGENERATION
     duration: 600
     level: 0
+# For more information on changing potion effects, see https://github.com/cantankerous-ally/Hunger-Games/wiki/Cheat-Sheets/

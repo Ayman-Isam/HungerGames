@@ -8,6 +8,8 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,6 +21,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,11 +30,31 @@ public class GameHandler implements Listener {
 
     private final HungerGames plugin;
     private final SetSpawnHandler setSpawnHandler;
+    private FileConfiguration arenaConfig = null;
+    private File arenaFile = null;
 
     public GameHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
         this.plugin = plugin;
         this.setSpawnHandler = setSpawnHandler;
         this.playersAlive = new ArrayList<>();
+        createArenaConfig();
+    }
+
+    public void createArenaConfig() {
+        arenaFile = new File(plugin.getDataFolder(), "arena.yml");
+        if (!arenaFile.exists()) {
+            arenaFile.getParentFile().mkdirs();
+            plugin.saveResource("arena.yml", false);
+        }
+
+        arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
+    }
+
+    public FileConfiguration getArenaConfig() {
+        if (arenaConfig == null) {
+            createArenaConfig();
+        }
+        return arenaConfig;
     }
 
     private int timerTaskId;
@@ -54,7 +77,8 @@ public class GameHandler implements Listener {
         playersAlive = new ArrayList<>();
 
         // Get the arena region from the config
-        ConfigurationSection regionSection = plugin.getConfig().getConfigurationSection("region");
+        FileConfiguration config = getArenaConfig();
+        ConfigurationSection regionSection = config.getConfigurationSection("region");
         assert regionSection != null;
         String worldName = regionSection.getString("world");
         assert worldName != null;

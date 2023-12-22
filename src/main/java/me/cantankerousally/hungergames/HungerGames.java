@@ -26,11 +26,13 @@ public final class HungerGames extends JavaPlugin {
 
     public List<Player> playersAlive;
 
+    private SetSpawnHandler setSpawnHandler;
+
 
     @Override
     public void onEnable() {
         bossBar = getServer().createBossBar("Time Remaining", BarColor.BLUE, BarStyle.SOLID);
-        SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this);
+        setSpawnHandler = new SetSpawnHandler(this);
         gameHandler = new GameHandler(this, setSpawnHandler);
         getServer().getWorld("world");
         playersAlive = new ArrayList<>();
@@ -51,7 +53,7 @@ public final class HungerGames extends JavaPlugin {
         Objects.requireNonNull(getCommand("supplydrop")).setExecutor(new SupplyDropCommand(this));
         Objects.requireNonNull(getCommand("create")).setExecutor(new ArenaSelectorCommand(this));
         Objects.requireNonNull(getCommand("select")).setExecutor(new ArenaSelectorCommand(this));
-        Objects.requireNonNull(getCommand("setspawn")).setExecutor(new SetSpawnCommand());
+        Objects.requireNonNull(getCommand("setspawn")).setExecutor(new SetSpawnCommand(this));
         Objects.requireNonNull(getCommand("chestrefill")).setExecutor(new ChestRefillCommand(this));
         Objects.requireNonNull(getCommand("start")).setExecutor(new StartGameCommand(this));
         Objects.requireNonNull(getCommand("end")).setExecutor(new EndGameCommand(this));
@@ -67,5 +69,9 @@ public final class HungerGames extends JavaPlugin {
 
     public GameHandler getGameHandler() {
         return gameHandler;
+    }
+
+    public SetSpawnHandler getSetSpawnHandler() {
+        return setSpawnHandler;
     }
 }

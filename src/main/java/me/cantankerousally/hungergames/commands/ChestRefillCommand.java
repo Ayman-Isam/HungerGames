@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 
 public class ChestRefillCommand implements CommandExecutor {
     private final JavaPlugin plugin;
+    private FileConfiguration arenaConfig = null;
+    private File arenaFile = null;
     Map<String, Color> colorMap = new HashMap<>();
 
     public ChestRefillCommand(JavaPlugin plugin) {
@@ -51,9 +53,35 @@ public class ChestRefillCommand implements CommandExecutor {
         colorMap.put("YELLOW", Color.YELLOW);
     }
 
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+    public void createArenaConfig() {
+        arenaFile = new File(plugin.getDataFolder(), "arena.yml");
+        if (!arenaFile.exists()) {
+            arenaFile.getParentFile().mkdirs();
+            plugin.saveResource("arena.yml", false);
+        }
+
+        arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
+    }
+
+    public FileConfiguration getArenaConfig() {
+        if (arenaConfig == null) {
+            createArenaConfig();
+        }
+        return arenaConfig;
+    }
+
+    public void saveArenaConfig() {
+        try {
+            getArenaConfig().save(arenaFile);
+        } catch (IOException ex) {
+            plugin.getLogger().severe("Could not save config to " + arenaFile);
+        }
+    }
+
+    @Override
+    public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("chestrefill")) {
-            FileConfiguration config = plugin.getConfig();
+            FileConfiguration config = getArenaConfig();
             World world = plugin.getServer().getWorld(Objects.requireNonNull(config.getString("region.world")));
             double pos1x = config.getDouble("region.pos1.x");
             double pos1y = config.getDouble("region.pos1.y");
@@ -167,8 +195,8 @@ public class ChestRefillCommand implements CommandExecutor {
 
             }
 
-            List<ItemStack> bonusChestItems = new ArrayList<>();
-            List<Integer> bonusChestItemWeights = new ArrayList<>();
+            List<ItemStack> barrelItems = new ArrayList<>();
+            List<Integer> barrelItemWeights = new ArrayList<>();
             for (Map<?, ?> itemMap : itemsConfig.getMapList("barrel-items")) {
                 String type = (String) itemMap.get("type");
                 int weight = (int) itemMap.get("weight");
@@ -244,12 +272,12 @@ public class ChestRefillCommand implements CommandExecutor {
                         }
                     }
                 }
-                bonusChestItems.add(item);
-                bonusChestItemWeights.add(weight);
+                barrelItems.add(item);
+                barrelItemWeights.add(weight);
             }
 
-            List<ItemStack> midChestItems = new ArrayList<>();
-            List<Integer> midChestItemWeights = new ArrayList<>();
+            List<ItemStack> trappedChestItems = new ArrayList<>();
+            List<Integer> trappedChestItemWeights = new ArrayList<>();
             for (Map<?, ?> itemMap : itemsConfig.getMapList("trapped-chest-items")) {
                 String type = (String) itemMap.get("type");
                 int weight = (int) itemMap.get("weight");
@@ -325,15 +353,15 @@ public class ChestRefillCommand implements CommandExecutor {
                         }
                     }
                 }
-                midChestItems.add(item);
-                midChestItemWeights.add(weight);
+                trappedChestItems.add(item);
+                trappedChestItemWeights.add(weight);
             }
 
             File chestLocationsFile = new File(plugin.getDataFolder(), "chest-locations.yml");
             if (!chestLocationsFile.exists()) {
                 List<Location> chestLocations = new ArrayList<>();
-                List<Location> bonusChestLocations = new ArrayList<>();
-                List<Location> midChestLocations = new ArrayList<>();
+                List<Location> barrelLocations = new ArrayList<>();
+                List<Location> trappedChestLocations = new ArrayList<>();
                 for (int x = minX; x <= maxX; x++) {
                     for (int y = minY; y <= maxY; y++) {
                         for (int z = minZ; z <= maxZ; z++) {
@@ -342,9 +370,9 @@ public class ChestRefillCommand implements CommandExecutor {
                             if (block.getType() == Material.CHEST) {
                                 chestLocations.add(block.getLocation());
                             } else if (block.getType() == Material.BARREL) {
-                                bonusChestLocations.add(block.getLocation());
+                                barrelLocations.add(block.getLocation());
                             } else if (block.getType() == Material.TRAPPED_CHEST) {
-                                midChestLocations.add(block.getLocation());
+                                trappedChestLocations.add(block.getLocation());
                             }
                         }
                     }
@@ -354,10 +382,10 @@ public class ChestRefillCommand implements CommandExecutor {
                 chestLocationsConfig.set("locations", chestLocations.stream()
                         .map(Location::serialize)
                         .collect(Collectors.toList()));
-                chestLocationsConfig.set("bonus-locations", bonusChestLocations.stream()
+                chestLocationsConfig.set("bonus-locations", barrelLocations.stream()
                         .map(Location::serialize)
                         .collect(Collectors.toList()));
-                chestLocationsConfig.set("mid-locations", midChestLocations.stream()
+                chestLocationsConfig.set("mid-locations", trappedChestLocations.stream()
                         .map(Location::serialize)
                         .collect(Collectors.toList()));
                 try {
@@ -375,12 +403,12 @@ public class ChestRefillCommand implements CommandExecutor {
                     .map(Map.class::cast)
                     .map(Location::deserialize)
                     .toList();
-            List<Location> bonusChestLocations = Objects.requireNonNull(chestLocationsConfig.getList("bonus-locations")).stream()
+            List<Location> barrelLocations = Objects.requireNonNull(chestLocationsConfig.getList("bonus-locations")).stream()
                     .filter(Map.class::isInstance)
                     .map(Map.class::cast)
                     .map(Location::deserialize)
                     .toList();
-            List<Location> midChestLocations = Objects.requireNonNull(chestLocationsConfig.getList("mid-locations")).stream()
+            List<Location> trappedChestLocations = Objects.requireNonNull(chestLocationsConfig.getList("mid-locations")).stream()
                     .filter(Map.class::isInstance)
                     .map(Map.class::cast)
                     .map(Location::deserialize)
@@ -422,66 +450,66 @@ public class ChestRefillCommand implements CommandExecutor {
             }
 
             // refill the bonus chests
-        for (Location location : bonusChestLocations) {
+        for (Location location : barrelLocations) {
             Block block = location.getBlock();
             if (block.getType() == Material.BARREL) {
-                Inventory bonusChest = getItemStacks(block);
+                Inventory barrel = getItemStacks(block);
 
                 // Get the min and max bonus chest content values from the config
-                int minBonusChestContent = config.getInt("min-barrel-content");
-                int maxBonusChestContent = config.getInt("max-barrel-content");
+                int minBarrelContent = config.getInt("min-barrel-content");
+                int maxBarrelContent = config.getInt("max-barrel-content");
                 Random rand = new Random();
-                int numItems = rand.nextInt(maxBonusChestContent - minBonusChestContent + 1) + minBonusChestContent;
-                numItems = Math.min(numItems, bonusChestItems.size());
+                int numItems = rand.nextInt(maxBarrelContent - minBarrelContent + 1) + minBarrelContent;
+                numItems = Math.min(numItems, barrelItems.size());
 
                 List<ItemStack> randomItems = new ArrayList<>();
                 for (int i = 0; i < numItems; i++) {
-                    int index = getRandomWeightedIndex(bonusChestItemWeights);
-                    randomItems.add(bonusChestItems.get(index));
+                    int index = getRandomWeightedIndex(barrelItemWeights);
+                    randomItems.add(barrelItems.get(index));
                 }
 
                 // Add the random items to random slots in the bonus chest inventory
                 Set<Integer> usedSlots = new HashSet<>();
                 for (ItemStack item : randomItems) {
-                    int slot = rand.nextInt(bonusChest.getSize());
+                    int slot = rand.nextInt(barrel.getSize());
                     while (usedSlots.contains(slot)) {
-                        slot = rand.nextInt(bonusChest.getSize());
+                        slot = rand.nextInt(barrel.getSize());
                     }
                     usedSlots.add(slot);
-                    bonusChest.setItem(slot, item);
+                    barrel.setItem(slot, item);
                 }
             }
         }
 
             // refill the trapped-chests
-            for (Location location : midChestLocations) {
+            for (Location location : trappedChestLocations) {
                 Block block = location.getBlock();
-                List<String> midChestTypes = config.getStringList("trapped-chest-types");
-                if (midChestTypes.contains(block.getType().name())) {
-                    Inventory midChest = getItemStacks(block);
+                List<String> trappedChestTypes = config.getStringList("trapped-chest-types");
+                if (trappedChestTypes.contains(block.getType().name())) {
+                    Inventory trappedChest = getItemStacks(block);
 
                     // Get the min and max trapped-chest content values from the config
-                    int minMidChestContent = config.getInt("min-trapped-chest-content");
-                    int maxMidChestContent = config.getInt("max-trapped-chest-content");
+                    int mintrappedChestContent = config.getInt("min-trapped-chest-content");
+                    int maxtrappedChestContent = config.getInt("max-trapped-chest-content");
                     Random rand = new Random();
-                    int numItems = rand.nextInt(maxMidChestContent - minMidChestContent + 1) + minMidChestContent;
-                    numItems = Math.min(numItems, midChestItems.size());
+                    int numItems = rand.nextInt(maxtrappedChestContent - mintrappedChestContent + 1) + mintrappedChestContent;
+                    numItems = Math.min(numItems, trappedChestItems.size());
 
                     List<ItemStack> randomItems = new ArrayList<>();
                     for (int i = 0; i < numItems; i++) {
-                        int index = getRandomWeightedIndex(midChestItemWeights);
-                        randomItems.add(midChestItems.get(index));
+                        int index = getRandomWeightedIndex(trappedChestItemWeights);
+                        randomItems.add(trappedChestItems.get(index));
                     }
 
                     // Add the random items to random slots in the trapped-chest inventory
                     Set<Integer> usedSlots = new HashSet<>();
                     for (ItemStack item : randomItems) {
-                        int slot = rand.nextInt(midChest.getSize());
+                        int slot = rand.nextInt(trappedChest.getSize());
                         while (usedSlots.contains(slot)) {
-                            slot = rand.nextInt(midChest.getSize());
+                            slot = rand.nextInt(trappedChest.getSize());
                         }
                         usedSlots.add(slot);
-                        midChest.setItem(slot, item);
+                        trappedChest.setItem(slot, item);
                     }
                 }
             }
