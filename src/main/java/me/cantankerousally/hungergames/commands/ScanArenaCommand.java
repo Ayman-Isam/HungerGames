@@ -41,12 +41,10 @@ public class ScanArenaCommand implements CommandExecutor {
     }
 
     public FileConfiguration getArenaConfig() {
-        if (arenaConfig == null) {
-            createArenaConfig();
-        }
+        arenaFile = new File(plugin.getDataFolder(), "arena.yml");
+        arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
         return arenaConfig;
     }
-
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {

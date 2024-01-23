@@ -14,6 +14,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -224,6 +225,12 @@ public class GameHandler implements Listener {
             String spawnPoint = playerSpawnPoints.get(player);
             setSpawnHandler.removeOccupiedSpawnPoint(spawnPoint);
         }
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        player.setGameMode(GameMode.ADVENTURE);
     }
 
     @EventHandler

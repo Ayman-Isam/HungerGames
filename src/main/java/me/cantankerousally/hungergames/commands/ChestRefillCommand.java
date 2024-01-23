@@ -82,7 +82,13 @@ public class ChestRefillCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("chestrefill")) {
             FileConfiguration config = getArenaConfig();
-            World world = plugin.getServer().getWorld(Objects.requireNonNull(config.getString("region.world")));
+            String worldName = config.getString("region.world");
+            if (worldName == null) {
+                sender.sendMessage(ChatColor.RED + "Create an arena first to run this command!");
+                return true;
+            }
+            World world = plugin.getServer().getWorld(worldName);
+
             double pos1x = config.getDouble("region.pos1.x");
             double pos1y = config.getDouble("region.pos1.y");
             double pos1z = config.getDouble("region.pos1.z");

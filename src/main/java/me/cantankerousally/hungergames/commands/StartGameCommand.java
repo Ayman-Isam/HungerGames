@@ -7,9 +7,12 @@ import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.List;
 
 public class StartGameCommand implements CommandExecutor {
@@ -18,6 +21,34 @@ public class StartGameCommand implements CommandExecutor {
 
     public StartGameCommand(HungerGames plugin) {
         this.plugin = plugin;
+        createSetSpawnConfig();
+        createArenaConfig();
+    }
+
+    private FileConfiguration setspawnConfig = null;
+    private File setspawnFile = null;
+
+    private FileConfiguration arenaConfig = null;
+    private File arenaFile = null;
+
+    public void createSetSpawnConfig() {
+        setspawnFile = new File(plugin.getDataFolder(), "setspawn.yml");
+        if (!setspawnFile.exists()) {
+            setspawnFile.getParentFile().mkdirs();
+            plugin.saveResource("setspawn.yml", false);
+        }
+
+        setspawnConfig = YamlConfiguration.loadConfiguration(setspawnFile);
+    }
+
+    public void createArenaConfig() {
+        arenaFile = new File(plugin.getDataFolder(), "arena.yml");
+        if (!arenaFile.exists()) {
+            arenaFile.getParentFile().mkdirs();
+            plugin.saveResource("arena.yml", false);
+        }
+
+        arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
     }
 
     @Override
@@ -28,8 +59,8 @@ public class StartGameCommand implements CommandExecutor {
                     p.sendMessage(ChatColor.RED + "There must be at least 2 players to start the game!");
                     return true;
                 }
-                List<String> spawnpoints = plugin.getConfig().getStringList("spawnpoints");
-                String world = plugin.getConfig().getString("region.world");
+                List<String> spawnpoints = setspawnConfig.getStringList("spawnpoints");
+                String world = arenaConfig.getString("region.world");
                 if (spawnpoints.isEmpty() && world == null) {
                     p.sendMessage(ChatColor.RED + "Set up arena and spawnpoints first!");
                     return true;

@@ -4,16 +4,13 @@ import me.cantankerousally.hungergames.HungerGames;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
@@ -31,9 +28,13 @@ public class SetSpawnHandler implements Listener {
     private FileConfiguration setSpawnConfig = null;
     private File setSpawnFile = null;
 
+    private FileConfiguration arenaConfig = null;
+    private File arenaFile = null;
+
     public SetSpawnHandler(HungerGames plugin) {
         this.plugin = plugin;
         createSetSpawnConfig();
+        createArenaConfig();
     }
 
     private final Set<String> occupiedSpawnPoints = new HashSet<>();
@@ -46,12 +47,17 @@ public class SetSpawnHandler implements Listener {
             plugin.saveResource("setspawn.yml", false);
         }
 
-        setSpawnConfig = new YamlConfiguration();
-        try {
-            setSpawnConfig.load(setSpawnFile);
-        } catch (IOException | InvalidConfigurationException e) {
-            e.printStackTrace();
+        setSpawnConfig = YamlConfiguration.loadConfiguration(setSpawnFile);
+    }
+
+    public void createArenaConfig() {
+        arenaFile = new File(plugin.getDataFolder(), "arena.yml");
+        if (!arenaFile.exists()) {
+            arenaFile.getParentFile().mkdirs();
+            plugin.saveResource("arena.yml", false);
         }
+
+        arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
     }
 
     public FileConfiguration getSetSpawnConfig() {
@@ -83,11 +89,17 @@ public class SetSpawnHandler implements Listener {
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                     Location location = Objects.requireNonNull(event.getClickedBlock()).getLocation();
                     List<String> spawnPoints = getSetSpawnConfig().getStringList("spawnpoints");
+                    String newSpawnPoint = Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
+                    if (spawnPoints.contains(newSpawnPoint)) {
+                        player.sendMessage(ChatColor.RED + "You can't choose the same block for two spawn points!");
+                        return;
+                    }
                     if (spawnPoints.size() < 24) {
-                        spawnPoints.add(Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ());
+                        spawnPoints.add(newSpawnPoint);
                         getSetSpawnConfig().set("spawnpoints", spawnPoints);
                         saveSetSpawnConfig();
-                        player.sendMessage(ChatColor.LIGHT_PURPLE + "Spawn point " + ChatColor.GOLD + spawnPoints.size() + ChatColor.LIGHT_PURPLE + " set at X: " + location.getBlockX() + " Y: " + location.getBlockY() + " Z: " + location.getBlockZ());                    } else if (spawnPoints.size() ==  24){
+                        player.sendMessage(ChatColor.LIGHT_PURPLE + "Spawn point " + ChatColor.GOLD + spawnPoints.size() + ChatColor.LIGHT_PURPLE + " set at X: " + location.getBlockX() + " Y: " + location.getBlockY() + " Z: " + location.getBlockZ());
+                    } else if (spawnPoints.size() ==  24){
                         player.sendMessage(ChatColor.RED + "You have reached the maximum number of spawn points!");
                     }
                     event.setCancelled(true);
@@ -96,8 +108,7 @@ public class SetSpawnHandler implements Listener {
         } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Block block = event.getClickedBlock();
             assert block != null;
-            if (block.getType() == Material.BAMBOO_HANGING_SIGN || block.getType() == Material.OAK_WALL_SIGN) {
-                Sign sign = (Sign) block.getState();
+            if (block.getState() instanceof Sign sign) {
                 if (sign.getLine(0).equalsIgnoreCase("[Join]")) {
                     if (plugin.gameStarted) {
                         player.sendMessage(ChatColor.RED + "The game has already started!");
@@ -149,27 +160,6 @@ public class SetSpawnHandler implements Listener {
         return playerSpawnPoints;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onSignChange(SignChangeEvent event) {
-        Block block = event.getBlock();
-        Material type = block.getType();
-        if (type == Material.ACACIA_SIGN || type == Material.ACACIA_WALL_SIGN ||
-                type == Material.BIRCH_SIGN || type == Material.BIRCH_WALL_SIGN ||
-                type == Material.DARK_OAK_SIGN || type == Material.DARK_OAK_WALL_SIGN ||
-                type == Material.JUNGLE_SIGN || type == Material.JUNGLE_WALL_SIGN ||
-                type == Material.OAK_SIGN || type == Material.OAK_WALL_SIGN ||
-                type == Material.SPRUCE_SIGN || type == Material.SPRUCE_WALL_SIGN ||
-                type == Material.CRIMSON_SIGN || type == Material.CRIMSON_WALL_SIGN ||
-                type == Material.WARPED_SIGN || type == Material.WARPED_WALL_SIGN ||
-                type == Material.BAMBOO_SIGN || type == Material.BAMBOO_WALL_SIGN ||
-                type == Material.CHERRY_SIGN || type == Material.CHERRY_WALL_SIGN) {
-            Sign sign = (Sign) block.getState();
-            if (sign.getLine(0).equalsIgnoreCase("[Join]")) {
-                event.setCancelled(true);
-            }
-        }
-    }
-
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
@@ -177,17 +167,22 @@ public class SetSpawnHandler implements Listener {
         Location to = event.getTo();
         assert to != null;
         if (from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ()) {
-            double x1 = plugin.getConfig().getDouble("region.pos1.x");
-            double y1 = plugin.getConfig().getDouble("region.pos1.y");
-            double z1 = plugin.getConfig().getDouble("region.pos1.z");
-            double x2 = plugin.getConfig().getDouble("region.pos2.x");
-            double y2 = plugin.getConfig().getDouble("region.pos2.y");
-            double z2 = plugin.getConfig().getDouble("region.pos2.z");
+            if (arenaConfig.contains("region.pos1.x") && arenaConfig.contains("region.pos1.y") && arenaConfig.contains("region.pos1.z") &&
+                arenaConfig.contains("region.pos2.x") && arenaConfig.contains("region.pos2.y") && arenaConfig.contains("region.pos2.z")) {
+                double x1 = arenaConfig.getDouble("region.pos1.x");
+                double y1 = arenaConfig.getDouble("region.pos1.y");
+                double z1 = arenaConfig.getDouble("region.pos1.z");
+                double x2 = arenaConfig.getDouble("region.pos2.x");
+                double y2 = arenaConfig.getDouble("region.pos2.y");
+                double z2 = arenaConfig.getDouble("region.pos2.z");
 
-            if (!plugin.gameStarted && to.getX() >= Math.min(x1, x2) && to.getX() <= Math.max(x1, x2) && to.getY() >= Math.min(y1, y2) && to.getY() <= Math.max(y1, y2) && to.getZ() >= Math.min(z1, z2) && to.getZ() <= Math.max(z1, z2)) {
-                if (player.getGameMode() != GameMode.CREATIVE && player.getGameMode() != GameMode.SPECTATOR) {
-                    event.setCancelled(true);
+                if (!plugin.gameStarted && to.getX() >= Math.min(x1, x2) && to.getX() <= Math.max(x1, x2) && to.getY() >= Math.min(y1, y2) && to.getY() <= Math.max(y1, y2) && to.getZ() >= Math.min(z1, z2) && to.getZ() <= Math.max(z1, z2)) {
+                    if (player.getGameMode() != GameMode.CREATIVE && player.getGameMode() != GameMode.SPECTATOR) {
+                        event.setCancelled(true);
+                    }
                 }
+            } else {
+                plugin.getLogger().log(Level.SEVERE, "Could not retrieve region coordinates from arena.yml");
             }
         }
     }

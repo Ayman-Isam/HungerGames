@@ -18,7 +18,7 @@ public class EndGameCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!plugin.gameStarted) {
-            sender.sendMessage("The game has already ended!");
+            sender.sendMessage(ChatColor.RED + "The game has not started yet!");
             return true;
         }
 
