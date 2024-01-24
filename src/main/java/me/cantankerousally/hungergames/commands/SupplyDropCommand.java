@@ -27,37 +27,28 @@ import java.util.stream.Collectors;
 
 public class SupplyDropCommand implements CommandExecutor {
     private final JavaPlugin plugin;
-    private FileConfiguration arenaConfig = null;
-    private File arenaFile = null;
     Map<String, Color> colorMap = new HashMap<>();
 
     public SupplyDropCommand(JavaPlugin plugin) {
         this.plugin = plugin;
-        createArenaConfig();
     }
 
-    public void createArenaConfig() {
-        arenaFile = new File(plugin.getDataFolder(), "arena.yml");
+    private FileConfiguration getArenaConfig() {
+        File arenaFile = new File(plugin.getDataFolder(), "arena.yml");
         if (!arenaFile.exists()) {
             arenaFile.getParentFile().mkdirs();
             plugin.saveResource("arena.yml", false);
         }
-
-        arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
-    }
-
-    public FileConfiguration getArenaConfig() {
-        if (arenaConfig == null) {
-            createArenaConfig();
-        }
-        return arenaConfig;
+        return YamlConfiguration.loadConfiguration(arenaFile);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("supplydrop")) {
-            FileConfiguration config = getArenaConfig();
-            String worldName = config.getString("region.world");
+            FileConfiguration config = plugin.getConfig();
+            FileConfiguration arenaConfig = getArenaConfig();
+            String worldName = arenaConfig.getString("region.world");
+            System.out.println(worldName);
             if (worldName == null) {
                 sender.sendMessage(ChatColor.RED + "Create an arena first to run this command!");
                 return true;
@@ -161,14 +152,15 @@ public class SupplyDropCommand implements CommandExecutor {
                 supplyDropItemWeights.add(weight);
 
             }
-            // Get the supply drop parameters from the config
+
             int numSupplyDrops = config.getInt("num-supply-drops");
             int minSupplyDropContent = config.getInt("min-supply-drop-content");
             int maxSupplyDropContent = config.getInt("max-supply-drop-content");
 
+            System.out.println(numSupplyDrops);
+
             List<String> coords = new ArrayList<>();
 
-            // Generate numSupplyDrops random supply drops
             Random rand = new Random();
             for (int i = 0; i < numSupplyDrops; i++) {
                 assert world != null;

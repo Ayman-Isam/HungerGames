@@ -28,8 +28,6 @@ import java.util.stream.Collectors;
 
 public class ChestRefillCommand implements CommandExecutor {
     private final JavaPlugin plugin;
-    private FileConfiguration arenaConfig = null;
-    private File arenaFile = null;
     Map<String, Color> colorMap = new HashMap<>();
 
     public ChestRefillCommand(JavaPlugin plugin) {
@@ -53,48 +51,33 @@ public class ChestRefillCommand implements CommandExecutor {
         colorMap.put("YELLOW", Color.YELLOW);
     }
 
-    public void createArenaConfig() {
-        arenaFile = new File(plugin.getDataFolder(), "arena.yml");
+    private FileConfiguration getArenaConfig() {
+        File arenaFile = new File(plugin.getDataFolder(), "arena.yml");
         if (!arenaFile.exists()) {
             arenaFile.getParentFile().mkdirs();
             plugin.saveResource("arena.yml", false);
         }
-
-        arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
-    }
-
-    public FileConfiguration getArenaConfig() {
-        if (arenaConfig == null) {
-            createArenaConfig();
-        }
-        return arenaConfig;
-    }
-
-    public void saveArenaConfig() {
-        try {
-            getArenaConfig().save(arenaFile);
-        } catch (IOException ex) {
-            plugin.getLogger().severe("Could not save config to " + arenaFile);
-        }
+        return YamlConfiguration.loadConfiguration(arenaFile);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("chestrefill")) {
-            FileConfiguration config = getArenaConfig();
-            String worldName = config.getString("region.world");
+            FileConfiguration ArenaConfig = getArenaConfig();
+            FileConfiguration config = plugin.getConfig();
+            String worldName = ArenaConfig.getString("region.world");
             if (worldName == null) {
                 sender.sendMessage(ChatColor.RED + "Create an arena first to run this command!");
                 return true;
             }
             World world = plugin.getServer().getWorld(worldName);
 
-            double pos1x = config.getDouble("region.pos1.x");
-            double pos1y = config.getDouble("region.pos1.y");
-            double pos1z = config.getDouble("region.pos1.z");
-            double pos2x = config.getDouble("region.pos2.x");
-            double pos2y = config.getDouble("region.pos2.y");
-            double pos2z = config.getDouble("region.pos2.z");
+            double pos1x = ArenaConfig.getDouble("region.pos1.x");
+            double pos1y = ArenaConfig.getDouble("region.pos1.y");
+            double pos1z = ArenaConfig.getDouble("region.pos1.z");
+            double pos2x = ArenaConfig.getDouble("region.pos2.x");
+            double pos2y = ArenaConfig.getDouble("region.pos2.y");
+            double pos2z = ArenaConfig.getDouble("region.pos2.z");
 
             int minX = (int) Math.min(pos1x, pos2x);
             int minY = (int) Math.min(pos1y, pos2y);
@@ -402,7 +385,6 @@ public class ChestRefillCommand implements CommandExecutor {
                 }
             }
 
-            // load the chest locations from the file
             FileConfiguration chestLocationsConfig = YamlConfiguration.loadConfiguration(chestLocationsFile);
             List<Location> chestLocations = Objects.requireNonNull(chestLocationsConfig.getList("locations")).stream()
                     .filter(Map.class::isInstance)
@@ -420,29 +402,26 @@ public class ChestRefillCommand implements CommandExecutor {
                     .map(Location::deserialize)
                     .toList();
 
-            // refill the chests
             for (Location location : chestLocations) {
+                System.out.println("chest" + location);
                 Block block = location.getBlock();
                 if (block.getType() == Material.CHEST) {
                     Chest chest = (Chest) block.getState();
                     chest.getInventory().clear();
 
-
                     int minChestContent = config.getInt("min-chest-content");
                     int maxChestContent = config.getInt("max-chest-content");
+
                     Random rand = new Random();
                     int numItems = rand.nextInt(maxChestContent - minChestContent + 1) + minChestContent;
                     numItems = Math.min(numItems, chestItems.size());
 
-
-                    // Shuffle the chestItems list and get the first 5 items
                     List<ItemStack> randomItems = new ArrayList<>();
                     for (int i = 0; i < numItems; i++) {
                         int index = getRandomWeightedIndex(chestItemWeights);
                         randomItems.add(chestItems.get(index));
                     }
 
-                    // Add the random items to random slots in the chest inventory
                     Set<Integer> usedSlots = new HashSet<>();
                     for (ItemStack item : randomItems) {
                         int slot = rand.nextInt(chest.getInventory().getSize());
@@ -455,46 +434,44 @@ public class ChestRefillCommand implements CommandExecutor {
                 }
             }
 
-            // refill the bonus chests
-        for (Location location : barrelLocations) {
-            Block block = location.getBlock();
-            if (block.getType() == Material.BARREL) {
-                Inventory barrel = getItemStacks(block);
+            for (Location location : barrelLocations) {
+                System.out.println("barrel" + location);
+                Block block = location.getBlock();
+                if (block.getType() == Material.BARREL) {
+                    Barrel barrel = (Barrel) block.getState();
+                    barrel.getInventory().clear();
 
-                // Get the min and max bonus chest content values from the config
-                int minBarrelContent = config.getInt("min-barrel-content");
-                int maxBarrelContent = config.getInt("max-barrel-content");
-                Random rand = new Random();
-                int numItems = rand.nextInt(maxBarrelContent - minBarrelContent + 1) + minBarrelContent;
-                numItems = Math.min(numItems, barrelItems.size());
+                    int minBarrelContent = config.getInt("min-barrel-content");
+                    int maxBarrelContent = config.getInt("max-barrel-content");
 
-                List<ItemStack> randomItems = new ArrayList<>();
-                for (int i = 0; i < numItems; i++) {
-                    int index = getRandomWeightedIndex(barrelItemWeights);
-                    randomItems.add(barrelItems.get(index));
-                }
+                    Random rand = new Random();
+                    int numItems = rand.nextInt(maxBarrelContent - minBarrelContent + 1) + minBarrelContent;
+                    numItems = Math.min(numItems, barrelItems.size());
 
-                // Add the random items to random slots in the bonus chest inventory
-                Set<Integer> usedSlots = new HashSet<>();
-                for (ItemStack item : randomItems) {
-                    int slot = rand.nextInt(barrel.getSize());
-                    while (usedSlots.contains(slot)) {
-                        slot = rand.nextInt(barrel.getSize());
+                    List<ItemStack> randomItems = new ArrayList<>();
+                    for (int i = 0; i < numItems; i++) {
+                        int index = getRandomWeightedIndex(barrelItemWeights);
+                        randomItems.add(barrelItems.get(index));
                     }
-                    usedSlots.add(slot);
-                    barrel.setItem(slot, item);
+
+                    Set<Integer> usedSlots = new HashSet<>();
+                    for (ItemStack item : randomItems) {
+                        int slot = rand.nextInt(barrel.getInventory().getSize());
+                        while (usedSlots.contains(slot)) {
+                            slot = rand.nextInt(barrel.getInventory().getSize());
+                        }
+                        usedSlots.add(slot);
+                        barrel.getInventory().setItem(slot, item);
+                    }
                 }
             }
-        }
 
-            // refill the trapped-chests
             for (Location location : trappedChestLocations) {
+                System.out.println("chest" + location);
                 Block block = location.getBlock();
-                List<String> trappedChestTypes = config.getStringList("trapped-chest-types");
-                if (trappedChestTypes.contains(block.getType().name())) {
+                if (block.getType() == Material.TRAPPED_CHEST) {
                     Inventory trappedChest = getItemStacks(block);
 
-                    // Get the min and max trapped-chest content values from the config
                     int mintrappedChestContent = config.getInt("min-trapped-chest-content");
                     int maxtrappedChestContent = config.getInt("max-trapped-chest-content");
                     Random rand = new Random();
@@ -507,7 +484,6 @@ public class ChestRefillCommand implements CommandExecutor {
                         randomItems.add(trappedChestItems.get(index));
                     }
 
-                    // Add the random items to random slots in the trapped-chest inventory
                     Set<Integer> usedSlots = new HashSet<>();
                     for (ItemStack item : randomItems) {
                         int slot = rand.nextInt(trappedChest.getSize());
@@ -519,7 +495,6 @@ public class ChestRefillCommand implements CommandExecutor {
                     }
                 }
             }
-
             plugin.getServer().broadcastMessage(ChatColor.GREEN + "Chests have been refilled!");
         }
         return false;
