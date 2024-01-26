@@ -12,7 +12,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
@@ -27,9 +26,6 @@ public class SetSpawnHandler implements Listener {
     private final HungerGames plugin;
     private FileConfiguration setSpawnConfig = null;
     private File setSpawnFile = null;
-
-    private FileConfiguration arenaConfig = null;
-    private File arenaFile = null;
 
     public SetSpawnHandler(HungerGames plugin) {
         this.plugin = plugin;
@@ -51,13 +47,13 @@ public class SetSpawnHandler implements Listener {
     }
 
     public void createArenaConfig() {
-        arenaFile = new File(plugin.getDataFolder(), "arena.yml");
+        File arenaFile = new File(plugin.getDataFolder(), "arena.yml");
         if (!arenaFile.exists()) {
             arenaFile.getParentFile().mkdirs();
             plugin.saveResource("arena.yml", false);
         }
 
-        arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
+        FileConfiguration arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
     }
 
     public FileConfiguration getSetSpawnConfig() {
@@ -160,32 +156,6 @@ public class SetSpawnHandler implements Listener {
         return playerSpawnPoints;
     }
 
-    @EventHandler
-    public void onPlayerMove(PlayerMoveEvent event) {
-        Player player = event.getPlayer();
-        Location from = event.getFrom();
-        Location to = event.getTo();
-        assert to != null;
-        if (from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ()) {
-            if (arenaConfig.contains("region.pos1.x") && arenaConfig.contains("region.pos1.y") && arenaConfig.contains("region.pos1.z") &&
-                arenaConfig.contains("region.pos2.x") && arenaConfig.contains("region.pos2.y") && arenaConfig.contains("region.pos2.z")) {
-                double x1 = arenaConfig.getDouble("region.pos1.x");
-                double y1 = arenaConfig.getDouble("region.pos1.y");
-                double z1 = arenaConfig.getDouble("region.pos1.z");
-                double x2 = arenaConfig.getDouble("region.pos2.x");
-                double y2 = arenaConfig.getDouble("region.pos2.y");
-                double z2 = arenaConfig.getDouble("region.pos2.z");
-
-                if (!plugin.gameStarted && to.getX() >= Math.min(x1, x2) && to.getX() <= Math.max(x1, x2) && to.getY() >= Math.min(y1, y2) && to.getY() <= Math.max(y1, y2) && to.getZ() >= Math.min(z1, z2) && to.getZ() <= Math.max(z1, z2)) {
-                    if (player.getGameMode() != GameMode.CREATIVE && player.getGameMode() != GameMode.SPECTATOR) {
-                        event.setCancelled(true);
-                    }
-                }
-            } else {
-                plugin.getLogger().log(Level.SEVERE, "Could not retrieve region coordinates from arena.yml");
-            }
-        }
-    }
     @EventHandler
     public void onBlockDamage(BlockDamageEvent event) {
         if (event.getBlock().getType() == Material.ANVIL || event.getBlock().getType() == Material.CHIPPED_ANVIL || event.getBlock().getType() == Material.DAMAGED_ANVIL) {

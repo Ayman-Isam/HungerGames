@@ -51,7 +51,7 @@ public class ChestRefillCommand implements CommandExecutor {
         colorMap.put("YELLOW", Color.YELLOW);
     }
 
-    private FileConfiguration getArenaConfig() {
+    public FileConfiguration getArenaConfig() {
         File arenaFile = new File(plugin.getDataFolder(), "arena.yml");
         if (!arenaFile.exists()) {
             arenaFile.getParentFile().mkdirs();
@@ -403,7 +403,6 @@ public class ChestRefillCommand implements CommandExecutor {
                     .toList();
 
             for (Location location : chestLocations) {
-                System.out.println("chest" + location);
                 Block block = location.getBlock();
                 if (block.getType() == Material.CHEST) {
                     Chest chest = (Chest) block.getState();
@@ -435,7 +434,6 @@ public class ChestRefillCommand implements CommandExecutor {
             }
 
             for (Location location : barrelLocations) {
-                System.out.println("barrel" + location);
                 Block block = location.getBlock();
                 if (block.getType() == Material.BARREL) {
                     Barrel barrel = (Barrel) block.getState();
@@ -467,7 +465,6 @@ public class ChestRefillCommand implements CommandExecutor {
             }
 
             for (Location location : trappedChestLocations) {
-                System.out.println("chest" + location);
                 Block block = location.getBlock();
                 if (block.getType() == Material.TRAPPED_CHEST) {
                     Inventory trappedChest = getItemStacks(block);

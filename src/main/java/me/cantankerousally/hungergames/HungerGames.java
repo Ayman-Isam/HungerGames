@@ -23,11 +23,9 @@ public final class HungerGames extends JavaPlugin {
     public boolean gameStarted = false;
     public BossBar bossBar;
     private GameHandler gameHandler;
-
     public List<Player> playersAlive;
-
     private SetSpawnHandler setSpawnHandler;
-
+    private ChestRefillCommand chestRefillCommand;
 
     @Override
     public void onEnable() {
@@ -37,6 +35,7 @@ public final class HungerGames extends JavaPlugin {
         getServer().getWorld("world");
         playersAlive = new ArrayList<>();
         new CompassHandler(this);
+        chestRefillCommand = new ChestRefillCommand(this);
 
         World world = getServer().getWorld("world");
         if (world != null) {
@@ -58,6 +57,8 @@ public final class HungerGames extends JavaPlugin {
         Objects.requireNonNull(getCommand("start")).setExecutor(new StartGameCommand(this));
         Objects.requireNonNull(getCommand("end")).setExecutor(new EndGameCommand(this));
         Objects.requireNonNull(getCommand("scanarena")).setExecutor(new ScanArenaCommand(this));
+        MoveToggleCommand moveToggleCommand = new MoveToggleCommand(this, chestRefillCommand);
+        Objects.requireNonNull(getCommand("move-toggle")).setExecutor(moveToggleCommand);
         BorderSetCommand borderSetCommand = new BorderSetCommand(this);
         Objects.requireNonNull(getCommand("border")).setExecutor(borderSetCommand);
         Objects.requireNonNull(getCommand("border")).setTabCompleter(borderSetCommand);
@@ -65,6 +66,7 @@ public final class HungerGames extends JavaPlugin {
         getServer().getPluginManager().registerEvents(setSpawnHandler, this);
         getServer().getPluginManager().registerEvents(new WorldBorderHandler(this), this);
         getServer().getPluginManager().registerEvents(gameHandler, this);
+        getServer().getPluginManager().registerEvents(moveToggleCommand, this);
     }
 
     public GameHandler getGameHandler() {

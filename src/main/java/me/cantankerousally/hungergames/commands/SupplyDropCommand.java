@@ -48,7 +48,6 @@ public class SupplyDropCommand implements CommandExecutor {
             FileConfiguration config = plugin.getConfig();
             FileConfiguration arenaConfig = getArenaConfig();
             String worldName = arenaConfig.getString("region.world");
-            System.out.println(worldName);
             if (worldName == null) {
                 sender.sendMessage(ChatColor.RED + "Create an arena first to run this command!");
                 return true;
@@ -156,8 +155,6 @@ public class SupplyDropCommand implements CommandExecutor {
             int numSupplyDrops = config.getInt("num-supply-drops");
             int minSupplyDropContent = config.getInt("min-supply-drop-content");
             int maxSupplyDropContent = config.getInt("max-supply-drop-content");
-
-            System.out.println(numSupplyDrops);
 
             List<String> coords = new ArrayList<>();
 
