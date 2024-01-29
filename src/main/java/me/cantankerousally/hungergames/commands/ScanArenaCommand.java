@@ -56,6 +56,8 @@ public class ScanArenaCommand implements CommandExecutor {
                     return;
                 }
 
+                sender.sendMessage(ChatColor.GREEN + "Scanning arena region... This may take a while.");
+
                 World world = plugin.getServer().getWorld(Objects.requireNonNull(config.getString("region.world")));
                 double pos1x = config.getDouble("region.pos1.x");
                 double pos1y = config.getDouble("region.pos1.y");
