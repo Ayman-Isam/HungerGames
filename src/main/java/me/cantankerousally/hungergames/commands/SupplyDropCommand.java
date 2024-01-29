@@ -171,10 +171,18 @@ public class SupplyDropCommand implements CommandExecutor {
                 double maxX = center.getX() + size / 2;
                 double maxZ = center.getZ() + size / 2;
 
-                int x = (int) (rand.nextDouble() * (maxX - minX) + minX);
-                int z = (int) (rand.nextDouble() * (maxZ - minZ) + minZ);
+                int x;
+                int z;
+                Block highestBlock;
+                do {
+                    x = (int) (rand.nextDouble() * (maxX - minX) + minX);
+                    z = (int) (rand.nextDouble() * (maxZ - minZ) + minZ);
+                    highestBlock = world.getHighestBlockAt(x, z);
+                } while (highestBlock.getType() == Material.AIR || highestBlock.getY() < -60);
 
-                Block highestBlock = world.getHighestBlockAt(x, z);
+                if (highestBlock.getType() == Material.AIR) {
+                    continue;
+                }
 
                 Block block = highestBlock.getRelative(0, 1, 0);
                 block.setType(Material.RED_SHULKER_BOX);

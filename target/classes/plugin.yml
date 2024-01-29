@@ -30,6 +30,9 @@ commands:
   border:
     description: "Changes the world border in HungerGames"
     usage: <command> <size>
+  move-toggle:
+    description: "Toggles the ability to move in HungerGames"
+    usage: <command>
 permissions:
   hungergames.select:
     description: "Allows you to select an arena in HungerGames"
@@ -57,5 +60,8 @@ permissions:
     default: op
   hungergames.border:
     description: "Allows you to change the world border in HungerGames"
+    default: op
+  hungergames.move-toggle:
+    description: "Allows you to toggle the ability to move in HungerGames"
     default: op
 

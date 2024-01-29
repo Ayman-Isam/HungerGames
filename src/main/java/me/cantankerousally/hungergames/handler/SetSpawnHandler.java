@@ -70,7 +70,7 @@ public class SetSpawnHandler implements Listener {
         try {
             getSetSpawnConfig().save(setSpawnFile);
         } catch (IOException ex) {
-            plugin.getLogger().log(Level.SEVERE, "Could not save config to " + setSpawnFile, ex);
+            plugin.getLogger().log(Level.WARNING, "Could not save config to " + setSpawnFile, ex);
         }
     }
 

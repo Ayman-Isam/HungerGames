@@ -1,4 +1,5 @@
 me\cantankerousally\hungergames\commands\ArenaSelectorCommand.class
+me\cantankerousally\hungergames\commands\MoveToggleCommand.class
 me\cantankerousally\hungergames\HungerGames.class
 me\cantankerousally\hungergames\handler\GameHandler.class
 me\cantankerousally\hungergames\handler\SetSpawnHandler.class

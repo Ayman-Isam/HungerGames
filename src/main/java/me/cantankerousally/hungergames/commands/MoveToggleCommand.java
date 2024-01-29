@@ -14,8 +14,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.logging.Level;
-
 public class MoveToggleCommand implements CommandExecutor, Listener {
     private final HungerGames plugin;
     private final ChestRefillCommand chestRefillCommand;
@@ -63,8 +61,6 @@ public class MoveToggleCommand implements CommandExecutor, Listener {
                         event.setCancelled(true);
                     }
                 }
-            } else {
-                plugin.getLogger().log(Level.SEVERE, "Could not retrieve region coordinates from arena.yml");
             }
         }
     }

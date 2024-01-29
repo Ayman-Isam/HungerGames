@@ -25,6 +25,7 @@ public class ArenaSelectorCommand implements CommandExecutor {
     private FileConfiguration arenaConfig = null;
     private File arenaFile = null;
 
+
     public ArenaSelectorCommand(JavaPlugin plugin) {
         this.plugin = plugin;
         createArenaConfig();
@@ -50,8 +51,8 @@ public class ArenaSelectorCommand implements CommandExecutor {
     public void saveArenaConfig() {
         try {
             getArenaConfig().save(arenaFile);
-        } catch (IOException ex) {
-            plugin.getLogger().severe("Could not save config to " + arenaFile);
+        } catch (IOException e) {
+            plugin.getLogger().log(java.util.logging.Level.SEVERE, "Could not save arena.yml to " + arenaFile, e);
         }
     }
 
@@ -87,7 +88,11 @@ public class ArenaSelectorCommand implements CommandExecutor {
                         getArenaConfig().set("region.pos2.x", pos2.getX());
                         getArenaConfig().set("region.pos2.y", pos2.getY());
                         getArenaConfig().set("region.pos2.z", pos2.getZ());
-                        saveArenaConfig();
+                        File itemsFile = new File (plugin.getDataFolder(), "items.yml");
+                        if (!itemsFile.exists()) {
+                            saveArenaConfig();
+                            sender.sendMessage(ChatColor.GREEN + "Region created and saved to arena.yml!");
+                        }
                         sender.sendMessage(ChatColor.GREEN + "Region created and saved to arena.yml!");
                     } else {
                         sender.sendMessage(ChatColor.RED + "Invalid position values.");
