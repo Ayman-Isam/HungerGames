@@ -30,8 +30,9 @@ public final class HungerGames extends JavaPlugin {
     @Override
     public void onEnable() {
         bossBar = getServer().createBossBar("Time Remaining", BarColor.BLUE, BarStyle.SOLID);
-        setSpawnHandler = new SetSpawnHandler(this);
-        gameHandler = new GameHandler(this, setSpawnHandler);
+        PlayerSignClickManager playerSignClickManager = new PlayerSignClickManager();
+        setSpawnHandler = new SetSpawnHandler(this, playerSignClickManager);
+        gameHandler = new GameHandler(this, setSpawnHandler, playerSignClickManager);
         getServer().getWorld("world");
         playersAlive = new ArrayList<>();
         new CompassHandler(this);
@@ -57,8 +58,7 @@ public final class HungerGames extends JavaPlugin {
         Objects.requireNonNull(getCommand("start")).setExecutor(new StartGameCommand(this));
         Objects.requireNonNull(getCommand("end")).setExecutor(new EndGameCommand(this));
         Objects.requireNonNull(getCommand("scanarena")).setExecutor(new ScanArenaCommand(this));
-        MoveToggleCommand moveToggleCommand = new MoveToggleCommand(this, chestRefillCommand);
-        Objects.requireNonNull(getCommand("move-toggle")).setExecutor(moveToggleCommand);
+        MoveDisableHandler moveDisableHandler = new MoveDisableHandler(this, chestRefillCommand, playerSignClickManager);
         BorderSetCommand borderSetCommand = new BorderSetCommand(this);
         Objects.requireNonNull(getCommand("border")).setExecutor(borderSetCommand);
         Objects.requireNonNull(getCommand("border")).setTabCompleter(borderSetCommand);
@@ -66,7 +66,7 @@ public final class HungerGames extends JavaPlugin {
         getServer().getPluginManager().registerEvents(setSpawnHandler, this);
         getServer().getPluginManager().registerEvents(new WorldBorderHandler(this), this);
         getServer().getPluginManager().registerEvents(gameHandler, this);
-        getServer().getPluginManager().registerEvents(moveToggleCommand, this);
+        getServer().getPluginManager().registerEvents(moveDisableHandler, this);
     }
 
     public GameHandler getGameHandler() {

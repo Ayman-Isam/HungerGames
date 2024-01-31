@@ -26,15 +26,19 @@ public class SetSpawnHandler implements Listener {
     private final HungerGames plugin;
     private FileConfiguration setSpawnConfig = null;
     private File setSpawnFile = null;
+    private final PlayerSignClickManager playerSignClickManager;
 
-    public SetSpawnHandler(HungerGames plugin) {
+
+    public SetSpawnHandler(HungerGames plugin, PlayerSignClickManager playerSignClickManager) {
         this.plugin = plugin;
+        this.playerSignClickManager = playerSignClickManager;
         createSetSpawnConfig();
         createArenaConfig();
     }
 
     private final Set<String> occupiedSpawnPoints = new HashSet<>();
     private final Map<Player, String> playerSpawnPoints = new HashMap<>();
+
 
     public void createSetSpawnConfig() {
         setSpawnFile = new File(plugin.getDataFolder(), "setspawn.yml");
@@ -110,7 +114,7 @@ public class SetSpawnHandler implements Listener {
                         player.sendMessage(ChatColor.RED + "The game has already started!");
                         return;
                     }
-                    // Teleport player to an unoccupied spawn point
+                    playerSignClickManager.setPlayerSignClicked(player, true);
                     List<String> spawnPoints = getSetSpawnConfig().getStringList("spawnpoints");
                     List<String> availableSpawnPoints = new ArrayList<>(spawnPoints);
                     availableSpawnPoints.removeAll(occupiedSpawnPoints);

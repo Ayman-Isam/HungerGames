@@ -31,13 +31,15 @@ public class GameHandler implements Listener {
 
     private final HungerGames plugin;
     private final SetSpawnHandler setSpawnHandler;
+    private final PlayerSignClickManager playerSignClickManager;
     private FileConfiguration arenaConfig = null;
     private File arenaFile = null;
 
-    public GameHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
+    public GameHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler, PlayerSignClickManager playerSignClickManager) {
         this.plugin = plugin;
         this.setSpawnHandler = setSpawnHandler;
         this.playersAlive = new ArrayList<>();
+        this.playerSignClickManager = playerSignClickManager;
         createArenaConfig();
     }
 
@@ -210,12 +212,16 @@ public class GameHandler implements Listener {
             }
         }.runTaskLater(plugin, chestRefillTime);
     }
+    public PlayerSignClickManager getPlayerSignClickManager() {
+        return playerSignClickManager;
+    }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         if (playersAlive != null) {
             plugin.bossBar.removePlayer(player);
+            playerSignClickManager.removePlayerSignClicked(player);
             playersAlive.remove(player);
             World world = plugin.getServer().getWorld("world");
             assert world != null;
@@ -238,6 +244,7 @@ public class GameHandler implements Listener {
         Player player = event.getEntity();
         if (playersAlive != null) {
             playersAlive.remove(player);
+            playerSignClickManager.removePlayerSignClicked(player);
         }
         World world = plugin.getServer().getWorld("world");
         assert world != null;
@@ -279,6 +286,7 @@ public class GameHandler implements Listener {
         plugin.gameStarted = false;
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             player.setGameMode(GameMode.ADVENTURE);
+            playerSignClickManager.removePlayerSignClicked(player);
         }
 
         World world = plugin.getServer().getWorld("world");
