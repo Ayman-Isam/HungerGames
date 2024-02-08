@@ -1,5 +1,4 @@
 me\cantankerousally\hungergames\commands\ArenaSelectorCommand.class
-me\cantankerousally\hungergames\commands\MoveToggleCommand.class
 me\cantankerousally\hungergames\HungerGames.class
 me\cantankerousally\hungergames\handler\GameHandler.class
 me\cantankerousally\hungergames\handler\SetSpawnHandler.class
@@ -7,7 +6,9 @@ me\cantankerousally\hungergames\commands\StartGameCommand.class
 me\cantankerousally\hungergames\commands\ScanArenaCommand.class
 me\cantankerousally\hungergames\commands\BorderSetCommand.class
 me\cantankerousally\hungergames\commands\EndGameCommand.class
+me\cantankerousally\hungergames\handler\PlayerSignClickManager.class
 me\cantankerousally\hungergames\commands\ChestRefillCommand.class
+me\cantankerousally\hungergames\handler\MoveDisableHandler.class
 me\cantankerousally\hungergames\handler\SetArenaHandler.class
 me\cantankerousally\hungergames\handler\CompassHandler.class
 me\cantankerousally\hungergames\handler\GameHandler$1.class

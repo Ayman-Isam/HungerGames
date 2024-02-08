@@ -88,11 +88,7 @@ public class ArenaSelectorCommand implements CommandExecutor {
                         getArenaConfig().set("region.pos2.x", pos2.getX());
                         getArenaConfig().set("region.pos2.y", pos2.getY());
                         getArenaConfig().set("region.pos2.z", pos2.getZ());
-                        File itemsFile = new File (plugin.getDataFolder(), "items.yml");
-                        if (!itemsFile.exists()) {
-                            saveArenaConfig();
-                            sender.sendMessage(ChatColor.GREEN + "Region created and saved to arena.yml!");
-                        }
+                        saveArenaConfig();
                         sender.sendMessage(ChatColor.GREEN + "Region created and saved to arena.yml!");
                     } else {
                         sender.sendMessage(ChatColor.RED + "Invalid position values.");

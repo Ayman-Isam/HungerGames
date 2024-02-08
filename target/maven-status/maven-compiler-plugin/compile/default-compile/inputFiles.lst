@@ -1,7 +1,7 @@
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\handler\CompassHandler.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\ArenaSelectorCommand.java
-C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\MoveToggleCommand.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\HungerGames.java
+C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\handler\MoveDisableHandler.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\ScanArenaCommand.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\handler\WorldBorderHandler.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\BorderSetCommand.java
@@ -12,4 +12,5 @@ C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hunger
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\handler\SetSpawnHandler.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\EndGameCommand.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\handler\GameHandler.java
+C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\handler\PlayerSignClickManager.java
 C:\Users\ayman\IdeaProjects\HungerGames\src\main\java\me\cantankerousally\hungergames\commands\SetSpawnCommand.java
