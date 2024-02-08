@@ -105,7 +105,7 @@ public class SetSpawnHandler implements Listener {
                     event.setCancelled(true);
                 }
             }
-        } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+        } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_BLOCK) {
             Block block = event.getClickedBlock();
             assert block != null;
             if (block.getState() instanceof Sign sign) {
