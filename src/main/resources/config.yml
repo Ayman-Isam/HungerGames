@@ -22,6 +22,10 @@ supplydrop:
 # Interval of chests being refilled in seconds, use any time higher than game-time for no chestrefills, (default: 600)
 chestrefill:
   time: 600
+# Minimum number of players in a game, default is 2
+min-players: 2
+# Maximum number of players in a game, default is 24
+max-players: 24
 # Border settings
 border:
   # Border size in blocks, use size bigger than arena for no border, (default: 100)

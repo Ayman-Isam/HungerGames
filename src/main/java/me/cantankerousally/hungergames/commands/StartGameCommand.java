@@ -26,13 +26,11 @@ public class StartGameCommand implements CommandExecutor {
     }
 
     private FileConfiguration setspawnConfig = null;
-    private File setspawnFile = null;
 
     private FileConfiguration arenaConfig = null;
-    private File arenaFile = null;
 
     public void createSetSpawnConfig() {
-        setspawnFile = new File(plugin.getDataFolder(), "setspawn.yml");
+        File setspawnFile = new File(plugin.getDataFolder(), "setspawn.yml");
         if (!setspawnFile.exists()) {
             setspawnFile.getParentFile().mkdirs();
             plugin.saveResource("setspawn.yml", false);
@@ -42,7 +40,7 @@ public class StartGameCommand implements CommandExecutor {
     }
 
     public void createArenaConfig() {
-        arenaFile = new File(plugin.getDataFolder(), "arena.yml");
+        File arenaFile = new File(plugin.getDataFolder(), "arena.yml");
         if (!arenaFile.exists()) {
             arenaFile.getParentFile().mkdirs();
             plugin.saveResource("arena.yml", false);
@@ -55,7 +53,8 @@ public class StartGameCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("start")) {
             if (sender instanceof Player p) {
-                if (plugin.getServer().getOnlinePlayers().size() < 2) {
+                FileConfiguration config = plugin.getConfig();
+                if (plugin.getServer().getOnlinePlayers().size() < config.getInt("min-players")) {
                     p.sendMessage(ChatColor.RED + "There must be at least 2 players to start the game!");
                     return true;
                 }

@@ -89,17 +89,18 @@ public class SetSpawnHandler implements Listener {
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                     Location location = Objects.requireNonNull(event.getClickedBlock()).getLocation();
                     List<String> spawnPoints = getSetSpawnConfig().getStringList("spawnpoints");
+                    FileConfiguration config = plugin.getConfig();
                     String newSpawnPoint = Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
                     if (spawnPoints.contains(newSpawnPoint)) {
                         player.sendMessage(ChatColor.RED + "You can't choose the same block for two spawn points!");
-                        return;
+                        event.setCancelled(true);
                     }
-                    if (spawnPoints.size() < 24) {
+                    if (spawnPoints.size() < config.getInt("max-players")) {
                         spawnPoints.add(newSpawnPoint);
                         getSetSpawnConfig().set("spawnpoints", spawnPoints);
                         saveSetSpawnConfig();
                         player.sendMessage(ChatColor.LIGHT_PURPLE + "Spawn point " + ChatColor.GOLD + spawnPoints.size() + ChatColor.LIGHT_PURPLE + " set at X: " + location.getBlockX() + " Y: " + location.getBlockY() + " Z: " + location.getBlockZ());
-                    } else if (spawnPoints.size() ==  24){
+                    } else if (spawnPoints.size() ==  config.getInt("max-players")){
                         player.sendMessage(ChatColor.RED + "You have reached the maximum number of spawn points!");
                     }
                     event.setCancelled(true);
