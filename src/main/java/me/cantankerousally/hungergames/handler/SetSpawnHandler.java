@@ -74,7 +74,7 @@ public class SetSpawnHandler implements Listener {
         try {
             getSetSpawnConfig().save(setSpawnFile);
         } catch (IOException ex) {
-            plugin.getLogger().log(Level.WARNING, "Could not save config to " + setSpawnFile, ex);
+            plugin.getLogger().log(Level.OFF, plugin.getMessage("setspawnhandler.failed-save") + setSpawnFile, ex);
         }
     }
 
@@ -85,23 +85,23 @@ public class SetSpawnHandler implements Listener {
         if (item != null && item.getType() == Material.STICK && item.hasItemMeta()) {
             ItemMeta meta = item.getItemMeta();
             assert meta != null;
-            if (meta.getDisplayName().equals(ChatColor.AQUA + "Spawn Point Selector")) {
+            if (meta.getDisplayName().equals(ChatColor.AQUA + plugin.getMessage("setspawnhandler.selector"))) {
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                     Location location = Objects.requireNonNull(event.getClickedBlock()).getLocation();
                     List<String> spawnPoints = getSetSpawnConfig().getStringList("spawnpoints");
                     FileConfiguration config = plugin.getConfig();
                     String newSpawnPoint = Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
                     if (spawnPoints.contains(newSpawnPoint)) {
-                        player.sendMessage(ChatColor.RED + "You can't choose the same block for two spawn points!");
+                        player.sendMessage(ChatColor.RED + plugin.getMessage("setspawnhandler.duplicate"));
                         event.setCancelled(true);
                     }
                     if (spawnPoints.size() < config.getInt("max-players")) {
                         spawnPoints.add(newSpawnPoint);
                         getSetSpawnConfig().set("spawnpoints", spawnPoints);
                         saveSetSpawnConfig();
-                        player.sendMessage(ChatColor.LIGHT_PURPLE + "Spawn point " + ChatColor.GOLD + spawnPoints.size() + ChatColor.LIGHT_PURPLE + " set at X: " + location.getBlockX() + " Y: " + location.getBlockY() + " Z: " + location.getBlockZ());
+                        player.sendMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("setspawnhandler.spawn-text") + ChatColor.GOLD + spawnPoints.size() + ChatColor.LIGHT_PURPLE + " set at X: " + location.getBlockX() + " Y: " + location.getBlockY() + " Z: " + location.getBlockZ());
                     } else if (spawnPoints.size() ==  config.getInt("max-players")){
-                        player.sendMessage(ChatColor.RED + "You have reached the maximum number of spawn points!");
+                        player.sendMessage(ChatColor.RED + plugin.getMessage("setspawnhandler.max-spawn"));
                     }
                     event.setCancelled(true);
                 }
@@ -112,7 +112,7 @@ public class SetSpawnHandler implements Listener {
             if (block.getState() instanceof Sign sign) {
                 if (sign.getLine(0).equalsIgnoreCase("[Join]")) {
                     if (plugin.gameStarted) {
-                        player.sendMessage(ChatColor.RED + "The game has already started!");
+                        player.sendMessage(ChatColor.RED + plugin.getMessage("setspawnhandler.game-started"));
                         return;
                     }
                     playerSignClickManager.setPlayerSignClicked(player, true);
@@ -138,11 +138,11 @@ public class SetSpawnHandler implements Listener {
                             player.removePotionEffect(effect.getType());
                         }
                         // Broadcast a message to all players
-                        plugin.getServer().broadcastMessage(ChatColor.AQUA + player.getName() + " has joined [" + occupiedSpawnPoints.size() + "/" + spawnPoints.size() + "]");
+                        plugin.getServer().broadcastMessage(ChatColor.AQUA + player.getName() + plugin.getMessage("setspawnhandler.joined-message-1") + occupiedSpawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-2") + spawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-3"));
                         // Add player to the map of players and their spawn points
                         playerSpawnPoints.put(player, spawnPoint);
                     } else {
-                        player.sendMessage(ChatColor.RED + "All spawn points are currently occupied!");
+                        player.sendMessage(ChatColor.RED + plugin.getMessage("setspawnhandler.spawn-filled"));
                     }
                 }
             }

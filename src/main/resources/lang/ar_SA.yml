@@ -1,0 +1,95 @@
+no-permission: "ليس  لديك الإذن  لتشغيل  هذا الأمر."
+no-server: "يمكن  تنفيذ  هذا الأمر  فقط  من  قبل اللاعبين."
+
+arena:
+  save-error: "لم  يتم  حفظ arena.yml  بنجاح  إلى "
+  stick-left: "انقر  بزر الماوس الأيسر  لتحديد الموقع  1."
+  stick-right: "انقر  بزر الماوس الأيمن  لتحديد الموقع  2."
+  given-stick: "تم  توفير  محدد المسابقة  لك."
+  region-created: "تم  إنشاء المنطقة  وحفظها  إلى arena.yml!"
+  invalid-values: "تم الكشف  عن  قيم  موقع  غير  صالحة!"
+  no-values: "يجب  أن  تحدد  كلا الموقعين  أولاً  باستخدام  محدد المسابقة."
+
+border:
+  usage: "الاستخدام: border <حجم> <مركز-x> <مركز-z>."
+  invalid-arguments: "تم الكشف  عن  قيم  غير  صالحة.  يرجى  إدخال  أرقام  صالحة!"
+  wrong-world: "لم  يتم العثور  على العالم.  يرجى  تعيين  اسم المستوى  في server.properties  إلى 'world', level-name=world."
+  args-1: "<حجم>"
+  args-2: "<مركز-x>"
+  args-3: "<مركز-z>"
+
+chestrefill:
+  no-arena: "قم  أولاً  بإنشاء  مسابقة  لتشغيل  هذا الأمر!"
+  created-items: "تم  إنشاء  ملف items.yml  جديد!"
+  failed-items: "لم  يتم  إنشاء  ملف items.yml!"
+  failed-locations: "لم  يتم  حفظ  مواقع الصندوق  إلى الملف!"
+  chest-refilled: "تم  إعادة  ملء الصندوقات!"
+
+endgame:
+  not-started: "لم  تبدأ اللعبة  بعد!"
+  ended: "تم  إنهاء اللعبة."
+
+scanarena:
+  region-undef: "لم  يتم  تعريف  منطقة المسابقة  في التكوين."
+  saved-locations: "تم  حفظ  مواقع الصندوق  بنجاح."
+  failed-locations: "لم  يتم  حفظ  مواقع الصندوق  إلى الملف!"
+
+setspawn:
+  stick-name: "محدد  نقطة البداية."
+  given-stick: "تم  توفير  محدد  نقطة البداية  لك."
+  spawn-reset: "تم  إعادة  تعيين  نقاط البداية."
+
+startgame:
+  min-players: "يجب  أن  يكون  هناك  لاعبين  على الأقل %d  لبدء اللعبة!"
+  set-spawn-arena: "قم  أولاً  بإعداد المسابقة  ونقاط البداية!"
+  set-spawn: "قم  أولاً  بإعداد  نقاط البداية!"
+  set-arena: "قم  أولاً  بإعداد المسابقة!"
+  started: "تم  بدء اللعبة  بالفعل!"
+  starting: "جارٍ  بدء اللعبة."
+  20-s: "سيبدأ اللعبة  في  20  ثانية!"
+  15-s: "باقي  15  ثانية!"
+  10-s: "باقي  10  ثانية!"
+  5-s: "باقي  5  ثانية!"
+  4-s: "باقي  4  ثانية!"
+  3-s: "باقي  3  ثانية!"
+  2-s: "باقي  2  ثانية!"
+  1-s: "باقي  1  ثانية!"
+
+supplydrop:
+  no-arena: "قم  أولاً  بإنشاء  مسابقة  لتشغيل  هذا الأمر!"
+  created-items: "تم  إنشاء  ملف items.yml  جديد!"
+  failed-items: "لم  يتم  إنشاء  ملف items.yml!"
+  append-1: "تم  إنشاء "
+  append-2: "  مناديب  إعادة التوريد  في الموقع المحدد."
+
+game:
+  game-start: "بدأت اللعبة!"
+  grace-start: "بدأت الفترة المباشرة!  تم  تعطيل PvP."
+  grace-end: "انتهت الفترة المباشرة!  تم  تمكين PvP."
+  score-time: "الوقت المتبقي:"
+  score-alive: "اللاعبين المتبقيين:"
+  score-border: "حجم الحدود:"
+  game-end: "انتهت اللعبة!"
+  winner-text: "  هو الفائز!"
+  time-up: "انتهى الوقت!  لم  يكن  هناك  فائز!"
+
+setarena:
+  first-pos-1: "تم  تحديد الموقع الأول  في X="
+  first-pos-2: ", Y="
+  first-pos-3: ", Z="
+  second-pos-1: "تم  تحديد الموقع الثاني  في X="
+  second-pos-2: ", Y="
+  second-pos-3: ", Z="
+
+setspawnhandler:
+  failed-save: "لم  يتم  حفظ التكوين  في الموقع المحدد."
+  duplicate: "لا  يمكنك  اختيار  نفس الكتلة  لنقطتي البداية!"
+  max-spawn: "لقد  وصلت  إلى الحد الأقصى  لنقاط البداية!"
+  game-started: "بدأت اللعبة  بالفعل."
+  joined-message-1: "  انضم  إلى ["
+  joined-message-2: "/"
+  joined-message-3: "]"
+  spawn-filled: "جميع  نقاط البداية  ممتلئة  حاليا!"
+
+borderhandler:
+  start-shrink: "بدأت  تقليل  حدود العالم."

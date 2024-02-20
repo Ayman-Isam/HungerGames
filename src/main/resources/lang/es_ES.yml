@@ -1,0 +1,95 @@
+no-permission: "No tienes permiso para ejecutar este comando."
+no-server: "Este comando solo puede ser ejecutado por jugadores."
+
+arena:
+  save-error: "No se pudo guardar arena.yml en "
+  stick-left: "Haz clic con el botón izquierdo del ratón para seleccionar la posición  1."
+  stick-right: "Haz clic con el botón derecho del ratón para seleccionar la posición  2."
+  given-stick: "Te han dado un selector de arena."
+  region-created: "Región creada y guardada en arena.yml!"
+  invalid-values: "Se detectaron valores de posición inválidos!"
+  no-values: "Debes establecer ambas posiciones primero usando el selector de arena."
+
+border:
+  usage: "Uso: border <tamaño> <centro-x> <centro-z>."
+  invalid-arguments: "Se detectaron argumentos inválidos. ¡Por favor, ingresa números válidos!"
+  wrong-world: "Mundo no encontrado. Por favor, establece el nombre del nivel en server.properties a 'world', level-name=world."
+  args-1: "<tamaño>"
+  args-2: "<centro-x>"
+  args-3: "<centro-z>"
+
+chestrefill:
+  no-arena: "Crea una arena primero para ejecutar este comando!"
+  created-items: "Se creó un nuevo archivo items.yml!"
+  failed-items: "No se pudo crear el archivo items.yml!"
+  failed-locations: "No se pudo guardar las ubicaciones de los cofres en el archivo!"
+  chest-refilled: "Los cofres han sido reabastecidos!"
+
+endgame:
+  not-started: "El juego aún no ha comenzado!"
+  ended: "El juego ha terminado."
+
+scanarena:
+  region-undef: "La región de la arena no está definida en la configuración."
+  saved-locations: "Se guardaron las ubicaciones de los cofres."
+  failed-locations: "No se pudo guardar las ubicaciones de los cofres en el archivo!"
+
+setspawn:
+  stick-name: "Selector de punto de spawn."
+  given-stick: "Te han dado un selector de punto de spawn."
+  spawn-reset: "Se restablecieron los puntos de spawn."
+
+startgame:
+  min-players: "Debe haber al menos %d jugadores para comenzar el juego!"
+  set-spawn-arena: "Configura primero la arena y los puntos de spawn!"
+  set-spawn: "Configura primero los puntos de spawn!"
+  set-arena: "Configura primero la arena!"
+  started: "¡El juego ya ha comenzado!"
+  starting: "El juego está comenzando."
+   20-s: "El juego comenzará en  20 segundos!"
+   15-s: "Quedan  15 segundos!"
+   10-s: "Quedan  10 segundos!"
+   5-s: "Quedan  5 segundos!"
+   4-s: "Quedan  4 segundos!"
+   3-s: "Quedan  3 segundos!"
+   2-s: "Quedan  2 segundos!"
+   1-s: "Quedan  1 segundo!"
+
+supplydrop:
+  no-arena: "Crea una arena primero para ejecutar este comando!"
+  created-items: "Se creó un nuevo archivo items.yml!"
+  failed-items: "No se pudo crear el archivo items.yml!"
+  append-1: "Se generaron "
+  append-2: " suministros en la ubicación especificada."
+
+game:
+  game-start: "¡El juego ha comenzado!"
+  grace-start: "¡La fase de gracia ha comenzado! El PvP está desactivado."
+  grace-end: "¡La fase de gracia ha terminado! El PvP está activado."
+  score-time: "Tiempo restante:"
+  score-alive: "Jugadores vivos:"
+  score-border: "Tamaño del borde:"
+  game-end: "¡El juego ha terminado!"
+  winner-text: " es el ganador!"
+  time-up: "¡Se acabó el tiempo! Nadie ganó el juego!"
+
+setarena:
+  first-pos-1: "Primera posición establecida en X="
+  first-pos-2: ", Y="
+  first-pos-3: ", Z="
+  second-pos-1: "Segunda posición establecida en X="
+  second-pos-2: ", Y="
+  second-pos-3: ", Z="
+
+setspawnhandler:
+  failed-save: "No se pudo guardar la configuración en la ubicación especificada."
+  duplicate: "No puedes elegir el mismo bloque para dos puntos de spawn!"
+  max-spawn: "Has alcanzado el número máximo de puntos de spawn!"
+  game-started: "¡El juego ya ha comenzado!"
+  joined-message-1: " ha unido ["
+  joined-message-2: "/"
+  joined-message-3: "]"
+  spawn-filled: "¡Todos los puntos de spawn están ocupados actualmente!"
+
+borderhandler:
+  start-shrink: "El borde del mundo ha comenzado a encogerse."

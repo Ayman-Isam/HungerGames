@@ -18,19 +18,22 @@ public class EndGameCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        Player player = (Player) sender;
-        if (player.isOp()) {
-            if (!plugin.gameStarted) {
-                sender.sendMessage(ChatColor.RED + "The game has not started yet!");
-                return true;
-            }
+        if (sender instanceof Player player) {
+            plugin.loadLanguageConfig(player);
+            if (player.isOp()) {
+                if (!plugin.gameStarted) {
+                    sender.sendMessage(ChatColor.RED + plugin.getMessage("endgame.not-started"));
+                    return true;
+                }
 
-            plugin.getGameHandler().endGame();
-            Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + "The game has ended!");
-            return true;
-        } else {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
+                plugin.getGameHandler().endGame();
+                Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("endgame.ended"));
+                return true;
+            } else {
+                sender.sendMessage(ChatColor.RED + plugin.getMessage("no-permission"));
+            }
+            return false;
         }
-        return false;
+        return true;
     }
 }

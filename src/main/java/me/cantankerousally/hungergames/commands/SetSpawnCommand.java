@@ -24,22 +24,24 @@ public class SetSpawnCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("setspawn")) {
-            Player player = (Player) sender;
-            if (player.isOp()) {
-                ItemStack stick = new ItemStack(Material.STICK);
-                ItemMeta meta = stick.getItemMeta();
-                assert meta != null;
-                meta.setDisplayName(ChatColor.AQUA + "Spawn Point Selector");
-                stick.setItemMeta(meta);
-                player.getInventory().addItem(stick);
-                sender.sendMessage(ChatColor.BLUE + "You have been given a Spawn Point Selector!");
-                SetSpawnHandler setSpawnHandler = plugin.getSetSpawnHandler();
-                setSpawnHandler.getSetSpawnConfig().set("spawnpoints", new ArrayList<>());
-                setSpawnHandler.saveSetSpawnConfig();
-                sender.sendMessage(ChatColor.GREEN + "Spawn points have been reset.");
-                return true;
-            } else {
-                sender.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
+            if (sender instanceof Player player) {
+                plugin.loadLanguageConfig(player);
+                if (player.isOp()) {
+                    ItemStack stick = new ItemStack(Material.STICK);
+                    ItemMeta meta = stick.getItemMeta();
+                    assert meta != null;
+                    meta.setDisplayName(ChatColor.AQUA + plugin.getMessage("setspawn.stick-name"));
+                    stick.setItemMeta(meta);
+                    player.getInventory().addItem(stick);
+                    sender.sendMessage(ChatColor.BLUE + plugin.getMessage("setspawn.given-stick"));
+                    SetSpawnHandler setSpawnHandler = plugin.getSetSpawnHandler();
+                    setSpawnHandler.getSetSpawnConfig().set("spawnpoints", new ArrayList<>());
+                    setSpawnHandler.saveSetSpawnConfig();
+                    sender.sendMessage(ChatColor.GREEN + plugin.getMessage("setspawn.spawn-reset"));
+                    return true;
+                } else {
+                    sender.sendMessage(ChatColor.RED + plugin.getMessage("no-permission"));
+                }
             }
         }
         return false;

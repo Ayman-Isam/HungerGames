@@ -1,5 +1,6 @@
 package me.cantankerousally.hungergames.commands;
 
+import me.cantankerousally.hungergames.HungerGames;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -11,7 +12,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -19,14 +19,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 
 public class ArenaSelectorCommand implements CommandExecutor {
-    private final JavaPlugin plugin;
+    private final HungerGames plugin;
     private FileConfiguration arenaConfig = null;
     private File arenaFile = null;
 
 
-    public ArenaSelectorCommand(JavaPlugin plugin) {
+    public ArenaSelectorCommand(HungerGames plugin) {
         this.plugin = plugin;
         createArenaConfig();
     }
@@ -52,7 +53,7 @@ public class ArenaSelectorCommand implements CommandExecutor {
         try {
             getArenaConfig().save(arenaFile);
         } catch (IOException e) {
-            plugin.getLogger().log(java.util.logging.Level.SEVERE, "Could not save arena.yml to " + arenaFile, e);
+            plugin.getLogger().log(Level.WARNING, plugin.getMessage("arena.save-error") + arenaFile, e);
         }
     }
 
@@ -60,28 +61,30 @@ public class ArenaSelectorCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("select")) {
             if (sender instanceof Player player) {
+                plugin.loadLanguageConfig(player);
                 if (player.isOp()) {
                     ItemStack blazeRod = new ItemStack(Material.BLAZE_ROD);
                     ItemMeta meta = blazeRod.getItemMeta();
                     assert meta != null;
                     meta.setDisplayName(ChatColor.AQUA + "Arena Selector");
                     List<String> lore = new ArrayList<>();
-                    lore.add(ChatColor.LIGHT_PURPLE + "Left-click to select position 1");
-                    lore.add(ChatColor.LIGHT_PURPLE + "Right-click to select position 2");
+                    lore.add(ChatColor.LIGHT_PURPLE + plugin.getMessage("arena.stick-left"));
+                    lore.add(ChatColor.LIGHT_PURPLE + plugin.getMessage("arena.stick-right"));
                     meta.setLore(lore);
                     blazeRod.setItemMeta(meta);
                     player.getInventory().addItem(blazeRod);
-                    sender.sendMessage(ChatColor.LIGHT_PURPLE + "You have been given an Arena Selector!");
+                    sender.sendMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("arena.given-stick"));
                 } else {
-                    sender.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
+                    sender.sendMessage(ChatColor.RED + plugin.getMessage("no-permission"));
                 }
             }
             else {
-                sender.sendMessage(ChatColor.RED + "This command can only be executed by players.");
+                sender.sendMessage(ChatColor.RED + plugin.getMessage("no-server"));
             }
             return true;
         } else if (command.getName().equalsIgnoreCase("create")) {
             if (sender instanceof Player player) {
+                plugin.loadLanguageConfig(player);
                 if (player.isOp()) {
                     if (player.hasMetadata("arena_pos1") && player.hasMetadata("arena_pos2")) {
                         Location pos1 = (Location) player.getMetadata("arena_pos1").get(0).value();
@@ -95,18 +98,18 @@ public class ArenaSelectorCommand implements CommandExecutor {
                             getArenaConfig().set("region.pos2.y", pos2.getY());
                             getArenaConfig().set("region.pos2.z", pos2.getZ());
                             saveArenaConfig();
-                            sender.sendMessage(ChatColor.GREEN + "Region created and saved to arena.yml!");
+                            sender.sendMessage(ChatColor.GREEN + plugin.getMessage("arena.region-created"));
                         } else {
-                            sender.sendMessage(ChatColor.RED + "Invalid position values.");
+                            sender.sendMessage(ChatColor.RED + plugin.getMessage("arena.invalid-values"));
                         }
                     } else {
-                        sender.sendMessage(ChatColor.RED + "You must set both positions first using the Arena Selector!");
+                        sender.sendMessage(ChatColor.RED + plugin.getMessage("arena.no-values"));
                     }
                 } else {
-                    sender.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
+                    sender.sendMessage(ChatColor.RED + plugin.getMessage("no-permission"));
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "This command can only be executed by players.");
+                sender.sendMessage(ChatColor.RED + plugin.getMessage("no-server"));
             }
             return true;
         }

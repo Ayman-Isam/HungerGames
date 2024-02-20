@@ -52,32 +52,33 @@ public class StartGameCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("start")) {
-            if (sender instanceof Player p) {
+            if (sender instanceof Player player) {
                 FileConfiguration config = plugin.getConfig();
                 if (plugin.getServer().getOnlinePlayers().size() < config.getInt("min-players")) {
-                    p.sendMessage(ChatColor.RED + "There must be at least 2 players to start the game!");
+                    String message = String.format(plugin.getMessage("startgame.min-players"), config.getInt("min-players"));
+                    player.sendMessage(ChatColor.RED + message);
                     return true;
                 }
                 List<String> spawnpoints = setspawnConfig.getStringList("spawnpoints");
                 String world = arenaConfig.getString("region.world");
                 if (spawnpoints.isEmpty() && world == null) {
-                    p.sendMessage(ChatColor.RED + "Set up arena and spawnpoints first!");
+                    player.sendMessage(ChatColor.RED + plugin.getMessage("startgame.set-spawn-arena"));
                     return true;
                 } else if (spawnpoints.isEmpty()) {
-                    p.sendMessage(ChatColor.RED + "Set up spawnpoints first!");
+                    player.sendMessage(ChatColor.RED + plugin.getMessage("startgame.set-spawn"));
                     return true;
                 } else if (world == null) {
-                    p.sendMessage(ChatColor.RED + "Set up arena first!");
+                    player.sendMessage(ChatColor.RED + plugin.getMessage("startgame.set-arena"));
                     return true;
                 }
 
                 if (plugin.gameStarted) {
-                    sender.sendMessage(ChatColor.RED + "The game has already started!");
+                    sender.sendMessage(ChatColor.RED + plugin.getMessage("startgame.started"));
                     return true;
                 }
 
                 if (gameStarting) {
-                    sender.sendMessage(ChatColor.RED + "The game is already starting!");
+                    sender.sendMessage(ChatColor.RED + plugin.getMessage("startgame.starting"));
                     return true;
                 }
 
@@ -85,59 +86,59 @@ public class StartGameCommand implements CommandExecutor {
 
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                     plugin.getGameHandler().startGame();
-                    for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    for (Player p : plugin.getServer().getOnlinePlayers()) {
                         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
                     }
                     gameStarting = false;
                 }, 20L * 20);
 
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    plugin.getServer().broadcastMessage(ChatColor.GOLD + "15 seconds left!");
-                    for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
+                    plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.15-s"));
+                    for (Player p : plugin.getServer().getOnlinePlayers()) {
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
                     }
                 }, 20L * 5);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    plugin.getServer().broadcastMessage(ChatColor.GOLD + "10 seconds left!");
-                    for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
+                    plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.10-s"));
+                    for (Player p : plugin.getServer().getOnlinePlayers()) {
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
                     }
                 }, 20L * 10);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    plugin.getServer().broadcastMessage(ChatColor.GOLD + "5 seconds left!");
-                    for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
+                    plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.5-s"));
+                    for (Player p : plugin.getServer().getOnlinePlayers()) {
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
                     }
                 }, 20L * 15);
 
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    plugin.getServer().broadcastMessage(ChatColor.GOLD + "4 seconds left!");
-                    for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
+                    plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.4-s"));
+                    for (Player p : plugin.getServer().getOnlinePlayers()) {
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
                     }
                 }, 20L * 16);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    plugin.getServer().broadcastMessage(ChatColor.GOLD + "3 seconds left!");
-                    for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
+                    plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.3-s"));
+                    for (Player p : plugin.getServer().getOnlinePlayers()) {
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
                     }
                 }, 20L * 17);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    plugin.getServer().broadcastMessage(ChatColor.GOLD + "2 seconds left!");
-                    for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
+                    plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.2-s"));
+                    for (Player p : plugin.getServer().getOnlinePlayers()) {
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
                     }
                 }, 20L * 18);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    plugin.getServer().broadcastMessage(ChatColor.GOLD + "1 second left!");
-                    for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
+                    plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.1-s"));
+                    for (Player p : plugin.getServer().getOnlinePlayers()) {
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
                     }
                 }, 20L * 19);
 
-                Bukkit.broadcastMessage(ChatColor.GOLD + "The game will start in 20 seconds!");
-                for (Player player : plugin.getServer().getOnlinePlayers()) {
-                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
+                Bukkit.broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.20-s"));
+                for (Player p : plugin.getServer().getOnlinePlayers()) {
+                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
                 }
                 return true;
             }

@@ -26,10 +26,10 @@ public class SetArenaHandler implements Listener {
         ItemStack item = event.getItem();
         if (item != null && item.getType() == Material.BLAZE_ROD && item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(ChatColor.AQUA + "Arena Selector")) {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-                player.sendMessage(ChatColor.LIGHT_PURPLE + "First position set at X=" + Objects.requireNonNull(event.getClickedBlock()).getX() + ", Y=" + event.getClickedBlock().getY() + ", Z=" + event.getClickedBlock().getZ() + ".");
+                player.sendMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("setarena.first-pos-1") + Objects.requireNonNull(event.getClickedBlock()).getX() + plugin.getMessage("setarena.first-pos-2") + event.getClickedBlock().getY() + plugin.getMessage("setarena.first-pos-3") + event.getClickedBlock().getZ() + plugin.getMessage("setarena.first-pos-4"));
                 player.setMetadata("arena_pos1", new FixedMetadataValue(plugin, event.getClickedBlock().getLocation()));
             } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                player.sendMessage(ChatColor.LIGHT_PURPLE + "Second position set at X=" + Objects.requireNonNull(event.getClickedBlock()).getX() + ", Y=" + event.getClickedBlock().getY() + ", Z=" + event.getClickedBlock().getZ() + ".");
+                player.sendMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("setarena.second-pos-1") + Objects.requireNonNull(event.getClickedBlock()).getX() + plugin.getMessage("setarena.second-pos-2") + event.getClickedBlock().getY() + plugin.getMessage("setarena.second-pos-3") + event.getClickedBlock().getZ() + plugin.getMessage("setarena.second-pos-4"));
                 player.setMetadata("arena_pos2", new FixedMetadataValue(plugin, event.getClickedBlock().getLocation()));
             }
             event.setCancelled(true);

@@ -7,12 +7,12 @@ import org.bukkit.WorldBorder;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.java.JavaPlugin;
+
 
 public class WorldBorderHandler implements Listener {
-    private final JavaPlugin plugin;
+    private final HungerGames plugin;
 
-    public WorldBorderHandler(JavaPlugin plugin) {
+    public WorldBorderHandler(HungerGames plugin) {
         this.plugin = plugin;
     }
     public void startBorderShrink() {
@@ -30,10 +30,10 @@ public class WorldBorderHandler implements Listener {
 
         long duration = endTime - startTime;
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            if (((HungerGames) plugin).gameStarted) {
+            if (plugin.gameStarted) {
                 border.setSize(finalSize, duration);
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
-                    player.sendMessage(ChatColor.GOLD + "The world border has started to shrink!");
+                    player.sendMessage(ChatColor.GOLD + plugin.getMessage("borderhandler.start-shrink"));
                 }
             } else {
                 double borderSize = plugin.getConfig().getDouble("border.size");

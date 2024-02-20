@@ -1,14 +1,14 @@
 package me.cantankerousally.hungergames.handler;
 
+import me.cantankerousally.hungergames.HungerGames;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public class CompassHandler {
 
-    public CompassHandler(JavaPlugin plugin) {
+    public CompassHandler(HungerGames plugin) {
 
         plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             for (Player player : plugin.getServer().getOnlinePlayers()) {

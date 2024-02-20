@@ -112,8 +112,8 @@ public class GameHandler implements Listener {
         }
 
         for (Player player : playersAlive) {
-            player.sendMessage(ChatColor.LIGHT_PURPLE + "The game has started!");
-            player.sendMessage(ChatColor.LIGHT_PURPLE + "The grace period has started! PvP is disabled!");
+            player.sendMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("game.game-start"));
+            player.sendMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("game.grace-start"));
             if (plugin.getConfig().getBoolean("bedrock-buff.enabled") && player.getName().startsWith(".")) {
                 List<String> effectNames = plugin.getConfig().getStringList("bedrock-buff.effects");
                 for (String effectName : effectNames) {
@@ -130,7 +130,7 @@ public class GameHandler implements Listener {
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
             world.setPVP(true);
             for (Player player : playersAlive) {
-                player.sendMessage(ChatColor.LIGHT_PURPLE + "The grace period has ended! PvP is now enabled!");
+                player.sendMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("game.grace-end"));
             }
         }, gracePeriod * 20L);
 
@@ -139,15 +139,14 @@ public class GameHandler implements Listener {
         Scoreboard scoreboard = manager.getNewScoreboard();
         Objective objective = scoreboard.registerNewObjective("gameinfo", "dummy", "Game Info", RenderType.INTEGER);
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        Score timeLeftScore = objective.getScore("Time Left:");
+        Score timeLeftScore = objective.getScore(plugin.getMessage("game.score-time"));
         timeLeftScore.setScore(timeLeft);
-        Score playersAliveScore = objective.getScore("Players Alive:");
+        Score playersAliveScore = objective.getScore(plugin.getMessage("game.score-alive"));
         playersAliveScore.setScore(playersAlive.size());
-        Score worldBorderSizeScore = objective.getScore("World Border Size:");
+        Score worldBorderSizeScore = objective.getScore(plugin.getMessage("game.score-border"));
         worldBorderSizeScore.setScore((int) world.getWorldBorder().getSize());
 
         plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-            // Update the world border size score
             worldBorderSizeScore.setScore((int) world.getWorldBorder().getSize());
         }, 0L, 20L);
 
@@ -164,12 +163,12 @@ public class GameHandler implements Listener {
                 plugin.getServer().getScheduler().cancelTask(timerTaskId);
 
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
-                    player.sendMessage(ChatColor.LIGHT_PURPLE + "The game has ended!");
+                    player.sendMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("game.game-end"));
                 }
 
                 Player winner = playersAlive.get(0);
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
-                    player.sendMessage(ChatColor.LIGHT_PURPLE + winner.getName() + " is the winner!");
+                    player.sendMessage(ChatColor.LIGHT_PURPLE + winner.getName() + plugin.getMessage("game.winner-text"));
                     player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
                 }
                 endGame();
@@ -178,7 +177,7 @@ public class GameHandler implements Listener {
             if (timeLeft < 0) {
                 plugin.getServer().getScheduler().cancelTask(timerTaskId);
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
-                    player.sendMessage(ChatColor.LIGHT_PURPLE + "The time is up! No one won the game!");
+                    player.sendMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("game.time-up"));
                 }
                 endGame();
             }

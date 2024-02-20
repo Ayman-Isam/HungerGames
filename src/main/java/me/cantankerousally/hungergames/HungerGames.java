@@ -7,29 +7,30 @@ import org.bukkit.WorldBorder;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 
 public final class HungerGames extends JavaPlugin {
-
-    public HungerGames() {
-    }
-
     public boolean gameStarted = false;
     public BossBar bossBar;
     private GameHandler gameHandler;
     public List<Player> playersAlive;
     private SetSpawnHandler setSpawnHandler;
     private ChestRefillCommand chestRefillCommand;
+    private YamlConfiguration langConfig;
 
     @Override
     public void onEnable() {
-        bossBar = getServer().createBossBar("Time Remaining", BarColor.BLUE, BarStyle.SOLID);
+        saveLanguageFiles();
+        loadDefaultLanguageConfig();
+        bossBar = getServer().createBossBar(this.getMessage("time-remaining"), BarColor.BLUE, BarStyle.SOLID);
         PlayerSignClickManager playerSignClickManager = new PlayerSignClickManager();
         setSpawnHandler = new SetSpawnHandler(this, playerSignClickManager);
         gameHandler = new GameHandler(this, setSpawnHandler, playerSignClickManager);
@@ -75,5 +76,46 @@ public final class HungerGames extends JavaPlugin {
 
     public SetSpawnHandler getSetSpawnHandler() {
         return setSpawnHandler;
+    }
+
+    public void saveLanguageFiles() {
+        String resourceFolder = "lang";
+        File langFolder = new File(getDataFolder(), resourceFolder);
+        if (!langFolder.exists()) {
+            langFolder.mkdir();
+        }
+
+        for (String lang : new String[]{"en_US", "es_ES", "fr_FR", "hi_IN", "zh_CN", "ar_SA"}) {
+            saveResource(resourceFolder + "/" + lang + ".yml", false);
+        }
+    }
+
+    public void loadDefaultLanguageConfig() {
+        String defaultLocale = "en_US";
+        File langFile = new File(getDataFolder(), "lang/" + defaultLocale + ".yml");
+        if (langFile.exists()) {
+            langConfig = YamlConfiguration.loadConfiguration(langFile);
+        }
+    }
+
+    public void loadLanguageConfig(Player player) {
+        String locale = player.getLocale();
+        File langFile = new File(getDataFolder(), "lang/" + locale + ".yml");
+        System.out.println(langFile);
+        if (langFile.exists()) {
+            langConfig = YamlConfiguration.loadConfiguration(langFile);
+        } else {
+            loadDefaultLanguageConfig();
+        }
+    }
+
+    public String getMessage(String key) {
+        if (langConfig != null) {
+            String message = langConfig.getString(key);
+            if (message != null) {
+                return message;
+            }
+        }
+        return "Message not found";
     }
 }
