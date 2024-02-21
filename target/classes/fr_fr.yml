@@ -1,0 +1,95 @@
+no-permission: "Vous n'avez pas la permission d'exécuter cette commande."
+no-server: "Cette commande ne peut être exécutée que par des joueurs."
+
+arena:
+  save-error: "Impossible de sauvegarder arena.yml à "
+  stick-left: "Cliquez avec le bouton gauche pour sélectionner la position 1."
+  stick-right: "Cliquez avec le bouton droit pour sélectionner la position 2."
+  given-stick: "On vous a donné un Sélecteur d'Arène."
+  region-created: "Région créée et sauvegardée dans arena.yml!"
+  invalid-values: "Valeurs de position invalides détectées!"
+  no-values: "Vous devez d'abord définir les deux positions en utilisant le Sélecteur d'Arène."
+
+border:
+  usage: "Utilisation: border <taille> <centre-x> <centre-z>."
+  invalid-arguments: "Valeurs invalides détectées. Veuillez entrer des nombres valides!"
+  wrong-world: "Monde introuvable. Veuillez définir le nom du niveau dans server.properties à 'world', level-name=world."
+  args-1: "<taille>"
+  args-2: "<centre-x>"
+  args-3: "<centre-z>"
+
+chestrefill:
+  no-arena: "Créez d'abord une arène pour exécuter cette commande!"
+  created-items: "Créé un nouveau fichier items.yml!"
+  failed-items: "Impossible de créer le fichier items.yml!"
+  failed-locations: "Impossible de sauvegarder les emplacements des coffres dans le fichier!"
+  chest-refilled: "Les coffres ont été rechargés!"
+
+endgame:
+  not-started: "Le jeu n'a pas encore commencé!"
+  ended: "Le jeu est terminé."
+
+scanarena:
+  region-undef: "La région de la zone n'est pas définie dans la configuration."
+  saved-locations: "Les emplacements des coffres ont été sauvegardés."
+  failed-locations: "Impossible de sauvegarder les emplacements des coffres dans le fichier!"
+
+setspawn:
+  stick-name: "Sélecteur de Point de Spawn."
+  given-stick: "On vous a donné un Sélecteur de Point de Spawn."
+  spawn-reset: "Les points de spawn ont été réinitialisés."
+
+startgame:
+  min-players: "Il doit y avoir au moins %d joueurs pour commencer le jeu!"
+  set-spawn-arena: "Mettez en place l'arène et les points de spawn d'abord!"
+  set-spawn: "Mettez en place les points de spawn d'abord!"
+  set-arena: "Mettez en place l'arène d'abord!"
+  started: "Le jeu a déjà commencé!"
+  starting: "Le jeu commence actuellement."
+  20-s: "Le jeu commencera dans 20 secondes!"
+  15-s: "Il reste 15 secondes!"
+  10-s: "Il reste 10 secondes!"
+  5-s: "Il reste 5 secondes!"
+  4-s: "Il reste 4 secondes!"
+  3-s: "Il reste 3 secondes!"
+  2-s: "Il reste 2 secondes!"
+  1-s: "Il reste 1 seconde!"
+
+supplydrop:
+  no-arena: "Créez d'abord une arène pour exécuter cette commande!"
+  created-items: "Créé un nouveau fichier items.yml!"
+  failed-items: "Impossible de créer le fichier items.yml!"
+  append-1: "Apparu "
+  append-2: " largages de ravitaillement à "
+
+game:
+  game-start: "Le jeu a commencé!"
+  grace-start: "La période de grâce a commencé! Le PvP est désactivé."
+  grace-end: "La période de grâce est terminée! Le PvP est activé."
+  score-time: "Temps restant:"
+  score-alive: "Joueurs en vie:"
+  score-border: "Taille de la bordure:"
+  game-end: "Le jeu est terminé!"
+  winner-text: " est le gagnant!"
+  time-up: "Le temps est écoulé! Personne n'a gagné le jeu!"
+
+setarena:
+  first-pos-1: "Première position définie à X="
+  first-pos-2: ", Y="
+  first-pos-3: ", Z="
+  second-pos-1: "Deuxième position définie à X="
+  second-pos-2: ", Y="
+  second-pos-3: ", Z="
+
+setspawnhandler:
+  failed-save: "Impossible de sauvegarder la configuration à "
+  duplicate: "Vous ne pouvez pas choisir le même bloc pour deux points de spawn!"
+  max-spawn: "Vous avez atteint le nombre maximum de points de spawn!"
+  game-started: "Le jeu a déjà commencé."
+  joined-message-1: " a rejoint ["
+  joined-message-2: "/"
+  joined-message-3: "]"
+  spawn-filled: "Tous les points de spawn sont actuellement occupés!"
+
+borderhandler:
+  start-shrink: "La bordure du monde a commencé à rétrécir."

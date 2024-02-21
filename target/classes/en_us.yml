@@ -1,0 +1,95 @@
+no-permission: "You do not have permission to run this command."
+no-server: "This command can only be executed by players."
+
+arena:
+  save-error: "Could not save arena.yml to "
+  stick-left: "Left-click to select position 1."
+  stick-right: "Right-click to select position 2."
+  given-stick: "You have been given an Arena Selector."
+  region-created: "Region created and saved to arena.yml!"
+  invalid-values: "Invalid position values detected!"
+  no-values: "You must set both positions first using the Arena Selector."
+
+border:
+  usage: "Usage: border <size> <center-x> <center-z>."
+  invalid-arguments: "Invalid values detected. Please enter valid numbers!"
+  wrong-world: "World not found. Please set the level-name in server.properties to 'world', level-name=world."
+  args-1: "<size>"
+  args-2: "<center-x>"
+  args-3: "<center-z>"
+
+chestrefill:
+  no-arena: "Create an arena first to run this command!"
+  created-items: "Created a new items.yml file!"
+  failed-items: "Could not create items.yml file!"
+  failed-locations: "Could not save chest locations to file!"
+  chest-refilled: "Chests have been refilled!"
+
+endgame:
+  not-started: "The game has not started yet!"
+  ended: "The game has ended."
+
+scanarena:
+  region-undef: "The area region is not defined in the config."
+  saved-locations: "Chest locations have been saved."
+  failed-locations: "Could not save chest locations to file!"
+
+setspawn:
+  stick-name: "Spawn Point Selector."
+  given-stick: "You have been given a Spawn Point Selector."
+  spawn-reset: "Spawn Points have been reset."
+
+startgame:
+  min-players: "There must be at least %d players to start the game!"
+  set-spawn-arena: "Set up the arena and spawn points first!"
+  set-spawn: "Set up spawn points first!"
+  set-arena: "Set up the arena first!"
+  started: "The game has already started!"
+  starting: "The game is currently starting."
+  20-s: "The game will start in 20 seconds!"
+  15-s: "15 seconds left!"
+  10-s: "10 seconds left!"
+  5-s: "5 seconds left!"
+  4-s: "4 seconds left!"
+  3-s: "3 seconds left!"
+  2-s: "2 seconds left!"
+  1-s: "1 second left!"
+
+supplydrop:
+  no-arena: "Create an arena first to run this command!"
+  created-items: "Created a new items.yml file!"
+  failed-items: "Could not create items.yml file!"
+  append-1: "Spawned "
+  append-2: " supply drops at the specified location."
+
+game:
+  game-start: "The game has started!"
+  grace-start: "The grace period has started! PvP is disabled."
+  grace-end: "The grace period has ended! PvP is enabled."
+  score-time: "Time Left:"
+  score-alive: "Players Alive:"
+  score-border: "Border Size:"
+  game-end: "The game has ended!"
+  winner-text: " is the winner!"
+  time-up: "The time is up! No one won the game!"
+
+setarena:
+  first-pos-1: "First position set at X="
+  first-pos-2: ", Y="
+  first-pos-3: ", Z="
+  second-pos-1: "Second position set at X="
+  second-pos-2: ", Y="
+  second-pos-3: ", Z="
+
+setspawnhandler:
+  failed-save: "Could not save config to the specified location."
+  duplicate: "You can't choose the same block for two spawn points!"
+  max-spawn: "You have reached the maximum number of spawn points!"
+  game-started: "Game has already started."
+  joined-message-1: " has joined ["
+  joined-message-2: "/"
+  joined-message-3: "]"
+  spawn-filled: "All spawn points are currently occupied!"
+
+borderhandler:
+  start-shrink: "The world border has started to shrink."
