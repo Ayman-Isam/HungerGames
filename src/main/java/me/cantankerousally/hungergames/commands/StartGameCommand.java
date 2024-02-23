@@ -53,6 +53,7 @@ public class StartGameCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("start")) {
             if (sender instanceof Player player) {
+                plugin.loadLanguageConfig(player);
                 FileConfiguration config = plugin.getConfig();
                 if (plugin.getServer().getOnlinePlayers().size() < config.getInt("min-players")) {
                     String message = String.format(plugin.getMessage("startgame.min-players"), config.getInt("min-players"));
