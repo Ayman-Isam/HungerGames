@@ -67,6 +67,7 @@ game:
   game-start: "Le jeu a commencé!"
   grace-start: "La période de grâce a commencé! Le PvP est désactivé."
   grace-end: "La période de grâce est terminée! Le PvP est activé."
+  score-info: "Infos du jeu"
   score-time: "Temps restant :"
   score-alive: "Joueurs vivants :"
   score-border: "Taille de la frontière :"
