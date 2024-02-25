@@ -81,11 +81,12 @@ public class SetSpawnHandler implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
+        plugin.loadLanguageConfig(player);
         ItemStack item = event.getItem();
         if (item != null && item.getType() == Material.STICK && item.hasItemMeta()) {
             ItemMeta meta = item.getItemMeta();
             assert meta != null;
-            if (meta.getDisplayName().equals(ChatColor.AQUA + plugin.getMessage("setspawnhandler.selector"))) {
+            if (meta.getDisplayName().equals(ChatColor.AQUA + plugin.getMessage("setspawn.stick-name"))) {
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                     Location location = Objects.requireNonNull(event.getClickedBlock()).getLocation();
                     List<String> spawnPoints = getSetSpawnConfig().getStringList("spawnpoints");
@@ -99,7 +100,7 @@ public class SetSpawnHandler implements Listener {
                         spawnPoints.add(newSpawnPoint);
                         getSetSpawnConfig().set("spawnpoints", spawnPoints);
                         saveSetSpawnConfig();
-                        player.sendMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("setspawnhandler.spawn-text") + ChatColor.GOLD + spawnPoints.size() + ChatColor.LIGHT_PURPLE + " set at X: " + location.getBlockX() + " Y: " + location.getBlockY() + " Z: " + location.getBlockZ());
+                        player.sendMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("setspawnhandler.position-set") + ChatColor.GOLD + spawnPoints.size() + ChatColor.LIGHT_PURPLE + " set at X: " + location.getBlockX() + " Y: " + location.getBlockY() + " Z: " + location.getBlockZ());
                     } else if (spawnPoints.size() ==  config.getInt("max-players")){
                         player.sendMessage(ChatColor.RED + plugin.getMessage("setspawnhandler.max-spawn"));
                     }

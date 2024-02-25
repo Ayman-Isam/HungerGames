@@ -67,6 +67,7 @@ supplydrop:
 game:
   game-start: "游戏已开始！"
   grace-start: "宽限期已开始！PvP已禁用。"
+  score-info: "游戏信息"
   grace-end: "宽限期已结束！PvP已启用。"
   score-time: "剩余时间："
   score-alive: "存活玩家："
@@ -87,6 +88,7 @@ setarena:
 setspawnhandler:
   failed-save: "无法将配置保存到指定位置。"
   duplicate: "您不能为两个出生点选择同一块！"
+  position-set: "位置 "
   max-spawn: "您已达到出生点的最大数量！"
   game-started: "游戏已经开始。"
   joined-message-1: "  已加入 ["

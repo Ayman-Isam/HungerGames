@@ -67,6 +67,7 @@ game:
   game-start: "بدأت اللعبة!"
   grace-start: "بدأت الفترة المباشرة!  تم  تعطيل PvP."
   grace-end: "انتهت الفترة المباشرة!  تم  تمكين PvP."
+  score-info: "معلومات اللعبة"
   score-time: "الوقت المتبقي:"
   score-alive: "اللاعبين المتبقيين:"
   score-border: "حجم الحدود:"
@@ -85,6 +86,7 @@ setarena:
 setspawnhandler:
   failed-save: "لم  يتم  حفظ التكوين  في الموقع المحدد."
   duplicate: "لا  يمكنك  اختيار  نفس الكتلة  لنقطتي البداية!"
+  position-set: "الموقع "
   max-spawn: "لقد  وصلت  إلى الحد الأقصى  لنقاط البداية!"
   game-started: "بدأت اللعبة  بالفعل."
   joined-message-1: "  انضم  إلى ["

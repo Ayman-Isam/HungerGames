@@ -67,6 +67,7 @@ game:
   game-start: "The game has started!"
   grace-start: "The grace period has started! PvP is disabled."
   grace-end: "The grace period has ended! PvP is enabled."
+  score-info: "Game Info"
   score-time: "Time Left:"
   score-alive: "Players Alive:"
   score-border: "Border Size:"
@@ -85,6 +86,7 @@ setarena:
 setspawnhandler:
   failed-save: "Could not save config to the specified location."
   duplicate: "You can't choose the same block for two spawn points!"
+  position-set: "Position "
   max-spawn: "You have reached the maximum number of spawn points!"
   game-started: "Game has already started."
   joined-message-1: " has joined ["
