@@ -1,8 +1,8 @@
-package me.cantankerousally.hungergames.handler;
+package me.aymanisam.hungergames.handler;
 
-import me.cantankerousally.hungergames.HungerGames;
-import me.cantankerousally.hungergames.commands.ChestRefillCommand;
-import me.cantankerousally.hungergames.commands.SupplyDropCommand;
+import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.commands.ChestRefillCommand;
+import me.aymanisam.hungergames.commands.SupplyDropCommand;
 import org.bukkit.*;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.ShulkerBox;

@@ -1,7 +1,7 @@
-package me.cantankerousally.hungergames.commands;
+package me.aymanisam.hungergames.commands;
 
-import me.cantankerousally.hungergames.HungerGames;
-import me.cantankerousally.hungergames.handler.SetSpawnHandler;
+import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.handler.SetSpawnHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;

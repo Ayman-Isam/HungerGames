@@ -1,6 +1,6 @@
-package me.cantankerousally.hungergames.commands;
+package me.aymanisam.hungergames.commands;
 
-import me.cantankerousally.hungergames.HungerGames;
+import me.aymanisam.hungergames.HungerGames;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;

@@ -1,7 +1,7 @@
-package me.cantankerousally.hungergames;
+package me.aymanisam.hungergames;
 
-import me.cantankerousally.hungergames.commands.*;
-import me.cantankerousally.hungergames.handler.*;
+import me.aymanisam.hungergames.commands.*;
+import me.aymanisam.hungergames.handler.*;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.boss.BarColor;

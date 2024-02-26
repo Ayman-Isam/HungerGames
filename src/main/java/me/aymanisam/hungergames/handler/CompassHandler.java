@@ -1,6 +1,6 @@
-package me.cantankerousally.hungergames.handler;
+package me.aymanisam.hungergames.handler;
 
-import me.cantankerousally.hungergames.HungerGames;
+import me.aymanisam.hungergames.HungerGames;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

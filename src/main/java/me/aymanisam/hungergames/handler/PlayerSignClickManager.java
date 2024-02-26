@@ -1,4 +1,4 @@
-package me.cantankerousally.hungergames.handler;
+package me.aymanisam.hungergames.handler;
 
 import org.bukkit.entity.Player;
 import java.util.HashMap;

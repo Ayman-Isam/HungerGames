@@ -1,7 +1,7 @@
-package me.cantankerousally.hungergames.handler;
+package me.aymanisam.hungergames.handler;
 
-import me.cantankerousally.hungergames.HungerGames;
-import me.cantankerousally.hungergames.commands.ChestRefillCommand;
+import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.commands.ChestRefillCommand;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
