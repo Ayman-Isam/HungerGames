@@ -6,6 +6,9 @@ import me.aymanisam.hungergames.commands.SupplyDropCommand;
 import org.bukkit.*;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.ShulkerBox;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -106,7 +109,9 @@ public class GameHandler implements Listener {
             if (playerLocation.getX() >= minLocation.getX() && playerLocation.getX() <= maxLocation.getX()
                     && playerLocation.getY() >= minLocation.getY() && playerLocation.getY() <= maxLocation.getY()
                     && playerLocation.getZ() >= minLocation.getZ() && playerLocation.getZ() <= maxLocation.getZ()) {
-                plugin.bossBar.addPlayer(player);
+                plugin.loadLanguageConfig(player);
+                BossBar bossBar = plugin.getServer().createBossBar(plugin.getMessage("time-remaining"), BarColor.BLUE, BarStyle.SOLID);
+                bossBar.addPlayer(player);
                 playersAlive.add(player);
             }
         }
@@ -137,7 +142,7 @@ public class GameHandler implements Listener {
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         assert manager != null;
         Scoreboard scoreboard = manager.getNewScoreboard();
-        Objective objective = scoreboard.registerNewObjective("gameinfo", "dummy", "Game Info", RenderType.INTEGER);
+        Objective objective = scoreboard.registerNewObjective(plugin.getMessage("game.score-info"), "dummy", "Game Info", RenderType.INTEGER);
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         Score timeLeftScore = objective.getScore(plugin.getMessage("game.score-time"));
         timeLeftScore.setScore(timeLeft);

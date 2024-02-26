@@ -23,21 +23,19 @@ public final class HungerGames extends JavaPlugin {
     private GameHandler gameHandler;
     public List<Player> playersAlive;
     private SetSpawnHandler setSpawnHandler;
-    private ChestRefillCommand chestRefillCommand;
     private YamlConfiguration langConfig;
 
     @Override
     public void onEnable() {
         saveLanguageFiles();
         loadDefaultLanguageConfig();
-        bossBar = getServer().createBossBar(this.getMessage("time-remaining"), BarColor.BLUE, BarStyle.SOLID);
         PlayerSignClickManager playerSignClickManager = new PlayerSignClickManager();
         setSpawnHandler = new SetSpawnHandler(this, playerSignClickManager);
         gameHandler = new GameHandler(this, setSpawnHandler, playerSignClickManager);
         getServer().getWorld("world");
         playersAlive = new ArrayList<>();
         new CompassHandler(this);
-        chestRefillCommand = new ChestRefillCommand(this);
+        ChestRefillCommand chestRefillCommand = new ChestRefillCommand(this);
 
         World world = getServer().getWorld("world");
         if (world != null) {
