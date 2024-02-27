@@ -142,7 +142,7 @@ public class GameHandler implements Listener {
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         assert manager != null;
         Scoreboard scoreboard = manager.getNewScoreboard();
-        Objective objective = scoreboard.registerNewObjective(plugin.getMessage("game.score-info"), "dummy", "Game Info", RenderType.INTEGER);
+        Objective objective = scoreboard.registerNewObjective(plugin.getMessage("game.score-info"), "dummy", plugin.getMessage("game.score-info"), RenderType.INTEGER);
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         Score timeLeftScore = objective.getScore(plugin.getMessage("game.score-time"));
         timeLeftScore.setScore(timeLeft);
@@ -215,9 +215,6 @@ public class GameHandler implements Listener {
                 }
             }
         }.runTaskLater(plugin, chestRefillTime);
-    }
-    public PlayerSignClickManager getPlayerSignClickManager() {
-        return playerSignClickManager;
     }
 
     @EventHandler
@@ -326,6 +323,8 @@ public class GameHandler implements Listener {
             player.setScoreboard(emptyScoreboard);
         }
         playersAlive.clear();
+
+        plugin.bossBar.removeAll();
 
         setSpawnHandler.clearOccupiedSpawnPoints();
 
