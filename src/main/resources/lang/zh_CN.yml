@@ -2,7 +2,7 @@ no-permission: "您没有权限执行此命令。"
 no-server: "此命令只能由玩家执行。"
 
 arena:
-  save-error: "无法将 arena.yml 保存到 "
+  save-error: "无法将arena.yml保存到"
   stick-left: "左键单击以选择位置1。"
   stick-right: "右键单击以选择位置2。"
   given-stick: "您已获得竞技场选择器。"
@@ -13,15 +13,15 @@ arena:
 border:
   usage: "用法：border <size> <center-x> <center-z>。"
   invalid-args: "检测到无效的值。请输入有效的数字！"
-  wrong-world: "找不到世界。请在 server.properties 中将 level-name 设置为 'world'，level-name=world。"
+  wrong-world: "找不到世界。请在server.properties中将level-name设置为'world'，level-name=world。"
   args-1: "<size>"
   args-2: "<center-x>"
   args-3: "<center-z>"
 
 chestrefill:
   no-arena: "执行此命令前请先创建一个竞技场！"
-  created-items: "已创建新的 items.yml 文件！"
-  failed-items: "无法创建 items.yml 文件！"
+  created-items: "已创建新的items.yml文件！"
+  failed-items: "无法创建items.yml文件！"
   failed-locations: "无法保存箱子位置到文件！"
   chest-refilled: "箱子已经被重新装填！"
 
@@ -57,10 +57,10 @@ startgame:
 
 supplydrop:
   no-arena: "执行此命令前请先创建一个竞技场！"
-  created-items: "已创建新的 items.yml 文件！"
-  failed-items: "无法创建 items.yml 文件！"
-  append-1: "生成"
-  append-2: "个补给投放点。"
+  created-items: "已创建新的items.yml文件！"
+  failed-items: "无法创建items.yml文件！"
+  append-1: "在特定位置生成"
+  append-2: "个补给。"
 
 
 game:
@@ -76,10 +76,10 @@ game:
 
 
 setarena:
-  first-pos-1: "第一位置设置为 X="
+  first-pos-1: "第一位置设置为X="
   first-pos-2: ", Y="
   first-pos-3: ", Z="
-  second-pos-1: "第二位置设置为 X="
+  second-pos-1: "第二位置设置为X="
   second-pos-2: ", Y="
   second-pos-3: ", Z="
 
