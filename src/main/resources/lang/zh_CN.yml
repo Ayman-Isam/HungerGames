@@ -61,13 +61,13 @@ supplydrop:
   created-items: "已创建新的 items.yml  文件！"
   failed-items: "无法创建 items.yml  文件！"
   append-1: "在指定位置生成 "
-  append-2: "  个补给投放点。"
+  append-2: " 供应投放在 "
 
 
 game:
   game-start: "游戏已开始！"
   grace-start: "宽限期已开始！PvP已禁用。"
-  score-info: "游戏信息"
+  score-name: "游戏信息"
   grace-end: "宽限期已结束！PvP已启用。"
   score-time: "剩余时间："
   score-alive: "存活玩家："

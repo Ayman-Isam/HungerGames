@@ -58,17 +58,28 @@ public class ChestRefillCommand implements CommandExecutor {
             arenaFile.getParentFile().mkdirs();
             plugin.saveResource("arena.yml", false);
         }
+
+        File itemsFile = new File(plugin.getDataFolder(), "items.yml");
+        if (!itemsFile.exists()) {
+            plugin.saveResource("items.yml", false);
+        }
+
         return YamlConfiguration.loadConfiguration(arenaFile);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("chestrefill")) {
-            if (sender.isOp() || !(sender instanceof Player)) {
+            if (sender.isOp() || !(sender instanceof Player player)) {
                 FileConfiguration ArenaConfig = getArenaConfig();
                 FileConfiguration config = plugin.getConfig();
                 String worldName = ArenaConfig.getString("region.world");
                 if (worldName == null) {
+                    if (sender instanceof Player player) {
+                        plugin.loadLanguageConfig(player);
+                    } else {
+                        plugin.loadDefaultLanguageConfig();
+                    }
                     sender.sendMessage(ChatColor.RED + plugin.getMessage("chestrefill.no-arena"));
                     return true;
                 }
@@ -90,22 +101,22 @@ public class ChestRefillCommand implements CommandExecutor {
 
                 FileConfiguration itemsConfig;
                 File itemsFile = new File(plugin.getDataFolder(), "items.yml");
-                if (itemsFile.exists()) {
-                    itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
-                } else {
+                if (!itemsFile.exists()) {
+                    itemsConfig = new YamlConfiguration();
+                    itemsConfig.set("chest-items", new ArrayList<>());
                     try {
-                        itemsConfig = new YamlConfiguration();
-                        itemsConfig.set("chest-items", new ArrayList<>());
                         itemsConfig.save(itemsFile);
-                        sender.sendMessage(ChatColor.YELLOW + plugin.getMessage("chestrefill.created-items"));
                     } catch (IOException e) {
+                        Player player = (Player) sender;
+                        plugin.loadLanguageConfig(player);
                         sender.sendMessage(ChatColor.RED + plugin.getMessage("chestrefill.failed-items"));
                         return true;
                     }
-                }
-
-                if (sender instanceof Player player) {
+                    Player player = (Player) sender;
                     plugin.loadLanguageConfig(player);
+                    sender.sendMessage(ChatColor.YELLOW + plugin.getMessage("chestrefill.created-items"));
+                } else {
+                    itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
                 }
 
                 List<ItemStack> chestItems = new ArrayList<>();
@@ -386,6 +397,8 @@ public class ChestRefillCommand implements CommandExecutor {
                     try {
                         chestLocationsConfig.save(chestLocationsFile);
                     } catch (IOException e) {
+                        Player player = (Player) sender;
+                        plugin.loadLanguageConfig(player);
                         sender.sendMessage(ChatColor.RED + plugin.getMessage("chestrefill.failed-locations"));
                         return true;
                     }
@@ -498,8 +511,13 @@ public class ChestRefillCommand implements CommandExecutor {
                         }
                     }
                 }
-                plugin.getServer().broadcastMessage(ChatColor.GREEN + plugin.getMessage("chestrefill.chest-refilled"));
+                for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    plugin.loadLanguageConfig(player);
+                    String message = plugin.getMessage("chestrefill.chest-refilled");
+                    player.sendMessage(ChatColor.GREEN + message);
+                }
             } else {
+                plugin.loadLanguageConfig(player);
                 sender.sendMessage(ChatColor.RED + plugin.getMessage("no-permission"));
             }
 

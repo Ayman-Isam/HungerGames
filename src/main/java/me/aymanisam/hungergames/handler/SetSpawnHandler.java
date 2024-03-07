@@ -138,9 +138,10 @@ public class SetSpawnHandler implements Listener {
                         for (PotionEffect effect : player.getActivePotionEffects()) {
                             player.removePotionEffect(effect.getType());
                         }
-                        // Broadcast a message to all players
-                        plugin.getServer().broadcastMessage(ChatColor.AQUA + player.getName() + plugin.getMessage("setspawnhandler.joined-message-1") + occupiedSpawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-2") + spawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-3"));
-                        // Add player to the map of players and their spawn points
+                        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
+                            plugin.loadLanguageConfig(onlinePlayer);
+                            onlinePlayer.sendMessage(ChatColor.AQUA + player.getName() + plugin.getMessage("setspawnhandler.joined-message-1") + occupiedSpawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-2") + spawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-3"));
+                        }
                         playerSpawnPoints.put(player, spawnPoint);
                     } else {
                         player.sendMessage(ChatColor.RED + plugin.getMessage("setspawnhandler.spawn-filled"));

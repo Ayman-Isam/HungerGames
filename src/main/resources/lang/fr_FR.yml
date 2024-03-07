@@ -61,13 +61,13 @@ supplydrop:
   created-items: "Fichier items.yml créé!"
   failed-items: "Impossible de créer le fichier items.yml!"
   append-1: "Apparition de "
-  append-2: " livraisons de fournitures à l'emplacement spécifié."
+  append-2: " largages de ravitaillement à "
 
 game:
   game-start: "Le jeu a commencé!"
   grace-start: "La période de grâce a commencé! Le PvP est désactivé."
   grace-end: "La période de grâce est terminée! Le PvP est activé."
-  score-info: "Infos du jeu"
+  score-name: "Infos du jeu"
   score-time: "Temps restant :"
   score-alive: "Joueurs vivants :"
   score-border: "Taille de la frontière :"

@@ -61,13 +61,13 @@ supplydrop:
   created-items: "नया items.yml फ़ाइल  बनाया  गया!"
   failed-items: "items.yml फ़ाइल  बनाने  में  विफल!"
   append-1: "निर्दिष्ट  स्थान  पर "
-  append-2: "  सप्लाई  ड्रॉप्स उत्पन्न  किए  गए।"
+  append-2: " आपूर्ति ड्रॉप्स पर "
 
 game:
   game-start: "खेल  शुरू  हो  गया  है!"
   grace-start: "अनुग्रह  अवधि  शुरू  हो  गई  है!  पीवीपी  अक्षम  है।"
   grace-end: "अनुग्रह  अवधि  समाप्त  हो  गई  है!  पीवीपी  सक्षम  है।"
-  score-info: "खेल की जानकारी"
+  score-name: "खेल की जानकारी"
   score-time: "बचा  हुआ  समय:"
   score-alive: "जीवित  खिलाड़ी:"
   score-border: "बॉर्डर  का  आकार:"

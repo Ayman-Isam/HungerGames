@@ -1,7 +1,6 @@
 package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -17,7 +16,7 @@ public class EndGameCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (sender instanceof Player player) {
             plugin.loadLanguageConfig(player);
             if (player.isOp()) {
@@ -26,8 +25,11 @@ public class EndGameCommand implements CommandExecutor {
                     return true;
                 }
 
-                plugin.getGameHandler().endGame();
-                Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("endgame.ended"));
+                for (Player p : plugin.getServer().getOnlinePlayers()) {
+                    plugin.loadLanguageConfig(p);
+                    String message = plugin.getMessage("endgame.ended");
+                    p.sendMessage(ChatColor.LIGHT_PURPLE + message);
+                }
                 return true;
             } else {
                 sender.sendMessage(ChatColor.RED + plugin.getMessage("no-permission"));

@@ -33,6 +33,7 @@ public class WorldBorderHandler implements Listener {
             if (plugin.gameStarted) {
                 border.setSize(finalSize, duration);
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    plugin.loadLanguageConfig(player);
                     player.sendMessage(ChatColor.GOLD + plugin.getMessage("borderhandler.start-shrink"));
                 }
             } else {

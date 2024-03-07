@@ -1,7 +1,6 @@
 package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
@@ -49,6 +48,18 @@ public class StartGameCommand implements CommandExecutor {
         arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
     }
 
+    private void sendCountdownMessageToAllPlayers(String messageKey, long delayInTicks) {
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            for (Player p : plugin.getServer().getOnlinePlayers()) {
+                plugin.loadLanguageConfig(p);
+                String message = plugin.getMessage(messageKey);
+                p.sendMessage(ChatColor.GOLD + message);
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
+            }
+        }, delayInTicks);
+    }
+
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("start")) {
@@ -88,59 +99,19 @@ public class StartGameCommand implements CommandExecutor {
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                     plugin.getGameHandler().startGame();
                     for (Player p : plugin.getServer().getOnlinePlayers()) {
-                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
                     }
                     gameStarting = false;
                 }, 20L * 20);
 
-                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.15-s"));
-                    for (Player p : plugin.getServer().getOnlinePlayers()) {
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
-                    }
-                }, 20L * 5);
-                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.10-s"));
-                    for (Player p : plugin.getServer().getOnlinePlayers()) {
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
-                    }
-                }, 20L * 10);
-                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.5-s"));
-                    for (Player p : plugin.getServer().getOnlinePlayers()) {
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
-                    }
-                }, 20L * 15);
-
-                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.4-s"));
-                    for (Player p : plugin.getServer().getOnlinePlayers()) {
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
-                    }
-                }, 20L * 16);
-                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.3-s"));
-                    for (Player p : plugin.getServer().getOnlinePlayers()) {
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
-                    }
-                }, 20L * 17);
-                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.2-s"));
-                    for (Player p : plugin.getServer().getOnlinePlayers()) {
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
-                    }
-                }, 20L * 18);
-                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    plugin.getServer().broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.1-s"));
-                    for (Player p : plugin.getServer().getOnlinePlayers()) {
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
-                    }
-                }, 20L * 19);
-
-                Bukkit.broadcastMessage(ChatColor.GOLD + plugin.getMessage("startgame.20-s"));
-                for (Player p : plugin.getServer().getOnlinePlayers()) {
-                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
-                }
+                sendCountdownMessageToAllPlayers("startgame.20-s", 20L * 0);
+                sendCountdownMessageToAllPlayers("startgame.15-s", 20L * 5);
+                sendCountdownMessageToAllPlayers("startgame.10-s", 20L * 10);
+                sendCountdownMessageToAllPlayers("startgame.5-s", 20L * 15);
+                sendCountdownMessageToAllPlayers("startgame.4-s", 20L * 16);
+                sendCountdownMessageToAllPlayers("startgame.3-s", 20L * 17);
+                sendCountdownMessageToAllPlayers("startgame.2-s", 20L * 18);
+                sendCountdownMessageToAllPlayers("startgame.1-s", 20L * 19);
                 return true;
             }
         }

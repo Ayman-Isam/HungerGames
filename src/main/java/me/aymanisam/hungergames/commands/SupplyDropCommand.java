@@ -40,17 +40,28 @@ public class  SupplyDropCommand implements CommandExecutor {
             arenaFile.getParentFile().mkdirs();
             plugin.saveResource("arena.yml", false);
         }
+
+        File itemsFile = new File(plugin.getDataFolder(), "items.yml");
+        if (!itemsFile.exists()) {
+            plugin.saveResource("items.yml", false);
+        }
+
         return YamlConfiguration.loadConfiguration(arenaFile);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("supplydrop")) {
-            if (sender.isOp() || !(sender instanceof Player)) {
+            if (sender.isOp() || !(sender instanceof Player player)) {
                 FileConfiguration config = plugin.getConfig();
                 FileConfiguration arenaConfig = getArenaConfig();
                 String worldName = arenaConfig.getString("region.world");
                 if (worldName == null) {
+                    if (sender instanceof Player player) {
+                        plugin.loadLanguageConfig(player);
+                    } else {
+                        plugin.loadDefaultLanguageConfig();
+                    }
                     sender.sendMessage(ChatColor.RED + plugin.getMessage("supplydrop.no-arena"));
                     return true;
                 }
@@ -58,18 +69,22 @@ public class  SupplyDropCommand implements CommandExecutor {
 
                 FileConfiguration itemsConfig;
                 File itemsFile = new File(plugin.getDataFolder(), "items.yml");
-                if (itemsFile.exists()) {
-                    itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
-                } else {
+                if (!itemsFile.exists()) {
+                    itemsConfig = new YamlConfiguration();
+                    itemsConfig.set("chest-items", new ArrayList<>());
                     try {
-                        itemsConfig = new YamlConfiguration();
-                        itemsConfig.set("chest-items", new ArrayList<>());
                         itemsConfig.save(itemsFile);
-                        sender.sendMessage(ChatColor.YELLOW + plugin.getMessage("supplydrop.created-items"));
                     } catch (IOException e) {
+                        Player player = (Player) sender;
+                        plugin.loadLanguageConfig(player);
                         sender.sendMessage(ChatColor.RED + plugin.getMessage("supplydrop.failed-items"));
                         return true;
                     }
+                    Player player = (Player) sender;
+                    plugin.loadLanguageConfig(player);
+                    sender.sendMessage(ChatColor.YELLOW + plugin.getMessage("supplydrop.created-items"));
+                } else {
+                    itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
                 }
 
                 if (sender instanceof Player player) {
@@ -230,20 +245,23 @@ public class  SupplyDropCommand implements CommandExecutor {
                 }
 
 
-                StringBuilder sb = new StringBuilder();
-                sb.append(ChatColor.GREEN)
+                for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    plugin.loadLanguageConfig(player);
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(ChatColor.GREEN)
                         .append(plugin.getMessage("supplydrop.append-1")).append(numSupplyDrops).append(plugin.getMessage("supplydrop.append-2"));
-                for (int i = 0; i < coords.size(); i++) {
-                    sb.append(coords.get(i));
-                    if (i < coords.size() - 1) {
-                        sb.append(", ");
+                    for (int i = 0; i < coords.size(); i++) {
+                        sb.append(coords.get(i));
+                        if (i < coords.size() - 1) {
+                            sb.append(", ");
+                        }
                     }
+                    sb.append("!");
+                    player.sendMessage(ChatColor.GREEN + sb.toString());
                 }
-                sb.append("!");
-
-                plugin.getServer().broadcastMessage(sb.toString());
                 return true;
             } else {
+                plugin.loadLanguageConfig(player);
                 sender.sendMessage(ChatColor.RED + plugin.getMessage("no-permission"));
             }
         }

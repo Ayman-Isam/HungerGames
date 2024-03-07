@@ -61,13 +61,13 @@ supplydrop:
   created-items: "تم  إنشاء  ملف items.yml  جديد!"
   failed-items: "لم  يتم  إنشاء  ملف items.yml!"
   append-1: "تم  إنشاء "
-  append-2: "  مناديب  إعادة التوريد  في الموقع المحدد."
+  append-2: " قطرات الإمدادات في "
 
 game:
   game-start: "بدأت اللعبة!"
   grace-start: "بدأت الفترة المباشرة!  تم  تعطيل PvP."
   grace-end: "انتهت الفترة المباشرة!  تم  تمكين PvP."
-  score-info: "معلومات اللعبة"
+  score-name: "معلومات اللعبة"
   score-time: "الوقت المتبقي:"
   score-alive: "اللاعبين المتبقيين:"
   score-border: "حجم الحدود:"

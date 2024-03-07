@@ -61,13 +61,13 @@ supplydrop:
   created-items: "Created a new items.yml file!"
   failed-items: "Could not create items.yml file!"
   append-1: "Spawned "
-  append-2: " supply drops at the specified location."
+  append-2: " supply drops at "
 
 game:
   game-start: "The game has started!"
   grace-start: "The grace period has started! PvP is disabled."
   grace-end: "The grace period has ended! PvP is enabled."
-  score-info: "Game Info"
+  score-name: "Game Info"
   score-time: "Time Left:"
   score-alive: "Players Alive:"
   score-border: "Border Size:"
