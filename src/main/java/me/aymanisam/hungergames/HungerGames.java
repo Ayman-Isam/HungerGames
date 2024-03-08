@@ -23,7 +23,6 @@ public final class HungerGames extends JavaPlugin {
     public List<Player> playersAlive;
     private SetSpawnHandler setSpawnHandler;
     private YamlConfiguration langConfig;
-
     @Override
     public void onEnable() {
         saveLanguageFiles();

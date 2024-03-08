@@ -1,9 +1,8 @@
-time-remaining: "剩余时间"
-no-permission: "您没有权限运行此命令。"
+no-permission: "您没有权限执行此命令。"
 no-server: "此命令只能由玩家执行。"
 
 arena:
-  save-error: "无法将 arena.yml  保存到 "
+  save-error: "无法将arena.yml保存到"
   stick-left: "左键单击以选择位置1。"
   stick-right: "右键单击以选择位置2。"
   given-stick: "您已获得竞技场选择器。"
@@ -14,24 +13,24 @@ arena:
 border:
   usage: "用法：border <size> <center-x> <center-z>。"
   invalid-args: "检测到无效的值。请输入有效的数字！"
-  wrong-world: "找不到世界。请在 server.properties  中将 level-name  设置为 'world'，level-name=world。"
+  wrong-world: "找不到世界。请在server.properties中将level-name设置为'world'，level-name=world。"
   args-1: "<size>"
   args-2: "<center-x>"
   args-3: "<center-z>"
 
 chestrefill:
-  no-arena: "运行此命令前请先创建一个竞技场！"
-  created-items: "已创建新的 items.yml  文件！"
-  failed-items: "无法创建 items.yml  文件！"
-  failed-locations: "无法将箱子位置保存到文件！"
-  chest-refilled: "箱子已重新填充！"
+  no-arena: "执行此命令前请先创建一个竞技场！"
+  created-items: "已创建新的items.yml文件！"
+  failed-items: "无法创建items.yml文件！"
+  failed-locations: "无法保存箱子位置到文件！"
+  chest-refilled: "箱子已经被重新装填！"
 
 endgame:
   not-started: "游戏尚未开始！"
   ended: "游戏已结束。"
 
 scanarena:
-  region-undef: "配置中未定义区域区域。"
+  region-undef: "配置中未定义区域。"
   saved-locations: "已保存箱子位置。"
   failed-locations: "无法将箱子位置保存到文件！"
 
@@ -41,60 +40,58 @@ setspawn:
   spawn-reset: "出生点已重置。"
 
 startgame:
-  min-players: "开始游戏至少需要 %d  名玩家！"
-  set-spawn-arena: "首先设置竞技场和出生点！"
-  set-spawn: "首先设置出生点！"
-  set-arena: "首先设置竞技场！"
+  min-players: "开始游戏至少需要%d名玩家！"
+  set-spawn-arena: "请首先设置竞技场和出生点！"
+  set-spawn: "请首先设置出生点！"
+  set-arena: "请首先设置竞技场！"
   started: "游戏已经开始！"
   starting: "游戏正在开始。"
-  20-s: "游戏将在20秒内开始！"
-  15-s: "剩余15秒！"
-  10-s: "剩余10秒！"
-  5-s: "剩余5秒！"
-  4-s: "剩余4秒！"
-  3-s: "剩余3秒！"
-  2-s: "剩余2秒！"
-  1-s: "剩余1秒！"
+   20-s: "游戏将在20秒内开始！"
+   15-s: "剩余15秒！"
+   10-s: "剩余10秒！"
+   5-s: "剩余5秒！"
+   4-s: "剩余4秒！"
+   3-s: "剩余3秒！"
+   2-s: "剩余2秒！"
+   1-s: "剩余1秒！"
 
 supplydrop:
-  no-arena: "运行此命令前请先创建一个竞技场！"
-  created-items: "已创建新的 items.yml  文件！"
-  failed-items: "无法创建 items.yml  文件！"
-  append-1: "在指定位置生成 "
-  append-2: " 供应投放在 "
+  no-arena: "执行此命令前请先创建一个竞技场！"
+  created-items: "已创建新的items.yml文件！"
+  failed-items: "无法创建items.yml文件！"
+  append-1: "在特定位置生成"
+  append-2: "个补给。"
 
 
 game:
   game-start: "游戏已开始！"
-  grace-start: "宽限期已开始！PvP已禁用。"
-  score-name: "游戏信息"
-  grace-end: "宽限期已结束！PvP已启用。"
+  grace-start: "和平期已开始！PvP已禁用。"
+  grace-end: "和平期已结束！PvP已启用。"
   score-time: "剩余时间："
   score-alive: "存活玩家："
   score-border: "边界大小："
   game-end: "游戏已结束！"
-  winner-text: "  是赢家！"
+  winner-text: "是赢家！"
   time-up: "时间到！没有人赢得比赛！"
 
 
 setarena:
-  first-pos-1: "第一位置设置为 X="
+  first-pos-1: "第一位置设置为X="
   first-pos-2: ", Y="
   first-pos-3: ", Z="
-  second-pos-1: "第二位置设置为 X="
+  second-pos-1: "第二位置设置为X="
   second-pos-2: ", Y="
   second-pos-3: ", Z="
 
 setspawnhandler:
-  failed-save: "无法将配置保存到指定位置。"
-  duplicate: "您不能为两个出生点选择同一块！"
-  position-set: "位置 "
+  failed-save: "无法保存配置到指定位置。"
+  duplicate: "您不能选择同一个方块作为两个出生点！"
   max-spawn: "您已达到出生点的最大数量！"
   game-started: "游戏已经开始。"
-  joined-message-1: "  已加入 ["
+  joined-message-1: "已加入["
   joined-message-2: "/"
   joined-message-3: "]"
-  spawn-filled: "所有出生点目前都被占用！"
+  spawn-filled: "所有的出生点当前已被占用！"
 
 borderhandler:
   start-shrink: "世界边界已开始缩小。"

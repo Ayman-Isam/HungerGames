@@ -47,7 +47,7 @@ startgame:
   set-arena: "Configurez d'abord l'arène!"
   started: "Le jeu a déjà commencé!"
   starting: "Le jeu est en cours de démarrage."
-  20-s: "Le jeu commencera dans 20 secondes!"
+  20-s: "Le jeu commencera dans  20 secondes!"
   15-s: "15 secondes restantes!"
   10-s: "10 secondes restantes!"
   5-s: "5 secondes restantes!"
