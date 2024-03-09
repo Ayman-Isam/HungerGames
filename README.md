@@ -29,4 +29,4 @@ To find a list of the commands that are in this plugin, check out the [Command W
 To find references needed for editing items and configs, visit the [Cheat Sheets Wiki](https://github.com/cantankerous-ally/Hunger-Games/wiki/Cheat-Sheets). You can find guides on how to edit potion effects, firework effects, item enchantments etc. 
 
 ## Language
-To find more information about the language support of this plugin and how You can contributute to this plugin by adding more languages, vist the [Language Wiki](https://github.com/cantankerous-ally/Hunger-Games/wiki/Language) wiki. You can find guides on how to add your own languages to the plugin.
+To find more information about the language support of this plugin and how You can contribute to this plugin by adding more languages, visit the [Language Wiki](https://github.com/cantankerous-ally/Hunger-Games/wiki/Language) wiki. You can find guides on how to add your own languages to the plugin.
