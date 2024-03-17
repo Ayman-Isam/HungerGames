@@ -124,9 +124,9 @@ public class SetSpawnHandler implements Listener {
                         String spawnPoint = availableSpawnPoints.get(new Random().nextInt(availableSpawnPoints.size()));
                         String[] coords = spawnPoint.split(",");
                         World world = plugin.getServer().getWorld(coords[0]);
-                        double x = Double.parseDouble(coords[1]);
-                        double y = Double.parseDouble(coords[2]) + 1;
-                        double z = Double.parseDouble(coords[3]);
+                        double x = Double.parseDouble(coords[1]) + 0.5;
+                        double y = Double.parseDouble(coords[2]) + 1.0;
+                        double z = Double.parseDouble(coords[3]) + 0.5;
                         player.teleport(new Location(world, x, y, z));
                         occupiedSpawnPoints.add(spawnPoint);
                         player.setGameMode(GameMode.ADVENTURE);
@@ -148,6 +148,44 @@ public class SetSpawnHandler implements Listener {
                     }
                 }
             }
+        }
+    }
+
+    public void handleJoin(Player player) {
+        plugin.loadLanguageConfig(player);
+        if (plugin.gameStarted) {
+            player.sendMessage(ChatColor.RED + plugin.getMessage("setspawnhandler.game-started"));
+            return;
+        }
+        playerSignClickManager.setPlayerSignClicked(player, true);
+        List<String> spawnPoints = getSetSpawnConfig().getStringList("spawnpoints");
+        List<String> availableSpawnPoints = new ArrayList<>(spawnPoints);
+        availableSpawnPoints.removeAll(occupiedSpawnPoints);
+        if (!availableSpawnPoints.isEmpty()) {
+            String spawnPoint = availableSpawnPoints.get(new Random().nextInt(availableSpawnPoints.size()));
+            String[] coords = spawnPoint.split(",");
+            World world = plugin.getServer().getWorld(coords[0]);
+            double x = Double.parseDouble(coords[1]) + 0.5;
+            double y = Double.parseDouble(coords[2]) + 1.0;
+            double z = Double.parseDouble(coords[3]) + 0.5;
+            player.teleport(new Location(world, x, y, z));
+            occupiedSpawnPoints.add(spawnPoint);
+            player.setGameMode(GameMode.ADVENTURE);
+            player.getInventory().clear();
+            player.setExp(0);
+            player.setLevel(30);
+            player.setHealth(20);
+            player.setFoodLevel(20);
+            for (PotionEffect effect : player.getActivePotionEffects()) {
+                player.removePotionEffect(effect.getType());
+            }
+            for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
+                plugin.loadLanguageConfig(onlinePlayer);
+                onlinePlayer.sendMessage(ChatColor.AQUA + player.getName() + plugin.getMessage("setspawnhandler.joined-message-1") + occupiedSpawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-2") + spawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-3"));
+            }
+            playerSpawnPoints.put(player, spawnPoint);
+        } else {
+            player.sendMessage(ChatColor.RED + plugin.getMessage("setspawnhandler.spawn-filled"));
         }
     }
 

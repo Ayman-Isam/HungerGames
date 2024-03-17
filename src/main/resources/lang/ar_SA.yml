@@ -18,6 +18,10 @@ border:
   args-1: "<حجم>"
   args-2: "<مركز-x>"
   args-3: "<مركز-z>"
+  success-message-1: "Border size set to "
+  success-message-2: " with center at X="
+  success-message-3: ", Z="
+  success-message-4: "."
 
 chestrefill:
   no-arena: "قم  أولاً  بإنشاء  مسابقة  لتشغيل  هذا الأمر!"
@@ -71,6 +75,8 @@ game:
   score-time: "الوقت المتبقي:"
   score-alive: "اللاعبين المتبقيين:"
   score-border: "حجم الحدود:"
+  score-chestrefill: "الوقت حتى إعادة تعبئة الصندوق:"
+  score-supplydrop: "الوقت حتى الإمدادات الجوية:"
   game-end: "انتهت اللعبة!"
   winner-text: "  هو الفائز!"
   time-up: "انتهى الوقت!  لم  يكن  هناك  فائز!"

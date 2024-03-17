@@ -18,6 +18,10 @@ border:
   args-1: "<size>"
   args-2: "<center-x>"
   args-3: "<center-z>"
+  success-message-1: "सीमा का आकार सेट कर दिया गया है "
+  success-message-2: " केंद्र X= के साथ"
+  success-message-3: ", Z="
+  success-message-4: "."
 
 chestrefill:
   no-arena: "इस  कमांड  को  चलाने  के  लिए  पहले एक एरीना  बनाएं!"
@@ -71,6 +75,8 @@ game:
   score-time: "बचा  हुआ  समय:"
   score-alive: "जीवित  खिलाड़ी:"
   score-border: "बॉर्डर  का  आकार:"
+  score-chestrefill: "चेस्ट रिफिल होने तक समय:"
+  score-supplydrop: "सप्लाई ड्रॉप होने तक समय:"
   game-end: "खेल  समाप्त  हो  गया  है!"
   winner-text: "  विजेता  है!"
   time-up: "समय  समाप्त!  कोई  भी  खेल  नहीं  जीता!"

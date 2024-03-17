@@ -17,6 +17,10 @@ border:
   args-1: "<size>"
   args-2: "<center-x>"
   args-3: "<center-z>"
+  success-message-1: "边界大小设置为 "
+  success-message-2: " 中心位于 X="
+  success-message-3: ", Z="
+  success-message-4: "."
 
 chestrefill:
   no-arena: "执行此命令前请先创建一个竞技场！"
@@ -70,6 +74,8 @@ game:
   score-time: "剩余时间："
   score-alive: "存活玩家："
   score-border: "边界大小："
+  score-chestrefill: "直到箱子补给的时间:"
+  score-supplydrop: "直到空投的时间:"
   game-end: "游戏已结束！"
   winner-text: "是赢家！"
   time-up: "时间到！没有人赢得比赛！"

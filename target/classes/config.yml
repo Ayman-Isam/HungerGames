@@ -26,6 +26,10 @@ chestrefill:
 min-players: 2
 # Maximum number of players in a game, default is 24
 max-players: 24
+# Enable or disable players spectating on death, default is false, set to true to enable
+spectating: true
+# Enable auto-joining of games, default is false, set to true to enable
+auto-join: false
 # Border settings
 border:
   # Border size in blocks, use size bigger than arena for no border, (default: 100)

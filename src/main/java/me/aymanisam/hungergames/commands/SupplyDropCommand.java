@@ -30,6 +30,8 @@ public class  SupplyDropCommand implements CommandExecutor {
     private final HungerGames plugin;
     Map<String, Color> colorMap = new HashMap<>();
 
+    public static List<String> coords = new ArrayList<>();
+
     public SupplyDropCommand(HungerGames plugin) {
         this.plugin = plugin;
     }
@@ -177,8 +179,6 @@ public class  SupplyDropCommand implements CommandExecutor {
                 int minSupplyDropContent = config.getInt("min-supply-drop-content");
                 int maxSupplyDropContent = config.getInt("max-supply-drop-content");
 
-                List<String> coords = new ArrayList<>();
-
                 Random rand = new Random();
                 for (int i = 0; i < numSupplyDrops; i++) {
                     assert world != null;
@@ -213,7 +213,7 @@ public class  SupplyDropCommand implements CommandExecutor {
                     Firework firework = (Firework) world.spawnEntity(location, EntityType.FIREWORK);
                     FireworkMeta meta = firework.getFireworkMeta();
 
-                    meta.setPower(3); // set the flight duration to 1
+                    meta.setPower(3);
                     FireworkEffect effect = FireworkEffect.builder()
                             .with(FireworkEffect.Type.BALL)
                             .withColor(Color.RED)
@@ -250,11 +250,9 @@ public class  SupplyDropCommand implements CommandExecutor {
                     StringBuilder sb = new StringBuilder();
                     sb.append(ChatColor.GREEN)
                         .append(plugin.getMessage("supplydrop.append-1")).append(numSupplyDrops).append(plugin.getMessage("supplydrop.append-2"));
-                    for (int i = 0; i < coords.size(); i++) {
-                        sb.append(coords.get(i));
-                        if (i < coords.size() - 1) {
-                            sb.append(", ");
-                        }
+                    if (!coords.isEmpty()) {
+                        String lastCoord = coords.get(coords.size() - 1);
+                        sb.append(lastCoord);
                     }
                     sb.append("!");
                     player.sendMessage(ChatColor.GREEN + sb.toString());

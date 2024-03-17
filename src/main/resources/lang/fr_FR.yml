@@ -18,6 +18,10 @@ border:
   args-1: "<taille>"
   args-2: "<centre-x>"
   args-3: "<centre-z>"
+  success-message-1: "Taille de la bordure définie à "
+  success-message-2: " avec centre à X="
+  success-message-3: ", Z="
+  success-message-4: "."
 
 chestrefill:
   no-arena: "Créez d'abord une arène pour exécuter cette commande!"
@@ -71,6 +75,8 @@ game:
   score-time: "Temps restant :"
   score-alive: "Joueurs vivants :"
   score-border: "Taille de la frontière :"
+  score-chestrefill: "Temps jusqu'au réapprovisionnement du coffre:"
+  score-supplydrop: "Temps jusqu'au largage de ravitaillement:"
   game-end: "Le jeu est terminé!"
   winner-text: " est le vainqueur!"
   time-up: "Le temps est écoulé! Personne n'a gagné le jeu!"

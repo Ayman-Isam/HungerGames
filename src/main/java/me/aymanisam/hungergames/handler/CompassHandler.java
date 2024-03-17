@@ -2,6 +2,7 @@ package me.aymanisam.hungergames.handler;
 
 import me.aymanisam.hungergames.HungerGames;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -9,14 +10,15 @@ import org.bukkit.inventory.ItemStack;
 public class CompassHandler {
 
     public CompassHandler(HungerGames plugin) {
-
         plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                ItemStack itemInHand = player.getInventory().getItemInMainHand();
-                if (itemInHand.getType() == Material.COMPASS) {
-                    Player nearestPlayer = findNearestPlayer(player);
-                    if (nearestPlayer != null) {
-                        player.setCompassTarget(nearestPlayer.getLocation());
+                if (player.getGameMode() == GameMode.ADVENTURE) {
+                    ItemStack itemInHand = player.getInventory().getItemInMainHand();
+                    if (itemInHand.getType() == Material.COMPASS) {
+                        Player nearestPlayer = findNearestPlayer(player);
+                        if (nearestPlayer != null) {
+                            player.setCompassTarget(nearestPlayer.getLocation());
+                        }
                     }
                 }
             }

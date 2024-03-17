@@ -12,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -23,12 +24,14 @@ public final class HungerGames extends JavaPlugin {
     public List<Player> playersAlive;
     private SetSpawnHandler setSpawnHandler;
     private YamlConfiguration langConfig;
+    private Map<Player, BossBar> playerBossBars;
     @Override
     public void onEnable() {
         saveLanguageFiles();
         loadDefaultLanguageConfig();
         PlayerSignClickManager playerSignClickManager = new PlayerSignClickManager();
         setSpawnHandler = new SetSpawnHandler(this, playerSignClickManager);
+        JoinGameCommand joinGameCommand = new JoinGameCommand(setSpawnHandler);
         gameHandler = new GameHandler(this, setSpawnHandler, playerSignClickManager);
         getServer().getWorld("world");
         playersAlive = new ArrayList<>();
@@ -54,6 +57,7 @@ public final class HungerGames extends JavaPlugin {
         Objects.requireNonNull(getCommand("create")).setExecutor(new ArenaSelectorCommand(this));
         Objects.requireNonNull(getCommand("select")).setExecutor(new ArenaSelectorCommand(this));
         Objects.requireNonNull(getCommand("setspawn")).setExecutor(new SetSpawnCommand(this));
+        Objects.requireNonNull(getCommand("join")).setExecutor(joinGameCommand);
         Objects.requireNonNull(getCommand("chestrefill")).setExecutor(new ChestRefillCommand(this));
         Objects.requireNonNull(getCommand("start")).setExecutor(new StartGameCommand(this));
         Objects.requireNonNull(getCommand("end")).setExecutor(new EndGameCommand(this));
@@ -127,5 +131,13 @@ public final class HungerGames extends JavaPlugin {
         }
         this.getLogger().log(Level.SEVERE, "Message not found for key: " + key);
         return "Message not found";
+    }
+
+    public Map<Player, BossBar> getPlayerBossBars() {
+        return playerBossBars;
+    }
+
+    public void setPlayerBossBars(Map<Player, BossBar> playerBossBars) {
+        this.playerBossBars = playerBossBars;
     }
 }
