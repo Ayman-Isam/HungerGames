@@ -53,7 +53,15 @@ public class StartGameCommand implements CommandExecutor {
             for (Player p : plugin.getServer().getOnlinePlayers()) {
                 plugin.loadLanguageConfig(p);
                 String message = plugin.getMessage(messageKey);
-                p.sendMessage(ChatColor.GOLD + message);
+                ChatColor color;
+                if (delayInTicks >= 20L * 15) {
+                    color = ChatColor.YELLOW;
+                } else if (delayInTicks >= 20L * 10) {
+                    color = ChatColor.GOLD;
+                } else {
+                    color = ChatColor.RED;
+                }
+                p.sendMessage(color + message);
                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
             }
         }, delayInTicks);
@@ -65,7 +73,7 @@ public class StartGameCommand implements CommandExecutor {
         if (command.getName().equalsIgnoreCase("start")) {
             if (sender instanceof Player player) {
                 plugin.loadLanguageConfig(player);
-                if (player.isOp()) {
+                if (player.hasPermission("hungergames.start")) {
                     FileConfiguration config = plugin.getConfig();
                     if (plugin.getServer().getOnlinePlayers().size() < config.getInt("min-players")) {
                         String message = String.format(plugin.getMessage("startgame.min-players"), config.getInt("min-players"));
@@ -100,7 +108,7 @@ public class StartGameCommand implements CommandExecutor {
                     plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                         plugin.getGameHandler().startGame();
                         for (Player p : plugin.getServer().getOnlinePlayers()) {
-                            p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                            p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.0f);
                         }
                         gameStarting = false;
                     }, 20L * 20);

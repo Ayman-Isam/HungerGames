@@ -52,7 +52,7 @@ public class ScanArenaCommand implements CommandExecutor {
         if (command.getName().equalsIgnoreCase("scanarena")) {
             if (sender instanceof Player player) {
                 plugin.loadLanguageConfig(player);
-                if (player.isOp()) {
+                if (player.hasPermission("hungergames.scanarena")) {
                     FileConfiguration config = getArenaConfig();
 
                     if (!config.isSet("region.pos1.x") || !config.isSet("region.pos1.y") || !config.isSet("region.pos1.z")

@@ -8,7 +8,7 @@ max-barrel-content: 7
 min-trapped-chest-content: 4
 max-trapped-chest-content: 7
 # Number of supply-drops dropped simultaneously, 1 by default
-num-supply-drops: 1
+num-supply-drops: 2
 # Minimum and Maximum stacks of different items for supply drops
 min-supply-drop-content: 2
 max-supply-drop-content: 6
@@ -21,7 +21,7 @@ supplydrop:
   interval: 30
 # Interval of chests being refilled in seconds, use any time higher than game-time for no chestrefills, (default: 600)
 chestrefill:
-  time: 600
+  interval: 180
 # Minimum number of players in a game, default is 2
 min-players: 2
 # Maximum number of players in a game, default is 24

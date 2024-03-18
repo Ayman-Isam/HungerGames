@@ -26,7 +26,7 @@ public class SetSpawnCommand implements CommandExecutor {
         if (command.getName().equalsIgnoreCase("setspawn")) {
             if (sender instanceof Player player) {
                 plugin.loadLanguageConfig(player);
-                if (player.isOp()) {
+                if (player.hasPermission("hungergames.setspawn")) {
                     ItemStack stick = new ItemStack(Material.STICK);
                     ItemMeta meta = stick.getItemMeta();
                     assert meta != null;

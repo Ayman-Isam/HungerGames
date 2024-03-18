@@ -1,6 +1,7 @@
 package me.aymanisam.hungergames.handler;
 
 import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.commands.JoinGameCommand;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -27,11 +28,12 @@ public class SetSpawnHandler implements Listener {
     private FileConfiguration setSpawnConfig = null;
     private File setSpawnFile = null;
     private final PlayerSignClickManager playerSignClickManager;
+    private final JoinGameCommand joinGameCommand;
 
-
-    public SetSpawnHandler(HungerGames plugin, PlayerSignClickManager playerSignClickManager) {
+    public SetSpawnHandler(HungerGames plugin, PlayerSignClickManager playerSignClickManager, JoinGameCommand joinGameCommand) {
         this.plugin = plugin;
         this.playerSignClickManager = playerSignClickManager;
+        this.joinGameCommand = joinGameCommand;
         createSetSpawnConfig();
         createArenaConfig();
     }
@@ -129,6 +131,7 @@ public class SetSpawnHandler implements Listener {
                         double z = Double.parseDouble(coords[3]) + 0.5;
                         player.teleport(new Location(world, x, y, z));
                         occupiedSpawnPoints.add(spawnPoint);
+                        joinGameCommand.addPlayerToGame(player);
                         player.setGameMode(GameMode.ADVENTURE);
                         player.getInventory().clear();
                         player.setExp(0);
@@ -140,7 +143,7 @@ public class SetSpawnHandler implements Listener {
                         }
                         for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
                             plugin.loadLanguageConfig(onlinePlayer);
-                            onlinePlayer.sendMessage(ChatColor.AQUA + player.getName() + plugin.getMessage("setspawnhandler.joined-message-1") + occupiedSpawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-2") + spawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-3"));
+                            onlinePlayer.sendMessage(ChatColor.GREEN + player.getName() + ChatColor.GRAY + plugin.getMessage("setspawnhandler.joined-message-1") + ChatColor.DARK_GREEN + plugin.getMessage("setspawnhandler.joined-message-2") + occupiedSpawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-3") + spawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-4"));
                         }
                         playerSpawnPoints.put(player, spawnPoint);
                     } else {
@@ -151,11 +154,11 @@ public class SetSpawnHandler implements Listener {
         }
     }
 
-    public void handleJoin(Player player) {
+    public boolean handleJoin(Player player) {
         plugin.loadLanguageConfig(player);
         if (plugin.gameStarted) {
             player.sendMessage(ChatColor.RED + plugin.getMessage("setspawnhandler.game-started"));
-            return;
+            return false;
         }
         playerSignClickManager.setPlayerSignClicked(player, true);
         List<String> spawnPoints = getSetSpawnConfig().getStringList("spawnpoints");
@@ -181,12 +184,14 @@ public class SetSpawnHandler implements Listener {
             }
             for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
                 plugin.loadLanguageConfig(onlinePlayer);
-                onlinePlayer.sendMessage(ChatColor.AQUA + player.getName() + plugin.getMessage("setspawnhandler.joined-message-1") + occupiedSpawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-2") + spawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-3"));
+                onlinePlayer.sendMessage(ChatColor.GREEN + player.getName() + ChatColor.GRAY + plugin.getMessage("setspawnhandler.joined-message-1") + ChatColor.DARK_GREEN + plugin.getMessage("setspawnhandler.joined-message-2") + occupiedSpawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-3") + spawnPoints.size() + plugin.getMessage("setspawnhandler.joined-message-4"));
             }
             playerSpawnPoints.put(player, spawnPoint);
+            return true;
         } else {
             player.sendMessage(ChatColor.RED + plugin.getMessage("setspawnhandler.spawn-filled"));
         }
+        return false;
     }
 
     public void clearOccupiedSpawnPoints() {

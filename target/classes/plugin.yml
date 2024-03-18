@@ -36,6 +36,9 @@ commands:
     description: "Changes the world border in HungerGames"
     usage: <command> <size>
 permissions:
+  hungergames.join:
+    description: "Allows you to join the game in HungerGames"
+    default: true
   hungergames.select:
     description: "Allows you to select an arena in HungerGames"
     default: op
@@ -53,7 +56,7 @@ permissions:
     default: op
   hungergames.start:
     description: "Allows you to start the game in HungerGames"
-    default: true
+    default: op
   hungergames.end:
     description: "Allows you to forcefully end the game in HungerGames"
     default: op

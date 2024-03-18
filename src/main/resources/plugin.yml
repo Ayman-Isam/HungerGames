@@ -56,7 +56,7 @@ permissions:
     default: op
   hungergames.start:
     description: "Allows you to start the game in HungerGames"
-    default: true
+    default: op
   hungergames.end:
     description: "Allows you to forcefully end the game in HungerGames"
     default: op

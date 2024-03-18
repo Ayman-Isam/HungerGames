@@ -7,6 +7,7 @@ import org.bukkit.WorldBorder;
 import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -30,9 +31,9 @@ public final class HungerGames extends JavaPlugin {
         saveLanguageFiles();
         loadDefaultLanguageConfig();
         PlayerSignClickManager playerSignClickManager = new PlayerSignClickManager();
-        setSpawnHandler = new SetSpawnHandler(this, playerSignClickManager);
-        JoinGameCommand joinGameCommand = new JoinGameCommand(setSpawnHandler);
-        gameHandler = new GameHandler(this, setSpawnHandler, playerSignClickManager);
+        JoinGameCommand joinGameCommand = new JoinGameCommand(this, setSpawnHandler);
+        setSpawnHandler = new SetSpawnHandler(this, playerSignClickManager, joinGameCommand);
+        gameHandler = new GameHandler(this, setSpawnHandler, playerSignClickManager, joinGameCommand);
         getServer().getWorld("world");
         playersAlive = new ArrayList<>();
         new CompassHandler(this);
@@ -71,6 +72,20 @@ public final class HungerGames extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new WorldBorderHandler(this), this);
         getServer().getPluginManager().registerEvents(gameHandler, this);
         getServer().getPluginManager().registerEvents(moveDisableHandler, this);
+    }
+
+    @Override
+    public void onDisable() {
+        if (gameHandler != null) {
+            gameHandler.endGame();
+        }
+
+        if (playersAlive != null) {
+            playersAlive.clear();
+        }
+
+        HandlerList.unregisterAll(this);
+        getServer().getScheduler().cancelTasks(this);
     }
 
     public GameHandler getGameHandler() {

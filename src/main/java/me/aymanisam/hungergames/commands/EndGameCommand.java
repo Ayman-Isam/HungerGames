@@ -20,7 +20,7 @@ public class EndGameCommand implements CommandExecutor {
         if (command.getName().equalsIgnoreCase("end")) {
             if (sender instanceof Player player) {
                 plugin.loadLanguageConfig(player);
-                if (player.isOp()) {
+                if (player.hasPermission("hungergames.end")) {
                     if (!plugin.gameStarted) {
                         sender.sendMessage(ChatColor.RED + plugin.getMessage("endgame.not-started"));
                         return true;

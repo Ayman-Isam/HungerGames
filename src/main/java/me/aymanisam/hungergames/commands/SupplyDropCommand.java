@@ -54,7 +54,7 @@ public class  SupplyDropCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("supplydrop")) {
-            if (sender.isOp() || !(sender instanceof Player player)) {
+            if (sender.hasPermission("hungergames.supplydrop") || !(sender instanceof Player player)) {
                 FileConfiguration config = plugin.getConfig();
                 FileConfiguration arenaConfig = getArenaConfig();
                 String worldName = arenaConfig.getString("region.world");
@@ -248,14 +248,17 @@ public class  SupplyDropCommand implements CommandExecutor {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     plugin.loadLanguageConfig(player);
                     StringBuilder sb = new StringBuilder();
-                    sb.append(ChatColor.GREEN)
+                    sb.append(ChatColor.LIGHT_PURPLE)
                         .append(plugin.getMessage("supplydrop.append-1")).append(numSupplyDrops).append(plugin.getMessage("supplydrop.append-2"));
                     if (!coords.isEmpty()) {
-                        String lastCoord = coords.get(coords.size() - 1);
-                        sb.append(lastCoord);
+                        int fromIndex = Math.max(0, coords.size() - numSupplyDrops);
+                        List<String> latestCoords = coords.subList(fromIndex, coords.size());
+                        for (String coord : latestCoords) {
+                            sb.append(coord).append(" ");
+                        }
                     }
                     sb.append("!");
-                    player.sendMessage(ChatColor.GREEN + sb.toString());
+                    player.sendMessage(ChatColor.LIGHT_PURPLE + sb.toString());
                 }
                 return true;
             } else {

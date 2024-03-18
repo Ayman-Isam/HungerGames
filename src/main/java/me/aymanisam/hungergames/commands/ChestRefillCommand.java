@@ -69,8 +69,9 @@ public class ChestRefillCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, String[] args) {
+        plugin.getLogger().info("ChestRefillCommand is being called");
         if (command.getName().equalsIgnoreCase("chestrefill")) {
-            if (sender.isOp() || !(sender instanceof Player player)) {
+            if (sender.hasPermission("hungergames.chestrefill") || !(sender instanceof Player player)) {
                 FileConfiguration ArenaConfig = getArenaConfig();
                 FileConfiguration config = plugin.getConfig();
                 String worldName = ArenaConfig.getString("region.world");

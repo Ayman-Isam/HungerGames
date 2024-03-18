@@ -79,7 +79,7 @@ game:
   score-pvp: "PvP in: "
   score-chestrefill: "Chestrefill in: "
   score-supplydrop: "Supplydrop in: "
-  score-supplydrop-latest: "Latest Supplydrop at: "
+  score-supplydrop-latest: "Supplydrop at: "
   game-end: "The game has ended!"
   winner-text: " is the winner!"
   time-up: "The time is up! No one won the game!"
@@ -98,10 +98,15 @@ setspawnhandler:
   position-set: "Position "
   max-spawn: "You have reached the maximum number of spawn points!"
   game-started: "Game has already started."
-  joined-message-1: " has joined ["
-  joined-message-2: "/"
-  joined-message-3: "]"
+  joined-message-1: " has joined "
+  joined-message-2: "["
+  joined-message-3: "/"
+  joined-message-4: "]"
   spawn-filled: "All spawn points are currently occupied!"
 
 borderhandler:
-  start-shrink: "The world border has started to shrink."
+  start-shrink: "The world border has started to shrink"
+
+join:
+  already-joined: "You have already joined the game!"
+

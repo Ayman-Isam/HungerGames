@@ -25,7 +25,7 @@ public class BorderSetCommand implements CommandExecutor, TabCompleter {
         if (command.getName().equalsIgnoreCase("border")) {
             if (sender instanceof Player player) {
                 plugin.loadLanguageConfig(player);
-                if (player.isOp()) {
+                if (player.hasPermission("hungergames.border")) {
                     if (args.length != 3) {
                         sender.sendMessage(plugin.getMessage("border.usage"));
                         return true;

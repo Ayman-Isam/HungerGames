@@ -62,7 +62,7 @@ public class ArenaSelectorCommand implements CommandExecutor {
         if (command.getName().equalsIgnoreCase("select")) {
             if (sender instanceof Player player) {
                 plugin.loadLanguageConfig(player);
-                if (player.isOp()) {
+                if (player.hasPermission("hungergames.select")) {
                     ItemStack blazeRod = new ItemStack(Material.BLAZE_ROD);
                     ItemMeta meta = blazeRod.getItemMeta();
                     assert meta != null;
@@ -85,7 +85,7 @@ public class ArenaSelectorCommand implements CommandExecutor {
         } else if (command.getName().equalsIgnoreCase("create")) {
             if (sender instanceof Player player) {
                 plugin.loadLanguageConfig(player);
-                if (player.isOp()) {
+                if (player.hasPermission("hungergames.create")) {
                     if (player.hasMetadata("arena_pos1") && player.hasMetadata("arena_pos2")) {
                         Location pos1 = (Location) player.getMetadata("arena_pos1").get(0).value();
                         Location pos2 = (Location) player.getMetadata("arena_pos2").get(0).value();

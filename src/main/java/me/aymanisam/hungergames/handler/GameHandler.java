@@ -2,6 +2,7 @@ package me.aymanisam.hungergames.handler;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.commands.ChestRefillCommand;
+import me.aymanisam.hungergames.commands.JoinGameCommand;
 import me.aymanisam.hungergames.commands.SupplyDropCommand;
 import org.bukkit.*;
 import org.bukkit.block.BlockState;
@@ -38,13 +39,14 @@ public class GameHandler implements Listener {
     private final HungerGames plugin;
     private final SetSpawnHandler setSpawnHandler;
     private final PlayerSignClickManager playerSignClickManager;
-
+    private final JoinGameCommand joinGameCommand;
     private final WorldBorderHandler worldBorderHandler;
     private FileConfiguration arenaConfig = null;
 
-    public GameHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler, PlayerSignClickManager playerSignClickManager) {
+    public GameHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler, PlayerSignClickManager playerSignClickManager, JoinGameCommand joinGameCommand) {
         this.plugin = plugin;
         this.setSpawnHandler = setSpawnHandler;
+        this.joinGameCommand = joinGameCommand;
         this.playersAlive = new ArrayList<>();
         this.playerSignClickManager = playerSignClickManager;
         this.worldBorderHandler = new WorldBorderHandler(plugin);
@@ -130,7 +132,7 @@ public class GameHandler implements Listener {
 
                 plugin.setBossBar(bossBar);
                 playersAlive.add(player);
-                player.sendMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("game.game-start"));
+                player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getMessage("game.game-start"));
                 player.sendMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("game.grace-start"));
                 if (plugin.getConfig().getBoolean("bedrock-buff.enabled") && player.getName().startsWith(".")) {
                     List<String> effectNames = plugin.getConfig().getStringList("bedrock-buff.effects");
@@ -159,7 +161,14 @@ public class GameHandler implements Listener {
             for (Map.Entry<Player, BossBar> entry : playerBossBars.entrySet()) {
                 BossBar bossBar = entry.getValue();
                 bossBar.setProgress((double) timeLeft / plugin.getConfig().getInt("game-time"));
-                bossBar.setTitle(plugin.getMessage("game.score-time"));
+
+                // Format timeLeft into minutes and seconds
+                int minutes = (timeLeft - 1) / 60;
+                int seconds = (timeLeft - 1) % 60;
+                String timeFormatted = String.format("%02d:%02d", minutes, seconds);
+
+                // Set the formatted time as the BossBar title
+                bossBar.setTitle(plugin.getMessage("game.score-time") + timeFormatted);
             }
             timeLeft--;
 
@@ -172,19 +181,19 @@ public class GameHandler implements Listener {
                 Objective objective = scoreboard.registerNewObjective(plugin.getMessage("game.score-name"), "dummy", ChatColor.GREEN + "" + ChatColor.BOLD + plugin.getMessage("game.score-name"), RenderType.INTEGER);
                 objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-                objective.getScore("  ").setScore(11);
+                objective.getScore("  ").setScore(15);
 
                 Score playersAliveScore = objective.getScore(ChatColor.WHITE + plugin.getMessage("game.score-alive") + ChatColor.GREEN + playersAlive.size());
-                playersAliveScore.setScore(10);
+                playersAliveScore.setScore(14);
 
                 Score worldBorderSizeScore = objective.getScore(ChatColor.WHITE + plugin.getMessage("game.score-border") + ChatColor.GREEN + (int) world.getWorldBorder().getSize());
-                worldBorderSizeScore.setScore(9);
+                worldBorderSizeScore.setScore(13);
 
-                objective.getScore("  ").setScore(8);
+                objective.getScore("  ").setScore(12);
 
                 String timeFormatted = String.format("%02d:%02d", timeLeft / 60, timeLeft % 60);
                 Score timeScore = objective.getScore(ChatColor.WHITE + plugin.getMessage("game.score-time") + ChatColor.GREEN + timeFormatted);
-                timeScore.setScore(7);
+                timeScore.setScore(11);
 
                 int borderShrinkTimeConfig = plugin.getConfig().getInt("border.start-time");
                 int gameTimeConfig = plugin.getConfig().getInt("game-time");
@@ -194,7 +203,7 @@ public class GameHandler implements Listener {
                 String borderTimeFormatted = String.format("%02d:%02d", borderMinutes, borderSeconds);
                 Score borderShrinkScore = objective.getScore(ChatColor.WHITE + plugin.getMessage("game.score-borderShrink") + ChatColor.GREEN + borderTimeFormatted);
                 if (borderShrinkTimeLeft >= 0) {
-                    borderShrinkScore.setScore(6);
+                    borderShrinkScore.setScore(10);
                 }
 
                 int pvpTimeConfig = plugin.getConfig().getInt("grace-period");
@@ -204,10 +213,10 @@ public class GameHandler implements Listener {
                 String pvpTimeFormatted = String.format("%02d:%02d", pvpMinutes, pvpSeconds);
                 Score pvpScore = objective.getScore(ChatColor.WHITE + plugin.getMessage("game.score-pvp") + ChatColor.GREEN + pvpTimeFormatted);
                 if (pvpTimeLeft >= 0) {
-                    pvpScore.setScore(5);
+                    pvpScore.setScore(9);
                 }
 
-                objective.getScore("").setScore(4);
+                objective.getScore("").setScore(8);
 
                 int chestRefillTimeConfig = plugin.getConfig().getInt("chestrefill.time");
                 int chestRefillTimeLeft = timeLeft - chestRefillTimeConfig;
@@ -216,24 +225,23 @@ public class GameHandler implements Listener {
                 String chestTimeFormatted = String.format("%02d:%02d", chestMinutes, chestSeconds);
                 Score chestRefillScore = objective.getScore(ChatColor.WHITE + plugin.getMessage("game.score-chestrefill") + ChatColor.GREEN + chestTimeFormatted);
                 if (chestRefillTimeLeft >= 0) {
-                    chestRefillScore.setScore(3);
+                    chestRefillScore.setScore(7);
                 }
 
                 int supplyDropInterval = plugin.getConfig().getInt("supplydrop.interval");
                 int supplyDropTimeLeft = timeLeft % supplyDropInterval;
                 Score supplyDropScore = objective.getScore(ChatColor.WHITE + plugin.getMessage("game.score-supplydrop") + ChatColor.GREEN + supplyDropTimeLeft);
                 if (supplyDropTimeLeft >= 0) {
-                    supplyDropScore.setScore(2);
+                    supplyDropScore.setScore(6);
                 }
 
                 List<String> supplyDropCoords = SupplyDropCommand.coords;
-                String latestSupplyDropCoords = "";
-                if (!supplyDropCoords.isEmpty()) {
-                    latestSupplyDropCoords = supplyDropCoords.get(supplyDropCoords.size() - 1);
+                int maxDisplay = Math.min(supplyDropCoords.size(), plugin.getConfig().getInt("num-supply-drops"));
+                for (int i = 0; i < maxDisplay; i++) {
+                    String supplyDropCoord = supplyDropCoords.get(supplyDropCoords.size() - 1 - i);
+                    Score supplyDropCoordsScore = objective.getScore(ChatColor.WHITE + plugin.getMessage("game.score-supplydrop-latest") + ChatColor.GREEN + supplyDropCoord);
+                    supplyDropCoordsScore.setScore(maxDisplay - i);
                 }
-                Score latestSupplyDropScore = objective.getScore(ChatColor.WHITE + plugin.getMessage("game.score-supplydrop-latest") + ChatColor.GREEN + latestSupplyDropCoords);
-                latestSupplyDropScore.setScore(1);
-
                 player.setScoreboard(scoreboard);
             }
 
@@ -263,7 +271,7 @@ public class GameHandler implements Listener {
                 endGame();
             }
         }, 0L, 20L);
-        int supplyDropInterval = plugin.getConfig().getInt("supplydrop.interval") * 20; // Convert seconds to ticks
+        int supplyDropInterval = plugin.getConfig().getInt("supplydrop.interval") * 20;
         SupplyDropCommand supplyDropCommand = new SupplyDropCommand(plugin);
         PluginCommand supplyDropPluginCommand = plugin.getCommand("supplydrop");
 
@@ -275,22 +283,16 @@ public class GameHandler implements Listener {
             }
         }.runTaskTimer(plugin, supplyDropInterval, supplyDropInterval);
 
-
+        int chestRefillInterval = plugin.getConfig().getInt("chestrefill.interval") * 20;
         ChestRefillCommand chestRefillCommand = new ChestRefillCommand(plugin);
         PluginCommand chestRefillPluginCommand = plugin.getCommand("chestrefill");
-        assert chestRefillPluginCommand != null;
-        chestRefillCommand.onCommand(plugin.getServer().getConsoleSender(), chestRefillPluginCommand, "chestrefill", new String[0]);
 
-        // Schedule a delayed task to refill chests again at specified time
-        int chestRefillTime = plugin.getConfig().getInt("chestrefill.time") * 20;
         chestRefillTask = new BukkitRunnable() {
             @Override
             public void run() {
-                if (plugin.gameStarted) {
-                    chestRefillCommand.onCommand(plugin.getServer().getConsoleSender(), chestRefillPluginCommand, "chestrefill", new String[0]);
-                }
+                chestRefillCommand.onCommand(plugin.getServer().getConsoleSender(), chestRefillPluginCommand, "chestrefill", new String[0]);
             }
-        }.runTaskLater(plugin, chestRefillTime);
+        }.runTaskTimer(plugin, chestRefillInterval, chestRefillInterval);
     }
 
     @EventHandler
@@ -302,6 +304,7 @@ public class GameHandler implements Listener {
             }
             playerSignClickManager.removePlayerSignClicked(player);
             playersAlive.remove(player);
+            joinGameCommand.removePlayer(player);
             World world = plugin.getServer().getWorld("world");
             assert world != null;
             Location spawnLocation = world.getSpawnLocation();
@@ -318,7 +321,9 @@ public class GameHandler implements Listener {
         player.setGameMode(GameMode.SPECTATOR);
         boolean autoJoin = plugin.getConfig().getBoolean("auto-join");
         if (autoJoin) {
+            event.setJoinMessage(null);
             setSpawnHandler.handleJoin(player);
+            joinGameCommand.addPlayerToGame(player);
         }
     }
 
@@ -332,6 +337,7 @@ public class GameHandler implements Listener {
         if (playersAlive != null) {
             playersAlive.remove(player);
             playerSignClickManager.removePlayerSignClicked(player);
+            joinGameCommand.removePlayer(player);
         }
         World world = plugin.getServer().getWorld("world");
         assert world != null;
@@ -402,6 +408,7 @@ public class GameHandler implements Listener {
             }
             player.setGameMode(GameMode.ADVENTURE);
             playerSignClickManager.removePlayerSignClicked(player);
+            joinGameCommand.removePlayer(player);
             player.teleport(spawnLocation);
             player.getInventory().clear();
             ScoreboardManager manager = Bukkit.getScoreboardManager();
