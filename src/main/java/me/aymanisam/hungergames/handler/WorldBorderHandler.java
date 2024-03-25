@@ -1,7 +1,6 @@
 package me.aymanisam.hungergames.handler;
 
 import me.aymanisam.hungergames.HungerGames;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -34,7 +33,7 @@ public class WorldBorderHandler implements Listener {
                 border.setSize(finalSize, duration);
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     plugin.loadLanguageConfig(player);
-                    player.sendMessage(ChatColor.GOLD + plugin.getMessage("borderhandler.start-shrink"));
+                    player.sendMessage(plugin.getMessage("borderhandler.start-shrink"));
                 }
             } else {
                 double borderSize = plugin.getConfig().getDouble("border.size");

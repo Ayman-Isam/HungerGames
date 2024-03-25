@@ -2,7 +2,6 @@ package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handler.SetSpawnHandler;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -30,17 +29,17 @@ public class SetSpawnCommand implements CommandExecutor {
                     ItemStack stick = new ItemStack(Material.STICK);
                     ItemMeta meta = stick.getItemMeta();
                     assert meta != null;
-                    meta.setDisplayName(ChatColor.AQUA + plugin.getMessage("setspawn.stick-name"));
+                    meta.setDisplayName(plugin.getMessage("setspawn.stick-name"));
                     stick.setItemMeta(meta);
                     player.getInventory().addItem(stick);
-                    sender.sendMessage(ChatColor.BLUE + plugin.getMessage("setspawn.given-stick"));
+                    sender.sendMessage(plugin.getMessage("setspawn.given-stick"));
                     SetSpawnHandler setSpawnHandler = plugin.getSetSpawnHandler();
                     setSpawnHandler.getSetSpawnConfig().set("spawnpoints", new ArrayList<>());
                     setSpawnHandler.saveSetSpawnConfig();
-                    sender.sendMessage(ChatColor.GREEN + plugin.getMessage("setspawn.spawn-reset"));
+                    sender.sendMessage(plugin.getMessage("setspawn.spawn-reset"));
                     return true;
                 } else {
-                    sender.sendMessage(ChatColor.RED + plugin.getMessage("no-permission"));
+                    sender.sendMessage(plugin.getMessage("no-permission"));
                 }
             }
         }

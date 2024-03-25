@@ -28,7 +28,7 @@ public class SetSpawnHandler implements Listener {
     private FileConfiguration setSpawnConfig = null;
     private File setSpawnFile = null;
     private final PlayerSignClickManager playerSignClickManager;
-    private final JoinGameCommand joinGameCommand;
+    private JoinGameCommand joinGameCommand;
 
     public SetSpawnHandler(HungerGames plugin, PlayerSignClickManager playerSignClickManager, JoinGameCommand joinGameCommand) {
         this.plugin = plugin;
@@ -36,6 +36,10 @@ public class SetSpawnHandler implements Listener {
         this.joinGameCommand = joinGameCommand;
         createSetSpawnConfig();
         createArenaConfig();
+    }
+
+    public void setJoinGameCommand(JoinGameCommand joinGameCommand) {
+        this.joinGameCommand = joinGameCommand;
     }
 
     private final Set<String> occupiedSpawnPoints = new HashSet<>();
@@ -88,21 +92,21 @@ public class SetSpawnHandler implements Listener {
         if (item != null && item.getType() == Material.STICK && item.hasItemMeta()) {
             ItemMeta meta = item.getItemMeta();
             assert meta != null;
-            if (meta.getDisplayName().equals(ChatColor.AQUA + plugin.getMessage("setspawn.stick-name"))) {
+            if (meta.getDisplayName().equals(plugin.getMessage("setspawn.stick-name"))) {
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                     Location location = Objects.requireNonNull(event.getClickedBlock()).getLocation();
                     List<String> spawnPoints = getSetSpawnConfig().getStringList("spawnpoints");
                     FileConfiguration config = plugin.getConfig();
                     String newSpawnPoint = Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
                     if (spawnPoints.contains(newSpawnPoint)) {
-                        player.sendMessage(ChatColor.RED + plugin.getMessage("setspawnhandler.duplicate"));
+                        player.sendMessage(plugin.getMessage("setspawnhandler.duplicate"));
                         event.setCancelled(true);
                     }
                     if (spawnPoints.size() < config.getInt("max-players")) {
                         spawnPoints.add(newSpawnPoint);
                         getSetSpawnConfig().set("spawnpoints", spawnPoints);
                         saveSetSpawnConfig();
-                        player.sendMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("setspawnhandler.position-set") + ChatColor.GOLD + spawnPoints.size() + ChatColor.LIGHT_PURPLE + " set at X: " + location.getBlockX() + " Y: " + location.getBlockY() + " Z: " + location.getBlockZ());
+                        player.sendMessage(plugin.getMessage("setspawnhandler.position-set") + spawnPoints.size() + plugin.getMessage("setspawnhandler.set-at") + location.getBlockX() + plugin.getMessage("setspawnhandler.coord-y") + location.getBlockY() + plugin.getMessage("setspawnhandler.coord-z") + location.getBlockZ());
                     } else if (spawnPoints.size() ==  config.getInt("max-players")){
                         player.sendMessage(ChatColor.RED + plugin.getMessage("setspawnhandler.max-spawn"));
                     }

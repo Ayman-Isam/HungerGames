@@ -1,7 +1,6 @@
 package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
-import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -53,15 +52,7 @@ public class StartGameCommand implements CommandExecutor {
             for (Player p : plugin.getServer().getOnlinePlayers()) {
                 plugin.loadLanguageConfig(p);
                 String message = plugin.getMessage(messageKey);
-                ChatColor color;
-                if (delayInTicks >= 20L * 15) {
-                    color = ChatColor.YELLOW;
-                } else if (delayInTicks >= 20L * 10) {
-                    color = ChatColor.GOLD;
-                } else {
-                    color = ChatColor.RED;
-                }
-                p.sendMessage(color + message);
+                p.sendMessage(message);
                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
             }
         }, delayInTicks);
@@ -77,29 +68,31 @@ public class StartGameCommand implements CommandExecutor {
                     FileConfiguration config = plugin.getConfig();
                     if (plugin.getServer().getOnlinePlayers().size() < config.getInt("min-players")) {
                         String message = String.format(plugin.getMessage("startgame.min-players"), config.getInt("min-players"));
-                        player.sendMessage(ChatColor.RED + message);
+                        player.sendMessage(message);
                         return true;
                     }
+                    createSetSpawnConfig();
+                    createArenaConfig();
                     List<String> spawnpoints = setspawnConfig.getStringList("spawnpoints");
                     String world = arenaConfig.getString("region.world");
                     if (spawnpoints.isEmpty() && world == null) {
-                        player.sendMessage(ChatColor.RED + plugin.getMessage("startgame.set-spawn-arena"));
+                        player.sendMessage(plugin.getMessage("startgame.set-spawn-arena"));
                         return true;
                     } else if (spawnpoints.isEmpty()) {
-                        player.sendMessage(ChatColor.RED + plugin.getMessage("startgame.set-spawn"));
+                        player.sendMessage(plugin.getMessage("startgame.set-spawn"));
                         return true;
                     } else if (world == null) {
-                        player.sendMessage(ChatColor.RED + plugin.getMessage("startgame.set-arena"));
+                        player.sendMessage(plugin.getMessage("startgame.set-arena"));
                         return true;
                     }
 
                     if (plugin.gameStarted) {
-                        sender.sendMessage(ChatColor.RED + plugin.getMessage("startgame.started"));
+                        sender.sendMessage(plugin.getMessage("startgame.started"));
                         return true;
                     }
 
                     if (gameStarting) {
-                        sender.sendMessage(ChatColor.RED + plugin.getMessage("startgame.starting"));
+                        sender.sendMessage(plugin.getMessage("startgame.starting"));
                         return true;
                     }
 
@@ -123,7 +116,7 @@ public class StartGameCommand implements CommandExecutor {
                     sendCountdownMessageToAllPlayers("startgame.1-s", 20L * 19);
                     return true;
                 } else {
-                    sender.sendMessage(ChatColor.RED + plugin.getMessage("no-permission"));
+                    sender.sendMessage(plugin.getMessage("no-permission"));
                 }
             }
         }

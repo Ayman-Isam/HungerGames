@@ -1,7 +1,6 @@
 package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -66,20 +65,20 @@ public class ArenaSelectorCommand implements CommandExecutor {
                     ItemStack blazeRod = new ItemStack(Material.BLAZE_ROD);
                     ItemMeta meta = blazeRod.getItemMeta();
                     assert meta != null;
-                    meta.setDisplayName(ChatColor.AQUA + "Arena Selector");
+                    meta.setDisplayName(plugin.getMessage("arena.stick-name"));
                     List<String> lore = new ArrayList<>();
-                    lore.add(ChatColor.LIGHT_PURPLE + plugin.getMessage("arena.stick-left"));
-                    lore.add(ChatColor.LIGHT_PURPLE + plugin.getMessage("arena.stick-right"));
+                    lore.add(plugin.getMessage("arena.stick-left"));
+                    lore.add(plugin.getMessage("arena.stick-right"));
                     meta.setLore(lore);
                     blazeRod.setItemMeta(meta);
                     player.getInventory().addItem(blazeRod);
-                    sender.sendMessage(ChatColor.LIGHT_PURPLE + plugin.getMessage("arena.given-stick"));
+                    sender.sendMessage(plugin.getMessage("arena.given-stick"));
                 } else {
-                    sender.sendMessage(ChatColor.RED + plugin.getMessage("no-permission"));
+                    sender.sendMessage(plugin.getMessage("no-permission"));
                 }
             }
             else {
-                sender.sendMessage(ChatColor.RED + plugin.getMessage("no-server"));
+                sender.sendMessage(plugin.getMessage("no-server"));
             }
             return true;
         } else if (command.getName().equalsIgnoreCase("create")) {
@@ -98,18 +97,18 @@ public class ArenaSelectorCommand implements CommandExecutor {
                             getArenaConfig().set("region.pos2.y", pos2.getY());
                             getArenaConfig().set("region.pos2.z", pos2.getZ());
                             saveArenaConfig();
-                            sender.sendMessage(ChatColor.GREEN + plugin.getMessage("arena.region-created"));
+                            sender.sendMessage(plugin.getMessage("arena.region-created"));
                         } else {
-                            sender.sendMessage(ChatColor.RED + plugin.getMessage("arena.invalid-values"));
+                            sender.sendMessage(plugin.getMessage("arena.invalid-values"));
                         }
                     } else {
-                        sender.sendMessage(ChatColor.RED + plugin.getMessage("arena.no-values"));
+                        sender.sendMessage(plugin.getMessage("arena.no-values"));
                     }
                 } else {
-                    sender.sendMessage(ChatColor.RED + plugin.getMessage("no-permission"));
+                    sender.sendMessage(plugin.getMessage("no-permission"));
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + plugin.getMessage("no-server"));
+                sender.sendMessage(plugin.getMessage("no-server"));
             }
             return true;
         }

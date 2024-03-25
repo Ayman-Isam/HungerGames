@@ -1,13 +1,16 @@
+me\aymanisam\hungergames\commands\ReloadConfigCommand.class
 me\aymanisam\hungergames\handler\SetArenaHandler.class
 me\aymanisam\hungergames\handler\MoveDisableHandler.class
 me\aymanisam\hungergames\handler\WorldBorderHandler.class
 me\aymanisam\hungergames\handler\PlayerSignClickManager.class
+me\aymanisam\hungergames\handler\SpectatorTeleportHandler.class
 me\aymanisam\hungergames\handler\GameHandler.class
 me\aymanisam\hungergames\HungerGames.class
 me\aymanisam\hungergames\handler\GameHandler$2.class
 me\aymanisam\hungergames\handler\SetSpawnHandler.class
 me\aymanisam\hungergames\commands\BorderSetCommand.class
 me\aymanisam\hungergames\commands\SetSpawnCommand.class
+me\aymanisam\hungergames\commands\SpectateCommand.class
 me\aymanisam\hungergames\commands\StartGameCommand.class
 me\aymanisam\hungergames\commands\ScanArenaCommand.class
 me\aymanisam\hungergames\commands\EndGameCommand.class
