@@ -1,7 +1,6 @@
 package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.command.Command;
@@ -37,7 +36,7 @@ public class BorderSetCommand implements CommandExecutor, TabCompleter {
                         centerX = Double.parseDouble(args[1]);
                         centerZ = Double.parseDouble(args[2]);
                     } catch (NumberFormatException e) {
-                        sender.sendMessage(ChatColor.RED + plugin.getMessage("border.invalid-args"));
+                        sender.sendMessage(plugin.getMessage("border.invalid-args"));
                         return true;
                     }
                     World world = plugin.getServer().getWorld("world");
@@ -53,10 +52,10 @@ public class BorderSetCommand implements CommandExecutor, TabCompleter {
                         plugin.getConfig().set("border.center-z", centerZ);
                         plugin.saveConfig();
                     } else {
-                        sender.sendMessage(ChatColor.RED + plugin.getMessage("border.wrong-world"));
+                        sender.sendMessage(plugin.getMessage("border.wrong-world"));
                     }
                 } else {
-                    sender.sendMessage(ChatColor.RED + plugin.getMessage("no-permission"));
+                    sender.sendMessage(plugin.getMessage("no-permission"));
                 }
             }
         }

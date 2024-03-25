@@ -2,7 +2,6 @@ package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handler.SetSpawnHandler;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -27,13 +26,13 @@ public class JoinGameCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(ChatColor.RED + plugin.getMessage("no-server"));
+            sender.sendMessage(plugin.getMessage("no-server"));
             return true;
         }
 
         plugin.loadLanguageConfig((Player) sender);
         if (playersInGame.contains(player)) {
-            player.sendMessage(ChatColor.RED + plugin.getMessage("join.already-joined"));
+            player.sendMessage(plugin.getMessage("join.already-joined"));
             return true;
         }
 
@@ -50,5 +49,8 @@ public class JoinGameCommand implements CommandExecutor {
     public void removePlayer(Player player) {
         playersInGame.remove(player);
         logger.info("Player " + player.getName() + " has left the game.");
+    }
+    public Set<Player> getPlayersInGame() {
+        return playersInGame;
     }
 }

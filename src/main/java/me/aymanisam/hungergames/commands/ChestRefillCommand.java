@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class ChestRefillCommand implements CommandExecutor {
@@ -81,7 +82,7 @@ public class ChestRefillCommand implements CommandExecutor {
                     } else {
                         plugin.loadDefaultLanguageConfig();
                     }
-                    sender.sendMessage(ChatColor.RED + plugin.getMessage("chestrefill.no-arena"));
+                    sender.sendMessage(plugin.getMessage("chestrefill.no-arena"));
                     return true;
                 }
                 World world = plugin.getServer().getWorld(worldName);
@@ -110,12 +111,12 @@ public class ChestRefillCommand implements CommandExecutor {
                     } catch (IOException e) {
                         Player player = (Player) sender;
                         plugin.loadLanguageConfig(player);
-                        sender.sendMessage(ChatColor.RED + plugin.getMessage("chestrefill.failed-items"));
+                        sender.sendMessage(plugin.getMessage("chestrefill.failed-items"));
                         return true;
                     }
                     Player player = (Player) sender;
                     plugin.loadLanguageConfig(player);
-                    sender.sendMessage(ChatColor.YELLOW + plugin.getMessage("chestrefill.created-items"));
+                    sender.sendMessage(plugin.getMessage("chestrefill.created-items"));
                 } else {
                     itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
                 }
@@ -124,7 +125,15 @@ public class ChestRefillCommand implements CommandExecutor {
                 List<Integer> chestItemWeights = new ArrayList<>();
                 for (Map<?, ?> itemMap : itemsConfig.getMapList("chest-items")) {
                     String type = (String) itemMap.get("type");
-                    int weight = (int) itemMap.get("weight");
+                    if (type == null || Material.getMaterial(type) == null) {
+                        plugin.getLogger().log(Level.SEVERE, "Invalid or missing 'type' field for an item in items.yml");
+                        continue;
+                    }
+                    Integer weight = (Integer) itemMap.get("weight");
+                    if (weight == null) {
+                        plugin.getLogger().log(Level.SEVERE, "Missing 'weight' field for item " + type + " in items.yml");
+                        continue;
+                    }
                     int amount = itemMap.containsKey("amount") ? (int) itemMap.get("amount") : 1;
                     ItemStack item = new ItemStack(Material.valueOf(type), amount);
                     if (item.getType() == Material.POTION || item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION) {
@@ -206,7 +215,15 @@ public class ChestRefillCommand implements CommandExecutor {
                 List<Integer> barrelItemWeights = new ArrayList<>();
                 for (Map<?, ?> itemMap : itemsConfig.getMapList("barrel-items")) {
                     String type = (String) itemMap.get("type");
-                    int weight = (int) itemMap.get("weight");
+                    if (type == null || Material.getMaterial(type) == null) {
+                        plugin.getLogger().log(Level.SEVERE, "Invalid or missing 'type' field for an item in items.yml");
+                        continue;
+                    }
+                    Integer weight = (Integer) itemMap.get("weight");
+                    if (weight == null) {
+                        plugin.getLogger().log(Level.SEVERE, "Missing 'weight' field for item " + type + " in items.yml");
+                        continue;
+                    }
                     int amount = itemMap.containsKey("amount") ? (int) itemMap.get("amount") : 1;
                     ItemStack item = new ItemStack(Material.valueOf(type), amount);
                     if (item.getType() == Material.POTION || item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION) {
@@ -287,7 +304,15 @@ public class ChestRefillCommand implements CommandExecutor {
                 List<Integer> trappedChestItemWeights = new ArrayList<>();
                 for (Map<?, ?> itemMap : itemsConfig.getMapList("trapped-chest-items")) {
                     String type = (String) itemMap.get("type");
-                    int weight = (int) itemMap.get("weight");
+                    if (type == null || Material.getMaterial(type) == null) {
+                        plugin.getLogger().log(Level.SEVERE, "Invalid or missing 'type' field for an item in items.yml");
+                        continue;
+                    }
+                    Integer weight = (Integer) itemMap.get("weight");
+                    if (weight == null) {
+                        plugin.getLogger().log(Level.SEVERE, "Missing 'weight' field for item " + type + " in items.yml");
+                        continue;
+                    }
                     int amount = itemMap.containsKey("amount") ? (int) itemMap.get("amount") : 1;
                     ItemStack item = new ItemStack(Material.valueOf(type), amount);
                     if (item.getType() == Material.POTION || item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION) {
@@ -400,7 +425,7 @@ public class ChestRefillCommand implements CommandExecutor {
                     } catch (IOException e) {
                         Player player = (Player) sender;
                         plugin.loadLanguageConfig(player);
-                        sender.sendMessage(ChatColor.RED + plugin.getMessage("chestrefill.failed-locations"));
+                        sender.sendMessage(plugin.getMessage("chestrefill.failed-locations"));
                         return true;
                     }
                 }
@@ -514,12 +539,11 @@ public class ChestRefillCommand implements CommandExecutor {
                 }
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     plugin.loadLanguageConfig(player);
-                    String message = plugin.getMessage("chestrefill.chest-refilled");
-                    player.sendMessage(ChatColor.GREEN + message);
+                    player.sendMessage(plugin.getMessage("chestrefill.chest-refilled"));
                 }
             } else {
                 plugin.loadLanguageConfig(player);
-                sender.sendMessage(ChatColor.RED + plugin.getMessage("no-permission"));
+                sender.sendMessage(plugin.getMessage("no-permission"));
             }
 
         }

@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class  SupplyDropCommand implements CommandExecutor {
@@ -64,7 +65,7 @@ public class  SupplyDropCommand implements CommandExecutor {
                     } else {
                         plugin.loadDefaultLanguageConfig();
                     }
-                    sender.sendMessage(ChatColor.RED + plugin.getMessage("supplydrop.no-arena"));
+                    sender.sendMessage(plugin.getMessage("supplydrop.no-arena"));
                     return true;
                 }
                 World world = plugin.getServer().getWorld(worldName);
@@ -79,12 +80,12 @@ public class  SupplyDropCommand implements CommandExecutor {
                     } catch (IOException e) {
                         Player player = (Player) sender;
                         plugin.loadLanguageConfig(player);
-                        sender.sendMessage(ChatColor.RED + plugin.getMessage("supplydrop.failed-items"));
+                        sender.sendMessage(plugin.getMessage("supplydrop.failed-items"));
                         return true;
                     }
                     Player player = (Player) sender;
                     plugin.loadLanguageConfig(player);
-                    sender.sendMessage(ChatColor.YELLOW + plugin.getMessage("supplydrop.created-items"));
+                    sender.sendMessage(plugin.getMessage("supplydrop.created-items"));
                 } else {
                     itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
                 }
@@ -97,7 +98,15 @@ public class  SupplyDropCommand implements CommandExecutor {
                 List<Integer> supplyDropItemWeights = new ArrayList<>();
                 for (Map<?, ?> itemMap : itemsConfig.getMapList("supply-drop-items")) {
                     String type = (String) itemMap.get("type");
-                    int weight = (int) itemMap.get("weight");
+                    if (type == null || Material.getMaterial(type) == null) {
+                        plugin.getLogger().log(Level.SEVERE, "Invalid or missing 'type' field for an item in items.yml");
+                        continue;
+                    }
+                    Integer weight = (Integer) itemMap.get("weight");
+                    if (weight == null) {
+                        plugin.getLogger().log(Level.SEVERE, "Missing 'weight' field for item " + type + " in items.yml");
+                        continue;
+                    }
                     int amount = itemMap.containsKey("amount") ? (int) itemMap.get("amount") : 1;
                     ItemStack item = new ItemStack(Material.valueOf(type), amount);
                     if (item.getType() == Material.POTION || item.getType() == Material.SPLASH_POTION || item.getType() == Material.LINGERING_POTION) {
@@ -245,25 +254,17 @@ public class  SupplyDropCommand implements CommandExecutor {
                 }
 
 
+                int fromIndex = Math.max(0, coords.size() - numSupplyDrops);
+                List<String> latestCoords = coords.subList(fromIndex, coords.size());
+
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     plugin.loadLanguageConfig(player);
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(ChatColor.LIGHT_PURPLE)
-                        .append(plugin.getMessage("supplydrop.append-1")).append(numSupplyDrops).append(plugin.getMessage("supplydrop.append-2"));
-                    if (!coords.isEmpty()) {
-                        int fromIndex = Math.max(0, coords.size() - numSupplyDrops);
-                        List<String> latestCoords = coords.subList(fromIndex, coords.size());
-                        for (String coord : latestCoords) {
-                            sb.append(coord).append(" ");
-                        }
-                    }
-                    sb.append("!");
-                    player.sendMessage(ChatColor.LIGHT_PURPLE + sb.toString());
+                    player.sendMessage(plugin.getMessage("supplydrop.spawned") + latestCoords);
                 }
                 return true;
             } else {
                 plugin.loadLanguageConfig(player);
-                sender.sendMessage(ChatColor.RED + plugin.getMessage("no-permission"));
+                sender.sendMessage(plugin.getMessage("no-permission"));
             }
         }
         return false;

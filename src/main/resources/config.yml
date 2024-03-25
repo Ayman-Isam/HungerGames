@@ -12,6 +12,8 @@ num-supply-drops: 2
 # Minimum and Maximum stacks of different items for supply drops
 min-supply-drop-content: 2
 max-supply-drop-content: 6
+# Show supplydrops coords in scoreboard
+show-supplydrop: true
 # Length of the game in seconds (default: 900)
 game-time: 900
 # Length of the grace period (time after which PvP is enabled) in seconds, use 0 for no grace period,(default: 30)

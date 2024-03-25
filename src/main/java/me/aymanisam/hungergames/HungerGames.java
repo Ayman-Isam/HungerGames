@@ -2,6 +2,7 @@ package me.aymanisam.hungergames;
 
 import me.aymanisam.hungergames.commands.*;
 import me.aymanisam.hungergames.handler.*;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.boss.BossBar;
@@ -26,13 +27,14 @@ public final class HungerGames extends JavaPlugin {
     private SetSpawnHandler setSpawnHandler;
     private YamlConfiguration langConfig;
     private Map<Player, BossBar> playerBossBars;
+
     @Override
     public void onEnable() {
         saveLanguageFiles();
-        loadDefaultLanguageConfig();
         PlayerSignClickManager playerSignClickManager = new PlayerSignClickManager();
+        setSpawnHandler = new SetSpawnHandler(this, playerSignClickManager, null);
         JoinGameCommand joinGameCommand = new JoinGameCommand(this, setSpawnHandler);
-        setSpawnHandler = new SetSpawnHandler(this, playerSignClickManager, joinGameCommand);
+        setSpawnHandler.setJoinGameCommand(joinGameCommand);
         gameHandler = new GameHandler(this, setSpawnHandler, playerSignClickManager, joinGameCommand);
         getServer().getWorld("world");
         playersAlive = new ArrayList<>();
@@ -59,6 +61,7 @@ public final class HungerGames extends JavaPlugin {
         Objects.requireNonNull(getCommand("select")).setExecutor(new ArenaSelectorCommand(this));
         Objects.requireNonNull(getCommand("setspawn")).setExecutor(new SetSpawnCommand(this));
         Objects.requireNonNull(getCommand("join")).setExecutor(joinGameCommand);
+        Objects.requireNonNull(getCommand("spectate")).setExecutor(new SpectateCommand(this, this.gameHandler));
         Objects.requireNonNull(getCommand("chestrefill")).setExecutor(new ChestRefillCommand(this));
         Objects.requireNonNull(getCommand("start")).setExecutor(new StartGameCommand(this));
         Objects.requireNonNull(getCommand("end")).setExecutor(new EndGameCommand(this));
@@ -67,11 +70,13 @@ public final class HungerGames extends JavaPlugin {
         BorderSetCommand borderSetCommand = new BorderSetCommand(this);
         Objects.requireNonNull(getCommand("border")).setExecutor(borderSetCommand);
         Objects.requireNonNull(getCommand("border")).setTabCompleter(borderSetCommand);
+        Objects.requireNonNull(getCommand("reloadconfig")).setExecutor(new ReloadConfigCommand(this));
         getServer().getPluginManager().registerEvents(new SetArenaHandler(this), this);
         getServer().getPluginManager().registerEvents(setSpawnHandler, this);
         getServer().getPluginManager().registerEvents(new WorldBorderHandler(this), this);
         getServer().getPluginManager().registerEvents(gameHandler, this);
         getServer().getPluginManager().registerEvents(moveDisableHandler, this);
+        getServer().getPluginManager().registerEvents(new SpectatorTeleportHandler(this, gameHandler), this);
     }
 
     @Override
@@ -141,11 +146,24 @@ public final class HungerGames extends JavaPlugin {
         if (langConfig != null) {
             String message = langConfig.getString(key);
             if (message != null) {
-                return message;
+                return ChatColor.translateAlternateColorCodes('&', message);
             }
         }
         this.getLogger().log(Level.SEVERE, "Message not found for key: " + key);
         return "Message not found";
+    }
+
+    public void loadItemsConfig() {
+        File itemsFile = new File(getDataFolder(), "items.yml");
+        if (itemsFile.exists()) {
+            YamlConfiguration itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
+        } else {
+            this.getLogger().log(Level.SEVERE, "Items file not found.");
+        }
+    }
+
+    public void reloadItemsConfig() {
+        loadItemsConfig();
     }
 
     public Map<Player, BossBar> getPlayerBossBars() {

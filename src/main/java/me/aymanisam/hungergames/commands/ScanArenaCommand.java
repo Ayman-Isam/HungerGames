@@ -1,7 +1,6 @@
 package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -47,7 +46,6 @@ public class ScanArenaCommand implements CommandExecutor {
         return arenaConfig;
     }
 
-    @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (command.getName().equalsIgnoreCase("scanarena")) {
             if (sender instanceof Player player) {
@@ -57,7 +55,7 @@ public class ScanArenaCommand implements CommandExecutor {
 
                     if (!config.isSet("region.pos1.x") || !config.isSet("region.pos1.y") || !config.isSet("region.pos1.z")
                             || !config.isSet("region.pos2.x") || !config.isSet("region.pos2.y") || !config.isSet("region.pos2.z")) {
-                        sender.sendMessage(ChatColor.RED + plugin.getMessage("scanarena.region-undef"));
+                        sender.sendMessage(plugin.getMessage("scanarena.region-undef"));
                         return true;
                     }
 
@@ -109,12 +107,12 @@ public class ScanArenaCommand implements CommandExecutor {
                             .collect(Collectors.toList()));
                     try {
                         chestLocationsConfig.save(chestLocationsFile);
-                        sender.sendMessage(ChatColor.GREEN + plugin.getMessage("scanarena.saved-locations"));
+                        sender.sendMessage(plugin.getMessage("scanarena.saved-locations"));
                     } catch (IOException e) {
-                        sender.sendMessage(ChatColor.RED + plugin.getMessage("scanarena.failed-locations"));
+                        sender.sendMessage(plugin.getMessage("scanarena.failed-locations"));
                     }
                 } else {
-                    sender.sendMessage(ChatColor.RED + plugin.getMessage("no-permission"));
+                    sender.sendMessage(plugin.getMessage("no-permission"));
                 }
             }
         }
