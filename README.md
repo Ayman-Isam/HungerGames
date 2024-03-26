@@ -17,7 +17,7 @@ To set up the game, check out the [Setup Wiki](https://github.com/Ayman-Isam/Hun
 To understand how the game works better, check out the [Gameplay Wiki](https://github.com/Ayman-Isam/Hunger-Games/wiki/Gameplay). You can find information about how the game works, different strategies etc.
 
 ## Config: 
-To change the settings for the game, check out the [Config Wiki](https://github.com/Ayman-Isam/Ayman-Isam/Hunger-Games/wiki/Config). You can find guides on how to change game settings such as game time, border shrink rate, chest item numbers, frequency and number of supply drops, etc.
+To change the settings for the game, check out the [Config Wiki](https://github.com/Ayman-Isam/Hunger-Games/wiki/Config). You can find guides on how to change game settings such as game time, border shrink rate, chest item numbers, frequency and number of supply drops, etc.
 
 ## Items:
 To change the items that spawn in the arena chests, visit the [Items Wiki](https://github.com/Ayman-Isam/Hunger-Games/wiki/Items). You can find guides on changing loot, changing potion effects, changing enchantment of items, changing number of items, etc. for three different tiers of chests.
