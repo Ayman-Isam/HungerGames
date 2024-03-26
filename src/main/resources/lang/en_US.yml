@@ -1,29 +1,28 @@
 time-remaining: "&eTime remaining"
-no-permission: "&cYou do not have permission to run this command."
-no-server: "&cThis command can only be executed by players."
-config-reloaded: "&aConfig has been reloaded."
+no-permission: "&cYou do not have permission to run this command"
+no-server: "&cThis command can only be executed by players"
+config-reloaded: "&aConfig has been reloaded"
 
 arena:
   stick-name: "&aArena Selector"
   save-error: "&cCould not save arena.yml to "
-  stick-left: "&bLeft-click to select position 1."
-  stick-right: "&bRight-click to select position 2."
-  given-stick: "&aYou have been given an Arena Selector."
+  stick-left: "&bLeft-click to select position 1"
+  stick-right: "&bRight-click to select position 2"
+  given-stick: "&aYou have been given an Arena Selector"
   region-created: "&aRegion created and saved to arena.yml!"
   invalid-values: "&cInvalid position values detected!"
-  no-values: "&cYou must set both positions first using the Arena Selector."
+  no-values: "&cYou must set both positions first using the Arena Selector"
 
 border:
-  usage: "&eUsage: border <size> <center-x> <center-z>."
+  usage: "&eUsage: border <size> <center-x> <center-z>"
   invalid-args: "&cInvalid values detected. Please enter valid numbers!"
-  wrong-world: "&cWorld not found. Please set the level-name in server.properties to 'world', level-name=world."
+  wrong-world: "&cWorld not found. Please set the level-name in server.properties to 'world', level-name=world"
   args-1: "<size>"
   args-2: "<center-x>"
   args-3: "<center-z>"
   success-message-1: "&aBorder size set to "
   success-message-2: " with center at X="
   success-message-3: ", Z="
-  success-message-4: "."
 
 chestrefill:
   no-arena: "&cCreate an arena first to run this command!"

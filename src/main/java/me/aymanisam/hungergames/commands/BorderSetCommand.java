@@ -44,8 +44,7 @@ public class BorderSetCommand implements CommandExecutor, TabCompleter {
                         WorldBorder border = world.getWorldBorder();
                         border.setSize(newSize);
                         border.setCenter(centerX, centerZ);
-                        sender.sendMessage(plugin.getMessage("border.success-message-1") + newSize + plugin.getMessage("border.success-message-2") + centerX +
-                                plugin.getMessage("border.success-message-3") + centerZ + plugin.getMessage("border.success-message-4"));
+                        sender.sendMessage(plugin.getMessage("border.success-message-1") + newSize + plugin.getMessage("border.success-message-2") + centerX + plugin.getMessage("border.success-message-3") + centerZ);
                         plugin.reloadConfig();
                         plugin.getConfig().set("border.size", newSize);
                         plugin.getConfig().set("border.center-x", centerX);

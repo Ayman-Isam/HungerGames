@@ -12,10 +12,9 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
 import java.util.logging.Level;
 
 
@@ -27,10 +26,12 @@ public final class HungerGames extends JavaPlugin {
     private SetSpawnHandler setSpawnHandler;
     private YamlConfiguration langConfig;
     private Map<Player, BossBar> playerBossBars;
+    private YamlConfiguration itemsConfig;
 
     @Override
     public void onEnable() {
         saveLanguageFiles();
+        checkConfigKeys();
         PlayerSignClickManager playerSignClickManager = new PlayerSignClickManager();
         setSpawnHandler = new SetSpawnHandler(this, playerSignClickManager, null);
         JoinGameCommand joinGameCommand = new JoinGameCommand(this, setSpawnHandler);
@@ -50,8 +51,6 @@ public final class HungerGames extends JavaPlugin {
             border.setSize(borderSize);
             border.setCenter(centerX, centerZ);
         }
-
-        saveDefaultConfig();
         File itemsFile = new File(getDataFolder(), "items.yml");
         if (!itemsFile.exists()) {
             saveResource("items.yml", false);
@@ -150,15 +149,35 @@ public final class HungerGames extends JavaPlugin {
             }
         }
         this.getLogger().log(Level.SEVERE, "Message not found for key: " + key);
-        return "Message not found";
+        return ChatColor.translateAlternateColorCodes('&', "&cMissing translation for key: " + key + ". For more information on how to update language keys, visit: https://github.com/Ayman-Isam/Hunger-Games/wiki/Language#language-errors");
     }
 
     public void loadItemsConfig() {
         File itemsFile = new File(getDataFolder(), "items.yml");
         if (itemsFile.exists()) {
-            YamlConfiguration itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
+            itemsConfig = YamlConfiguration.loadConfiguration(itemsFile);
         } else {
             this.getLogger().log(Level.SEVERE, "Items file not found.");
+        }
+    }
+
+    public void checkConfigKeys() {
+        YamlConfiguration pluginConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(this.getResource("config.yml")));
+        File serverConfigFile = new File(getDataFolder(), "config.yml");
+        YamlConfiguration serverConfig = YamlConfiguration.loadConfiguration(serverConfigFile);
+        Set<String> keys = pluginConfig.getKeys(true);
+
+        for (String key : keys) {
+            if (!serverConfig.contains(key)) {
+                serverConfig.set(key, pluginConfig.get(key));
+                System.out.println("&cMissing key: " + key);
+            }
+        }
+
+        try {
+            serverConfig.save(serverConfigFile);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

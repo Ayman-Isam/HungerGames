@@ -20,6 +20,7 @@ public class ReloadConfigCommand implements CommandExecutor {
                 plugin.loadDefaultLanguageConfig();
                 plugin.reloadConfig();
                 plugin.reloadItemsConfig();
+                plugin.checkConfigKeys();
                 for (Player player : getServer().getOnlinePlayers()) {
                     plugin.loadLanguageConfig(player);
                 }

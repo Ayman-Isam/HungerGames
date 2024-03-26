@@ -35,7 +35,7 @@ auto-join: false
 # Border settings
 border:
   # Border size in blocks, use size bigger than arena for no border, (default: 100)
-  size: 100.0
+  size: 700.0
   # Time in seconds after which border starts shrinking, use any time higher than game-time for no border, (default: 180)
   start-time: 180
   # Time in seconds after which border stops shrinking (default: 780)
@@ -54,9 +54,9 @@ bedrock-buff:
     - SPEED
 # Applying temporary buffs for killing players
 killer-effects:
-  - effect: DAMAGE_RESISTANCE
-    duration: 300
-    level: 0
+  - effect: DAMAGE_RESISTANCE # Effect type according to bukkit enum
+    duration: 300 # Duration in ticks, 20 ticks = 1 second
+    level: 0 # Effect level, 0 for base level
   - effect: INCREASE_DAMAGE
     duration: 300
     level: 0
