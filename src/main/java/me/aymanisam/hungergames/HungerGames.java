@@ -2,6 +2,7 @@ package me.aymanisam.hungergames;
 
 import me.aymanisam.hungergames.commands.*;
 import me.aymanisam.hungergames.handler.*;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
@@ -30,6 +31,12 @@ public final class HungerGames extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        int pluginId = 21508;
+        Metrics metrics = new Metrics(this, pluginId);
+
+        this.getLogger().info("This plugin uses bStats to collect anonymous data about servers using this plugin. This data helps improve the plugin and is not shared with third parties.");
+        this.getLogger().info("You can disable this data collection in the bStats config.yml file.");
+
         saveLanguageFiles();
         checkConfigKeys();
         PlayerSignClickManager playerSignClickManager = new PlayerSignClickManager();
@@ -55,21 +62,8 @@ public final class HungerGames extends JavaPlugin {
         if (!itemsFile.exists()) {
             saveResource("items.yml", false);
         }
-        Objects.requireNonNull(getCommand("supplydrop")).setExecutor(new SupplyDropCommand(this));
-        Objects.requireNonNull(getCommand("create")).setExecutor(new ArenaSelectorCommand(this));
-        Objects.requireNonNull(getCommand("select")).setExecutor(new ArenaSelectorCommand(this));
-        Objects.requireNonNull(getCommand("setspawn")).setExecutor(new SetSpawnCommand(this));
-        Objects.requireNonNull(getCommand("join")).setExecutor(joinGameCommand);
-        Objects.requireNonNull(getCommand("spectate")).setExecutor(new SpectateCommand(this, this.gameHandler));
-        Objects.requireNonNull(getCommand("chestrefill")).setExecutor(new ChestRefillCommand(this));
-        Objects.requireNonNull(getCommand("start")).setExecutor(new StartGameCommand(this));
-        Objects.requireNonNull(getCommand("end")).setExecutor(new EndGameCommand(this));
-        Objects.requireNonNull(getCommand("scanarena")).setExecutor(new ScanArenaCommand(this));
+        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandHandler(this));
         MoveDisableHandler moveDisableHandler = new MoveDisableHandler(this, chestRefillCommand, playerSignClickManager);
-        BorderSetCommand borderSetCommand = new BorderSetCommand(this);
-        Objects.requireNonNull(getCommand("border")).setExecutor(borderSetCommand);
-        Objects.requireNonNull(getCommand("border")).setTabCompleter(borderSetCommand);
-        Objects.requireNonNull(getCommand("reloadconfig")).setExecutor(new ReloadConfigCommand(this));
         getServer().getPluginManager().registerEvents(new SetArenaHandler(this), this);
         getServer().getPluginManager().registerEvents(setSpawnHandler, this);
         getServer().getPluginManager().registerEvents(new WorldBorderHandler(this), this);
@@ -149,7 +143,7 @@ public final class HungerGames extends JavaPlugin {
             }
         }
         this.getLogger().log(Level.SEVERE, "Message not found for key: " + key);
-        return ChatColor.translateAlternateColorCodes('&', "&cMissing translation for key: " + key + ". For more information on how to update language keys, visit: https://github.com/Ayman-Isam/Hunger-Games/wiki/Language#language-errors");
+        return ChatColor.translateAlternateColorCodes('&', "&c Missing translation for key: " + key + ". For more information on how to update language keys, visit: https://github.com/Ayman-Isam/Hunger-Games/wiki/Language#language-errors ");
     }
 
     public void loadItemsConfig() {

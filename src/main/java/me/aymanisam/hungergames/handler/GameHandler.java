@@ -18,6 +18,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -222,8 +223,8 @@ public class GameHandler implements Listener {
 
                 objective.getScore("").setScore(8);
 
-                int chestRefillTimeConfig = plugin.getConfig().getInt("chestrefill.time");
-                int chestRefillTimeLeft = timeLeft - chestRefillTimeConfig;
+                int chestRefillInterval = plugin.getConfig().getInt("chestrefill.interval");
+                int chestRefillTimeLeft = timeLeft % chestRefillInterval;
                 int chestMinutes = chestRefillTimeLeft / 60;
                 int chestSeconds = chestRefillTimeLeft % 60;
                 String chestTimeFormatted = String.format("%02d:%02d", chestMinutes, chestSeconds);
@@ -298,7 +299,7 @@ public class GameHandler implements Listener {
             public void run() {
                 chestRefillCommand.onCommand(plugin.getServer().getConsoleSender(), chestRefillPluginCommand, "chestrefill", new String[0]);
             }
-        }.runTaskTimer(plugin, chestRefillInterval, chestRefillInterval);
+        }.runTaskTimer(plugin, 0, chestRefillInterval);
     }
 
     @EventHandler
@@ -331,7 +332,7 @@ public class GameHandler implements Listener {
         }
         boolean autoJoin = plugin.getConfig().getBoolean("auto-join");
         if (autoJoin) {
-            int numSpawnPoints = setSpawnHandler.getPlayerSpawnPoints().size();
+            int numSpawnPoints = setSpawnHandler.getNumSpawnPoints();
             int numPlayersInGame = joinGameCommand.getPlayersInGame().size();
             if (numPlayersInGame >= numSpawnPoints) {
                 player.sendMessage(plugin.getMessage("join.join-fail"));
@@ -341,7 +342,6 @@ public class GameHandler implements Listener {
             event.setJoinMessage(null);
             setSpawnHandler.handleJoin(player);
             joinGameCommand.addPlayerToGame(player);
-            plugin.loadLanguageConfig(player);
             player.sendMessage(plugin.getMessage("join.auto-join"));
         }
     }
@@ -384,7 +384,28 @@ public class GameHandler implements Listener {
             player.setGameMode(GameMode.SPECTATOR);
             player.sendMessage(plugin.getMessage("spectate.message"));
         }
-        plugin.bossBar.removePlayer(player);
+
+        Map<Player, BossBar> playerBossBars = plugin.getPlayerBossBars();
+        BossBar bossBar = playerBossBars.get(player);
+        if (bossBar != null) {
+            plugin.bossBar.removePlayer(player);
+        }
+        Location location = player.getLocation();
+
+        world.spawnParticle(Particle.EXPLOSION_LARGE, player.getLocation(), 10);
+        world.spawnParticle(Particle.REDSTONE, location, 50, new Particle.DustOptions(Color.RED, 1.0f));
+        world.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.4f, 1.0f);
+        for (Player p : plugin.getServer().getOnlinePlayers()) {
+            plugin.loadLanguageConfig(p);
+            if (killer != null)
+                p.sendMessage(player.getName() + plugin.getMessage("game.killed-message") + killer.getName());
+            else {
+                p.sendMessage(player.getName() + plugin.getMessage("game.death-message"));
+            }
+        }
+        if (plugin.gameStarted) {
+            event.setDeathMessage(null);
+        }
     }
 
 
@@ -410,8 +431,24 @@ public class GameHandler implements Listener {
         event.setRespawnLocation(spawnLocation);
     }
 
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            if (event.getClickedBlock() != null) {
+                Material blockType = event.getClickedBlock().getType();
+                if (blockType == Material.CHEST || blockType == Material.TRAPPED_CHEST || blockType == Material.BARREL || blockType == Material.RED_SHULKER_BOX) {
+                    event.setCancelled(true);
+                }
+            }
+        }
+    }
 
     public void endGame() {
+        if (!plugin.gameStarted) {
+            return;
+        }
+
         plugin.gameStarted = false;
         World world = plugin.getServer().getWorld("world");
         assert world != null;
@@ -422,7 +459,6 @@ public class GameHandler implements Listener {
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             BossBar bossBar = playerBossBars.get(player);
 
-            // If the BossBar exists, remove it
             if (bossBar != null) {
                 bossBar.removePlayer(player);
             }
@@ -497,7 +533,9 @@ public class GameHandler implements Listener {
             }
         }
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            plugin.bossBar.removePlayer(player);
+            if (plugin.bossBar != null) {
+                plugin.bossBar.removePlayer(player);
+            }
         }
     }
 }

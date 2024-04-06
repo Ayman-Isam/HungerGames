@@ -95,6 +95,8 @@ game:
   game-end: "&6The game has ended!"
   winner-text: "&d is the winner!"
   time-up: "&6The time is up! No one won the game!"
+  killed-message: "&c has been eliminated from the game by "
+  death-message: "&c has eliminated themselves from the game"
 
 setarena:
   first-pos-1: "&dFirst position set at &bX="

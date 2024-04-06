@@ -1,46 +1,13 @@
 name: HungerGames
-version: '1.4.0-1.20'
+version: '1.4.0-1.20.4'
 main: me.aymanisam.hungergames.HungerGames
 api-version: '1.20'
 authors: [ 'AymanIsam' ]
 website: 'github.com/AymanIsam/Hunger-Games'
 commands:
-  join:
-    description: "Join the game in HungerGames"
-    usage: <command>
-  select:
-    description: "Select an arena in HungerGames"
-    usage: <command>
-  create:
-    description: "Create an arena in HungerGames"
-    usage: <command>
-  chestrefill:
-    description: "Refills Chests an arena in HungerGames"
-    usage: <command>
-  supplydrop:
-    description: "Drops a Supply Crate in HungerGames"
-    usage: <command>
-  setspawn:
-    description: "Sets SpawnPoints for Arenas in HungerGames"
-    usage: <command>
-  start:
-    description: "Starts the game in HungerGames"
-    usage: <command>
-  end:
-    description: "Forcefully Ends the game in HungerGames"
-    usage: <command>
-  scanarena:
-    description: "Scans the arena for chests"
-    usage: <command>
-  border:
-    description: "Changes the world border in HungerGames"
-    usage: <command> <size>
-  spectate:
-    description: "Spectate players in HungerGames"
-    usage: <command>
-  reloadconfig:
-    description: "Reloads the config file for HungerGames"
-    usage: <command>
+  hg:
+    description: "Main command for HungerGames"
+    usage: /<command> <subcommand> [args]
 permissions:
   hungergames.join:
     description: "Allows you to join the game in HungerGames"

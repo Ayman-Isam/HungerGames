@@ -22,28 +22,27 @@ public class SetSpawnCommand implements CommandExecutor {
     }
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (command.getName().equalsIgnoreCase("setspawn")) {
-            if (sender instanceof Player player) {
-                plugin.loadLanguageConfig(player);
-                if (player.hasPermission("hungergames.setspawn")) {
-                    ItemStack stick = new ItemStack(Material.STICK);
-                    ItemMeta meta = stick.getItemMeta();
-                    assert meta != null;
-                    meta.setDisplayName(plugin.getMessage("setspawn.stick-name"));
-                    stick.setItemMeta(meta);
-                    player.getInventory().addItem(stick);
-                    sender.sendMessage(plugin.getMessage("setspawn.given-stick"));
-                    SetSpawnHandler setSpawnHandler = plugin.getSetSpawnHandler();
-                    setSpawnHandler.getSetSpawnConfig().set("spawnpoints", new ArrayList<>());
-                    setSpawnHandler.saveSetSpawnConfig();
-                    sender.sendMessage(plugin.getMessage("setspawn.spawn-reset"));
-                    return true;
-                } else {
-                    sender.sendMessage(plugin.getMessage("no-permission"));
-                }
+        if (sender instanceof Player player) {
+            plugin.loadLanguageConfig(player);
+            if (player.hasPermission("hungergames.setspawn")) {
+                ItemStack stick = new ItemStack(Material.STICK);
+                ItemMeta meta = stick.getItemMeta();
+                assert meta != null;
+                meta.setDisplayName(plugin.getMessage("setspawn.stick-name"));
+                stick.setItemMeta(meta);
+                player.getInventory().addItem(stick);
+                sender.sendMessage(plugin.getMessage("setspawn.given-stick"));
+                SetSpawnHandler setSpawnHandler = plugin.getSetSpawnHandler();
+                setSpawnHandler.getSetSpawnConfig().set("spawnpoints", new ArrayList<>());
+                setSpawnHandler.saveSetSpawnConfig();
+                setSpawnHandler.resetSpawnPoints();
+                sender.sendMessage(plugin.getMessage("setspawn.spawn-reset"));
+                return true;
+            } else {
+                sender.sendMessage(plugin.getMessage("no-permission"));
             }
         }
-        return false;
+        return true;
     }
 }
 

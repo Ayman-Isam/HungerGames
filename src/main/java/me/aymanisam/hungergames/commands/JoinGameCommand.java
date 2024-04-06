@@ -38,17 +38,14 @@ public class JoinGameCommand implements CommandExecutor {
 
         if (setSpawnHandler.handleJoin(player)) {
             playersInGame.add(player);
-            logger.info("Player " + player.getName() + " has joined the game.");
         }
         return true;
     }
     public void addPlayerToGame(Player player) {
         playersInGame.add(player);
-        logger.info("Player " + player.getName() + " has joined the game.");
     }
     public void removePlayer(Player player) {
         playersInGame.remove(player);
-        logger.info("Player " + player.getName() + " has left the game.");
     }
     public Set<Player> getPlayersInGame() {
         return playersInGame;

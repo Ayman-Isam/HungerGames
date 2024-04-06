@@ -95,6 +95,8 @@ game:
   game-end: "&6खेल समाप्त हो गया है!"
   winner-text: "&d विजेता है!"
   time-up: "&6समय समाप्त! किसी ने भी खेल नहीं जीता!"
+  killed-message: "&c खेल से हटा दिया गया "
+  death-message: "&c खुद को खेल से हटा दिया"
 
 setarena:
   first-pos-1: "&dपहली स्थिति &bX= पर सेट की गई"

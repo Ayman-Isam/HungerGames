@@ -22,7 +22,6 @@ public class SpectateCommand implements CommandExecutor {
     }
     @Override
     public boolean onCommand(@NotNull CommandSender Sender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        if (command.getName().equalsIgnoreCase("spectate")) {
             if (Sender instanceof Player player) {
                 plugin.loadLanguageConfig(player);
                 if (player.getGameMode() == GameMode.SPECTATOR) {
@@ -37,7 +36,6 @@ public class SpectateCommand implements CommandExecutor {
             } else {
                 Sender.sendMessage(plugin.getMessage("spectate.no-server"));
             }
-        }
-        return false;
+        return true;
     }
 }

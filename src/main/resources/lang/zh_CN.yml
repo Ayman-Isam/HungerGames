@@ -95,6 +95,8 @@ game:
   game-end: "&6游戏已结束！"
   winner-text: "&d 是赢家！"
   time-up: "&6时间到！没有人赢得比赛！"
+  killed-message: "&c 已被从游戏中消除 "
+  death-message: "&c 已从游戏中消除自己"
 
 setarena:
   first-pos-1: "&d第一位置设置在 &bX="

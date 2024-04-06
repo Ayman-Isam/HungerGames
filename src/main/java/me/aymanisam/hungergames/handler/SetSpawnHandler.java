@@ -29,6 +29,7 @@ public class SetSpawnHandler implements Listener {
     private File setSpawnFile = null;
     private final PlayerSignClickManager playerSignClickManager;
     private JoinGameCommand joinGameCommand;
+    private List<String> spawnPoints;
 
     public SetSpawnHandler(HungerGames plugin, PlayerSignClickManager playerSignClickManager, JoinGameCommand joinGameCommand) {
         this.plugin = plugin;
@@ -54,6 +55,7 @@ public class SetSpawnHandler implements Listener {
         }
 
         setSpawnConfig = YamlConfiguration.loadConfiguration(setSpawnFile);
+        spawnPoints = setSpawnConfig.getStringList("spawnpoints");
     }
 
     public void createArenaConfig() {
@@ -95,12 +97,12 @@ public class SetSpawnHandler implements Listener {
             if (meta.getDisplayName().equals(plugin.getMessage("setspawn.stick-name"))) {
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                     Location location = Objects.requireNonNull(event.getClickedBlock()).getLocation();
-                    List<String> spawnPoints = getSetSpawnConfig().getStringList("spawnpoints");
                     FileConfiguration config = plugin.getConfig();
                     String newSpawnPoint = Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
                     if (spawnPoints.contains(newSpawnPoint)) {
                         player.sendMessage(plugin.getMessage("setspawnhandler.duplicate"));
                         event.setCancelled(true);
+                        return;
                     }
                     if (spawnPoints.size() < config.getInt("max-players")) {
                         spawnPoints.add(newSpawnPoint);
@@ -208,6 +210,16 @@ public class SetSpawnHandler implements Listener {
 
     public Map<Player, String> getPlayerSpawnPoints() {
         return playerSpawnPoints;
+    }
+
+    public int getNumSpawnPoints() {
+        return spawnPoints.size();
+    }
+
+    public void resetSpawnPoints() {
+        spawnPoints.clear();
+        getSetSpawnConfig().set("spawnpoints", spawnPoints);
+        saveSetSpawnConfig();
     }
 
     @EventHandler

@@ -16,28 +16,25 @@ public class EndGameCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (command.getName().equalsIgnoreCase("end")) {
-            if (sender instanceof Player player) {
-                plugin.loadLanguageConfig(player);
-                if (player.hasPermission("hungergames.end")) {
-                    if (!plugin.gameStarted) {
-                        sender.sendMessage(plugin.getMessage("endgame.not-started"));
-                        return true;
-                    }
-
-                    for (Player p : plugin.getServer().getOnlinePlayers()) {
-                        plugin.loadLanguageConfig(p);
-                        p.sendMessage(plugin.getMessage("endgame.ended"));
-                    }
-                    plugin.getGameHandler().endGame();
-
+        if (sender instanceof Player player) {
+            plugin.loadLanguageConfig(player);
+            if (player.hasPermission("hungergames.end")) {
+                if (!plugin.gameStarted) {
+                    sender.sendMessage(plugin.getMessage("endgame.not-started"));
                     return true;
-                } else {
-                    sender.sendMessage(plugin.getMessage("no-permission"));
                 }
-                return false;
+
+                for (Player p : plugin.getServer().getOnlinePlayers()) {
+                    plugin.loadLanguageConfig(p);
+                    p.sendMessage(plugin.getMessage("endgame.ended"));
+                }
+                plugin.getGameHandler().endGame();
+
+                return true;
+            } else {
+                sender.sendMessage(plugin.getMessage("no-permission"));
             }
-            return true;
+            return false;
         }
         return true;
     }

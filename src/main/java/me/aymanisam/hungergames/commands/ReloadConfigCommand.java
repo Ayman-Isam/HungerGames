@@ -15,21 +15,18 @@ public class ReloadConfigCommand implements CommandExecutor {
         this.plugin = plugin;
     }
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (command.getName().equalsIgnoreCase("reloadconfig")) {
-            if (sender.hasPermission("hungergames.reloadconfig")) {
-                plugin.loadDefaultLanguageConfig();
-                plugin.reloadConfig();
-                plugin.reloadItemsConfig();
-                plugin.checkConfigKeys();
-                for (Player player : getServer().getOnlinePlayers()) {
-                    plugin.loadLanguageConfig(player);
-                }
-                sender.sendMessage(plugin.getMessage("config-reloaded"));
-            } else {
-                sender.sendMessage(plugin.getMessage("no-permission"));
+        if (sender.hasPermission("hungergames.reloadconfig")) {
+            plugin.loadDefaultLanguageConfig();
+            plugin.reloadConfig();
+            plugin.reloadItemsConfig();
+            plugin.checkConfigKeys();
+            for (Player player : getServer().getOnlinePlayers()) {
+                plugin.loadLanguageConfig(player);
             }
-            return true;
+            sender.sendMessage(plugin.getMessage("config-reloaded"));
+        } else {
+            sender.sendMessage(plugin.getMessage("no-permission"));
         }
-        return false;
+        return true;
     }
 }

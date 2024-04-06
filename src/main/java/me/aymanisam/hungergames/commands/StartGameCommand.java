@@ -61,66 +61,64 @@ public class StartGameCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (command.getName().equalsIgnoreCase("start")) {
-            if (sender instanceof Player player) {
-                plugin.loadLanguageConfig(player);
-                if (player.hasPermission("hungergames.start")) {
-                    FileConfiguration config = plugin.getConfig();
-                    if (plugin.getServer().getOnlinePlayers().size() < config.getInt("min-players")) {
-                        String message = String.format(plugin.getMessage("startgame.min-players"), config.getInt("min-players"));
-                        player.sendMessage(message);
-                        return true;
-                    }
-                    createSetSpawnConfig();
-                    createArenaConfig();
-                    List<String> spawnpoints = setspawnConfig.getStringList("spawnpoints");
-                    String world = arenaConfig.getString("region.world");
-                    if (spawnpoints.isEmpty() && world == null) {
-                        player.sendMessage(plugin.getMessage("startgame.set-spawn-arena"));
-                        return true;
-                    } else if (spawnpoints.isEmpty()) {
-                        player.sendMessage(plugin.getMessage("startgame.set-spawn"));
-                        return true;
-                    } else if (world == null) {
-                        player.sendMessage(plugin.getMessage("startgame.set-arena"));
-                        return true;
-                    }
-
-                    if (plugin.gameStarted) {
-                        sender.sendMessage(plugin.getMessage("startgame.started"));
-                        return true;
-                    }
-
-                    if (gameStarting) {
-                        sender.sendMessage(plugin.getMessage("startgame.starting"));
-                        return true;
-                    }
-
-                    gameStarting = true;
-
-                    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                        plugin.getGameHandler().startGame();
-                        for (Player p : plugin.getServer().getOnlinePlayers()) {
-                            p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.0f);
-                        }
-                        gameStarting = false;
-                    }, 20L * 20);
-
-                    sendCountdownMessageToAllPlayers("startgame.20-s", 20L * 0);
-                    sendCountdownMessageToAllPlayers("startgame.15-s", 20L * 5);
-                    sendCountdownMessageToAllPlayers("startgame.10-s", 20L * 10);
-                    sendCountdownMessageToAllPlayers("startgame.5-s", 20L * 15);
-                    sendCountdownMessageToAllPlayers("startgame.4-s", 20L * 16);
-                    sendCountdownMessageToAllPlayers("startgame.3-s", 20L * 17);
-                    sendCountdownMessageToAllPlayers("startgame.2-s", 20L * 18);
-                    sendCountdownMessageToAllPlayers("startgame.1-s", 20L * 19);
+        if (sender instanceof Player player) {
+            plugin.loadLanguageConfig(player);
+            if (player.hasPermission("hungergames.start")) {
+                FileConfiguration config = plugin.getConfig();
+                if (plugin.getServer().getOnlinePlayers().size() < config.getInt("min-players")) {
+                    String message = String.format(plugin.getMessage("startgame.min-players"), config.getInt("min-players"));
+                    player.sendMessage(message);
                     return true;
-                } else {
-                    sender.sendMessage(plugin.getMessage("no-permission"));
                 }
+                createSetSpawnConfig();
+                createArenaConfig();
+                List<String> spawnpoints = setspawnConfig.getStringList("spawnpoints");
+                String world = arenaConfig.getString("region.world");
+                if (spawnpoints.isEmpty() && world == null) {
+                    player.sendMessage(plugin.getMessage("startgame.set-spawn-arena"));
+                    return true;
+                } else if (spawnpoints.isEmpty()) {
+                    player.sendMessage(plugin.getMessage("startgame.set-spawn"));
+                    return true;
+                } else if (world == null) {
+                    player.sendMessage(plugin.getMessage("startgame.set-arena"));
+                    return true;
+                }
+
+                if (plugin.gameStarted) {
+                    sender.sendMessage(plugin.getMessage("startgame.started"));
+                    return true;
+                }
+
+                if (gameStarting) {
+                    sender.sendMessage(plugin.getMessage("startgame.starting"));
+                    return true;
+                }
+
+                gameStarting = true;
+
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                    plugin.getGameHandler().startGame();
+                    for (Player p : plugin.getServer().getOnlinePlayers()) {
+                        p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.0f);
+                    }
+                    gameStarting = false;
+                }, 20L * 20);
+
+                sendCountdownMessageToAllPlayers("startgame.20-s", 20L * 0);
+                sendCountdownMessageToAllPlayers("startgame.15-s", 20L * 5);
+                sendCountdownMessageToAllPlayers("startgame.10-s", 20L * 10);
+                sendCountdownMessageToAllPlayers("startgame.5-s", 20L * 15);
+                sendCountdownMessageToAllPlayers("startgame.4-s", 20L * 16);
+                sendCountdownMessageToAllPlayers("startgame.3-s", 20L * 17);
+                sendCountdownMessageToAllPlayers("startgame.2-s", 20L * 18);
+                sendCountdownMessageToAllPlayers("startgame.1-s", 20L * 19);
+                return true;
+            } else {
+                sender.sendMessage(plugin.getMessage("no-permission"));
             }
         }
-        return false;
+        return true;
     }
 }
 
