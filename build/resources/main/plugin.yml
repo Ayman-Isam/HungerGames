@@ -1,5 +1,5 @@
 name: HungerGames
-version: '${version}'
+version: '1.5.0-1.20'
 main: me.aymanisam.hungergames.HungerGames
 api-version: '1.20'
 authors: [ 'AymanIsam' ]

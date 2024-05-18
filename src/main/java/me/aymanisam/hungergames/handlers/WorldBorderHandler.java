@@ -8,11 +8,11 @@ import org.bukkit.entity.Player;
 
 public class WorldBorderHandler {
     private final HungerGames plugin;
-    private final LangHandler langHandlerInstance;
+    private final LangHandler langHandler;
 
     public WorldBorderHandler(HungerGames plugin) {
         this.plugin = plugin;
-        this.langHandlerInstance = new LangHandler(plugin);
+        this.langHandler = new LangHandler(plugin);
     }
 
     public void startWorldBorder() {
@@ -34,13 +34,21 @@ public class WorldBorderHandler {
             if (HungerGames.gameStarted) {
                 border.setSize(finalSize, duration);
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
-                    langHandlerInstance.loadLanguageConfig(player);
-                    langHandlerInstance.getMessage("border.start-shrink");
+                    langHandler.loadLanguageConfig(player);
+                    langHandler.getMessage("borderhandler.start-shrink");
                 }
             } else {
                 int borderSize = config.getInt("border.size");
                 border.setSize(borderSize);
             }
         }, startTime * 20L);
+    }
+
+    public void resetWorldBorder() {
+        FileConfiguration config = plugin.getConfig();
+        int borderSize = config.getInt("border.size");
+        World world = plugin.getServer().getWorlds().get(0);
+        WorldBorder border = world.getWorldBorder();
+        border.setSize(borderSize);
     }
 }

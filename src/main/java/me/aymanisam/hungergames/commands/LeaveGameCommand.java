@@ -3,16 +3,19 @@ package me.aymanisam.hungergames.commands;
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.SetSpawnHandler;
+import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class JoinGameCommand implements CommandExecutor {
+public class LeaveGameCommand implements CommandExecutor {
+    private final HungerGames plugin;
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
 
-    public JoinGameCommand(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
+    public LeaveGameCommand(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
+        this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.setSpawnHandler = setSpawnHandler;
     }
@@ -26,27 +29,29 @@ public class JoinGameCommand implements CommandExecutor {
 
         langHandler.loadLanguageConfig(player);
 
-        if (!(player.hasPermission("hungergames.join"))) {
+        if (!(player.hasPermission("hungergames.leave"))) {
             sender.sendMessage(langHandler.getMessage("no-permission"));
             return true;
         }
 
-        if (HungerGames.gameStarted) {
-            player.sendMessage(langHandler.getMessage("startgame.started"));
+        if (!(setSpawnHandler.spawnPointMap.containsValue(player))) {
+            player.sendMessage(langHandler.getMessage("leave.not-joined"));
             return true;
         }
 
-        if (setSpawnHandler.spawnPointMap.containsValue(player)) {
-            player.sendMessage(langHandler.getMessage("join.already-joined"));
-            return true;
+        setSpawnHandler.removePlayerFromSpawnPoint(player);
+
+        player.teleport(player.getWorld().getSpawnLocation());
+
+        boolean spectating = plugin.getConfig().getBoolean("spectating");
+        if (spectating) {
+            player.setGameMode(GameMode.SPECTATOR);
         }
 
-        if (setSpawnHandler.spawnPoints.size() <= setSpawnHandler.spawnPointMap.size()) {
-            player.sendMessage(langHandler.getMessage("join.join-fail"));
-            return true;
+        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
+            langHandler.loadLanguageConfig(onlinePlayer);
+            onlinePlayer.sendMessage(player.getName() + langHandler.getMessage("leave.left"));
         }
-
-        setSpawnHandler.teleportPlayerToSpawnpoint(player);
 
         return true;
     }

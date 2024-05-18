@@ -1,7 +1,9 @@
 package me.aymanisam.hungergames;
 
 import me.aymanisam.hungergames.commands.*;
+import me.aymanisam.hungergames.handlers.GameSequenceHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
+import me.aymanisam.hungergames.handlers.SetSpawnHandler;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,13 +15,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CommandHandler implements CommandExecutor, TabCompleter {
+public class CommandDispatcher implements CommandExecutor, TabCompleter {
     private final HungerGames plugin;
-    private final LangHandler langHandlerInstance;
+    private final LangHandler langHandler;
+    private final SetSpawnHandler setSpawnHandler;
+    private final GameSequenceHandler gameSequenceHandler;
 
-    public CommandHandler(HungerGames plugin) {
+    public CommandDispatcher(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler) {
         this.plugin = plugin;
-        this.langHandlerInstance = new LangHandler(plugin);
+        this.langHandler = new LangHandler(plugin);
+        this.setSpawnHandler = setSpawnHandler;
+        this.gameSequenceHandler = gameSequenceHandler;
     }
 
     @Override
@@ -28,10 +34,13 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
             CommandExecutor executor;
             switch (args[0].toLowerCase()) {
                 case "join":
-                    executor = new JoinGameCommand(plugin);
+                    executor = new JoinGameCommand(plugin, setSpawnHandler);
+                    break;
+                case "leave":
+                    executor = new LeaveGameCommand(plugin, setSpawnHandler);
                     break;
                 case "start":
-                    executor = new StartGameCommand(plugin);
+                    executor = new StartGameCommand(plugin, setSpawnHandler, gameSequenceHandler);
                     break;
                 case "spectate":
                     executor = new SpectatePlayerCommand(plugin);
@@ -40,7 +49,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
                     executor = new ArenaSelectCommand(plugin);
                     break;
                 case "end":
-                    executor = new EndGameCommand(plugin);
+                    executor = new EndGameCommand(plugin, setSpawnHandler, gameSequenceHandler);
                     break;
                 case "chestrefill":
                     executor = new ChestRefillCommand(plugin);
@@ -49,7 +58,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
                     executor = new SupplyDropCommand(plugin);
                     break;
                 case "setspawn":
-                    executor = new SetSpawnCommand(plugin);
+                    executor = new SetSpawnCommand(plugin, setSpawnHandler);
                     break;
                 case "create":
                     executor = new ArenaCreateCommand(plugin);
@@ -65,14 +74,14 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
                     break;
                 default:
                     if (sender instanceof Player) {
-                        langHandlerInstance.loadLanguageConfig((Player) sender);
+                        langHandler.loadLanguageConfig((Player) sender);
                     }
-                    sender.sendMessage(langHandlerInstance.getMessage("unknown-subcommand") + args[0]);
+                    sender.sendMessage(langHandler.getMessage("unknown-subcommand") + args[0]);
                     return false;
             }
             return executor.onCommand(sender, command, label, Arrays.copyOfRange(args, 1, args.length));
         } else {
-            sender.sendMessage(langHandlerInstance.getMessage("usage"));
+            sender.sendMessage(langHandler.getMessage("usage"));
             return false;
         }
     }
@@ -91,15 +100,19 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
             return completions;
         } else if (args[0].equalsIgnoreCase("border")) {
             List<String> completions = new ArrayList<>();
+            langHandler.loadLanguageConfig((Player) sender);
             switch (args.length) {
                 case 2:
-                    completions.add(langHandlerInstance.getMessage("border.args-1"));
+                    completions.add(langHandler.getMessage("border.args-1"));
+                    break;
                 case 3:
-                    completions.add(langHandlerInstance.getMessage("border.args-2"));
+                    completions.add(langHandler.getMessage("border.args-2"));
+                    break;
                 case 4:
-                    completions.add(langHandlerInstance.getMessage("border.args-3"));
-            return completions;
+                    completions.add(langHandler.getMessage("border.args-3"));
+                    break;
             }
+            return completions;
         }
         return new ArrayList<>();
     }

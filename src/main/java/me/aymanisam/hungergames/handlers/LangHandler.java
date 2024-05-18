@@ -7,11 +7,14 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Enumeration;
+import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 
+@SuppressWarnings("CallToPrintStackTrace")
 public class LangHandler {
     private final HungerGames plugin;
     private YamlConfiguration langConfig;
@@ -21,13 +24,17 @@ public class LangHandler {
     }
 
     public String getMessage(String key) {
-        if (langConfig != null) {
-            String message = langConfig.getString(key);
-            if (message != null) {
-                // Change Minecraft & based colors to bukkit colors
-                return ChatColor.translateAlternateColorCodes('&', message);
-            }
+        if (langConfig == null) {
+            File defaultLangFile = new File(plugin.getDataFolder(), "lang/en_US.yml");
+            langConfig = YamlConfiguration.loadConfiguration(defaultLangFile);
         }
+
+        String message = langConfig.getString(key);
+        if (message != null) {
+            // Change Minecraft & based colors to bukkit colors
+            return ChatColor.translateAlternateColorCodes('&', message);
+        }
+
         plugin.getLogger().log(Level.WARNING, "Missing translation for key: " + key + ". For more information on how to fix this error and update language keys, visit: https://github.com/Ayman-Isam/wiki/Language#language-errors ");
         return (ChatColor.RED + "Missing translation for " + key);
     }
@@ -72,7 +79,36 @@ public class LangHandler {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+        }
+    }
+
+    public void updateLanguageKeys() {
+        File langFolder = new File(plugin.getDataFolder(), "lang");
+        File[] langFiles = langFolder.listFiles(((dir, name) -> name.endsWith(".yml")));
+        if (langFiles == null) {
+            return;
+        }
+
+        for (File langFile : langFiles) {
+            YamlConfiguration pluginLangConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("lang/en_US.yml"))));
+            YamlConfiguration langConfig = YamlConfiguration.loadConfiguration(langFile);
+            boolean updated = false;
+
+            for (String key : pluginLangConfig.getKeys(true)) {
+                if (!langConfig.contains(key)) {
+                    langConfig.set(key, pluginLangConfig.get(key));
+                    updated = true;
+                }
+            }
+
+            if (updated) {
+                try {
+                    langConfig.save(langFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }

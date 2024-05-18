@@ -1,0 +1,133 @@
+time-remaining: "&eTiempo restante"
+no-permission: "&cNo tienes permiso para ejecutar este comando"
+no-server: "&cEste comando solo puede ser ejecutado por jugadores"
+config-reloaded: "&aConfiguración recargada"
+unknown-subcommand: "&cSubcomando desconocido"
+usage: "Uso: /hg <subcomando> [args]"
+
+arena:
+  stick-name: "&aSelector de Arena"
+  save-error: "&cNo se pudo guardar arena.yml en "
+  stick-left: "&bHaz clic izquierdo para seleccionar la posición 1"
+  stick-right: "&bHaz clic derecho para seleccionar la posición 2"
+  given-stick: "&aSe te ha dado un Selector de Arena"
+  region-created: "&aRegión creada y guardada en arena.yml!"
+  invalid-values: "&c¡Se detectaron valores de posición inválidos!"
+  no-values: "&cPrimero debes establecer ambas posiciones usando el Selector de Arena"
+
+border:
+  usage: "&eUso: border <tamaño> <centro-x> <centro-z>"
+  invalid-args: "&cValores inválidos detectados. ¡Por favor, introduce números válidos!"
+  wrong-world: "&cMundo no encontrado. Por favor, establece el nombre del nivel en server.properties a 'world', level-name=world"
+  args-1: "<tamaño>"
+  args-2: "<centro-x>"
+  args-3: "<centro-z>"
+  success-message-1: "&aTamaño de la frontera establecido a "
+  success-message-2: " con centro en X="
+  success-message-3: ", Z="
+
+chestrefill:
+  no-arena: "&c¡Crea una arena primero para ejecutar este comando!"
+  created-items: "&a¡Se ha creado un nuevo archivo items.yml!"
+  failed-items: "&c¡No se pudo crear el archivo items.yml!"
+  failed-locations: "&c¡No se pudieron guardar las ubicaciones de los cofres en el archivo!"
+  chest-refilled: "&a¡Los cofres han sido rellenados!"
+
+endgame:
+  not-started: "&c¡El juego aún no ha comenzado!"
+  ended: "&6El juego ha sido terminado por un administrador."
+
+join:
+  already-joined: "&c¡Ya te has unido al juego!"
+  auto-join: "&bTe has unido automáticamente al juego!"
+  join-fail: "&c¡No hay suficientes puntos de aparición para unirse automáticamente!"
+  found-chests: "&aNúmero de &bcofres&a escaneados: &6"
+  found-barrels: "&aNúmero de &bbarriles&a escaneados: &6"
+  found-trapped-chests: "&aNúmero de &bcofres atrapados&a escaneados: &6"
+
+scanarena:
+  region-undef: "&cLa región del área no está definida en la configuración."
+  saved-locations: "&aLas ubicaciones de los cofres han sido guardadas."
+  failed-locations: "&c¡No se pudieron guardar las ubicaciones de los cofres en el archivo!"
+
+setspawn:
+  stick-name: "&bSelector de Punto de Aparición."
+  given-stick: "&dSe te ha dado un Selector de Punto de Aparición."
+  spawn-reset: "&6Los puntos de aparición han sido restablecidos."
+
+spectate:
+  spectating-player: "&dAhora estás espectando "
+  no-player: "&c¡No hay jugadores a los que teletransportarse!"
+  not-spectator: "&c¡No eres un espectador!"
+  gui-message: "&bTeletransportarse al jugador"
+  message: "&dEspectar jugadores con /hg spectate"
+
+startgame:
+  min-players: "&c¡Debe haber al menos %d jugadores para comenzar el juego!"
+  set-spawn-arena: "&c¡Primero configura la arena y los puntos de aparición!"
+  set-spawn: "&c¡Primero configura los puntos de aparición!"
+  set-arena: "&c¡Primero configura la arena!"
+  started: "&c¡El juego ya ha comenzado!"
+  starting: "&cEl juego está comenzando."
+  20-s: "&e¡El juego comenzará en 20 segundos!"
+  15-s: "&6¡Quedan 15 segundos!"
+  10-s: "&6¡Quedan 10 segundos!"
+  5-s: "&c¡Quedan 5 segundos!"
+  4-s: "&c¡Quedan 4 segundos!"
+  3-s: "&c¡Quedan 3 segundos!"
+  2-s: "&c¡Quedan 2 segundos!"
+  1-s: "&c¡Queda 1 segundo!"
+
+supplydrop:
+  no-arena: "&c¡Crea una arena primero para ejecutar este comando!"
+  created-items: "&a¡Se ha creado un nuevo archivo items.yml!"
+  failed-items: "&c¡No se pudo crear el archivo items.yml!"
+  spawned: "&dSe ha generado un suministro en &b"
+
+game:
+  game-start: "&a¡El juego ha comenzado!"
+  grace-start: "&6¡Ha comenzado el período de gracia! PvP está desactivado."
+  grace-end: "&c¡El período de gracia ha terminado! PvP está activado."
+  score-name: "&aInformación del Juego"
+  score-time: "Tiempo Restante: "
+  score-alive: "Jugadores Vivos: "
+  score-border: "Tamaño de la Frontera: "
+  score-borderShrink: "Reducción de la Frontera en: "
+  score-pvp: "PvP en: "
+  no-teams: "&cNo hay suficientes equipos para el modo de equipo!"
+  team-id: "&aEstás en el equipo: "
+  team-members: "&d Tus compañeros de equipo son: &6"
+  score-teammate: "Compañero de equipo: "
+  score-chestrefill: "Relleno de Cofres en: "
+  score-supplydrop: "Suministro en: "
+  game-end: "&6¡El juego ha terminado!"
+  winner-text: "&d es el ganador!"
+  time-up: "&6¡Se acabó el tiempo! Nadie ganó el juego!"
+  killed-message: "&c ha sido eliminado del juego por "
+  death-message: "&c se ha eliminado del juego"
+
+setarena:
+  first-pos-1: "&dPrimera posición establecida en &bX="
+  first-pos-2: ", Y="
+  first-pos-3: ", Z="
+  second-pos-1: "&dSegunda posición establecida en &bX="
+  second-pos-2: ", Y="
+  second-pos-3: ", Z="
+
+setspawnhandler:
+  failed-save: "&cNo se pudo guardar la configuración en la ubicación especificada."
+  duplicate: "&c¡No puedes elegir la misma bloque para dos puntos de aparición!"
+  position-set: "&dPosición &6"
+  set-at: " &destablecida en &bX: "
+  coord-y: " Y: "
+  coord-z: " Z: "
+  max-spawn: "&c¡Has alcanzado el número máximo de puntos de aparición!"
+  game-started: "&cEl juego ya ha comenzado."
+  joined-message-1: "&7 se ha unido "
+  joined-message-2: "["
+  joined-message-3: "/"
+  joined-message-4: "]"
+  spawn-filled: "&c¡Todos los puntos de aparición están ocupados actualmente!"
+
+borderhandler:
+  start-shrink: "&6La frontera del mundo ha comenzado a encogerse"
