@@ -1,0 +1,133 @@
+time-remaining: "&eالوقت المتبقي"
+no-permission: "&cليس لديك الإذن لتشغيل هذا الأمر"
+no-server: "&cهذا الأمر يمكن تنفيذه فقط بواسطة اللاعبين"
+config-reloaded: "&aتم إعادة تحميل التكوين"
+unknown-subcommand: "&cأمر فرعي غير معروف"
+usage: "الاستخدام: /hg <الأمر الفرعي> [الوسائط]"
+
+arena:
+  stick-name: "&aمحدد الساحة"
+  save-error: "&cتعذر حفظ arena.yml في "
+  stick-left: "&bانقر بالزر الأيسر لتحديد الموقع 1"
+  stick-right: "&bانقر بالزر الأيمن لتحديد الموقع 2"
+  given-stick: "&aلقد تم إعطاؤك محدد الساحة"
+  region-created: "&aتم إنشاء المنطقة وحفظها في arena.yml!"
+  invalid-values: "&cتم اكتشاف قيم موقع غير صالحة!"
+  no-values: "&cيجب عليك تحديد كلا الموقعين أولاً باستخدام محدد الساحة"
+
+border:
+  usage: "&eالاستخدام: border <size> <center-x> <center-z>"
+  invalid-args: "&cتم اكتشاف قيم غير صالحة. الرجاء إدخال أرقام صالحة!"
+  wrong-world: "&cلم يتم العثور على العالم. يرجى تعيين اسم المستوى في server.properties إلى 'world', level-name=world"
+  args-1: "<size>"
+  args-2: "<center-x>"
+  args-3: "<center-z>"
+  success-message-1: "&aتم تعيين حجم الحدود إلى "
+  success-message-2: " مع المركز في X="
+  success-message-3: ", Z="
+
+chestrefill:
+  no-arena: "&cأنشئ ساحة أولاً لتشغيل هذا الأمر!"
+  created-items: "&aتم إنشاء ملف items.yml جديد!"
+  failed-items: "&cتعذر إنشاء ملف items.yml!"
+  failed-locations: "&cتعذر حفظ مواقع الصناديق في الملف!"
+  chest-refilled: "&aتمت إعادة تعبئة الصناديق!"
+
+endgame:
+  not-started: "&cلم تبدأ اللعبة بعد!"
+  ended: "&6تم إنهاء اللعبة بواسطة المشرف"
+
+join:
+  already-joined: "&cلقد انضممت بالفعل إلى اللعبة!"
+  auto-join: "&bلقد تم الانضمام تلقائيًا إلى اللعبة!"
+  join-fail: "&cلا توجد نقاط بداية كافية للانضمام التلقائي!"
+
+scanarena:
+  region-undef: "&cلم يتم تعريف منطقة الساحة في التكوين"
+  saved-locations: "&aتم حفظ مواقع الصناديق"
+  failed-locations: "&cتعذر حفظ مواقع الصناديق في الملف!"
+  found-chests: "&aعدد &bالصناديق&a الممسوحة: &6"
+  found-barrels: "&aعدد &bالبراميل&a الممسوحة: &6"
+  found-trapped-chests: "&aعدد &bالصناديق المفخخة&a الممسوحة: &6"
+
+setspawn:
+  stick-name: "&bمحدد نقطة البداية"
+  given-stick: "&dلقد تم إعطاؤك محدد نقطة البداية"
+  spawn-reset: "&6تم إعادة تعيين نقاط البداية"
+
+spectate:
+  spectating-player: "&dأنت الآن تشاهد "
+  no-player: "&cلا يوجد لاعبين للانتقال إليهم!"
+  not-spectator: "&cأنت لست مشاهدًا!"
+  gui-message: "&bانتقل إلى اللاعب"
+  message: "&dشاهد اللاعبين مع /hg spectate"
+
+startgame:
+  min-players: "&cيجب أن يكون هناك على الأقل %d لاعبين لبدء اللعبة!"
+  set-spawn-arena: "&cقم بإعداد الساحة ونقاط البداية أولاً!"
+  set-spawn: "&cقم بإعداد نقاط البداية أولاً!"
+  set-arena: "&cقم بإعداد الساحة أولاً!"
+  started: "&cاللعبة بدأت بالفعل!"
+  starting: "&cاللعبة تبدأ حاليًا"
+  20-s: "&eاللعبة ستبدأ في 20 ثانية!"
+  15-s: "&6باقي 15 ثانية!"
+  10-s: "&6باقي 10 ثوانٍ!"
+  5-s: "&cباقي 5 ثوانٍ!"
+  4-s: "&cباقي 4 ثوانٍ!"
+  3-s: "&cباقي 3 ثوانٍ!"
+  2-s: "&cباقي ثانيتين!"
+  1-s: "&cباقي ثانية واحدة!"
+
+supplydrop:
+  no-arena: "&cأنشئ ساحة أولاً لتشغيل هذا الأمر!"
+  created-items: "&aتم إنشاء ملف items.yml جديد!"
+  failed-items: "&cتعذر إنشاء ملف items.yml!"
+  spawned: "&dتم إنشاء قطرة إمداد في &b"
+
+game:
+  game-start: "&aبدأت اللعبة!"
+  grace-start: "&6بدأت الفترة الحرجة! تم تعطيل PvP"
+  grace-end: "&cانتهت الفترة الحرجة! تم تمكين PvP"
+  score-name: "&aمعلومات اللعبة"
+  score-time: "الوقت المتبقي: "
+  score-alive: "اللاعبين الأحياء: "
+  score-border: "حجم الحدود: "
+  score-borderShrink: "تقلص الحدود في: "
+  score-pvp: "PvP في: "
+  no-teams: "&cليس هناك فرق كافية لوضع الفريق!"
+  team-id: "&aأنت في الفريق: "
+  team-members: "&d أعضاء فريقك هم: &6"
+  score-teammate: "زميل الفريق: "
+  score-chestrefill: "إعادة تعبئة الصندوق في: "
+  score-supplydrop: "قطرة الإمداد في: "
+  game-end: "&6انتهت اللعبة!"
+  winner-text: "&d هو الفائز!"
+  time-up: "&6انتهى الوقت! لم يفز أحد في اللعبة!"
+  killed-message: "&c تم القضاء على اللعبة بواسطة "
+  death-message: "&c قام بالقضاء على نفسه من اللعبة"
+
+setarena:
+  first-pos-1: "&dتم تعيين الموقع الأول في &bX="
+  first-pos-2: ", Y="
+  first-pos-3: ", Z="
+  second-pos-1: "&dتم تعيين الموقع الثاني في &bX="
+  second-pos-2: ", Y="
+  second-pos-3: ", Z="
+
+setspawnhandler:
+  failed-save: "&cتعذر حفظ التكوين في الموقع المحدد"
+  duplicate: "&cلا يمكنك اختيار نفس الكتلة لنقطتي البداية!"
+  position-set: "&dالموقع &6"
+  set-at: " &dتم تعيينه في &bX: "
+  coord-y: " Y: "
+  coord-z: " Z: "
+  max-spawn: "&cلقد وصلت إلى الحد الأقصى لنقاط البداية!"
+  game-started: "&cاللعبة بدأت بالفعل"
+  joined-message-1: "&7 انضم "
+  joined-message-2: "["
+  joined-message-3: "/"
+  joined-message-4: "]"
+  spawn-filled: "جميع  نقاط البداية  ممتلئة  حاليا!c&"
+
+borderhandler:
+  start-shrink: "بدأت  تقليل  حدود العالم6&"

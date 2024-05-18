@@ -12,11 +12,11 @@ public class ArenaHandler {
     private final HungerGames plugin;
     private YamlConfiguration arenaConfig;
     private File arenaFile;
-    private final LangHandler langHandlerInstance;
+    private final LangHandler langHandler;
 
     public ArenaHandler(HungerGames plugin) {
         this.plugin = plugin;
-        this.langHandlerInstance = new LangHandler(plugin);
+        this.langHandler = new LangHandler(plugin);
     }
 
     public void createArenaConfig() {
@@ -26,14 +26,14 @@ public class ArenaHandler {
             try {
                 plugin.saveResource("arena.yml", false);
             } catch (Exception e) {
-                plugin.getLogger().log(Level.SEVERE, langHandlerInstance.getMessage("arena.create-error"), e);
+                plugin.getLogger().log(Level.SEVERE, langHandler.getMessage("arena.create-error"), e);
             }
         }
 
         try {
             arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
         } catch (Exception e) {
-            plugin.getLogger().log(Level.SEVERE, langHandlerInstance.getMessage("arena.load-error"), e);
+            plugin.getLogger().log(Level.SEVERE, langHandler.getMessage("arena.load-error"), e);
         }
     }
 
@@ -41,7 +41,7 @@ public class ArenaHandler {
         if (arenaConfig == null) {
             createArenaConfig();
             if (arenaConfig == null) {
-                plugin.getLogger().log(Level.SEVERE, langHandlerInstance.getMessage("arena.load-error"));
+                plugin.getLogger().log(Level.SEVERE, langHandler.getMessage("arena.load-error"));
                 return null;
             }
         }
@@ -52,7 +52,7 @@ public class ArenaHandler {
         try {
             arenaConfig.save(arenaFile);
         } catch (IOException e) {
-            plugin.getLogger().log(Level.SEVERE, langHandlerInstance.getMessage("arena.save-error") + arenaFile, e);
+            plugin.getLogger().log(Level.SEVERE, langHandler.getMessage("arena.save-error") + arenaFile, e);
         }
     }
 }

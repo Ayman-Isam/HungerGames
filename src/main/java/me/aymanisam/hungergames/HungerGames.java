@@ -1,8 +1,10 @@
 package me.aymanisam.hungergames;
 
+import me.aymanisam.hungergames.handlers.ArenaHandler;
 import me.aymanisam.hungergames.handlers.CompassHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.WorldBorderHandler;
+import me.aymanisam.hungergames.listeners.ArenaSelectListener;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,8 +19,8 @@ public final class HungerGames extends JavaPlugin {
     public void onEnable() {
         int pluginId = 21512;
         Metrics metrics = new Metrics(this, pluginId);
-        LangHandler langHandlerInstance = new LangHandler(this);
-        langHandlerInstance.saveLanguageFiles();
+        LangHandler langHandler = new LangHandler(this);
+        langHandler.saveLanguageFiles();
 
         // Registering command handler
         Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandHandler(this));
@@ -26,6 +28,11 @@ public final class HungerGames extends JavaPlugin {
         // Registering Handlers
         new CompassHandler(this);
         new WorldBorderHandler(this);
+        new ArenaHandler(this);
+
+        // Registering Listeners
+        ArenaSelectListener arenaSelectListener = new ArenaSelectListener(langHandler, this);
+        getServer().getPluginManager().registerEvents(arenaSelectListener, this);
     }
 
     @Override

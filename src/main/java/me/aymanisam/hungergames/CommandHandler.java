@@ -15,11 +15,11 @@ import java.util.List;
 
 public class CommandHandler implements CommandExecutor, TabCompleter {
     private final HungerGames plugin;
-    private final LangHandler langHandlerInstance;
+    private final LangHandler langHandler;
 
     public CommandHandler(HungerGames plugin) {
         this.plugin = plugin;
-        this.langHandlerInstance = new LangHandler(plugin);
+        this.langHandler = new LangHandler(plugin);
     }
 
     @Override
@@ -65,14 +65,14 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
                     break;
                 default:
                     if (sender instanceof Player) {
-                        langHandlerInstance.loadLanguageConfig((Player) sender);
+                        langHandler.loadLanguageConfig((Player) sender);
                     }
-                    sender.sendMessage(langHandlerInstance.getMessage("unknown-subcommand") + args[0]);
+                    sender.sendMessage(langHandler.getMessage("unknown-subcommand") + args[0]);
                     return false;
             }
             return executor.onCommand(sender, command, label, Arrays.copyOfRange(args, 1, args.length));
         } else {
-            sender.sendMessage(langHandlerInstance.getMessage("usage"));
+            sender.sendMessage(langHandler.getMessage("usage"));
             return false;
         }
     }
@@ -93,11 +93,11 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
             List<String> completions = new ArrayList<>();
             switch (args.length) {
                 case 2:
-                    completions.add(langHandlerInstance.getMessage("border.args-1"));
+                    completions.add(langHandler.getMessage("border.args-1"));
                 case 3:
-                    completions.add(langHandlerInstance.getMessage("border.args-2"));
+                    completions.add(langHandler.getMessage("border.args-2"));
                 case 4:
-                    completions.add(langHandlerInstance.getMessage("border.args-3"));
+                    completions.add(langHandler.getMessage("border.args-3"));
             return completions;
             }
         }

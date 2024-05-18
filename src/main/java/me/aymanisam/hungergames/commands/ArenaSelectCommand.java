@@ -15,38 +15,38 @@ import java.util.List;
 
 public class ArenaSelectCommand implements CommandExecutor {
     private final HungerGames plugin;
-    private final LangHandler langHandlerInstance;
+    private final LangHandler langHandler;
 
     public ArenaSelectCommand(HungerGames plugin) {
         this.plugin = plugin;
-        this.langHandlerInstance = new LangHandler(plugin);
+        this.langHandler = new LangHandler(plugin);
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandlerInstance.getMessage("no-server"));
+            sender.sendMessage(langHandler.getMessage("no-server"));
             return true;
         }
 
-        langHandlerInstance.loadLanguageConfig(player);
+        langHandler.loadLanguageConfig(player);
 
         if (!(player.hasPermission("hungergames.select"))) {
-            sender.sendMessage(langHandlerInstance.getMessage("no-permission"));
+            sender.sendMessage(langHandler.getMessage("no-permission"));
             return true;
         }
 
         ItemStack blazeRod = new ItemStack(Material.BLAZE_ROD);
         ItemMeta meta = blazeRod.getItemMeta();
         assert meta != null;
-        meta.setDisplayName(langHandlerInstance.getMessage("arena.stick-name"));
+        meta.setDisplayName(langHandler.getMessage("arena.stick-name"));
         List<String> lore = new ArrayList<>();
-        lore.add(langHandlerInstance.getMessage("arena.stick-left"));
-        lore.add(langHandlerInstance.getMessage("arena.stick-right"));
+        lore.add(langHandler.getMessage("arena.stick-left"));
+        lore.add(langHandler.getMessage("arena.stick-right"));
         meta.setLore(lore);
         blazeRod.setItemMeta(meta);
         player.getInventory().addItem(blazeRod);
-        sender.sendMessage(langHandlerInstance.getMessage("arena.given-stick"));
+        sender.sendMessage(langHandler.getMessage("arena.given-stick"));
 
         return true;
     }
