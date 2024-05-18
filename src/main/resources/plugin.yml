@@ -1,0 +1,47 @@
+name: HungerGames
+version: '${version}'
+main: me.aymanisam.hungergames.HungerGames
+api-version: '1.20'
+authors: [ 'AymanIsam' ]
+website: 'github.com/AymanIsam/Hunger-Games'
+commands:
+  hg:
+    description: "Main command for HungerGames"
+    usage: /<command> <subcommand> [args]
+permissions:
+  hungergames.join:
+    description: "Allows you to join the game in HungerGames"
+    default: true
+  hungergames.start:
+    description: "Allows you to start the game in HungerGames"
+    default: op
+  hungergames.spectate:
+    description: "Allows you to spectate players in HungerGames"
+    default: true
+  hungergames.select:
+    description: "Allows you to select an arena in HungerGames"
+    default: op
+  hungergames.end:
+    description: "Allows you to forcefully end the game in HungerGames"
+    default: op
+  hungergames.chestrefill:
+    description: "Allows you to refill chests in HungerGames"
+    default: op
+  hungergames.supplydrop:
+    description: "Allows you to drop a supply crate in HungerGames"
+    default: op
+  hungergames.setspawn:
+    description: "Allows you to set spawnpoints for arenas in HungerGames"
+    default: op
+  hungergames.create:
+    description: "Allows you to create an arena in HungerGames"
+    default: op
+  hungergames.scanarena:
+    description: "Allows you to scan the arena for chests in HungerGames"
+    default: op
+  hungergames.border:
+    description: "Allows you to change the world border in HungerGames"
+    default: op
+  hungergames.reloadconfig:
+    description: "Allows you to reload the config file for HungerGames"
+    default: op

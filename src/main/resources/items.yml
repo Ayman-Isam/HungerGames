@@ -1,0 +1,533 @@
+#Link for getting item names https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
+#Link for getting potion names https://hub.spigotmc.org/javadocs/spigot/org/bukkit/potion/PotionType.html
+#Link for getting enchantment names https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/enchantments/Enchantment.html
+
+chest-items:
+  - type: WOODEN_SWORD
+    amount: 1
+    weight: 2
+
+  - type: CHAINMAIL_HELMET
+    amount: 1
+    weight: 2
+
+  - type: CHAINMAIL_CHESTPLATE
+    amount: 1
+    weight: 2
+
+  - type: CHAINMAIL_LEGGINGS
+    amount: 1
+    weight: 2
+
+  - type: CHAINMAIL_BOOTS
+    amount: 1
+    weight: 2
+
+  - type: LEATHER_HELMET
+    amount: 1
+    weight: 1
+
+  - type: LEATHER_CHESTPLATE
+    amount: 1
+    weight: 1
+
+  - type: LEATHER_LEGGINGS
+    amount: 1
+    weight: 1
+
+  - type: LEATHER_BOOTS
+    amount: 1
+    weight: 1
+
+  - type: GOLDEN_HELMET
+    amount: 1
+    weight: 1
+
+  - type: GOLDEN_CHESTPLATE
+    amount: 1
+    weight: 1
+
+  - type: GOLDEN_LEGGINGS
+    amount: 1
+    weight: 1
+
+  - type: GOLDEN_BOOTS
+    amount: 1
+    weight: 1
+
+  - type: STONE_SWORD
+    amount: 1
+    weight: 2
+
+  - type: STONE_AXE
+    amount: 1
+    weight: 2
+
+  - type: SHIELD
+    amount: 1
+    weight: 2
+
+  - type: BOW
+    amount: 1
+    weight: 2
+
+  - type: CROSSBOW
+    amount: 1
+    weight: 2
+
+  - type: ARROW
+    amount: 16
+    weight: 2
+
+  - type: MILK_BUCKET
+    amount: 1
+    weight: 2
+
+  - type: COOKED_PORKCHOP
+    amount: 4
+    weight: 3
+
+  - type: COOKED_BEEF
+    amount: 4
+    weight: 3
+
+  - type: BREAD
+    amount: 4
+    weight: 3
+
+  - type: COMPASS
+    amount: 1
+    weight: 2
+
+  - type: ENDER_PEARL
+    amount: 1
+    weight: 2
+
+trapped-chest-items:
+  - type: IRON_SWORD
+    amount: 1
+    weight: 1
+
+  - type: IRON_AXE
+    amount: 1
+    weight: 1
+
+  - type: IRON_HELMET
+    amount: 1
+    weight: 1
+
+  - type: IRON_CHESTPLATE
+    amount: 1
+    weight: 1
+
+  - type: IRON_LEGGINGS
+    amount: 1
+    weight: 1
+
+  - type: IRON_BOOTS
+    amount: 1
+    weight: 1
+
+  - type: SHIELD
+    amount: 1
+    weight: 2
+
+  - type: BOW
+    amount: 1
+    weight: 2
+
+  - type: CROSSBOW
+    amount: 1
+    weight: 2
+
+  - type: SPECTRAL_ARROW
+    amount: 8
+    weight: 1
+
+  - type: ARROW
+    amount: 16
+    weight: 1
+
+  - type: COOKED_COD
+    amount: 4
+    weight: 2
+
+  - type: ENDER_PEARL
+    weight: 1
+    amount: 1
+
+  - type: COMPASS
+    amount: 1
+    weight: 1
+
+  - type: POTION
+    weight: 2
+    potion-type: SPEED
+    level: 2
+
+  - type: POTION
+    weight: 1
+    potion-type: JUMP
+    level: 2
+
+  - type: SPLASH_POTION
+    weight: 2
+    potion-type: SPEED
+    level: 2
+
+  - type: SPLASH_POTION
+    weight: 1
+    potion-type: JUMP
+    level: 2
+
+
+barrel-items:
+  - type: IRON_HELMET
+    amount: 1
+    weight: 2
+    enchantments:
+      - type: PROTECTION
+        level: 2
+
+  - type: IRON_CHESTPLATE
+    amount: 1
+    weight: 2
+    enchantments:
+      - type: PROTECTION
+        level: 2
+
+  - type: IRON_LEGGINGS
+    amount: 1
+    weight: 2
+    enchantments:
+      - type: PROTECTION
+        level: 2
+
+  - type: IRON_BOOTS
+    amount: 1
+    weight: 2
+    enchantments:
+      - type: PROTECTION
+        level: 2
+
+  - type: IRON_SWORD
+    amount: 1
+    weight: 2
+    enchantments:
+      - type: SHARPNESS
+        level: 3
+
+  - type: IRON_AXE
+    amount: 1
+    weight: 2
+    enchantments:
+      - type: SHARPNESS
+        level: 3
+
+  - type: BOW
+    amount: 1
+    weight: 2
+    enchantments:
+      - type: POWER
+        level: 3
+
+  - type: CROSSBOW
+    amount: 1
+    weight: 2
+    enchantments:
+      - type: QUICK_CHARGE
+        level: 2
+
+  - type: GOLDEN_APPLE
+    amount: 1
+    weight: 3
+
+  - type: SPECTRAL_ARROW
+    amount: 16
+    weight: 1
+
+  - type: POTION
+    weight: 1
+    potion-type: SPEED
+    level: 2
+
+  - type: POTION
+    weight: 1
+    potion-type: JUMP
+    level: 2
+
+  - type: POTION
+    weight: 1
+    potion-type: INSTANT_HEAL
+    level: 2
+
+  - type: SPLASH_POTION
+    weight: 1
+    potion-type: INSTANT_HEAL
+    level: 2
+
+  - type: SPLASH_POTION
+    weight: 1
+    potion-type: SPEED
+    level: 2
+
+  - type: SPLASH_POTION
+    weight: 1
+    potion-type: JUMP
+    level: 2
+
+  - type: SPLASH_POTION
+    weight: 1
+    potion-type: SLOWNESS
+    level: 2
+
+  - type: SPLASH_POTION
+    weight: 1
+    potion-type: WEAKNESS
+    level: 1
+
+  - type: GOLDEN_CARROT
+    amount: 4
+    weight: 3
+
+  - type: COOKED_BEEF
+    amount: 4
+    weight: 3
+
+  - type: FIREWORK_ROCKET
+    weight: 3
+    amount: 16
+    power: 1
+    effects:
+      - type: BALL
+        colors:
+          - RED
+          - BLUE
+        fade-colors:
+          - WHITE
+        flicker: true
+        trail: false
+
+supply-drop-items:
+  - type: ELYTRA
+    amount: 1
+    weight: 1
+    enchantments:
+      - type: UNBREAKING
+        level: 3
+      - type: BINDING_CURSE
+        level: 1
+
+  - type: POTION
+    weight: 1
+    potion-type: TURTLE_MASTER
+    level: 2
+
+  - type: POTION
+    weight: 1
+    potion-type: STRENGTH
+    level: 2
+
+  - type: POTION
+    weight: 2
+    potion-type: REGEN
+    level: 2
+
+  - type: SPLASH_POTION
+    weight: 1
+    potion-type: TURTLE_MASTER
+    level: 2
+
+  - type: SPLASH_POTION
+    weight: 1
+    potion-type: STRENGTH
+    level: 2
+
+  - type: SPLASH_POTION
+    weight: 2
+    potion-type: INSTANT_DAMAGE
+    level: 2
+
+  - type: SPLASH_POTION
+    weight: 2
+    potion-type: POISON
+    level: 2
+
+  - type: SPLASH_POTION
+    weight: 2
+    potion-type: REGEN
+    level: 2
+
+  - type: LINGERING_POTION
+    potion-type: INSTANT_HEAL
+    level: 2
+    extended: false
+    weight: 2
+
+  - type: LINGERING_POTION
+    potion-type: INSTANT_DAMAGE
+    level: 2
+    extended: false
+    weight: 2
+
+  - type: TOTEM_OF_UNDYING
+    amount: 1
+    weight: 3
+
+  - type: ENDER_PEARL
+    amount: 4
+    weight: 5
+
+  - type: TRIDENT
+    amount: 1
+    weight: 3
+    enchantments:
+      - type: LOYALTY
+        level: 2
+
+  - type: ENCHANTED_GOLDEN_APPLE
+    amount: 1
+    weight: 1
+
+  - type: DIAMOND_AXE
+    amount: 1
+    weight: 2
+
+  - type: DIAMOND_SWORD
+    amount: 1
+    weight: 2
+
+  - type: BOW
+    amount: 1
+    weight: 2
+    enchantments:
+      - type: FLAME
+        level: 1
+      - type: PUNCH
+        level: 2
+
+  - type: CROSSBOW
+    amount: 1
+    weight: 2
+    enchantments:
+      - type: QUICK_CHARGE
+        level: 3
+      - type: MULTISHOT
+        level: 1
+
+  - type: GOLDEN_APPLE
+    amount: 3
+    weight: 5
+
+  - type: DIAMOND_HELMET
+    amount: 1
+    weight: 3
+
+  - type: DIAMOND_CHESTPLATE
+    amount: 1
+    weight: 3
+
+  - type: DIAMOND_LEGGINGS
+    amount: 1
+    weight: 3
+
+  - type: DIAMOND_BOOTS
+    amount: 1
+    weight: 3
+
+  - type: ENCHANTED_BOOK
+    amount: 1
+    weight: 3
+    enchantments:
+      - type: SHARPNESS
+        level: 5
+
+  - type: ENCHANTED_BOOK
+    amount: 1
+    weight: 4
+    enchantments:
+      - type: PROTECTION
+        level: 4
+
+  - type: ENCHANTED_BOOK
+    amount: 1
+    weight: 2
+    enchantments:
+      - type: PUNCH
+        level: 2
+
+  - type: ENCHANTED_BOOK
+    amount: 1
+    weight: 2
+    enchantments:
+      - type: FLAME
+        level: 1
+
+  - type: ENCHANTED_BOOK
+    amount: 1
+    weight: 2
+    enchantments:
+      - type: QUICK_CHARGE
+        level: 3
+
+  - type: FIREWORK_ROCKET
+    weight: 3
+    amount: 16
+    power: 1
+    effects:
+      - type: BALL
+        colors:
+          - RED
+          - BLUE
+        fade-colors:
+          - WHITE
+        flicker: true
+        trail: false
+      - type: BALL
+        colors:
+          - RED
+          - BLUE
+        fade-colors:
+          - WHITE
+        flicker: true
+        trail: false
+      - type: BALL
+        colors:
+          - RED
+          - BLUE
+        fade-colors:
+          - WHITE
+        flicker: true
+        trail: false
+      - type: BALL
+        colors:
+          - RED
+          - BLUE
+        fade-colors:
+          - WHITE
+        flicker: true
+        trail: false
+      - type: BALL
+        colors:
+          - RED
+          - BLUE
+        fade-colors:
+          - WHITE
+        flicker: true
+        trail: false
+      - type: BALL
+        colors:
+          - RED
+          - BLUE
+        fade-colors:
+          - WHITE
+        flicker: true
+        trail: false
+      - type: BALL
+        colors:
+          - RED
+          - BLUE
+        fade-colors:
+          - WHITE
+        flicker: true
+        trail: false

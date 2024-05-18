@@ -1,0 +1,137 @@
+time-remaining: "&eОсталось времени"
+no-permission: "&cУ вас недостаточно прав для использования команды"
+no-server: "&cЭта команда может быть выполнена только игроками"
+config-reloaded: "&aКонфигурация перезагружена"
+unknown-subcommand: "&cНеизвестная подкоманда"
+usage: "Использование: /hg <подкоманда> [args]"
+
+arena:
+  stick-name: "&aВыборщик Арены"
+  save-error: "&cНе можем сохранить arena.yml в "
+  stick-left: "&bЛКМ для выбора точки 1"
+  stick-right: "&bПКМ для выбора точки 2"
+  given-stick: "&aВы получили Выборщик Арены"
+  region-created: "&aРегион создан и сохранён в arena.yml!"
+  invalid-values: "&cНекорректные позиции точек!"
+  no-values: "&cДля начала вам надо выбрать обе точки, используя Выборщик Арены"
+
+border:
+  usage: "&eИспользование: border <размер> <центр-x> <центр-z>"
+  invalid-args: "&cНекоррентое значение. Вводите правильные числа!"
+  wrong-world: "&cМир не найден. Задайте параметр level-name в server.properties на 'world', level-name=world"
+  args-1: "<размер>"
+  args-2: "<центр-x>"
+  args-3: "<центр-z>"
+  success-message-1: "&aРазмер границы задан на "
+  success-message-2: " с центром на X="
+  success-message-3: ", Z="
+
+chestrefill:
+  no-arena: "&cДля начала создайте арену!"
+  created-items: "&aСоздан новый файл items.yml!"
+  failed-items: "&cНе можем создать файл items.yml!"
+  failed-locations: "&cНе можем сохранить позиции сундуков в файл!"
+  chest-refilled: "&aСундуки перезаполнены!"
+
+endgame:
+  not-started: "&cИгра ещё не началась!"
+  ended: "&6Игра закончена администратором."
+
+join:
+  already-joined: "&cВы уже вошли в игру!"
+  auto-join: "&bВы автоматически присоединились к игре!"
+  join-fail: "&cНедостаточно точек возрождения для авто входа!"
+
+scanarena:
+  region-undef: "&cРегион арены не задан в конфигурации."
+  saved-locations: "&aПозиции сундуков сохранены."
+  failed-locations: "&cНе можем сохранить позиции сундуков в файл!"
+  "found-chests": "&aКоличество &bсундуков&a, отсканированных: &6"
+  "found-barrels": "&aКоличество &bбочек&a, отсканированных: &6"
+  "found-trapped-chests": "&aКоличество &bзапертых сундуков&a, отсканированных: &6"
+
+setspawn:
+  stick-name: "&bВыборщик Точек Возрождения."
+  given-stick: "&dВы получили Выборщик Точек Возрождения."
+  spawn-reset: "&6Точки возрождения сброшены."
+
+spectate:
+  spectating-player: "&dВы наблюдаете за "
+  no-player: "&cНе к кому телепортироваться!"
+  not-spectator: "&cВы не наблюдатель!"
+  gui-message: "&bТелепорт к игроку"
+  message: "&dНаблюдайте за игроками с помощью /hg spectate"
+
+startgame:
+  min-players: "&cНужно как минимум %d игроков для начала игры!"
+  set-spawn-arena: "&cДля начала создайте арену и добавьте точки возрождения!"
+  set-spawn: "&cДля начала добавьте точки возрождения!"
+  set-arena: "&cДля начала создайте арену!"
+  started: "&cИгра уже началась!"
+  starting: "&cИгра начинается."
+  20-s: "&eИгра начнётся через 20 секунд!"
+  15-s: "&6Осталось 15 секунд!"
+  10-s: "&6Осталось 10 секунд!"
+  5-s: "&cОсталось 5 секунд!"
+  4-s: "&cОсталось 4 секунды!"
+  3-s: "&cОсталось 3 секунды!"
+  2-s: "&cОсталось 2 секунды!"
+  1-s: "&cОсталась 1 секунда!"
+
+supplydrop:
+  no-arena: "&cДля начала создайте арену!"
+  created-items: "&aСоздан новый файл items.yml!"
+  failed-items: "&cНе можем создать файл items.yml!"
+  spawned: "&dГруз приземлился на &b"
+
+game:
+  game-start: "&aИгра началась!"
+  grace-start: "&6Мирный период начался! ПВП отключено."
+  grace-end: "&cМирный период окончен! ПВП включено."
+  score-name: "&aИнфо об игре"
+  score-time: "Осталось времени: "
+  score-alive: "Живо игроков: "
+  score-border: "Размер границы: "
+  score-borderShrink: "Сжатие границы через: "
+  score-pvp: "ПВП через: "
+  "no-teams": "&cНедостаточно команд для режима команды!"
+  "team-id": "&aВы в команде: "
+  "team-members": "&d Ваши товарищи по команде: &6"
+  "score-teammate": "Товарищ по команде: "
+  score-chestrefill: "Обновление сундуков: "
+  score-supplydrop: "Груз через: "
+  game-end: "&6Игра окончена!"
+  winner-text: "&d победитель!"
+  time-up: "&6Время вышло! Никто не выиграл!"
+  killed-message: "&c был ликвидирован из игры игроком "
+  death-message: "&c самоликвидировался из игры"
+
+setarena:
+  first-pos-1: "&dПервая точка задана на &bX="
+  first-pos-2: ", Y="
+  first-pos-3: ", Z="
+  second-pos-1: "&dВторая точка задана на &bX="
+  second-pos-2: ", Y="
+  second-pos-3: ", Z="
+
+setspawnhandler:
+  failed-save: "&cНе можем сохранить конфигурацию в этом месте."
+  duplicate: "&cВы не можете выбрать один блок для двух точек возрождения!"
+  position-set: "&dТочка возрождения &6"
+  set-at: " &dзадана на &bX: "
+  coord-y: " Y: "
+  coord-z: " Z: "
+  max-spawn: "&cВы достигли максимума точек возрождения!"
+  game-started: "&cИгра уже началась."
+  joined-message-1: "&7 зашёл "
+  joined-message-2: "["
+  joined-message-3: "/"
+  joined-message-4: "]"
+  spawn-filled: "&cВсе точки возрождения заполнены!"
+
+borderhandler:
+  start-shrink: "&6Граница начала сужаться"
+
+
+
+

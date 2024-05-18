@@ -1,0 +1,133 @@
+time-remaining: "&e剩余时间"
+no-permission: "&c您没有权限执行此命令"
+no-server: "&c此命令只能由玩家执行"
+config-reloaded: "&a配置已重新加载"
+unknown-subcommand: "&c未知的子命令"
+usage: "用法：/hg <子命令> [参数]"
+
+arena:
+  stick-name: "&a竞技场选择器"
+  save-error: "&c无法将arena.yml保存到"
+  stick-left: "&b左键单击以选择位置1"
+  stick-right: "&b右键单击以选择位置2"
+  given-stick: "&a您已获得竞技场选择器"
+  region-created: "&a区域已创建并保存到arena.yml！"
+  invalid-values: "&c检测到无效的位置值！"
+  no-values: "&c您必须首先使用竞技场选择器设置两个位置"
+
+border:
+  usage: "&e用法：border <size> <center-x> <center-z>"
+  invalid-args: "&c检测到无效的值。请输入有效的数字！"
+  wrong-world: "&c找不到世界。请在server.properties中将level-name设置为'world'，level-name=world"
+  args-1: "<size>"
+  args-2: "<center-x>"
+  args-3: "<center-z>"
+  success-message-1: "&a边界大小设置为"
+  success-message-2: "中心位于X="
+  success-message-3: ", Z="
+
+chestrefill:
+  no-arena: "&c执行此命令前请先创建一个竞技场！"
+  created-items: "&a已创建新的items.yml文件！"
+  failed-items: "&c无法创建items.yml文件！"
+  failed-locations: "&c无法将箱子位置保存到文件！"
+  chest-refilled: "&a箱子已经被重新装填！"
+
+endgame:
+  not-started: "&c游戏尚未开始！"
+  ended: "&6游戏已结束"
+
+join:
+  already-joined: "&c您已经加入了游戏！"
+  auto-join: "&b您已被自动加入游戏！"
+  join-fail: "&c没有足够的出生点进行自动加入！"
+
+scanarena:
+  region-undef: "&c配置中未定义区域"
+  saved-locations: "&a已保存箱子位置"
+  failed-locations: "&c无法将箱子位置保存到文件！"
+  "found-chests": "&a扫描的 &b箱子&a 数量: &6"
+  "found-barrels": "&a扫描的 &b桶&a 数量: &6"
+  "found-trapped-chests": "&a扫描的 &b陷阱箱&a 数量: &6"
+
+setspawn:
+  stick-name: "&b出生点选择器"
+  given-stick: "&d您已获得出生点选择器"
+  spawn-reset: "&6出生点已重置"
+
+spectate:
+  spectating-player: "&d您现在正在观看"
+  no-player: "&c没有玩家可以传送！"
+  not-spectator: "&c您不是观众！"
+  gui-message: "&b传送到玩家"
+  message: "&d使用/hg spectate观看玩家"
+
+startgame:
+  min-players: "&c开始游戏至少需要%d名玩家！"
+  set-spawn-arena: "&c请首先设置竞技场和出生点！"
+  set-spawn: "&c请首先设置出生点！"
+  set-arena: "&c请首先设置竞技场！"
+  started: "&c游戏已经开始！"
+  starting: "&c游戏正在开始"
+  20-s: "&e游戏将在20秒后开始！"
+  15-s: "&6剩余15秒！"
+  10-s: "&6剩余10秒！"
+  5-s: "&c剩余5秒！"
+  4-s: "&c剩余4秒！"
+  3-s: "&c剩余3秒！"
+  2-s: "&c剩余2秒！"
+  1-s: "&c剩余1秒！"
+
+supplydrop:
+  no-arena: "&c执行此命令前请先创建一个竞技场！"
+  created-items: "&a已创建新的items.yml文件！"
+  failed-items: "&c无法创建items.yml文件！"
+  spawned: "&d在 &b 生成了补给箱"
+
+game:
+  game-start: "&a游戏已开始！"
+  grace-start: "&6宽恕期已开始！PvP已禁用。"
+  grace-end: "&c宽恕期已结束！PvP已启用。"
+  score-name: "&a游戏信息"
+  score-time: "剩余时间："
+  score-alive: "存活玩家："
+  score-border: "边界大小："
+  score-borderShrink: "边界缩小在："
+  score-pvp: "PvP在："
+  "no-teams": "&c团队模式下的团队不足!"
+  "team-id": "&a你在团队中: "
+  "team-members": "&d 你的队友是: &6"
+  "score-teammate": "队友: "
+  score-chestrefill: "箱子补给在："
+  score-supplydrop: "补给箱在："
+  game-end: "&6游戏已结束！"
+  winner-text: "&d 是赢家！"
+  time-up: "&6时间到！没有人赢得比赛！"
+  killed-message: "&c 已被从游戏中消除 "
+  death-message: "&c 已从游戏中消除自己"
+
+setarena:
+  first-pos-1: "&d第一位置设置在 &bX="
+  first-pos-2: ", Y="
+  first-pos-3: ", Z="
+  second-pos-1: "&d第二位置设置在 &bX="
+  second-pos-2: ", Y="
+  second-pos-3: ", Z="
+
+setspawnhandler:
+  failed-save: "&c无法将配置保存到指定位置。"
+  duplicate: "&c您不能为两个出生点选择同一个方块！"
+  position-set: "&d位置 &6"
+  set-at: " &d设置在 &bX: "
+  coord-y: " Y: "
+  coord-z: " Z: "
+  max-spawn: "&c您已达到出生点的最大数量！"
+  game-started: "&c游戏已经开始。"
+  joined-message-1: "&7 已加入 "
+  joined-message-2: "["
+  joined-message-3: "/"
+  joined-message-4: "]"
+  spawn-filled: "&c所有出生点目前已被占用！"
+
+borderhandler:
+  start-shrink: "&6世界边界已开始缩小"

@@ -1,0 +1,135 @@
+time-remaining: "&eबचा हुआ समय"
+no-permission: "&cआपके पास इस कमांड को चलाने की अनुमति नहीं है"
+no-server: "&cयह कमांड केवल खिलाड़ियों द्वारा निष्पादित की जा सकती है"
+config-reloaded: "&aकॉन्फ़िगरेशन फिर से लोड की गई है"
+unknown-subcommand: "&cअज्ञात उप-कमांड"
+usage: "उपयोग: /hg <उप-कमांड> [args]"
+
+arena:
+  stick-name: "&aएरीना चयनकर्ता"
+  save-error: "&carena.yml को सहेजने में असमर्थ"
+  stick-left: "&bस्थिति 1 का चयन करने के लिए बाएं क्लिक करें"
+  stick-right: "&bस्थिति 2 का चयन करने के लिए दाएं क्लिक करें"
+  given-stick: "&aआपको एक एरीना चयनकर्ता दिया गया है"
+  region-created: "&aक्षेत्र बनाया गया और arena.yml में सहेजा गया!"
+  invalid-values: "&cअमान्य स्थिति मान पाए गए!"
+  no-values: "&cआपको पहले एरीना चयनकर्ता का उपयोग करके दोनों स्थितियों को सेट करना होगा।"
+
+border:
+  usage: "&eउपयोग: border <size> <center-x> <center-z>"
+  invalid-args: "&cअमान्य मान पाए गए। कृपया मान्य संख्याएं दर्ज करें!"
+  wrong-world: "&cवर्ल्ड नहीं मिला। कृपया server.properties में level-name को 'world' सेट करें, level-name=world।"
+  args-1: "<size>"
+  args-2: "<center-x>"
+  args-3: "<center-z>"
+  success-message-1: "&aसीमा का आकार सेट कर दिया गया है "
+  success-message-2: " केंद्र X= के साथ"
+  success-message-3: ", Z="
+
+chestrefill:
+  no-arena: "&cइस कमांड को चलाने के लिए पहले एक एरीना बनाएं!"
+  created-items: "&aनया items.yml फ़ाइल बनाया गया!"
+  failed-items: "&citems.yml फ़ाइल बनाने में विफल!"
+  failed-locations: "&cचेस्ट स्थानों को फ़ाइल में सहेजने में विफल!"
+  chest-refilled: "&aचेस्ट को फिर से भर दिया गया है!"
+
+endgame:
+  not-started: "&cखेल अभी तक शुरू नहीं हुआ है!"
+  ended: "&6खेल समाप्त हो गया है।"
+
+join:
+  already-joined: "&cआपने पहले ही खेल में शामिल हो चुके हैं!"
+  auto-join: "&bआप खुद ब खुद खेल में शामिल हो गए हैं!"
+  join-fail: "&cस्वचालित रूप से शामिल होने के लिए पर्याप्त स्पॉन पॉइंट्स नहीं हैं!"
+
+scanarena:
+  region-undef: "&cक्षेत्र क्षेत्र कॉन्फ़िग में परिभाषित नहीं है।"
+  saved-locations: "&aचेस्ट स्थानों को सहेजा गया।"
+  failed-locations: "&cचेस्ट स्थानों को फ़ाइल में सहेजने में विफल!"
+  "found-chests": "&aस्कैन किए गए &bसंदूकों&a की संख्या: &6"
+  "found-barrels": "&aस्कैन किए गए &bबैरल&a की संख्या: &6"
+  "found-trapped-chests": "&aस्कैन किए गए &bफंसाए गए संदूकों&a की संख्या: &6"
+
+setspawn:
+  stick-name: "&bस्पॉन पॉइंट चयनकर्ता।"
+  given-stick: "&dआपको एक स्पॉन पॉइंट चयनकर्ता दिया गया है।"
+  spawn-reset: "&6स्पॉन पॉइंट्स को रीसेट कर दिया गया है।"
+
+spectate:
+  spectating-player: "&dआप अब देख रहे हैं "
+  no-player: "&cकोई खिलाड़ी नहीं है जिसे टेलीपोर्ट किया जा सके!"
+  not-spectator: "&cआप दर्शक नहीं हैं!"
+  gui-message: "&bखिलाड़ी के पास टेलीपोर्ट करें"
+  message: "&dखिलाड़ियों को /hg spectate के साथ देखें"
+
+startgame:
+  min-players: "&cखेल शुरू करने के लिए कम से कम %d खिलाड़ी होने चाहिए!"
+  set-spawn-arena: "&cपहले एरीना और स्पॉन पॉइंट्स सेट करें!"
+  set-spawn: "&cपहले स्पॉन पॉइंट्स सेट करें!"
+  set-arena: "&cपहले एरीना सेट करें!"
+  started: "&cखेल पहले से ही शुरू हो चुका है!"
+  starting: "&cखेल अभी शुरू हो रहा है।"
+  20-s: "&eखेल 20 सेकंड में शुरू होगा!"
+  15-s: "&615 सेकंड बाकी हैं!"
+  10-s: "&610 सेकंड बाकी हैं!"
+  5-s: "&c5 सेकंड बाकी हैं!"
+  4-s: "&c4 सेकंड बाकी हैं!"
+  3-s: "&c3 सेकंड बाकी हैं!"
+  2-s: "&c2 सेकंड बाकी हैं!"
+  1-s: "&c1 सेकंड बाकी है!"
+
+supplydrop:
+  no-arena: "&cइस कमांड को चलाने के लिए पहले एक एरीना बनाएं!"
+  created-items: "&aनया items.yml फ़ाइल बनाया गया!"
+  failed-items: "&citems.yml फ़ाइल बनाने में विफल!"
+  spawned: "&dआपूर्ति ड्रॉप &b पर उत्पन्न की गई है"
+
+game:
+  game-start: "&aखेल शुरू हो गया है!"
+  grace-start: "&6अनुग्रह अवधि शुरू हो गई है! पीवीपी निष्क्रिय है।"
+  grace-end: "&cअनुग्रह अवधि समाप्त हो गई है! पीवीपी सक्रिय है।"
+  score-name: "&aखेल की जानकारी"
+  score-time: "बचा हुआ समय: "
+  score-alive: "जीवित खिलाड़ी: "
+  score-border: "सीमा का आकार: "
+  score-borderShrink: "सीमा संकुचन में: "
+  score-pvp: "पीवीपी में: "
+  "no-teams": "&cटीम मोड के लिए पर्याप्त टीमें नहीं हैं!"
+  "team-id": "&aआप टीम में हैं: "
+  "team-members": "&d आपके टीम साथी हैं: &6"
+  "score-teammate": "टीम साथी: "
+  score-chestrefill: "चेस्ट रिफिल में: "
+  score-supplydrop: "आपूर्ति ड्रॉप में: "
+  game-end: "&6खेल समाप्त हो गया है!"
+  winner-text: "&d विजेता है!"
+  time-up: "&6समय समाप्त! किसी ने भी खेल नहीं जीता!"
+  killed-message: "&c खेल से हटा दिया गया "
+  death-message: "&c खुद को खेल से हटा दिया"
+
+setarena:
+  first-pos-1: "&dपहली स्थिति &bX= पर सेट की गई"
+  first-pos-2: ", Y="
+  first-pos-3: ", Z="
+  second-pos-1: "&dदूसरी स्थिति &bX= पर सेट की गई"
+  second-pos-2: ", Y="
+  second-pos-3: ", Z="
+
+setspawnhandler:
+  failed-save: "&cकॉन्फ़िग को निर्दिष्ट स्थान पर सहेजने में विफल।"
+  duplicate: "&cआप दो स्पॉन पॉइंट्स के लिए एक ही ब्लॉक चुन नहीं सकते!"
+  position-set: "&dस्थिति &6"
+  set-at: " &dसेट की गई है &bX: "
+  coord-y: " Y: "
+  coord-z: " Z: "
+  max-spawn: "&cआपने अधिकतम संख्या के स्पॉन पॉइंट्स को पहुंच लिया है!"
+  game-started: "&cखेल पहले से ही शुरू हो चुका है।"
+  joined-message-1: "&7 खेल में शामिल हो गए "
+  joined-message-2: "["
+  joined-message-3: "/"
+  joined-message-4: "]"
+  spawn-filled: "&cसभी स्पॉन पॉइंट्स वर्तमान में व्यस्त हैं!"
+
+borderhandler:
+  start-shrink: "&6वर्ल्ड बॉर्डर श्रिंक होना शुरू हो गया है"
+
+  
