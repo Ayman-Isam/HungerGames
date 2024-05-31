@@ -35,6 +35,7 @@ public class SupplyDropHandler {
         FileConfiguration arenaConfig = arenaHandler.getArenaConfig();
 
         World world = plugin.getServer().getWorld(Objects.requireNonNull(arenaConfig.getString("region.world")));
+        assert world != null;
         WorldBorder border = world.getWorldBorder();
 
         int numSupplyDrops = config.getInt("num-supply-drops");
@@ -48,12 +49,16 @@ public class SupplyDropHandler {
 
         Random random = new Random();
         for (int i = 0; i < numSupplyDrops; i++) {
-            double x = minX + (maxX - minX) * random.nextDouble();
-            double z = minZ + (maxZ - minZ) * random.nextDouble();
+            double x, z;
+            int highestY;
 
-            int highestY = world.getHighestBlockYAt((int) x, (int) z);
+            do {
+                x = minX + (maxX - minX) * random.nextDouble();
+                z = minZ + (maxZ - minZ) * random.nextDouble();
+                highestY = world.getHighestBlockYAt((int) x, (int) z);
+            } while (highestY < 60);
+
             Block topmostBlock = world.getBlockAt((int) x, highestY + 1, (int) z);
-
             topmostBlock.setType(Material.RED_SHULKER_BOX);
 
             int minSupplyDropContent = config.getInt("min-supply-drop-content");
