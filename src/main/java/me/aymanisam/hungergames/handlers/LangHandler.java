@@ -4,11 +4,14 @@ import me.aymanisam.hungergames.HungerGames;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Squid;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -18,6 +21,8 @@ import java.util.logging.Level;
 public class LangHandler {
     private final HungerGames plugin;
     private YamlConfiguration langConfig;
+
+    private final Map<String, YamlConfiguration> langConfigs = new HashMap<>();
 
     public LangHandler(HungerGames plugin) {
         this.plugin = plugin;
@@ -39,15 +44,28 @@ public class LangHandler {
         return (ChatColor.RED + "Missing translation for " + key);
     }
 
-    public void loadLanguageConfig(Player player) {
-        String locale = player.getLocale();
-        File langFile = new File(plugin.getDataFolder(), "lang/" + locale + ".yml");
+    public void loadLanguageConfigs() {
+        File langFolder = new File(plugin.getDataFolder(), "lang");
+        File[] langFiles = langFolder.listFiles(((dir, name) -> name.endsWith(".yml")));
         File defaultlangFile = new File(plugin.getDataFolder(), "lang/" + "en_US" + ".yml");
-        if (langFile.exists()) {
-            langConfig = YamlConfiguration.loadConfiguration(langFile);
+
+        if (langFiles == null) {
+            saveLanguageFiles();
+        }
+
+        for (File langFile : langFiles) {
+            String locale = langFile.getName().replace(".yml", "");
+            YamlConfiguration langConfig = YamlConfiguration.loadConfiguration(langFile);
+            langConfigs.put(locale, langConfig);
+        }
+    }
+
+    public YamlConfiguration getLangConfig (Player player) {
+        String locale = player.getLocale();
+        if (langConfigs.containsKey(locale)) {
+            return langConfigs.get(locale);
         } else {
-            // If the locale of the player is not supported, en_US is loaded
-            langConfig = YamlConfiguration.loadConfiguration(defaultlangFile);
+            return langConfigs.get("en_US");
         }
     }
 

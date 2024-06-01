@@ -25,7 +25,7 @@ public class SupplyDropCommand implements CommandExecutor {
                 sender.sendMessage(langHandler.getMessage("no-permission"));
                 return true;
             }
-            langHandler.loadLanguageConfig(player);
+            langHandler.getLangConfig(player);
         }
 
         supplyDropHandler.setSupplyDrop();

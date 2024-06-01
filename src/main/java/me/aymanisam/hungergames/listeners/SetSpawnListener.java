@@ -30,7 +30,7 @@ public class SetSpawnListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        langHandler.loadLanguageConfig(player);
+        langHandler.getLangConfig(player);
         ItemStack item = event.getItem();
         if (item != null && item.getType() == Material.STICK && item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(langHandler.getMessage("setspawn.stick-name"))) {
             if (!(player.hasPermission("hungergames.setspawn"))) {

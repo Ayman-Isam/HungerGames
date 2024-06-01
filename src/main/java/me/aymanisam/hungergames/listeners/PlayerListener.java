@@ -137,7 +137,7 @@ public class PlayerListener implements Listener {
         world.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.4f, 1.0f);
 
         for (Player p : plugin.getServer().getOnlinePlayers()) {
-            langHandler.loadLanguageConfig(p);
+            langHandler.getLangConfig(p);
             if (killer != null)
                 p.sendMessage(player.getName() + langHandler.getMessage("game.killed-message") + killer.getName());
             else {

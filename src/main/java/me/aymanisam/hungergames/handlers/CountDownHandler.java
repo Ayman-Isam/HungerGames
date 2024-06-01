@@ -37,7 +37,7 @@ public class CountDownHandler {
     private void countDown(String messageKey, long delayInTicks) {
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                langHandler.loadLanguageConfig(player);
+                langHandler.getLangConfig(player);
                 String message = langHandler.getMessage(messageKey);
                 player.sendTitle("", message, 5, 20, 10);
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);

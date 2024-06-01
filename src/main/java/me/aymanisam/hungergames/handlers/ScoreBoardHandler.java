@@ -27,7 +27,7 @@ public class ScoreBoardHandler {
 
     public void getScoreBoard() {
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            langHandler.loadLanguageConfig(player);
+            langHandler.getLangConfig(player);
             ScoreboardManager manager = Bukkit.getScoreboardManager();
             assert manager != null;
             Scoreboard scoreboard = manager.getNewScoreboard();

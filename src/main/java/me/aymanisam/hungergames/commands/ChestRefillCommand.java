@@ -32,7 +32,7 @@ public class ChestRefillCommand implements CommandExecutor {
                 sender.sendMessage(langHandler.getMessage("no-permission"));
                 return true;
             }
-            langHandler.loadLanguageConfig(player);
+            langHandler.getLangConfig(player);
         }
 
         FileConfiguration ArenaConfig = arenaHandler.getArenaConfig();

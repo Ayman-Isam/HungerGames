@@ -21,6 +21,7 @@ public final class HungerGames extends JavaPlugin {
         Metrics metrics = new Metrics(this, pluginId);
         LangHandler langHandler = new LangHandler(this);
         langHandler.saveLanguageFiles();
+        langHandler.loadLanguageConfigs();
         langHandler.updateLanguageKeys();
 
         // Initializing shared classes

@@ -27,6 +27,7 @@ public class TeamsHandler {
             int numTeams = (playersAlive.size() + teamSize - 1) / teamSize;
             Collections.shuffle(playersAlive);
             teams.clear();
+
             for (int i = 0; i < numTeams; i++) {
                 teams.add(new ArrayList<>());
             }
@@ -45,7 +46,7 @@ public class TeamsHandler {
             for (int i = 0; i < numTeams; i++) {
                 List<Player> team = teams.get(i);
                 for (Player player : team) {
-                    langHandler.loadLanguageConfig(player);
+                    langHandler.getLangConfig(player);
                     player.sendMessage(langHandler.getMessage("game.team-id") + (i + 1));
                     player.sendMessage(langHandler.getMessage("game.team-members") + getTeammateNames(team, player));
                 }

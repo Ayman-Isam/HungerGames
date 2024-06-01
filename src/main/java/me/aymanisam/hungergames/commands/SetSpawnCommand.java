@@ -29,7 +29,7 @@ public class SetSpawnCommand implements CommandExecutor {
             return true;
         }
 
-        langHandler.loadLanguageConfig(player);
+        langHandler.getLangConfig(player);
 
         if (!(player.hasPermission("hungergames.setspawn"))) {
             sender.sendMessage(langHandler.getMessage("no-permission"));

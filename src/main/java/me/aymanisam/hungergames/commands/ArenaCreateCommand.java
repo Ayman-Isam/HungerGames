@@ -27,7 +27,7 @@ public class ArenaCreateCommand implements CommandExecutor {
             return true;
         }
 
-        langHandler.loadLanguageConfig(player);
+        langHandler.getLangConfig(player);
 
         if (!(player.hasPermission("hungergames.create"))) {
             sender.sendMessage(langHandler.getMessage("no-permission"));

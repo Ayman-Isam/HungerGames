@@ -27,7 +27,7 @@ public class LeaveGameCommand implements CommandExecutor {
             return true;
         }
 
-        langHandler.loadLanguageConfig(player);
+        langHandler.getLangConfig(player);
 
         if (!(player.hasPermission("hungergames.leave"))) {
             sender.sendMessage(langHandler.getMessage("no-permission"));
@@ -49,7 +49,7 @@ public class LeaveGameCommand implements CommandExecutor {
         }
 
         for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
-            langHandler.loadLanguageConfig(onlinePlayer);
+            langHandler.getLangConfig(onlinePlayer);
             onlinePlayer.sendMessage(player.getName() + langHandler.getMessage("leave.left"));
         }
 

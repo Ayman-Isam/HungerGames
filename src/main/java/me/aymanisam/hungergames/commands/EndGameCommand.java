@@ -23,7 +23,7 @@ public class EndGameCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            langHandler.loadLanguageConfig(player);
+            langHandler.getLangConfig(player);
         }
 
         if (!(sender.hasPermission("hungergames.end") && sender instanceof Player)) {
@@ -37,7 +37,7 @@ public class EndGameCommand implements CommandExecutor {
         }
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            langHandler.loadLanguageConfig(player);
+            langHandler.getLangConfig(player);
             player.sendTitle("", langHandler.getMessage("endgame.ended"), 5, 20, 10);
         }
 

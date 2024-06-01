@@ -106,7 +106,7 @@ public class SetSpawnHandler {
         player.teleport(new Location(world, x, y, z));
 
         for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
-            langHandler.loadLanguageConfig(onlinePlayer);
+            langHandler.getLangConfig(onlinePlayer);
             onlinePlayer.sendMessage(langHandler.getMessage("setspawnhandler.joined-player") + player.getName() +
                     langHandler.getMessage("setspawnhandler.joined-message-1") +
                     langHandler.getMessage("setspawnhandler.joined-message-2") + spawnPointMap.size() +

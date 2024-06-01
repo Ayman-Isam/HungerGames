@@ -56,7 +56,7 @@ public class SupplyDropHandler {
                 x = minX + (maxX - minX) * random.nextDouble();
                 z = minZ + (maxZ - minZ) * random.nextDouble();
                 highestY = world.getHighestBlockYAt((int) x, (int) z);
-            } while (highestY < 60);
+            } while (highestY < -60);
 
             Block topmostBlock = world.getBlockAt((int) x, highestY + 1, (int) z);
             topmostBlock.setType(Material.RED_SHULKER_BOX);
@@ -74,7 +74,7 @@ public class SupplyDropHandler {
             String message = " X: " + topmostBlock.getX() + " Y: " + topmostBlock.getY() + " Z: " + topmostBlock.getZ();
 
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                langHandler.loadLanguageConfig(player);
+                langHandler.getLangConfig(player);
                 player.sendMessage(langHandler.getMessage("supplydrop.spawned") + message);
             }
         }

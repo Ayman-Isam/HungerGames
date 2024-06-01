@@ -64,7 +64,7 @@ public class GameSequenceHandler {
         worldBorderHandler.startWorldBorder();
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            langHandler.loadLanguageConfig(player);
+            langHandler.getLangConfig(player);
             player.sendTitle("", langHandler.getMessage("game.game-start"),5,20,10);
             player.sendMessage(langHandler.getMessage("game.grace-start"));
         }
@@ -75,13 +75,13 @@ public class GameSequenceHandler {
             assert world != null;
             world.setPVP(true);
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                langHandler.loadLanguageConfig(player);
+                langHandler.getLangConfig(player);
                 player.sendMessage(langHandler.getMessage("game.grace-end"));
             }
         }, gracePeriod * 20L);
 
         for (Player player : playersAlive) {
-            langHandler.loadLanguageConfig(player);
+            langHandler.getLangConfig(player);
             BossBar bossBar = plugin.getServer().createBossBar(langHandler.getMessage("time-remaining"), BarColor.GREEN, BarStyle.SOLID);
             bossBar.addPlayer(player);
 
@@ -142,7 +142,7 @@ public class GameSequenceHandler {
                     plugin.getServer().getScheduler().cancelTask(timerTaskId);
 
                     for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        langHandler.loadLanguageConfig(player);
+                        langHandler.getLangConfig(player);
                         player.sendMessage(langHandler.getMessage("game.game-end"));
                     }
 
@@ -163,7 +163,7 @@ public class GameSequenceHandler {
 
                     if (winningTeam != null) {
                         for (Player player : plugin.getServer().getOnlinePlayers()) {
-                            langHandler.loadLanguageConfig(player);
+                            langHandler.getLangConfig(player);
                             for (Player teamMember : winningTeam) {
                                 player.sendTitle("",ChatColor.LIGHT_PURPLE + teamMember.getName() + langHandler.getMessage("game.winner-text"), 5, 20, 10);
                                 player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
@@ -177,13 +177,13 @@ public class GameSequenceHandler {
                     plugin.getServer().getScheduler().cancelTask(timerTaskId);
 
                     for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        langHandler.loadLanguageConfig(player);
+                        langHandler.getLangConfig(player);
                         player.sendMessage(langHandler.getMessage("game.game-end"));
                     }
 
                     Player winner = playersAlive.get(0);
                     for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        langHandler.loadLanguageConfig(player);
+                        langHandler.getLangConfig(player);
                         player.sendMessage(ChatColor.LIGHT_PURPLE + winner.getName() + langHandler.getMessage("game.winner-text"));
                         player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
                     }

@@ -74,7 +74,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     break;
                 default:
                     if (sender instanceof Player) {
-                        langHandler.loadLanguageConfig((Player) sender);
+                        langHandler.getLangConfig((Player) sender);
                     }
                     sender.sendMessage(langHandler.getMessage("unknown-subcommand") + args[0]);
                     return false;
@@ -100,7 +100,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
             return completions;
         } else if (args[0].equalsIgnoreCase("border")) {
             List<String> completions = new ArrayList<>();
-            langHandler.loadLanguageConfig((Player) sender);
+            langHandler.getLangConfig((Player) sender);
             switch (args.length) {
                 case 2:
                     completions.add(langHandler.getMessage("border.args-1"));

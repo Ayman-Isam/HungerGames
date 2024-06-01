@@ -12,6 +12,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
@@ -70,7 +71,7 @@ public class ChestRefillHandler {
         refillInventory(trappedChestLocations, "trapped-chest-items", itemsConfig, minTrappedChestContent, maxTrappedChestContent);
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            langHandler.loadLanguageConfig(player);
+            langHandler.getLangConfig(player);
             player.sendMessage(langHandler.getMessage("chestrefill.refilled"));
         }
     }
@@ -126,6 +127,11 @@ public class ChestRefillHandler {
                                         int level = (int) enchantMap.get("level");
                                         Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(enchantmentType.toLowerCase()));
                                         if (enchantment != null) {
+                                            if (material == Material.ENCHANTED_BOOK) {
+                                                EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+                                                meta.addStoredEnchant(enchantment, level, true);
+                                                item.setItemMeta(meta);
+                                            }
                                             item.addUnsafeEnchantment(enchantment, level);
                                         }
                                     }

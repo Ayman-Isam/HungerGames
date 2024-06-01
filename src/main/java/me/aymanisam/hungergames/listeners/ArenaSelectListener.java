@@ -25,7 +25,7 @@ public class ArenaSelectListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        langHandler.loadLanguageConfig(player);
+        langHandler.getLangConfig(player);
         ItemStack item = event.getItem();
         if (item != null && item.getType() == Material.BLAZE_ROD && item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(langHandler.getMessage("arena.stick-name"))) {
             if (!(player.hasPermission("hungergames.select"))) {

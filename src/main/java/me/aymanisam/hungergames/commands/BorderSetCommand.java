@@ -28,7 +28,7 @@ public class BorderSetCommand implements CommandExecutor {
             return true;
         }
 
-        langHandler.loadLanguageConfig(player);
+        langHandler.getLangConfig(player);
 
         if (!(player.hasPermission("hungergames.border"))) {
             sender.sendMessage(langHandler.getMessage("no-permission"));

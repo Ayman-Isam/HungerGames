@@ -24,7 +24,7 @@ public class SignClickListener implements Listener {
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Player player = event.getPlayer();
-            langHandler.loadLanguageConfig(player);
+            langHandler.getLangConfig(player);
 
             Block block = event.getClickedBlock();
             assert block != null;
