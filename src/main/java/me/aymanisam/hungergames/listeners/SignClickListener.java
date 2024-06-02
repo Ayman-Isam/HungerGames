@@ -36,6 +36,11 @@ public class SignClickListener implements Listener {
                         return;
                     }
 
+                    if (HungerGames.gameStarting) {
+                        player.sendMessage(langHandler.getMessage("startgame.starting"));
+                        return;
+                    }
+
                     if (setSpawnHandler.spawnPointMap.containsValue(player)) {
                         player.sendMessage(langHandler.getMessage("join.already-joined"));
                         return;

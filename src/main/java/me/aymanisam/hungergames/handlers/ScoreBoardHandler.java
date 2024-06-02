@@ -32,7 +32,7 @@ public class ScoreBoardHandler {
             assert manager != null;
             Scoreboard scoreboard = manager.getNewScoreboard();
 
-            Objective objective = scoreboard.registerNewObjective(langHandler.getMessage("game.score-name"), "dummy", langHandler.getMessage("game.score-name"), RenderType.INTEGER);
+            Objective objective = scoreboard.registerNewObjective(langHandler.getMessage("game.score-name-solo"), "dummy", langHandler.getMessage("game.score-name"), RenderType.INTEGER);
             objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
             objective.getScore("  ").setScore(15);

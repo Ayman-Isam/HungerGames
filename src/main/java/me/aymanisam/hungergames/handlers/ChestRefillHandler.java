@@ -131,8 +131,9 @@ public class ChestRefillHandler {
                                                 EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
                                                 meta.addStoredEnchant(enchantment, level, true);
                                                 item.setItemMeta(meta);
+                                            } else {
+                                                item.addUnsafeEnchantment(enchantment, level);
                                             }
-                                            item.addUnsafeEnchantment(enchantment, level);
                                         }
                                     }
                                 }

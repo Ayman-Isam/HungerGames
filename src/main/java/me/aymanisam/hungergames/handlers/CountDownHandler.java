@@ -4,18 +4,28 @@ import me.aymanisam.hungergames.HungerGames;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
+
 public class CountDownHandler {
     private final HungerGames plugin;
     private final LangHandler langHandler;
     private final GameSequenceHandler gameSequenceHandler;
+    private final TeamsHandler teamsHandler;
+    private final SetSpawnHandler setSpawnHandler;
 
     public CountDownHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler) {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.gameSequenceHandler = gameSequenceHandler;
+        this.teamsHandler = new TeamsHandler(plugin);
+        this.setSpawnHandler = setSpawnHandler;
     }
 
     public void startCountDown() {
+        playersAlive.addAll(setSpawnHandler.spawnPointMap.values());
+
+        teamsHandler.createTeam();
+
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
             this.gameSequenceHandler.startGame();
             for (Player p : plugin.getServer().getOnlinePlayers()) {

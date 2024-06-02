@@ -53,10 +53,7 @@ public class GameSequenceHandler {
     }
 
     public void startGame() {
-
         HungerGames.gameStarted = true;
-
-        playersAlive.addAll(setSpawnHandler.spawnPointMap.values());
 
         setSpawnHandler.playersWaiting.clear();
         setSpawnHandler.spawnPointMap.clear();
@@ -116,8 +113,6 @@ public class GameSequenceHandler {
                     plugin.getServer().getConsoleSender(), chestRefillPluginCommand, "chestrefill", new String[0]);
         }, 0, chestRefillInterval);
 
-        teamsHandler.createTeam();
-
         mainGame();
     }
 
@@ -138,7 +133,7 @@ public class GameSequenceHandler {
             scoreBoardHandler.getScoreBoard();
 
             if (plugin.getConfig().getInt("players-per-team") > 1) {
-                if (teamsAlive.size() == 1) {
+                if (teamsAlive.size() <= 1) {
                     plugin.getServer().getScheduler().cancelTask(timerTaskId);
 
                     for (Player player : plugin.getServer().getOnlinePlayers()) {
@@ -162,14 +157,23 @@ public class GameSequenceHandler {
                     }
 
                     if (winningTeam != null) {
+                        StringBuilder allNames = new StringBuilder();
+                        for (Player teamMember : winningTeam) {
+                            allNames.append(teamMember.getName()).append(", ");
+                        }
+
+                        if (!allNames.isEmpty()) {
+                            allNames.setLength(allNames.length() - 2);
+                        }
+
                         for (Player player : plugin.getServer().getOnlinePlayers()) {
                             langHandler.getLangConfig(player);
-                            for (Player teamMember : winningTeam) {
-                                player.sendTitle("",ChatColor.LIGHT_PURPLE + teamMember.getName() + langHandler.getMessage("game.winner-text"), 5, 20, 10);
-                                player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
-                            }
+                            player.sendTitle("", ChatColor.LIGHT_PURPLE + allNames.toString() + langHandler.getMessage("game.winner-text"), 5, 20, 10);
+                            player.sendMessage(ChatColor.LIGHT_PURPLE + allNames.toString() + langHandler.getMessage("game.winner-text"));
+                            player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
                         }
                     }
+
                     endGame();
                 }
             } else {
@@ -191,6 +195,13 @@ public class GameSequenceHandler {
                 }
             }
 
+            if (timeLeft < 0) {
+                for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    langHandler.getLangConfig(player);
+                    player.sendMessage(langHandler.getMessage("game.time-up"));
+                }
+                endGame();
+            }
         }, 0L, 20L);
     }
 
@@ -208,6 +219,7 @@ public class GameSequenceHandler {
         worldBorderHandler.resetWorldBorder();
 
         String worldName = arenaHandler.getArenaConfig().getString("region.world");
+        assert worldName != null;
         World world = plugin.getServer().getWorld(worldName);
 
         assert world != null;
@@ -243,6 +255,13 @@ public class GameSequenceHandler {
         arenaHandler.removeShulkers();
 
         playersAlive.clear();
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+                player.sendMessage(langHandler.getMessage("game.join-instruction"));
+                player.sendTitle("",langHandler.getMessage("game.join-instruction"), 5, 20, 10);
+            }
+        }, 100L);
     }
 
     public void removeBossBar(Player player) {

@@ -51,6 +51,9 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 case "end":
                     executor = new EndGameCommand(plugin, setSpawnHandler, gameSequenceHandler);
                     break;
+                case "teamsize":
+                    executor = new TeamSizeCommand(plugin);
+                    break;
                 case "chestrefill":
                     executor = new ChestRefillCommand(plugin);
                     break;
@@ -91,7 +94,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 1) {
             List<String> completions = new ArrayList<>();
-            String[] commands = {"join", "start", "spectate", "select", "end", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig"};
+            String[] commands = {"join", "leave", "start", "spectate", "select", "end", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig"};
             for (String subcommand : commands) {
                 if (sender.hasPermission("hungergames." + subcommand)) {
                     completions.add(subcommand);
@@ -113,7 +116,15 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     break;
             }
             return completions;
+        } else if (args[0].equalsIgnoreCase("teamsize")) {
+            if (args.length == 2) {
+                List<String> completions = new ArrayList<>();
+                langHandler.getLangConfig((Player) sender);
+                completions.add(langHandler.getMessage("border.args-1"));
+                return completions;
+            }
         }
+
         return new ArrayList<>();
     }
 }

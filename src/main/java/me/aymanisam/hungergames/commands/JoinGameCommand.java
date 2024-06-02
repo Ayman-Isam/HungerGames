@@ -36,6 +36,11 @@ public class JoinGameCommand implements CommandExecutor {
             return true;
         }
 
+        if (HungerGames.gameStarting) {
+            player.sendMessage(langHandler.getMessage("startgame.starting"));
+            return true;
+        }
+
         if (setSpawnHandler.spawnPointMap.containsValue(player)) {
             player.sendMessage(langHandler.getMessage("join.already-joined"));
             return true;

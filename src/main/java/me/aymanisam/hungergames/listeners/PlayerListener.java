@@ -39,6 +39,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        event.setQuitMessage(null);
 
         if (HungerGames.gameStarted) {
             playersAlive.remove(player);
@@ -77,6 +78,7 @@ public class PlayerListener implements Listener {
         boolean autoJoin = plugin.getConfig().getBoolean("auto-join");
         if (autoJoin && !HungerGames.gameStarted) {
             setSpawnHandler.teleportPlayerToSpawnpoint(player);
+            event.setJoinMessage(null);
         }
     }
 

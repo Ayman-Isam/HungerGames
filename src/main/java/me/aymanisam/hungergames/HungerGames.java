@@ -14,6 +14,7 @@ public final class HungerGames extends JavaPlugin {
     public static boolean gameStarting = false;
 
     private GameSequenceHandler gameSequenceHandler;
+    private ArenaHandler arenaHandler;
 
     @Override
     public void onEnable() {
@@ -21,20 +22,16 @@ public final class HungerGames extends JavaPlugin {
         Metrics metrics = new Metrics(this, pluginId);
         LangHandler langHandler = new LangHandler(this);
         langHandler.saveLanguageFiles();
-        langHandler.loadLanguageConfigs();
         langHandler.updateLanguageKeys();
 
         // Initializing shared classes
         SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this);
+        new CompassHandler(this);
         this.gameSequenceHandler = new GameSequenceHandler(this, setSpawnHandler);
+        this.arenaHandler = new ArenaHandler(this);
 
         // Registering command handler
         Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, setSpawnHandler, gameSequenceHandler));
-
-        // Registering Handlers
-        new CompassHandler(this);
-        new WorldBorderHandler(this);
-        new ArenaHandler(this);
 
         // Registering Listeners
         ArenaSelectListener arenaSelectListener = new ArenaSelectListener(this);
@@ -51,6 +48,8 @@ public final class HungerGames extends JavaPlugin {
 
         SpectateGuiListener spectateGuiListener = new SpectateGuiListener(this);
         getServer().getPluginManager().registerEvents(spectateGuiListener, this);
+
+        arenaHandler.loadChunks();
     }
 
     @Override

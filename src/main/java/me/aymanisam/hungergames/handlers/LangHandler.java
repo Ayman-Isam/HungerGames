@@ -17,7 +17,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 
-@SuppressWarnings("CallToPrintStackTrace")
 public class LangHandler {
     private final HungerGames plugin;
     private YamlConfiguration langConfig;
@@ -47,7 +46,6 @@ public class LangHandler {
     public void loadLanguageConfigs() {
         File langFolder = new File(plugin.getDataFolder(), "lang");
         File[] langFiles = langFolder.listFiles(((dir, name) -> name.endsWith(".yml")));
-        File defaultlangFile = new File(plugin.getDataFolder(), "lang/" + "en_US" + ".yml");
 
         if (langFiles == null) {
             saveLanguageFiles();

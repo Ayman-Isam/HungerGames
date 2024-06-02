@@ -20,9 +20,7 @@ public class CompassHandler {
                 if (itemInHand.getType() == Material.COMPASS) {
                     // If player has compass in main hand, get nearest player
                     Player nearestPlayer = findNearestPlayer(player);
-                    if (nearestPlayer != null) {
-                        player.setCompassTarget(nearestPlayer.getLocation());
-                    }
+                    player.setCompassTarget(nearestPlayer.getLocation());
                 }
             }
         }, 0L, 5L);

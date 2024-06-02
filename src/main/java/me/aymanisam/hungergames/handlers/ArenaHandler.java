@@ -23,6 +23,7 @@ public class ArenaHandler {
     public ArenaHandler(HungerGames plugin) {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
+        createArenaConfig();
     }
 
     public void createArenaConfig() {
@@ -62,8 +63,7 @@ public class ArenaHandler {
         }
     }
 
-    public void removeShulkers() {
-        System.out.println("Remove Shulkers Called");
+    public void loadChunks() {
         World world = plugin.getServer().getWorld(Objects.requireNonNull(arenaConfig.getString("region.world")));
         double pos1x = arenaConfig.getDouble("region.pos1.x");
         double pos1z = arenaConfig.getDouble("region.pos1.z");
@@ -82,20 +82,24 @@ public class ArenaHandler {
 
         for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
             for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-
                 assert world != null;
                 if (!world.isChunkLoaded(chunkX, chunkZ)) {
-                    System.out.println("Chunk Not Loaded");
                     world.loadChunk(chunkX, chunkZ);
                 }
-                Chunk chunk = world.getChunkAt(chunkX, chunkZ);
+                world.setChunkForceLoaded(chunkX, chunkZ, true);
+            }
+        }
+    }
 
-                for (BlockState blockState : chunk.getTileEntities()) {
-                    if (blockState instanceof ShulkerBox) {
-                        System.out.println("Shulker Found");
-                        blockState.setType(Material.AIR);
-                        blockState.update(true);
-                    }
+    public void removeShulkers() {
+        World world = plugin.getServer().getWorld(Objects.requireNonNull(arenaConfig.getString("region.world")));
+
+        assert world != null;
+        for (Chunk chunk : world.getLoadedChunks()) {
+            for (BlockState blockState : chunk.getTileEntities()) {
+                if (blockState instanceof ShulkerBox) {
+                    blockState.setType(Material.AIR);
+                    blockState.update(true);
                 }
             }
         }

@@ -56,47 +56,24 @@ public class ArenaScanCommand implements CommandExecutor {
         }
 
         World world = plugin.getServer().getWorld(Objects.requireNonNull(config.getString("region.world")));
-        double pos1x = config.getDouble("region.pos1.x");
-        double pos1z = config.getDouble("region.pos1.z");
-        double pos2x = config.getDouble("region.pos2.x");
-        double pos2z = config.getDouble("region.pos2.z");
-
-        int minX = (int) Math.min(pos1x, pos2x);
-        int minZ = (int) Math.min(pos1z, pos2z);
-        int maxX = (int) Math.max(pos1x, pos2x);
-        int maxZ = (int) Math.max(pos1z, pos2z);
-
-        File chestLocationsFile = new File(plugin.getDataFolder(), "chest-locations.yml");
 
         List<Location> chestLocations = new ArrayList<>();
         List<Location> barrelLocations = new ArrayList<>();
         List<Location> trappedChestLocations = new ArrayList<>();
 
-        int minChunkX = minX >> 4;
-        int maxChunkX = maxX >> 4;
-        int minChunkZ = minZ >> 4;
-        int maxChunkZ = maxZ >> 4;
+        File chestLocationsFile = new File(plugin.getDataFolder(), "chest-locations.yml");
 
-        for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
-            for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-
-                assert world != null;
-                if (!world.isChunkLoaded(chunkX, chunkZ)) {
-                    world.loadChunk(chunkX, chunkZ);
-                }
-                Chunk chunk = world.getChunkAt(chunkX, chunkZ);
-
-                for (BlockState blockState : chunk.getTileEntities()) {
-                    if (blockState instanceof Chest) {
-                        Material type = blockState.getType();
-                        if (type == Material.CHEST) {
-                            chestLocations.add(blockState.getLocation());
-                        } else if (type == Material.TRAPPED_CHEST) {
-                            trappedChestLocations.add(blockState.getLocation());
-                        }
-                    } else if (blockState instanceof Barrel) {
-                        barrelLocations.add(blockState.getLocation());
+        for (Chunk chunk : world.getLoadedChunks()) {
+            for (BlockState blockState : chunk.getTileEntities()) {
+                if (blockState instanceof Chest) {
+                    Material type = blockState.getType();
+                    if (type == Material.CHEST) {
+                        chestLocations.add(blockState.getLocation());
+                    } else if (type == Material.TRAPPED_CHEST) {
+                        trappedChestLocations.add(blockState.getLocation());
                     }
+                } else if (blockState instanceof Barrel) {
+                    barrelLocations.add(blockState.getLocation());
                 }
             }
         }
