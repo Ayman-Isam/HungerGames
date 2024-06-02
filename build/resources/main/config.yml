@@ -67,6 +67,6 @@ killer-effects:
     duration: 600
     level: 0
   - effect: ABSORPTION
-    duration: 30
+    duration: 300
     level: 0
 # For more information on changing potion effects, see https://github.com/cantankerous-ally/Hunger-Games/wiki/Cheat-Sheets/

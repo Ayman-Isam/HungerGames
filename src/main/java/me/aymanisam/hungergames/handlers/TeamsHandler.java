@@ -1,14 +1,12 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 
@@ -51,17 +49,12 @@ public class TeamsHandler {
                 List<Player> team = teams.get(i);
                 if (team.size() < teamSizeConfig) {
                     // Apply extra effects to players in teams with fewer players
+                    double ratio = teamSizeConfig / (double) team.size();
+                    double newMaxHealth = 20.0 * ratio; // 20.0 is the default max health
+                    int newMaxHealthRounded = (int) Math.round(newMaxHealth);
                     for (Player player : team) {
-                        List<Map<?, ?>> effectMaps = plugin.getConfig().getMapList("small-team-effects");
-                        for (Map<?, ?> effectMap : effectMaps) {
-                            String effectName = (String) effectMap.get("effect");
-                            int duration = (int) effectMap.get("duration");
-                            int level = (int) effectMap.get("level");
-                            PotionEffectType effectType = PotionEffectType.getByName(effectName);
-                            if (effectType != null) {
-                                player.addPotionEffect(new PotionEffect(effectType, duration, level));
-                            }
-                        }
+                        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(newMaxHealthRounded);
+                        player.setHealth(newMaxHealthRounded);
                     }
                 }
                 

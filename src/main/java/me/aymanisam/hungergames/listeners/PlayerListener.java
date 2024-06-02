@@ -46,6 +46,16 @@ public class PlayerListener implements Listener {
         } else {
             setSpawnHandler.removePlayerFromSpawnPoint(player);
         }
+
+        for (List<Player> team: teamsAlive) {
+            if (team.contains(player)) {
+                team.remove(player);
+                if (team.isEmpty()) {
+                    teamsAlive.remove(team);
+                }
+                break;
+            }
+        }
     }
 
     @EventHandler

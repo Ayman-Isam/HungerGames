@@ -256,12 +256,14 @@ public class GameSequenceHandler {
 
         playersAlive.clear();
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-            for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-                player.sendMessage(langHandler.getMessage("game.join-instruction"));
-                player.sendTitle("",langHandler.getMessage("game.join-instruction"), 5, 20, 10);
-            }
-        }, 100L);
+        if (plugin.isEnabled()) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+                    player.sendMessage(langHandler.getMessage("game.join-instruction"));
+                    player.sendTitle("",langHandler.getMessage("game.join-instruction"), 5, 20, 10);
+                }
+            }, 100L);
+        }
     }
 
     public void removeBossBar(Player player) {
