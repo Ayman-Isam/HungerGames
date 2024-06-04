@@ -9,6 +9,7 @@ import org.bukkit.scoreboard.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.timeLeft;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
@@ -47,8 +48,13 @@ public class ScoreBoardHandler {
             Score playersAliveScore = objective.getScore(langHandler.getMessage("game.score-alive") + ChatColor.GREEN + playersAlive.size());
             playersAliveScore.setScore(14);
 
-            World world = plugin.getServer().getWorld(Objects.requireNonNull(arenaHandler.getArenaConfig().getString("region.world")));
-            assert world != null;
+            String worldName = arenaHandler.getArenaConfig().getString("region.world");
+            if (worldName == null) {
+                plugin.getLogger().log(Level.SEVERE, "World name is not specified.");
+                return;
+            }
+
+            World world = plugin.getServer().getWorld(worldName);
             Score worldBorderSizeScore = objective.getScore(langHandler.getMessage("game.score-border") + ChatColor.GREEN + (int) world.getWorldBorder().getSize());
             worldBorderSizeScore.setScore(13);
 

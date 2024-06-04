@@ -14,6 +14,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
@@ -98,6 +99,8 @@ public class ChestRefillHandler {
                     .flatMap(itemMap -> {
                         String type = (String) itemMap.get("type");
 
+                        String meta = (itemMap.get("meta") != null) ? (String) itemMap.get("meta") : null;
+
                         Integer amountObj = (Integer) itemMap.get("amount");
                         int amount = (amountObj != null) ? amountObj : 1;
 
@@ -107,19 +110,28 @@ public class ChestRefillHandler {
                         ItemStack item;
 
                         if (type.equals("POTION") || type.equals("SPLASH_POTION") || type.equals("LINGERING_POTION") || type.equals("TIPPED_ARROW")) {
-                            item = new ItemStack(Material.getMaterial(type), amount);
-                            PotionMeta meta = (PotionMeta) item.getItemMeta();
+                            item = new ItemStack(Objects.requireNonNull(Material.getMaterial(type)), amount);
+                            ItemMeta itemMeta = item.getItemMeta();
+                            if (itemMeta != null && meta!= null) {
+                                itemMeta.setDisplayName(meta);
+                            }
+                            PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
                             String potionType = (String) itemMap.get("potion-type");
                             Integer levelObj = (Integer) itemMap.get("level");
                             int level = (levelObj != null) ? levelObj : 1;
                             boolean extended = itemMap.containsKey("extended") && (boolean) itemMap.get("extended");
-                            assert meta != null;
-                            meta.setBasePotionData(new PotionData(PotionType.valueOf(potionType), extended, level > 1));
-                            item.setItemMeta(meta);
+                            assert potionMeta != null;
+                            potionMeta.setBasePotionData(new PotionData(PotionType.valueOf(potionType), extended, level > 1));
+                            item.setItemMeta(potionMeta);
                         } else if (itemMap.containsKey("enchantments")) {
                             Material material = Material.getMaterial(type);
+                            assert material != null;
                             item = new ItemStack(material, amount);
                             Object enchantsObj = itemMap.get("enchantments");
+                            ItemMeta itemMeta = item.getItemMeta();
+                            if (itemMeta != null && meta!= null) {
+                                itemMeta.setDisplayName(meta);
+                            }
                             if (enchantsObj instanceof List<?> enchantList) {
                                 for (Object enchantObj : enchantList) {
                                     if (enchantObj instanceof Map<?, ?> enchantMap) {
@@ -128,9 +140,10 @@ public class ChestRefillHandler {
                                         Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(enchantmentType.toLowerCase()));
                                         if (enchantment != null) {
                                             if (material == Material.ENCHANTED_BOOK) {
-                                                EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
-                                                meta.addStoredEnchant(enchantment, level, true);
-                                                item.setItemMeta(meta);
+                                                EnchantmentStorageMeta enchantmentStorageMeta = (EnchantmentStorageMeta) item.getItemMeta();
+                                                assert enchantmentStorageMeta != null;
+                                                enchantmentStorageMeta.addStoredEnchant(enchantment, level, true);
+                                                item.setItemMeta(enchantmentStorageMeta);
                                             } else {
                                                 item.addUnsafeEnchantment(enchantment, level);
                                             }
@@ -140,9 +153,13 @@ public class ChestRefillHandler {
                             }
                         } else if (type.equals("FIREWORK_ROCKET")) {
                             item = new ItemStack(Material.FIREWORK_ROCKET, amount);
-                            FireworkMeta meta = (FireworkMeta) item.getItemMeta();
-                            assert meta != null;
-                            meta.setPower((Integer) itemMap.get("power"));
+                            FireworkMeta fireworkMeta = (FireworkMeta) item.getItemMeta();
+                            assert fireworkMeta != null;
+                            ItemMeta itemMeta = item.getItemMeta();
+                            if (itemMeta != null && meta!= null) {
+                                itemMeta.setDisplayName(meta);
+                            }
+                            fireworkMeta.setPower((Integer) itemMap.get("power"));
 
                             List<Map<?, ?>> effectsList = (List<Map<?, ?>>) itemMap.get("effects");
                             for (Map<?, ?> effectMap : effectsList) {
@@ -160,13 +177,17 @@ public class ChestRefillHandler {
                                         .trail(trail)
                                         .build();
 
-                                meta.addEffect(effect);
+                                fireworkMeta.addEffect(effect);
                             }
 
-                            item.setItemMeta(meta);
+                            item.setItemMeta(fireworkMeta);
                         } else {
                             Material material = Material.getMaterial(type);
                             item = new ItemStack(material, amount);
+                            ItemMeta itemMeta = item.getItemMeta();
+                            if (itemMeta != null && meta!= null) {
+                                itemMeta.setDisplayName(meta);
+                            }
                         }
                         return Collections.nCopies(weight, item).stream();
                     })

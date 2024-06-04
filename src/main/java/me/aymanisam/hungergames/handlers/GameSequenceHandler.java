@@ -18,6 +18,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
+import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
@@ -219,7 +220,11 @@ public class GameSequenceHandler {
         worldBorderHandler.resetWorldBorder();
 
         String worldName = arenaHandler.getArenaConfig().getString("region.world");
-        assert worldName != null;
+        if (worldName == null) {
+            plugin.getLogger().log(Level.SEVERE, "World name is not specified.");
+            return;
+        }
+
         World world = plugin.getServer().getWorld(worldName);
 
         assert world != null;

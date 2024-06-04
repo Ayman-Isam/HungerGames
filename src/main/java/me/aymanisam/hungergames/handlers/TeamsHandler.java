@@ -1,8 +1,12 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,8 +65,15 @@ public class TeamsHandler {
                 for (Player player : team) {
                     langHandler.getLangConfig(player);
                     player.sendMessage(langHandler.getMessage("game.team-id") + (i + 1));
+
                     if (!getTeammateNames(team, player).isEmpty()) {
                         player.sendMessage(langHandler.getMessage("game.team-members") + getTeammateNames(team, player));
+                        ItemStack item = new ItemStack(Material.COMPASS);
+                        ItemMeta meta = item.getItemMeta();
+                        meta.setDisplayName(langHandler.getMessage("game.compass-teammate"));
+                        meta.addEnchant(Enchantment.DURABILITY, 1, true);
+                        item.setItemMeta(meta);
+                        player.getInventory().addItem(item);
                     } else {
                         player.sendMessage(langHandler.getMessage("game.no-teammates"));
                     }

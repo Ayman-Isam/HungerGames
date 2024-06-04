@@ -70,13 +70,6 @@ public class LangHandler {
     public void saveLanguageFiles() {
         String resourceFolder = "lang";
         File langFolder = new File(plugin.getDataFolder(), resourceFolder);
-        if (!langFolder.exists()) {
-            if (!langFolder.mkdir()) {
-                plugin.getLogger().log(Level.SEVERE, "Failed to create language folder");
-                // May fail to create language on first install due to plugin folder not existing
-                plugin.getLogger().log(Level.SEVERE, "Please Restart the Server");
-            }
-        }
 
         try {
             // Create a JarFile object from the plugin's file

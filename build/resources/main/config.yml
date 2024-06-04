@@ -60,9 +60,6 @@ killer-effects:
   - effect: DAMAGE_RESISTANCE # Effect type according to bukkit enum
     duration: 300 # Duration in ticks, 20 ticks = 1 second
     level: 0 # Effect level, 0 for base level
-  - effect: INCREASE_DAMAGE
-    duration: 300
-    level: 0
   - effect: REGENERATION
     duration: 600
     level: 0

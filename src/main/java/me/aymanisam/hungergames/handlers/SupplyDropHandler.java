@@ -40,12 +40,10 @@ public class SupplyDropHandler {
 
         int numSupplyDrops = config.getInt("num-supply-drops");
 
-        Location center = border.getCenter();
-
-        double minX = center.getX() - border.getSize() / 2;
-        double minZ = center.getZ() - border.getSize() / 2;
-        double maxX = center.getX() + border.getSize() / 2;
-        double maxZ = center.getZ() + border.getSize() / 2;
+        double minX = Math.max(Math.min(arenaConfig.getDouble("region.pos1.x"), arenaConfig.getDouble("region.pos2.x")), border.getCenter().getX() - border.getSize() / 2);
+        double minZ = Math.max(Math.min(arenaConfig.getDouble("region.pos1.z"), arenaConfig.getDouble("region.pos2.z")), border.getCenter().getZ() - border.getSize() / 2);
+        double maxX = Math.min(Math.max(arenaConfig.getDouble("region.pos1.x"), arenaConfig.getDouble("region.pos2.x")), border.getCenter().getX() + border.getSize() / 2);
+        double maxZ = Math.min(Math.max(arenaConfig.getDouble("region.pos1.z"), arenaConfig.getDouble("region.pos2.z")), border.getCenter().getZ() + border.getSize() / 2);
 
         Random random = new Random();
         for (int i = 0; i < numSupplyDrops; i++) {

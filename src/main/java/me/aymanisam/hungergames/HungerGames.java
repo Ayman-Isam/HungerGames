@@ -26,7 +26,7 @@ public final class HungerGames extends JavaPlugin {
 
         // Initializing shared classes
         SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this);
-        new CompassHandler(this);
+        CompassHandler compassHandler = new CompassHandler(this);
         this.gameSequenceHandler = new GameSequenceHandler(this, setSpawnHandler);
         this.arenaHandler = new ArenaHandler(this);
 
@@ -48,6 +48,9 @@ public final class HungerGames extends JavaPlugin {
 
         SpectateGuiListener spectateGuiListener = new SpectateGuiListener(this);
         getServer().getPluginManager().registerEvents(spectateGuiListener, this);
+
+        CompassListener compassListener = new CompassListener(this, compassHandler);
+        getServer().getPluginManager().registerEvents(compassListener, this);
 
         arenaHandler.loadChunks();
     }

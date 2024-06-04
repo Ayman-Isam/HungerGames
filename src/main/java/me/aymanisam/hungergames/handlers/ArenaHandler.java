@@ -45,12 +45,10 @@ public class ArenaHandler {
     }
 
     public FileConfiguration getArenaConfig() {
+        createArenaConfig();
         if (arenaConfig == null) {
-            createArenaConfig();
-            if (arenaConfig == null) {
-                plugin.getLogger().log(Level.SEVERE, langHandler.getMessage("arena.load-error"));
-                return null;
-            }
+            plugin.getLogger().log(Level.SEVERE, langHandler.getMessage("arena.load-error"));
+            return null;
         }
         return arenaConfig;
     }
@@ -64,7 +62,13 @@ public class ArenaHandler {
     }
 
     public void loadChunks() {
-        World world = plugin.getServer().getWorld(Objects.requireNonNull(arenaConfig.getString("region.world")));
+        String worldName = arenaConfig.getString("region.world");
+        if (worldName == null) {
+            plugin.getLogger().log(Level.SEVERE, "World name is not specified in the arena config.");
+            return;
+        }
+
+        World world = plugin.getServer().getWorld(worldName);
         double pos1x = arenaConfig.getDouble("region.pos1.x");
         double pos1z = arenaConfig.getDouble("region.pos1.z");
         double pos2x = arenaConfig.getDouble("region.pos2.x");

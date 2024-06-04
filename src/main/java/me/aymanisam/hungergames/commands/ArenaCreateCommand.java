@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.Objects;
@@ -47,13 +48,14 @@ public class ArenaCreateCommand implements CommandExecutor {
             return true;
         }
 
-        arenaHandler.getArenaConfig().set("region.world", Objects.requireNonNull(pos1.getWorld()).getName());
-        arenaHandler.getArenaConfig().set("region.pos1.x", pos1.getX());
-        arenaHandler.getArenaConfig().set("region.pos1.y", pos1.getY());
-        arenaHandler.getArenaConfig().set("region.pos1.z", pos1.getZ());
-        arenaHandler.getArenaConfig().set("region.pos2.x", pos2.getX());
-        arenaHandler.getArenaConfig().set("region.pos2.y", pos2.getY());
-        arenaHandler.getArenaConfig().set("region.pos2.z", pos2.getZ());
+        FileConfiguration arenaConfig = arenaHandler.getArenaConfig();
+        arenaConfig.set("region.world", Objects.requireNonNull(pos1.getWorld()).getName());
+        arenaConfig.set("region.pos1.x", pos1.getX());
+        arenaConfig.set("region.pos1.y", pos1.getY());
+        arenaConfig.set("region.pos1.z", pos1.getZ());
+        arenaConfig.set("region.pos2.x", pos2.getX());
+        arenaConfig.set("region.pos2.y", pos2.getY());
+        arenaConfig.set("region.pos2.z", pos2.getZ());
         arenaHandler.saveArenaConfig();
         sender.sendMessage(langHandler.getMessage("arena.region-created"));
 

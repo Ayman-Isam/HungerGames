@@ -22,7 +22,7 @@ public class ConfigHandler {
         if (itemsFile.exists()) {
             return YamlConfiguration.loadConfiguration(itemsFile);
         } else {
-            plugin.getLogger().log(Level.SEVERE, "Items file not found.");
+            plugin.saveResource("items.yml", false);
             return null;
         }
     }

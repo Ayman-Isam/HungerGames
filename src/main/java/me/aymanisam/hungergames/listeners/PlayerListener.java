@@ -10,17 +10,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playerBossBars;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
@@ -29,6 +26,8 @@ public class PlayerListener implements Listener {
     private final HungerGames plugin;
     private final SetSpawnHandler setSpawnHandler;
     private final LangHandler langHandler;
+
+    private final Map<Player, Location> deathLocations = new HashMap<>();
 
     public PlayerListener(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
         this.setSpawnHandler = setSpawnHandler;
@@ -86,7 +85,7 @@ public class PlayerListener implements Listener {
         }
 
         boolean autoJoin = plugin.getConfig().getBoolean("auto-join");
-        if (autoJoin && !HungerGames.gameStarted) {
+        if (autoJoin && !HungerGames.gameStarted && !HungerGames.gameStarting) {
             setSpawnHandler.teleportPlayerToSpawnpoint(player);
             event.setJoinMessage(null);
         }
@@ -117,16 +116,13 @@ public class PlayerListener implements Listener {
 
         World world = plugin.getServer().getWorld("world");
         assert world != null;
-        Location spawnLocation = world.getSpawnLocation();
 
         boolean spectating = plugin.getConfig().getBoolean("spectating");
         if (spectating) {
             player.setGameMode(GameMode.SPECTATOR);
             player.sendTitle("", langHandler.getMessage("spectate.spectating-player"), 5, 20, 10);
             player.sendMessage(langHandler.getMessage("spectate.message"));
-            player.teleport(player.getLocation());
-        } else {
-            player.teleport(spawnLocation);
+            deathLocations.put(player, player.getLocation());
         }
 
         Player killer = event.getEntity().getKiller();
@@ -155,6 +151,15 @@ public class PlayerListener implements Listener {
             else {
                 p.sendMessage(player.getName() + langHandler.getMessage("game.death-message"));
             }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        if (deathLocations.containsKey(player)) {
+            event.setRespawnLocation(deathLocations.get(player));
+            deathLocations.remove(player);
         }
     }
 

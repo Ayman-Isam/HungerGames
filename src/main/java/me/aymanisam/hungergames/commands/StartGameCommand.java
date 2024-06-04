@@ -24,12 +24,13 @@ public class StartGameCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player player) {
-            langHandler.getLangConfig(player);
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(langHandler.getMessage("not-a-player"));
+            return true;
         }
 
-        if (!(sender.hasPermission("hungergames.start") || sender instanceof Player)) {
-            sender.sendMessage(langHandler.getMessage("no-permission"));
+        if (!player.hasPermission("hungergames.start")) {
+            player.sendMessage(langHandler.getMessage("no-permission"));
             return true;
         }
 
