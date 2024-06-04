@@ -1,6 +1,7 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.listeners.TeamVotingListener;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -14,13 +15,15 @@ import java.util.logging.Level;
 
 public class SetSpawnHandler {
     private final HungerGames plugin;
+    private final ResetPlayerHandler resetPlayerHandler;
+    private final LangHandler langHandler;
+    private final TeamVotingListener teamVotingListener;
+
     public FileConfiguration setSpawnConfig;
     private File setSpawnFile;
     public List<String> spawnPoints;
-    private LangHandler langHandler;
     public Map<String, Player> spawnPointMap;
     public List<String> playersWaiting;
-    private final ResetPlayerHandler resetPlayerHandler;
 
     public SetSpawnHandler(HungerGames plugin) {
         this.plugin = plugin;
@@ -29,6 +32,7 @@ public class SetSpawnHandler {
         this.spawnPointMap = new HashMap<>();
         this.playersWaiting = new ArrayList<>();
         this.resetPlayerHandler = new ResetPlayerHandler();
+        this.teamVotingListener = new TeamVotingListener(plugin);
         createSetSpawnConfig();
     }
 
@@ -115,5 +119,9 @@ public class SetSpawnHandler {
         }
 
         resetPlayerHandler.resetPlayer(player);
+
+        if (plugin.getConfig().getBoolean("voting")) {
+            teamVotingListener.openVotingInventory(player);
+        }
     }
 }

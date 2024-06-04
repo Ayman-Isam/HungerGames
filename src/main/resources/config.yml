@@ -35,6 +35,8 @@ max-players: 24
 spectating: true
 # Enable auto-joining of games, default is false, set to true to enable
 auto-join: true
+# Enable voting for solo, duo, trio
+voting: false
 # Border settings
 border:
   # Border size in blocks, use size bigger than arena for no border, (default: 100)

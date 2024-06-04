@@ -2,6 +2,7 @@ package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.*;
+import me.aymanisam.hungergames.listeners.TeamVotingListener;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,12 +15,12 @@ public class StartGameCommand implements CommandExecutor {
     private final ArenaHandler arenaHandler;
     private final CountDownHandler countDownHandler;
 
-    public StartGameCommand(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler) {
+    public StartGameCommand(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener) {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.setSpawnHandler = setSpawnHandler;
         this.arenaHandler = new ArenaHandler(plugin);
-        this.countDownHandler = new CountDownHandler(plugin, setSpawnHandler, gameSequenceHandler);
+        this.countDownHandler = new CountDownHandler(plugin, setSpawnHandler, gameSequenceHandler, teamVotingListener);
     }
 
     @Override

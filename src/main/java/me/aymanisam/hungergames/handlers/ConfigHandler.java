@@ -34,7 +34,7 @@ public class ConfigHandler {
         Set<String> keys = pluginConfig.getKeys(true);
 
         for (String key : keys) {
-            if (!serverConfig.contains(key)) {
+            if (!serverConfig.isSet(key)) {
                 serverConfig.set(key, pluginConfig.get(key));
                 plugin.getLogger().warning("&cMissing key: " + key);
             }

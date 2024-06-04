@@ -4,6 +4,7 @@ import me.aymanisam.hungergames.commands.*;
 import me.aymanisam.hungergames.handlers.GameSequenceHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.SetSpawnHandler;
+import me.aymanisam.hungergames.listeners.TeamVotingListener;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,12 +21,14 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
     private final GameSequenceHandler gameSequenceHandler;
+    private final TeamVotingListener teamVotingListener;
 
-    public CommandDispatcher(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler) {
+    public CommandDispatcher(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener) {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.setSpawnHandler = setSpawnHandler;
         this.gameSequenceHandler = gameSequenceHandler;
+        this.teamVotingListener = teamVotingListener;
     }
 
     @Override
@@ -40,7 +43,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     executor = new LeaveGameCommand(plugin, setSpawnHandler);
                     break;
                 case "start":
-                    executor = new StartGameCommand(plugin, setSpawnHandler, gameSequenceHandler);
+                    executor = new StartGameCommand(plugin, setSpawnHandler, gameSequenceHandler, teamVotingListener);
                     break;
                 case "spectate":
                     executor = new SpectatePlayerCommand(plugin);

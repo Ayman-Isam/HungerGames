@@ -1,6 +1,7 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.listeners.TeamVotingListener;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -12,24 +13,54 @@ public class CountDownHandler {
     private final GameSequenceHandler gameSequenceHandler;
     private final TeamsHandler teamsHandler;
     private final SetSpawnHandler setSpawnHandler;
+    private final TeamVotingListener teamVotingListener;
 
-    public CountDownHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler) {
+    public CountDownHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener) {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.gameSequenceHandler = gameSequenceHandler;
         this.teamsHandler = new TeamsHandler(plugin);
         this.setSpawnHandler = setSpawnHandler;
+        this.teamVotingListener = teamVotingListener;
     }
 
     public void startCountDown() {
+        if (plugin.getConfig().getBoolean("voting")) {
+            String highestVotedGameMode;
+            int teamSize;
+
+            if (teamVotingListener.votedSolo >= teamVotingListener.votedDuo && teamVotingListener.votedSolo >= teamVotingListener.votedTrio) {
+                highestVotedGameMode = langHandler.getMessage("game.solo-inv");
+                teamSize = 1;
+            } else if (teamVotingListener.votedDuo >= teamVotingListener.votedTrio) {
+                highestVotedGameMode = langHandler.getMessage("game.duo-inv");
+                teamSize = 2;
+            } else {
+                highestVotedGameMode = langHandler.getMessage("game.trio-inv");
+                teamSize = 3;
+            }
+
+            for (Player player : plugin.getServer().getOnlinePlayers()) {
+                player.sendTitle("", langHandler.getMessage("game.voted-highest") + highestVotedGameMode, 5, 20, 10);
+            }
+
+            plugin.reloadConfig();
+            plugin.getConfig().set("players-per-team", teamSize);
+            plugin.saveConfig();
+
+            plugin.getServer().getScheduler().runTaskLater(plugin, this::runAfterDelay, 20L * 5);
+        }
+    }
+
+    private void runAfterDelay() {
         playersAlive.addAll(setSpawnHandler.spawnPointMap.values());
 
         teamsHandler.createTeam();
 
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
             this.gameSequenceHandler.startGame();
-            for (Player p : plugin.getServer().getOnlinePlayers()) {
-                p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.0f);
+            for (Player player : plugin.getServer().getOnlinePlayers()) {
+                player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.0f);
             }
             HungerGames.gameStarting = false;
         }, 20L * 20);

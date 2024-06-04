@@ -15,6 +15,7 @@ public final class HungerGames extends JavaPlugin {
 
     private GameSequenceHandler gameSequenceHandler;
     private ArenaHandler arenaHandler;
+    private TeamVotingListener teamVotingListener;
 
     @Override
     public void onEnable() {
@@ -25,13 +26,15 @@ public final class HungerGames extends JavaPlugin {
         langHandler.updateLanguageKeys();
 
         // Initializing shared classes
+        TeamVotingListener teamVotingListener = new TeamVotingListener(this);
+        getServer().getPluginManager().registerEvents(teamVotingListener, this);
         SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this);
         CompassHandler compassHandler = new CompassHandler(this);
         this.gameSequenceHandler = new GameSequenceHandler(this, setSpawnHandler);
         this.arenaHandler = new ArenaHandler(this);
 
         // Registering command handler
-        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, setSpawnHandler, gameSequenceHandler));
+        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, setSpawnHandler, gameSequenceHandler, teamVotingListener));
 
         // Registering Listeners
         ArenaSelectListener arenaSelectListener = new ArenaSelectListener(this);
@@ -53,6 +56,7 @@ public final class HungerGames extends JavaPlugin {
         getServer().getPluginManager().registerEvents(compassListener, this);
 
         arenaHandler.loadChunks();
+        saveDefaultConfig();
     }
 
     @Override
