@@ -1,10 +1,13 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.listeners.ArenaSelectListener;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.EndGateway;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -19,10 +22,12 @@ public class ArenaHandler {
     private YamlConfiguration arenaConfig;
     private File arenaFile;
     private final LangHandler langHandler;
+    private final ArenaSelectListener arenaSelectListener;
 
     public ArenaHandler(HungerGames plugin) {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
+        this.arenaSelectListener = new ArenaSelectListener(plugin);
         createArenaConfig();
     }
 
@@ -102,6 +107,14 @@ public class ArenaHandler {
         for (Chunk chunk : world.getLoadedChunks()) {
             for (BlockState blockState : chunk.getTileEntities()) {
                 if (blockState instanceof ShulkerBox) {
+                    Block shulkerBlock = blockState.getBlock();
+
+                    arenaSelectListener.removeShulkerSurroundings(shulkerBlock);
+
+                    blockState.setType(Material.AIR);
+                    blockState.update(true);
+                }
+                if (blockState instanceof EndGateway) {
                     blockState.setType(Material.AIR);
                     blockState.update(true);
                 }

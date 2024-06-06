@@ -26,12 +26,35 @@ public class ScoreBoardHandler {
         this.arenaHandler = new ArenaHandler(plugin);
     }
 
+    private Score createScore(Objective objective, String messageKey, int timeLeft, int interval) {
+        int minutes = timeLeft / 60;
+        int seconds = timeLeft % 60;
+        String timeFormatted = String.format("%02d:%02d", minutes, seconds);
+
+        ChatColor color;
+        if (timeLeft <= interval / 3) {
+            color = ChatColor.RED;
+        } else if (timeLeft <= 2 * interval / 3) {
+            color = ChatColor.YELLOW;
+        } else {
+            color = ChatColor.GREEN;
+        }
+
+        return objective.getScore(langHandler.getMessage(messageKey) + color + timeFormatted);
+    }
+
     public void getScoreBoard() {
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             langHandler.getLangConfig(player);
             ScoreboardManager manager = Bukkit.getScoreboardManager();
             assert manager != null;
             Scoreboard scoreboard = manager.getNewScoreboard();
+
+            int gameTimeConfig = plugin.getConfig().getInt("game-time");
+            int borderShrinkTimeConfig = plugin.getConfig().getInt("border.start-time");
+            int pvpTimeConfig = plugin.getConfig().getInt("grace-period");
+            int chestRefillInterval = plugin.getConfig().getInt("chestrefill.interval");
+            int supplyDropInterval = plugin.getConfig().getInt("supplydrop.interval");
 
             Objective objective;
 
@@ -60,51 +83,38 @@ public class ScoreBoardHandler {
 
             objective.getScore("  ").setScore(12);
 
-            String timeFormatted = String.format("%02d:%02d", timeLeft / 60, timeLeft % 60);
-            Score timeScore = objective.getScore(langHandler.getMessage("game.score-time") + ChatColor.GREEN + timeFormatted);
+            Score timeScore = createScore(objective, "game.score-time", timeLeft, gameTimeConfig);
             timeScore.setScore(11);
 
-            int borderShrinkTimeConfig = plugin.getConfig().getInt("border.start-time");
-            int gameTimeConfig = plugin.getConfig().getInt("game-time");
             int borderShrinkTimeLeft = (timeLeft - gameTimeConfig) + borderShrinkTimeConfig;
-            int borderMinutes = borderShrinkTimeLeft / 60;
-            int borderSeconds = borderShrinkTimeLeft % 60;
-            String borderTimeFormatted = String.format("%02d:%02d", borderMinutes, borderSeconds);
-            Score borderShrinkScore = objective.getScore(langHandler.getMessage("game.score-borderShrink") + ChatColor.GREEN + borderTimeFormatted);
+            Score borderShrinkScore = createScore(objective, "game.score-borderShrink", borderShrinkTimeLeft, borderShrinkTimeConfig);
             if (borderShrinkTimeLeft >= 0) {
                 borderShrinkScore.setScore(10);
             }
 
-            int pvpTimeConfig = plugin.getConfig().getInt("grace-period");
             int pvpTimeLeft = (timeLeft - gameTimeConfig) + pvpTimeConfig;
-            int pvpMinutes = pvpTimeLeft / 60;
-            int pvpSeconds = pvpTimeLeft % 60;
-            String pvpTimeFormatted = String.format("%02d:%02d", pvpMinutes, pvpSeconds);
-            Score pvpScore = objective.getScore(langHandler.getMessage("game.score-pvp") + ChatColor.GREEN + pvpTimeFormatted);
+            Score pvpScore = createScore(objective, "game.score-pvp", pvpTimeLeft, pvpTimeConfig);
             if (pvpTimeLeft >= 0) {
                 pvpScore.setScore(9);
             }
 
             objective.getScore("").setScore(8);
 
-            int chestRefillInterval = plugin.getConfig().getInt("chestrefill.interval");
             int chestRefillTimeLeft = timeLeft % chestRefillInterval;
-            int chestMinutes = chestRefillTimeLeft / 60;
-            int chestSeconds = chestRefillTimeLeft % 60;
-            String chestTimeFormatted = String.format("%02d:%02d", chestMinutes, chestSeconds);
-            Score chestRefillScore = objective.getScore(langHandler.getMessage("game.score-chestrefill") + ChatColor.GREEN + chestTimeFormatted);
+            Score chestRefillScore = createScore(objective, "game.score-chestrefill", chestRefillTimeLeft, chestRefillInterval);
             if (chestRefillTimeLeft >= 0) {
                 chestRefillScore.setScore(7);
             }
 
-            int supplyDropInterval = plugin.getConfig().getInt("supplydrop.interval");
             int supplyDropTimeLeft = timeLeft % supplyDropInterval;
-            Score supplyDropScore = objective.getScore(langHandler.getMessage("game.score-supplydrop") + ChatColor.GREEN + supplyDropTimeLeft);
+            Score supplyDropScore = createScore(objective, "game.score-supplydrop", supplyDropTimeLeft, supplyDropInterval);
             if (supplyDropTimeLeft >= 0) {
                 supplyDropScore.setScore(6);
             }
 
+
             if (plugin.getConfig().getInt("players-per-team") > 1) {
+                objective.getScore("").setScore(5);
                 for (List<Player> team : teams) {
                     if (team.contains(player)) {
                         for (Player teamMember : team) {
@@ -113,7 +123,7 @@ public class ScoreBoardHandler {
                                 ChatColor color = playersAlive.contains(teamMember) ? ChatColor.GREEN : ChatColor.RED;
                                 String scoreName = langHandler.getMessage("game.score-teammate") + color + teammateName;
                                 Score teammateScore = objective.getScore(scoreName);
-                                teammateScore.setScore(5);
+                                teammateScore.setScore(4);
                             }
                         }
                         break;

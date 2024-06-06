@@ -1,14 +1,14 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.WorldBorder;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +56,18 @@ public class SupplyDropHandler {
                 highestY = world.getHighestBlockYAt((int) x, (int) z);
             } while (highestY < -60);
 
-            Block topmostBlock = world.getBlockAt((int) x, highestY + 1, (int) z);
+            Block portalBlock = world.getBlockAt((int) x, highestY + 1, (int) z);
+            portalBlock.setType(Material.END_GATEWAY);
+            Location portalBlockLocation = portalBlock.getLocation().add(0.5, 0.5, 0.5);
+            ArmorStand armorStand = (ArmorStand) world.spawnEntity(portalBlockLocation, EntityType.ARMOR_STAND);
+
+            armorStand.setVisible(false);
+            armorStand.setGravity(false);
+            armorStand.setCanPickupItems(false);
+
+            Block topmostBlock = world.getBlockAt((int) x, highestY + 2, (int) z);
             topmostBlock.setType(Material.RED_SHULKER_BOX);
+            world.playSound(portalBlockLocation, Sound.BLOCK_END_PORTAL_SPAWN, 1.0f, 1.0f);
 
             int minSupplyDropContent = config.getInt("min-supply-drop-content");
             int maxSupplyDropContent = config.getInt("max-supply-drop-content");

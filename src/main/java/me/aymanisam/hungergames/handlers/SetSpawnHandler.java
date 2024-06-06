@@ -2,11 +2,13 @@ package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.listeners.TeamVotingListener;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.io.IOException;
@@ -107,7 +109,19 @@ public class SetSpawnHandler {
         double x = Double.parseDouble(coords[1]) + 0.5;
         double y = Double.parseDouble(coords[2]) + 1.0;
         double z = Double.parseDouble(coords[3]) + 0.5;
-        player.teleport(new Location(world, x, y, z));
+
+        Location teleportLocation = new Location(world, x, y, z);
+
+        assert world != null;
+        Location spawnLocation = world.getSpawnLocation();
+
+        Vector direction = spawnLocation.toVector().subtract(teleportLocation.toVector());
+
+        float yaw = (float) (Math.toDegrees(Math.atan2(direction.getZ(), direction.getX())) - 90);
+
+        teleportLocation.setYaw(yaw);
+
+        player.teleport(teleportLocation);
 
         for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             langHandler.getLangConfig(onlinePlayer);
@@ -121,7 +135,9 @@ public class SetSpawnHandler {
         resetPlayerHandler.resetPlayer(player);
 
         if (plugin.getConfig().getBoolean("voting")) {
-            teamVotingListener.openVotingInventory(player);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                teamVotingListener.openVotingInventory(player);
+            }, 100L);
         }
     }
 }

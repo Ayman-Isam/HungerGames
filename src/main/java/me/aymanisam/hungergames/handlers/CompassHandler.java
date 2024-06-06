@@ -5,9 +5,7 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +35,7 @@ public class CompassHandler {
             }
         }
 
-        if (playerTeam == null || playerTeam.size() == 1) {
+        if (playerTeam == null || playerTeam.isEmpty()) {
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(langHandler.getMessage("arena.compass-nomates")));
             return null;
         }
@@ -49,7 +47,6 @@ public class CompassHandler {
             teammateIndexMap.put(player, index);
         }
 
-        int initialIndex = index;
         int loopCount = 0;
         Player teammate = playerTeam.get(index);
 

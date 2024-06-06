@@ -268,6 +268,14 @@ public class GameSequenceHandler {
                     player.sendTitle("",langHandler.getMessage("game.join-instruction"), 5, 20, 10);
                 }
             }, 100L);
+
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                for (Player player: Bukkit.getServer().getOnlinePlayers()) {
+                    player.sendMessage(langHandler.getMessage("join.auto-join"));
+                    player.sendTitle("",langHandler.getMessage("join.auto-join"), 5, 20, 10);
+                    setSpawnHandler.teleportPlayerToSpawnpoint(player);
+                }
+            }, 200L);
         }
     }
 

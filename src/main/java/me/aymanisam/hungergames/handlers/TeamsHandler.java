@@ -54,7 +54,7 @@ public class TeamsHandler {
                 if (team.size() < teamSizeConfig) {
                     // Apply extra effects to players in teams with fewer players
                     double ratio = teamSizeConfig / (double) team.size();
-                    double newMaxHealth = 20.0 * ratio; // 20.0 is the default max health
+                    double newMaxHealth = 20.0 * ratio;
                     int newMaxHealthRounded = (int) Math.round(newMaxHealth);
                     for (Player player : team) {
                         player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(newMaxHealthRounded);
@@ -72,8 +72,12 @@ public class TeamsHandler {
                         ItemMeta meta = item.getItemMeta();
                         meta.setDisplayName(langHandler.getMessage("game.compass-teammate"));
                         meta.addEnchant(Enchantment.DURABILITY, 1, true);
+                        List<String> lore = new ArrayList<>();
+                        lore.add(langHandler.getMessage("game.compass-click"));
+                        lore.add(langHandler.getMessage("game.compass-shift-click"));
+                        meta.setLore(lore);
                         item.setItemMeta(meta);
-                        player.getInventory().addItem(item);
+                        player.getInventory().setItem(8, item);
                     } else {
                         player.sendMessage(langHandler.getMessage("game.no-teammates"));
                     }

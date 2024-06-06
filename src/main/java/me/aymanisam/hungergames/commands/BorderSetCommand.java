@@ -40,6 +40,11 @@ public class BorderSetCommand implements CommandExecutor {
             return true;
         }
 
+        if (arenaHandler.getArenaConfig().get("region") == null) {
+            sender.sendMessage(langHandler.getMessage("supplydrop.no-arena"));
+            return true;
+        }
+
         int newSize, centerX, centerZ;
 
         try {

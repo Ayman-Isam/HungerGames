@@ -29,6 +29,11 @@ public class SpectatePlayerCommand implements CommandExecutor {
             return true;
         }
 
+        if (!(player.hasPermission("hungergames.spectate"))) {
+            sender.sendMessage(langHandler.getMessage("no-permission"));
+            return true;
+        }
+
         if (!(player.getGameMode() == GameMode.SPECTATOR)) {
             player.sendMessage(langHandler.getMessage("spectate.not-spectator"));
             return true;

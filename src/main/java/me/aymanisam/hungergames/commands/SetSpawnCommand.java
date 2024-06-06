@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SetSpawnCommand implements CommandExecutor {
     private final LangHandler langHandler;
@@ -41,6 +42,9 @@ public class SetSpawnCommand implements CommandExecutor {
         assert meta != null;
         meta.setDisplayName(langHandler.getMessage("setspawn.stick-name"));
         stick.setItemMeta(meta);
+        List<String> lore = new ArrayList<>();
+        lore.add(langHandler.getMessage("setspawn.stick-left"));
+        meta.setLore(lore);
         player.getInventory().addItem(stick);
         setSpawnHandler.setSpawnConfig.set("spawnpoints", new ArrayList<>());
         setSpawnHandler.saveSetSpawnConfig();

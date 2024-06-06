@@ -5,6 +5,8 @@ import me.aymanisam.hungergames.listeners.TeamVotingListener;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+import java.util.Collections;
+
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 
 public class CountDownHandler {
@@ -29,10 +31,14 @@ public class CountDownHandler {
             String highestVotedGameMode;
             int teamSize;
 
-            if (teamVotingListener.votedSolo >= teamVotingListener.votedDuo && teamVotingListener.votedSolo >= teamVotingListener.votedTrio) {
+            int votedSolo = Collections.frequency(teamVotingListener.playerVotes.values(), "solo");
+            int votedDuo = Collections.frequency(teamVotingListener.playerVotes.values(), "duo");
+            int votedTrio = Collections.frequency(teamVotingListener.playerVotes.values(), "trio");
+
+            if (votedSolo >= votedDuo && votedSolo >= votedTrio) {
                 highestVotedGameMode = langHandler.getMessage("game.solo-inv");
                 teamSize = 1;
-            } else if (teamVotingListener.votedDuo >= teamVotingListener.votedTrio) {
+            } else if (votedDuo >= votedTrio) {
                 highestVotedGameMode = langHandler.getMessage("game.duo-inv");
                 teamSize = 2;
             } else {
@@ -41,7 +47,8 @@ public class CountDownHandler {
             }
 
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                player.sendTitle("", langHandler.getMessage("game.voted-highest") + highestVotedGameMode, 5, 20, 10);
+                player.sendTitle("", langHandler.getMessage("game.voted-highest") + highestVotedGameMode, 5, 40, 10);
+                teamVotingListener.closeVotingInventory(player);
             }
 
             plugin.reloadConfig();
@@ -56,6 +63,7 @@ public class CountDownHandler {
         playersAlive.addAll(setSpawnHandler.spawnPointMap.values());
 
         teamsHandler.createTeam();
+
 
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
             this.gameSequenceHandler.startGame();

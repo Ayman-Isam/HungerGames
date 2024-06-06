@@ -9,11 +9,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class TeamVotingListener implements Listener {
@@ -21,19 +24,21 @@ public class TeamVotingListener implements Listener {
 
     private Inventory inventory;
 
-    public int votedSolo = 0;
-    public int votedDuo = 0;
-    public int votedTrio = 0;
+    public final Map<Player, String> playerVotes = new HashMap<>();
 
     public TeamVotingListener(HungerGames plugin) {
         this.langHandler = new LangHandler(plugin);
     }
 
     public void openVotingInventory(Player player) {
-        player.getInventory().clear();
+        ItemStack itemStack = new ItemStack(Material.BOOK);
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        langHandler.getLangConfig(player);
+        itemMeta.setDisplayName(langHandler.getMessage("game.voting-inv"));
+        itemStack.setItemMeta(itemMeta);
+        player.getInventory().setItem(8, itemStack);
 
         inventory = Bukkit.createInventory(null, 9, langHandler.getMessage("game.voting-inv"));
-        langHandler.getLangConfig(player);
 
         ItemStack solo = new ItemStack(Material.NETHERITE_SWORD);
         ItemMeta soloMeta = solo.getItemMeta();
@@ -66,6 +71,11 @@ public class TeamVotingListener implements Listener {
         player.openInventory(inventory);
     }
 
+    public void closeVotingInventory(Player player) {
+        player.getInventory().clear();
+        player.closeInventory();
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!event.getView().getTitle().equals(langHandler.getMessage("game.voting-inv")) || !(event.getWhoClicked() instanceof Player player)) {
@@ -83,19 +93,36 @@ public class TeamVotingListener implements Listener {
         String displayName = Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName();
 
         if (displayName.equals(langHandler.getMessage("game.solo-inv"))) {
+            playerVotes.put(player, "solo");
             player.sendMessage(langHandler.getMessage("game.voted-solo"));
-            votedSolo += 1;
             player.closeInventory();
         } else if (displayName.equals(langHandler.getMessage("game.duo-inv"))) {
+            playerVotes.put(player, "duo");
             player.sendMessage(langHandler.getMessage("game.voted-duo"));
-            votedDuo += 1;
             player.closeInventory();
         } else if (displayName.equals(langHandler.getMessage("game.trio-inv"))) {
+            playerVotes.put(player, "trio");
             player.sendMessage(langHandler.getMessage("game.voted-trio"));
-            votedTrio += 1;
             player.closeInventory();
         } else if (displayName.equals(langHandler.getMessage("game.close-inv"))){
             player.closeInventory();
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
+        if (item.getType() != Material.BOOK) {
+            return;
+        }
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null || !meta.hasDisplayName()) {
+            return;
+        }
+
+        if (meta.getDisplayName().equals(langHandler.getMessage("game.voting-inv"))) {
+            openVotingInventory(event.getPlayer());
         }
     }
 }
