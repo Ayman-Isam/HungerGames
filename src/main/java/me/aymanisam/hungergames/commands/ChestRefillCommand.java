@@ -9,6 +9,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -26,16 +27,21 @@ public class ChestRefillCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player player) {
-            if (!(player.hasPermission("hungergames.chestrefill"))) {
-                sender.sendMessage(langHandler.getMessage("no-permission"));
-                return true;
-            }
-            langHandler.getLangConfig(player);
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(langHandler.getMessage("no-server"));
+            return true;
         }
 
-        FileConfiguration ArenaConfig = arenaHandler.getArenaConfig();
+        langHandler.getLangConfig(player);
+
+        if (!player.hasPermission("hungergames.chestrefill")) {
+            player.sendMessage(langHandler.getMessage("no-permission"));
+            return true;
+        }
+
+        System.out.println(player.getWorld());
+        FileConfiguration ArenaConfig = arenaHandler.getArenaConfig(player.getWorld());
         String worldName = ArenaConfig.getString("region.world");
 
         if (worldName == null) {
@@ -43,14 +49,7 @@ public class ChestRefillCommand implements CommandExecutor {
             return true;
         }
 
-        File chestLocationFile = new File(plugin.getDataFolder(), "chest-locations.yml");
-
-        if (!chestLocationFile.exists()) {
-            sender.sendMessage(langHandler.getMessage("chestrefill.no-file"));
-            return true;
-        }
-
-        chestRefillHandler.refillChests();
+        chestRefillHandler.refillChests(player.getWorld());
 
         return true;
     }

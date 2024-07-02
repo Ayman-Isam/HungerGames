@@ -8,6 +8,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class ReloadConfigCommand implements CommandExecutor {
     private final HungerGames plugin;
@@ -23,22 +24,24 @@ public class ReloadConfigCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player player) {
-            langHandler.getLangConfig(player);
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(langHandler.getMessage("no-server"));
+            return true;
         }
 
-        if (!(sender.hasPermission("hungergames.reloadconfig"))) {
-            sender.sendMessage(langHandler.getMessage("no-permission"));
+        langHandler.getLangConfig(player);
+
+        if (!player.hasPermission("hungergames.reloadconfig")) {
+            player.sendMessage(langHandler.getMessage("no-permission"));
             return true;
         }
 
         configHandler.checkConfigKeys();
-        configHandler.loadItemsConfig();
-        plugin.reloadConfig();
+        configHandler.loadItemsConfig(player.getWorld());
         langHandler.saveLanguageFiles();
         langHandler.updateLanguageKeys();
-        arenaHandler.getArenaConfig();
+        arenaHandler.getArenaConfig(player.getWorld());
 
         sender.sendMessage(langHandler.getMessage("config-reloaded"));
         return true;

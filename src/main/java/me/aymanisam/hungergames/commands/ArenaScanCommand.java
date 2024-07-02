@@ -14,6 +14,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class ArenaScanCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(langHandler.getMessage("no-server"));
             return true;
@@ -47,7 +48,7 @@ public class ArenaScanCommand implements CommandExecutor {
             return true;
         }
 
-        FileConfiguration config = arenaHandler.getArenaConfig();
+        FileConfiguration config = arenaHandler.getArenaConfig(player.getWorld());
 
         if (!config.isSet("region.pos1.x") || !config.isSet("region.pos1.y") || !config.isSet("region.pos1.z")
                 || !config.isSet("region.pos2.x") || !config.isSet("region.pos2.y") || !config.isSet("region.pos2.z")) {
@@ -61,7 +62,8 @@ public class ArenaScanCommand implements CommandExecutor {
         List<Location> barrelLocations = new ArrayList<>();
         List<Location> trappedChestLocations = new ArrayList<>();
 
-        File chestLocationsFile = new File(plugin.getDataFolder(), "chest-locations.yml");
+        File worldFolder = new File(plugin.getDataFolder() + File.separator + world.getName());
+        File chestLocationsFile = new File(worldFolder, "chest-locations.yml");
 
         for (Chunk chunk : world.getLoadedChunks()) {
             for (BlockState blockState : chunk.getTileEntities()) {
@@ -95,9 +97,9 @@ public class ArenaScanCommand implements CommandExecutor {
             sender.sendMessage(langHandler.getMessage("scanarena.failed-locations"));
         }
 
-        player.sendMessage(langHandler.getMessage("scanarena.found-chests") + chestLocations.size());
-        player.sendMessage(langHandler.getMessage("scanarena.found-barrels") + barrelLocations.size());
-        player.sendMessage(langHandler.getMessage("scanarena.found-trapped-chests") + trappedChestLocations.size());
+        player.sendMessage(langHandler.getMessage("scanarena.found-chests", chestLocations.size()));
+        player.sendMessage(langHandler.getMessage("scanarena.found-barrels", barrelLocations.size()));
+        player.sendMessage(langHandler.getMessage("scanarena.found-trapped-chests", trappedChestLocations.size()));
 
         return true;
     }

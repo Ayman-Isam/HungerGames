@@ -12,24 +12,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static me.aymanisam.hungergames.HungerGames.gameWorld;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 
 public class TeamsHandler {
-    private final HungerGames plugin;
     private final LangHandler langHandler;
+    private final ConfigHandler configHandler;
 
     public static final List<List<Player>> teams = new ArrayList<>();
     public static final List<List<Player>> teamsAlive = new ArrayList<>();
 
     public TeamsHandler(HungerGames plugin) {
-        this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
+        this.configHandler = new ConfigHandler(plugin);
     }
 
     public void createTeam() {
-        int teamSizeConfig = plugin.getConfig().getInt("players-per-team");
+        int teamSizeConfig = configHandler.getWorldConfig(gameWorld).getInt("players-per-team");
         if (teamSizeConfig > 1) {
-            int teamSize = plugin.getConfig().getInt("players-per-team");
+            int teamSize = configHandler.getWorldConfig(gameWorld).getInt("players-per-team");
             int numTeams = (playersAlive.size() + teamSize - 1) / teamSize;
             Collections.shuffle(playersAlive);
             teams.clear();
@@ -61,25 +62,25 @@ public class TeamsHandler {
                         player.setHealth(newMaxHealthRounded);
                     }
                 }
-                
+
                 for (Player player : team) {
                     langHandler.getLangConfig(player);
-                    player.sendMessage(langHandler.getMessage("game.team-id") + (i + 1));
+                    player.sendMessage(langHandler.getMessage("team.id") + (i + 1));
 
                     if (!getTeammateNames(team, player).isEmpty()) {
-                        player.sendMessage(langHandler.getMessage("game.team-members") + getTeammateNames(team, player));
+                        player.sendMessage(langHandler.getMessage("team.members",getTeammateNames(team, player)));
                         ItemStack item = new ItemStack(Material.COMPASS);
                         ItemMeta meta = item.getItemMeta();
-                        meta.setDisplayName(langHandler.getMessage("game.compass-teammate"));
+                        meta.setDisplayName(langHandler.getMessage("team.compass-teammate"));
                         meta.addEnchant(Enchantment.DURABILITY, 1, true);
                         List<String> lore = new ArrayList<>();
-                        lore.add(langHandler.getMessage("game.compass-click"));
-                        lore.add(langHandler.getMessage("game.compass-shift-click"));
+                        lore.add(langHandler.getMessage("team.compass-click"));
+                        lore.add(langHandler.getMessage("team.compass-shift-click"));
                         meta.setLore(lore);
                         item.setItemMeta(meta);
                         player.getInventory().setItem(8, item);
                     } else {
-                        player.sendMessage(langHandler.getMessage("game.no-teammates"));
+                        player.sendMessage(langHandler.getMessage("team.no-teammates"));
                     }
                 }
             }

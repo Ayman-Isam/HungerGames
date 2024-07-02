@@ -40,10 +40,10 @@ public class ArenaSelectListener implements Listener {
                 return;
             }
             if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-                player.sendMessage(langHandler.getMessage("setarena.first-pos-1") + Objects.requireNonNull(event.getClickedBlock()).getX() + langHandler.getMessage("setarena.first-pos-2") + event.getClickedBlock().getY() + langHandler.getMessage("setarena.first-pos-3") + event.getClickedBlock().getZ());
+                player.sendMessage(langHandler.getMessage("setspawn.first-pos", Objects.requireNonNull(event.getClickedBlock()).getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ()));
                 player.setMetadata("arena_pos1", new FixedMetadataValue(plugin, event.getClickedBlock().getLocation()));
             } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                player.sendMessage(langHandler.getMessage("setarena.second-pos-1") + Objects.requireNonNull(event.getClickedBlock()).getX() + langHandler.getMessage("setarena.second-pos-2") + event.getClickedBlock().getY() + langHandler.getMessage("setarena.second-pos-3") + event.getClickedBlock().getZ());
+                player.sendMessage(langHandler.getMessage("setspawn.second-pos", Objects.requireNonNull(event.getClickedBlock()).getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ()));
                 player.setMetadata("arena_pos2", new FixedMetadataValue(plugin, event.getClickedBlock().getLocation()));
             }
             event.setCancelled(true);
@@ -55,30 +55,6 @@ public class ArenaSelectListener implements Listener {
             if (block != null && (block.getType() == Material.ANVIL || block.getType() == Material.CHIPPED_ANVIL || block.getType() == Material.DAMAGED_ANVIL)) {
                 block.setType(Material.ANVIL);
             }
-        }
-    }
-
-    @EventHandler
-    public void onInventoryOpen(InventoryOpenEvent event) {
-        InventoryHolder holder = event.getInventory().getHolder();
-
-        if (holder instanceof ShulkerBox shulkerBox) {
-            Block blockBelow = shulkerBox.getBlock().getRelative(0, -1, 0);
-            removeShulkerSurroundings(blockBelow);
-        }
-    }
-
-    public void removeShulkerSurroundings(Block blockBelow) {
-        if (blockBelow.getType() == Material.END_GATEWAY) {
-            List<Entity> nearbyEntities = (List<Entity>) blockBelow.getWorld().getNearbyEntities(blockBelow.getLocation(), 1, 1, 1);
-
-            for (Entity entity : nearbyEntities) {
-                if (entity instanceof ArmorStand) {
-                    entity.remove();
-                }
-            }
-
-            blockBelow.setType(Material.AIR);
         }
     }
 }

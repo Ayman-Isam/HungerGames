@@ -1,6 +1,7 @@
 package me.aymanisam.hungergames.listeners;
 
 import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.handlers.ConfigHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.SetSpawnHandler;
 import org.bukkit.*;
@@ -18,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static me.aymanisam.hungergames.HungerGames.gameStarted;
+import static me.aymanisam.hungergames.HungerGames.gameWorld;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
@@ -26,13 +29,16 @@ public class PlayerListener implements Listener {
     private final HungerGames plugin;
     private final SetSpawnHandler setSpawnHandler;
     private final LangHandler langHandler;
+    private final ConfigHandler configHandler;
 
     private final Map<Player, Location> deathLocations = new HashMap<>();
+    public static final Map<Player, Integer> playerKills = new HashMap<>();
 
     public PlayerListener(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
         this.setSpawnHandler = setSpawnHandler;
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
+        this.configHandler = new ConfigHandler(plugin);
     }
 
     @EventHandler
@@ -40,7 +46,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         event.setQuitMessage(null);
 
-        if (HungerGames.gameStarted) {
+        if (gameStarted) {
             playersAlive.remove(player);
         } else {
             setSpawnHandler.removePlayerFromSpawnPoint(player);
@@ -77,15 +83,15 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        player.teleport(player.getWorld().getSpawnLocation());
+        player.teleport(gameWorld.getSpawnLocation());
 
-        boolean spectating = plugin.getConfig().getBoolean("spectating");
+        boolean spectating = configHandler.getWorldConfig(player.getWorld()).getBoolean("spectating");
         if (spectating) {
             player.setGameMode(GameMode.SPECTATOR);
         }
 
-        boolean autoJoin = plugin.getConfig().getBoolean("auto-join");
-        if (autoJoin && !HungerGames.gameStarted && !HungerGames.gameStarting) {
+        boolean autoJoin = configHandler.getWorldConfig(player.getWorld()).getBoolean("auto-join");
+        if (autoJoin && !gameStarted && !HungerGames.gameStarting) {
             setSpawnHandler.teleportPlayerToSpawnpoint(player);
             event.setJoinMessage(null);
         }
@@ -95,7 +101,7 @@ public class PlayerListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
 
-        if (HungerGames.gameStarted) {
+        if (gameStarted) {
             playersAlive.remove(player);
             event.setDeathMessage(null);
         } else if (HungerGames.gameStarting){
@@ -117,17 +123,20 @@ public class PlayerListener implements Listener {
         World world = plugin.getServer().getWorld("world");
         assert world != null;
 
-        boolean spectating = plugin.getConfig().getBoolean("spectating");
+        boolean spectating = configHandler.getWorldConfig(gameWorld).getBoolean("spectating");
         if (spectating) {
             player.setGameMode(GameMode.SPECTATOR);
-            player.sendTitle("", langHandler.getMessage("spectate.spectating-player"), 5, 20, 10);
-            player.sendMessage(langHandler.getMessage("spectate.message"));
-            deathLocations.put(player, player.getLocation());
+            if (gameStarted) {
+                player.sendTitle("", langHandler.getMessage("spectate.spectating-player"), 5, 20, 10);
+                player.sendMessage(langHandler.getMessage("spectate.message"));
+                deathLocations.put(player, player.getLocation());
+            }
         }
 
         Player killer = event.getEntity().getKiller();
         if (killer != null) {
-            List<Map<?, ?>> effectMaps = plugin.getConfig().getMapList("killer-effects");
+            playerKills.put(killer, playerKills.getOrDefault(killer, 0) + 1);
+            List<Map<?, ?>> effectMaps = configHandler.getWorldConfig(gameWorld).getMapList("killer-effects");
             for (Map<?, ?> effectMap : effectMaps) {
                 String effectName = (String) effectMap.get("effect");
                 int duration = (int) effectMap.get("duration");
@@ -144,12 +153,14 @@ public class PlayerListener implements Listener {
         world.spawnParticle(Particle.REDSTONE, location, 50, new Particle.DustOptions(Color.RED, 10f));
         world.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.4f, 1.0f);
 
-        for (Player p : plugin.getServer().getOnlinePlayers()) {
-            langHandler.getLangConfig(p);
-            if (killer != null)
-                p.sendMessage(player.getName() + langHandler.getMessage("game.killed-message") + killer.getName());
-            else {
-                p.sendMessage(player.getName() + langHandler.getMessage("game.death-message"));
+        if (gameStarted) {
+            for (Player p : plugin.getServer().getOnlinePlayers()) {
+                langHandler.getLangConfig(p);
+                if (killer != null)
+                    p.sendMessage(langHandler.getMessage("game.killed-message", player.getName(), killer.getName()));
+                else {
+                    p.sendMessage(langHandler.getMessage("game.death-message", player.getName()));
+                }
             }
         }
     }
@@ -178,7 +189,14 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (plugin.getConfig().getInt("players-per-team") < 2) {
+        if (event.getEntityType() == EntityType.PLAYER) {
+            if (event.getDamager().getType().equals(EntityType.ENDER_PEARL)) {
+                event.setDamage(2.0);
+            }
+            return;
+        }
+
+        if (configHandler.getWorldConfig(gameWorld).getInt("players-per-team") < 2) {
             return;
         }
 

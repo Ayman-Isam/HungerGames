@@ -15,17 +15,21 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 
+import static me.aymanisam.hungergames.HungerGames.gameStarted;
+import static me.aymanisam.hungergames.HungerGames.gameStarting;
+
 public class SetSpawnHandler {
     private final HungerGames plugin;
     private final ResetPlayerHandler resetPlayerHandler;
     private final LangHandler langHandler;
     private final TeamVotingListener teamVotingListener;
+    private final ConfigHandler configHandler;
 
     public FileConfiguration setSpawnConfig;
-    private File setSpawnFile;
     public List<String> spawnPoints;
     public Map<String, Player> spawnPointMap;
     public List<String> playersWaiting;
+    private File setSpawnFile;
 
     public SetSpawnHandler(HungerGames plugin) {
         this.plugin = plugin;
@@ -35,11 +39,12 @@ public class SetSpawnHandler {
         this.playersWaiting = new ArrayList<>();
         this.resetPlayerHandler = new ResetPlayerHandler();
         this.teamVotingListener = new TeamVotingListener(plugin);
-        createSetSpawnConfig();
+        this.configHandler = new ConfigHandler(plugin);
     }
 
-    public void createSetSpawnConfig() {
-        setSpawnFile = new File(plugin.getDataFolder(), "setspawn.yml");
+    public void createSetSpawnConfig(World world) {
+        File worldFolder = new File(plugin.getDataFolder() + File.separator + world.getName());
+        setSpawnFile = new File(worldFolder, "setspawn.yml");
         if (!setSpawnFile.exists()) {
             setSpawnFile.getParentFile().mkdirs();
             plugin.saveResource("setspawn.yml", false);
@@ -58,7 +63,7 @@ public class SetSpawnHandler {
 
             setSpawnConfig.save(setSpawnFile);
         } catch (IOException ex) {
-            plugin.getLogger().log(Level.WARNING, langHandler.getMessage("setspawnhandler.failed-save") + setSpawnFile, ex);
+            plugin.getLogger().log(Level.WARNING, "Could not save config to the specified location." + setSpawnFile, ex);
         }
     }
 
@@ -69,6 +74,8 @@ public class SetSpawnHandler {
     }
 
     public String assignPlayerToSpawnPoint(Player player) {
+        createSetSpawnConfig(player.getWorld());
+
         List<String> shuffledSpawnPoints = new ArrayList<>(spawnPoints);
         Collections.shuffle(shuffledSpawnPoints);
 
@@ -78,7 +85,7 @@ public class SetSpawnHandler {
             }
         }
 
-        player.sendMessage(langHandler.getMessage("join.join-fail"));
+        player.sendMessage(langHandler.getMessage("game.join-fail"));
         return null;
     }
 
@@ -125,19 +132,19 @@ public class SetSpawnHandler {
 
         for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             langHandler.getLangConfig(onlinePlayer);
-            onlinePlayer.sendMessage(langHandler.getMessage("setspawnhandler.joined-player") + player.getName() +
-                    langHandler.getMessage("setspawnhandler.joined-message-1") +
-                    langHandler.getMessage("setspawnhandler.joined-message-2") + spawnPointMap.size() +
-                    langHandler.getMessage("setspawnhandler.joined-message-3") + spawnPoints.size() +
-                    langHandler.getMessage("setspawnhandler.joined-message-4"));
+            onlinePlayer.sendMessage(langHandler.getMessage("setspawn.joined-message", player.getName(), spawnPointMap.size(),spawnPoints.size()));
         }
 
         resetPlayerHandler.resetPlayer(player);
 
-        if (plugin.getConfig().getBoolean("voting")) {
+        if (configHandler.getWorldConfig(world).getBoolean("voting")) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                teamVotingListener.openVotingInventory(player);
+                if (spawnPointMap.containsValue(player) && !gameStarted && !gameStarting) {
+                    teamVotingListener.openVotingInventory(player);
+                }
             }, 100L);
         }
+
+
     }
 }

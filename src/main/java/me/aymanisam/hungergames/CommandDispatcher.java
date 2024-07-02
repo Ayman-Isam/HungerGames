@@ -5,16 +5,19 @@ import me.aymanisam.hungergames.handlers.GameSequenceHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.SetSpawnHandler;
 import me.aymanisam.hungergames.listeners.TeamVotingListener;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandDispatcher implements CommandExecutor, TabCompleter {
     private final HungerGames plugin;
@@ -32,7 +35,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length > 0) {
             CommandExecutor executor;
             switch (args[0].toLowerCase()) {
@@ -52,7 +55,10 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     executor = new ArenaSelectCommand(plugin);
                     break;
                 case "end":
-                    executor = new EndGameCommand(plugin, setSpawnHandler, gameSequenceHandler);
+                    executor = new EndGameCommand(plugin, gameSequenceHandler);
+                    break;
+                case "map":
+                    executor = new MapChangeCommand(plugin, setSpawnHandler);
                     break;
                 case "teamsize":
                     executor = new TeamSizeCommand(plugin);
@@ -78,11 +84,14 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 case "reloadconfig":
                     executor = new ReloadConfigCommand(plugin);
                     break;
+                case "saveworld":
+                    executor = new SaveWorldCommand(plugin);
+                    break;
                 default:
                     if (sender instanceof Player) {
                         langHandler.getLangConfig((Player) sender);
                     }
-                    sender.sendMessage(langHandler.getMessage("unknown-subcommand") + args[0]);
+                    sender.sendMessage(langHandler.getMessage("unknown-subcommand", args[0]));
                     return false;
             }
             return executor.onCommand(sender, command, label, Arrays.copyOfRange(args, 1, args.length));
@@ -94,10 +103,10 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
 
     @Nullable
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length == 1) {
             List<String> completions = new ArrayList<>();
-            String[] commands = {"join", "leave", "start", "spectate", "select", "end", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig"};
+            String[] commands = {"join", "leave", "start", "spectate", "select", "end", "map", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig"};
             for (String subcommand : commands) {
                 if (sender.hasPermission("hungergames." + subcommand)) {
                     completions.add(subcommand);
@@ -125,6 +134,10 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 langHandler.getLangConfig((Player) sender);
                 completions.add(langHandler.getMessage("border.args-1"));
                 return completions;
+            }
+        } else if (args[0].equalsIgnoreCase("map")) {
+            if (args.length == 2) {
+                return plugin.getServer().getWorlds().stream().map(World::getName).collect(Collectors.toList());
             }
         }
 

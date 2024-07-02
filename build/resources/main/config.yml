@@ -12,6 +12,8 @@ num-supply-drops: 1
 # Minimum and Maximum stacks of different items for supply drops
 min-supply-drop-content: 2
 max-supply-drop-content: 6
+# Default world
+default-world: "world"
 # Players Per Team
 players-per-team: 1
 # Length of the game in seconds (default: 900)

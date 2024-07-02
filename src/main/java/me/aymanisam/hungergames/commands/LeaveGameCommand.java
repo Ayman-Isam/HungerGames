@@ -1,6 +1,7 @@
 package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.handlers.ConfigHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.SetSpawnHandler;
 import org.bukkit.GameMode;
@@ -8,20 +9,23 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class LeaveGameCommand implements CommandExecutor {
     private final HungerGames plugin;
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
+    private final ConfigHandler configHandler;
 
     public LeaveGameCommand(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.setSpawnHandler = setSpawnHandler;
+        this.configHandler = new ConfigHandler(plugin);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(langHandler.getMessage("no-server"));
             return true;
@@ -35,7 +39,7 @@ public class LeaveGameCommand implements CommandExecutor {
         }
 
         if (!(setSpawnHandler.spawnPointMap.containsValue(player))) {
-            player.sendMessage(langHandler.getMessage("leave.not-joined"));
+            player.sendMessage(langHandler.getMessage("game.not-joined"));
             return true;
         }
 
@@ -43,14 +47,14 @@ public class LeaveGameCommand implements CommandExecutor {
 
         player.teleport(player.getWorld().getSpawnLocation());
 
-        boolean spectating = plugin.getConfig().getBoolean("spectating");
+        boolean spectating = configHandler.getWorldConfig(player.getWorld()).getBoolean("spectating");
         if (spectating) {
             player.setGameMode(GameMode.SPECTATOR);
         }
 
         for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             langHandler.getLangConfig(onlinePlayer);
-            onlinePlayer.sendMessage(player.getName() + langHandler.getMessage("leave.left"));
+            onlinePlayer.sendMessage(langHandler.getMessage("game.left", player.getName()));
         }
 
         return true;

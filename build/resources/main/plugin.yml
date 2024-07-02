@@ -29,6 +29,9 @@ permissions:
   hungergames.end:
     description: "Allows you to forcefully end the game in HungerGames"
     default: op
+  hungergames.map:
+    description: "Allows you to switch maps in HungerGames"
+    default: true
   hungergames.teamsize:
     description: "Allows you to set the team size in HungerGames"
     default: op
@@ -52,4 +55,7 @@ permissions:
     default: op
   hungergames.reloadconfig:
     description: "Allows you to reload the config file for HungerGames"
+    default: op
+  hungergames.saveworld:
+    description: "Allows you to save the world for HungerGames"
     default: op

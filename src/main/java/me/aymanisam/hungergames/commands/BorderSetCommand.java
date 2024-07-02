@@ -2,6 +2,7 @@ package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.ArenaHandler;
+import me.aymanisam.hungergames.handlers.ConfigHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
@@ -9,20 +10,23 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class BorderSetCommand implements CommandExecutor {
     private final HungerGames plugin;
     private final LangHandler langHandler;
     private final ArenaHandler arenaHandler;
+    private final ConfigHandler configHandler;
 
     public BorderSetCommand(HungerGames plugin) {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.arenaHandler = new ArenaHandler(plugin);
+        this.configHandler = new ConfigHandler(plugin);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(langHandler.getMessage("no-server"));
             return true;
@@ -30,8 +34,8 @@ public class BorderSetCommand implements CommandExecutor {
 
         langHandler.getLangConfig(player);
 
-        if (!(player.hasPermission("hungergames.border"))) {
-            sender.sendMessage(langHandler.getMessage("no-permission"));
+        if (!player.hasPermission("hungergames.border")) {
+            player.sendMessage(langHandler.getMessage("no-permission"));
             return true;
         }
 
@@ -40,7 +44,9 @@ public class BorderSetCommand implements CommandExecutor {
             return true;
         }
 
-        if (arenaHandler.getArenaConfig().get("region") == null) {
+        World world = player.getWorld();
+
+        if (arenaHandler.getArenaConfig(world).get("region") == null) {
             sender.sendMessage(langHandler.getMessage("supplydrop.no-arena"));
             return true;
         }
@@ -56,23 +62,14 @@ public class BorderSetCommand implements CommandExecutor {
             return true;
         }
 
-        String worldName = arenaHandler.getArenaConfig().getString("region.world");
-        World world = plugin.getServer().getWorld(worldName);
-
-        if (world == null) {
-            sender.sendMessage(langHandler.getMessage("border.wrong-world"));
-            return true;
-        }
-
         WorldBorder worldBorder = world.getWorldBorder();
         worldBorder.setSize(newSize);
         worldBorder.setCenter(centerX, centerZ);
-        sender.sendMessage(langHandler.getMessage("border.success-message-1") + newSize + langHandler.getMessage("border.success-message-2") + centerX + langHandler.getMessage("border.success-message-3") + centerZ);
-        plugin.reloadConfig();
-        plugin.getConfig().set("border.size", newSize);
-        plugin.getConfig().set("border.center-x", centerX);
-        plugin.getConfig().set("border.center-z", centerZ);
-        plugin.saveConfig();
+        sender.sendMessage(langHandler.getMessage("border.success-message", newSize, centerX, centerZ));
+        configHandler.getWorldConfig(world).set("border.size", newSize);
+        configHandler.getWorldConfig(world).set("border.center-x", centerX);
+        configHandler.getWorldConfig(world).set("border.center-z", centerZ);
+        configHandler.saveWorldConfig(world);
 
         return true;
     }

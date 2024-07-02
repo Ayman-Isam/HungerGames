@@ -1,6 +1,7 @@
 package me.aymanisam.hungergames.listeners;
 
 import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.handlers.ConfigHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.SetSpawnHandler;
 import org.bukkit.Location;
@@ -17,14 +18,14 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Objects;
 
 public class SetSpawnListener implements Listener {
-    private final HungerGames plugin;
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
+    private final ConfigHandler configHandler;
 
     public SetSpawnListener(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
-        this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.setSpawnHandler = setSpawnHandler;
+        this.configHandler = new ConfigHandler(plugin);
     }
 
     @EventHandler
@@ -40,26 +41,24 @@ public class SetSpawnListener implements Listener {
 
             if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                 Location location = Objects.requireNonNull(event.getClickedBlock()).getLocation();
-                FileConfiguration config = plugin.getConfig();
+                FileConfiguration config = configHandler.getWorldConfig(player.getWorld());
                 String newSpawnPoint = Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
 
                 if (setSpawnHandler.spawnPoints.contains(newSpawnPoint)) {
-                    player.sendMessage(langHandler.getMessage("setspawnhandler.duplicate"));
+                    player.sendMessage(langHandler.getMessage("setspawn.duplicate"));
                     event.setCancelled(true);
                     return;
                 }
 
                 if (setSpawnHandler.spawnPoints.size() >= config.getInt("max-players")) {
-                    player.sendMessage(langHandler.getMessage("setspawnhandler.max-spawn"));
+                    player.sendMessage(langHandler.getMessage("setspawn.max-spawn"));
                     event.setCancelled(true);
                     return;
                 }
 
                 setSpawnHandler.spawnPoints.add(newSpawnPoint);
                 setSpawnHandler.saveSetSpawnConfig();
-                player.sendMessage(langHandler.getMessage("setspawnhandler.position-set") +
-                        setSpawnHandler.spawnPoints.size() + langHandler.getMessage("setspawnhandler.set-at") + location.getBlockX() +
-                        langHandler.getMessage("setspawnhandler.coord-y") + location.getBlockY() + langHandler.getMessage("setspawnhandler.coord-z") + location.getBlockZ());
+                player.sendMessage(langHandler.getMessage("setspawn.position", setSpawnHandler.spawnPoints.size(), location.getBlockX(), location.getBlockY(), location.getBlockZ()));
             }
             event.setCancelled(true);
         }

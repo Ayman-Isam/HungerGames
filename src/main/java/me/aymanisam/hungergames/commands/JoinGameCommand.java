@@ -7,6 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class JoinGameCommand implements CommandExecutor {
     private final LangHandler langHandler;
@@ -18,7 +19,7 @@ public class JoinGameCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(langHandler.getMessage("no-server"));
             return true;
@@ -42,12 +43,14 @@ public class JoinGameCommand implements CommandExecutor {
         }
 
         if (setSpawnHandler.spawnPointMap.containsValue(player)) {
-            player.sendMessage(langHandler.getMessage("join.already-joined"));
+            player.sendMessage(langHandler.getMessage("game.already-joined"));
             return true;
         }
 
+        setSpawnHandler.createSetSpawnConfig(player.getWorld());
+
         if (setSpawnHandler.spawnPoints.size() <= setSpawnHandler.spawnPointMap.size()) {
-            player.sendMessage(langHandler.getMessage("join.join-fail"));
+            player.sendMessage(langHandler.getMessage("game.join-fail"));
             return true;
         }
 

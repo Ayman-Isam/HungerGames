@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ public class SetSpawnCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(langHandler.getMessage("player-only"));
             return true;
@@ -46,6 +47,7 @@ public class SetSpawnCommand implements CommandExecutor {
         lore.add(langHandler.getMessage("setspawn.stick-left"));
         meta.setLore(lore);
         player.getInventory().addItem(stick);
+        setSpawnHandler.createSetSpawnConfig(player.getWorld());
         setSpawnHandler.setSpawnConfig.set("spawnpoints", new ArrayList<>());
         setSpawnHandler.saveSetSpawnConfig();
         setSpawnHandler.resetSpawnPoints();

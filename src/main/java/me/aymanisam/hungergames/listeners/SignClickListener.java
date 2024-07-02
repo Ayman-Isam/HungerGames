@@ -42,7 +42,7 @@ public class SignClickListener implements Listener {
                     }
 
                     if (setSpawnHandler.spawnPointMap.containsValue(player)) {
-                        player.sendMessage(langHandler.getMessage("join.already-joined"));
+                        player.sendMessage(langHandler.getMessage("game.already-joined"));
                         return;
                     }
 

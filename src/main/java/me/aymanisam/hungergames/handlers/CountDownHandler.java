@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 
 import java.util.Collections;
 
+import static me.aymanisam.hungergames.HungerGames.gameWorld;
+import static me.aymanisam.hungergames.HungerGames.gameWorld;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 
 public class CountDownHandler {
@@ -16,6 +18,7 @@ public class CountDownHandler {
     private final TeamsHandler teamsHandler;
     private final SetSpawnHandler setSpawnHandler;
     private final TeamVotingListener teamVotingListener;
+    private final ConfigHandler configHandler;
 
     public CountDownHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener) {
         this.plugin = plugin;
@@ -24,36 +27,38 @@ public class CountDownHandler {
         this.teamsHandler = new TeamsHandler(plugin);
         this.setSpawnHandler = setSpawnHandler;
         this.teamVotingListener = teamVotingListener;
+        this.configHandler = new ConfigHandler(plugin);
     }
 
     public void startCountDown() {
-        if (plugin.getConfig().getBoolean("voting")) {
+        if (configHandler.getWorldConfig(gameWorld).getBoolean("voting")) {
             String highestVotedGameMode;
             int teamSize;
 
-            int votedSolo = Collections.frequency(teamVotingListener.playerVotes.values(), "solo");
-            int votedDuo = Collections.frequency(teamVotingListener.playerVotes.values(), "duo");
-            int votedTrio = Collections.frequency(teamVotingListener.playerVotes.values(), "trio");
+            int votedSolo = Collections.frequency(TeamVotingListener.playerVotes.values(), "solo");
+            int votedDuo = Collections.frequency(TeamVotingListener.playerVotes.values(), "duo");
+            int votedTrio = Collections.frequency(TeamVotingListener.playerVotes.values(), "trio");
 
             if (votedSolo >= votedDuo && votedSolo >= votedTrio) {
-                highestVotedGameMode = langHandler.getMessage("game.solo-inv");
+                highestVotedGameMode = langHandler.getMessage("team.solo-inv");
                 teamSize = 1;
             } else if (votedDuo >= votedTrio) {
-                highestVotedGameMode = langHandler.getMessage("game.duo-inv");
+                highestVotedGameMode = langHandler.getMessage("team.duo-inv");
                 teamSize = 2;
             } else {
-                highestVotedGameMode = langHandler.getMessage("game.trio-inv");
+                highestVotedGameMode = langHandler.getMessage("team.trio-inv");
                 teamSize = 3;
             }
 
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                player.sendTitle("", langHandler.getMessage("game.voted-highest") + highestVotedGameMode, 5, 40, 10);
+                player.sendTitle("", langHandler.getMessage("team.voted-highest", highestVotedGameMode), 5, 40, 10);
+                player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1.0f, 1.0f);
                 teamVotingListener.closeVotingInventory(player);
             }
 
-            plugin.reloadConfig();
-            plugin.getConfig().set("players-per-team", teamSize);
-            plugin.saveConfig();
+            configHandler.createWorldConfig(gameWorld);
+            configHandler.getWorldConfig(gameWorld).set("players-per-team", teamSize);
+            configHandler.saveWorldConfig(gameWorld);
 
             plugin.getServer().getScheduler().runTaskLater(plugin, this::runAfterDelay, 20L * 5);
         }
@@ -63,7 +68,6 @@ public class CountDownHandler {
         playersAlive.addAll(setSpawnHandler.spawnPointMap.values());
 
         teamsHandler.createTeam();
-
 
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
             this.gameSequenceHandler.startGame();

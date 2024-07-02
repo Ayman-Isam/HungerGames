@@ -5,6 +5,7 @@ import me.aymanisam.hungergames.handlers.LangHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,52 +16,57 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class TeamVotingListener implements Listener {
     private final LangHandler langHandler;
 
-    private Inventory inventory;
-
-    public final Map<Player, String> playerVotes = new HashMap<>();
+    public static final Map<Player, String> playerVotes = new HashMap<>();
 
     public TeamVotingListener(HungerGames plugin) {
         this.langHandler = new LangHandler(plugin);
     }
 
     public void openVotingInventory(Player player) {
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         ItemStack itemStack = new ItemStack(Material.BOOK);
         ItemMeta itemMeta = itemStack.getItemMeta();
         langHandler.getLangConfig(player);
-        itemMeta.setDisplayName(langHandler.getMessage("game.voting-inv"));
+        assert itemMeta != null;
+        itemMeta.setDisplayName(langHandler.getMessage("team.voting-inv"));
         itemStack.setItemMeta(itemMeta);
         player.getInventory().setItem(8, itemStack);
 
-        inventory = Bukkit.createInventory(null, 9, langHandler.getMessage("game.voting-inv"));
+        Inventory inventory = Bukkit.createInventory(null, 9, langHandler.getMessage("team.voting-inv"));
 
         ItemStack solo = new ItemStack(Material.NETHERITE_SWORD);
         ItemMeta soloMeta = solo.getItemMeta();
-        soloMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage("game.solo-inv"));
+        assert soloMeta != null;
+        soloMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage("team.solo-inv"));
+        soloMeta.setLore(Collections.singletonList(langHandler.getMessage("team.votes", getVoteCount("solo"))));
         soloMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         solo.setItemMeta(soloMeta);
 
         ItemStack duo = new ItemStack(Material.DIAMOND_SWORD);
         ItemMeta duoMeta = duo.getItemMeta();
-        duoMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage("game.duo-inv"));
+        assert duoMeta != null;
+        duoMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage("team.duo-inv"));
+        duoMeta.setLore(Collections.singletonList(langHandler.getMessage("team.votes", getVoteCount("duo"))));
         duoMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         duo.setItemMeta(duoMeta);
 
         ItemStack trio = new ItemStack(Material.IRON_SWORD);
         ItemMeta trioMeta = trio.getItemMeta();
-        trioMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage("game.trio-inv"));
+        assert trioMeta != null;
+        trioMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage("team.trio-inv"));
+        trioMeta.setLore(Collections.singletonList(langHandler.getMessage("team.votes", getVoteCount("trio"))));
         trioMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         trio.setItemMeta(trioMeta);
 
         ItemStack backButton = new ItemStack(Material.BARRIER);
         ItemMeta backMeta = backButton.getItemMeta();
-        backMeta.setDisplayName(ChatColor.RED + langHandler.getMessage("game.close-inv"));
+        assert backMeta != null;
+        backMeta.setDisplayName(ChatColor.RED + langHandler.getMessage("team.close-inv"));
         backButton.setItemMeta(backMeta);
 
         inventory.setItem(3, solo);
@@ -76,9 +82,13 @@ public class TeamVotingListener implements Listener {
         player.closeInventory();
     }
 
+    private long getVoteCount(String vote) {
+        return playerVotes.values().stream().filter(vote::equals).count();
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!event.getView().getTitle().equals(langHandler.getMessage("game.voting-inv")) || !(event.getWhoClicked() instanceof Player player)) {
+        if (!event.getView().getTitle().equals(langHandler.getMessage("team.voting-inv")) || !(event.getWhoClicked() instanceof Player player)) {
             return;
         }
 
@@ -92,19 +102,23 @@ public class TeamVotingListener implements Listener {
 
         String displayName = Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName();
 
-        if (displayName.equals(langHandler.getMessage("game.solo-inv"))) {
+        if (displayName.equals(langHandler.getMessage("team.solo-inv"))) {
             playerVotes.put(player, "solo");
-            player.sendMessage(langHandler.getMessage("game.voted-solo"));
+            player.sendMessage(langHandler.getMessage("team.voted-solo"));
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
             player.closeInventory();
-        } else if (displayName.equals(langHandler.getMessage("game.duo-inv"))) {
+        } else if (displayName.equals(langHandler.getMessage("team.duo-inv"))) {
             playerVotes.put(player, "duo");
-            player.sendMessage(langHandler.getMessage("game.voted-duo"));
+            player.sendMessage(langHandler.getMessage("team.voted-duo"));
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
             player.closeInventory();
-        } else if (displayName.equals(langHandler.getMessage("game.trio-inv"))) {
+        } else if (displayName.equals(langHandler.getMessage("team.trio-inv"))) {
             playerVotes.put(player, "trio");
-            player.sendMessage(langHandler.getMessage("game.voted-trio"));
+            player.sendMessage(langHandler.getMessage("team.voted-trio"));
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
             player.closeInventory();
-        } else if (displayName.equals(langHandler.getMessage("game.close-inv"))){
+        } else if (displayName.equals(langHandler.getMessage("team.close-inv"))){
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 1.0f);
             player.closeInventory();
         }
     }
@@ -121,7 +135,7 @@ public class TeamVotingListener implements Listener {
             return;
         }
 
-        if (meta.getDisplayName().equals(langHandler.getMessage("game.voting-inv"))) {
+        if (meta.getDisplayName().equals(langHandler.getMessage("team.voting-inv"))) {
             openVotingInventory(event.getPlayer());
         }
     }

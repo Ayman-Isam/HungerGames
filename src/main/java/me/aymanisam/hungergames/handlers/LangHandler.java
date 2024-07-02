@@ -27,7 +27,7 @@ public class LangHandler {
         this.plugin = plugin;
     }
 
-    public String getMessage(String key) {
+    public String getMessage(String key, Object... args) {
         if (langConfig == null) {
             File defaultLangFile = new File(plugin.getDataFolder(), "lang/en_US.yml");
             langConfig = YamlConfiguration.loadConfiguration(defaultLangFile);
@@ -35,6 +35,9 @@ public class LangHandler {
 
         String message = langConfig.getString(key);
         if (message != null) {
+            for (int i = 0; i < args.length; i++) {
+                message = message.replace("{" + i + "}", args[i].toString());
+            }
             // Change Minecraft & based colors to bukkit colors
             return ChatColor.translateAlternateColorCodes('&', message);
         }
@@ -51,6 +54,7 @@ public class LangHandler {
             saveLanguageFiles();
         }
 
+        assert langFiles != null;
         for (File langFile : langFiles) {
             String locale = langFile.getName().replace(".yml", "");
             YamlConfiguration langConfig = YamlConfiguration.loadConfiguration(langFile);

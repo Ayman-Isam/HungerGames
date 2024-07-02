@@ -9,6 +9,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -22,7 +23,7 @@ public class ArenaCreateCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(langHandler.getMessage("no-server"));
             return true;
@@ -48,7 +49,7 @@ public class ArenaCreateCommand implements CommandExecutor {
             return true;
         }
 
-        FileConfiguration arenaConfig = arenaHandler.getArenaConfig();
+        FileConfiguration arenaConfig = arenaHandler.getArenaConfig(player.getWorld());
         arenaConfig.set("region.world", Objects.requireNonNull(pos1.getWorld()).getName());
         arenaConfig.set("region.pos1.x", pos1.getX());
         arenaConfig.set("region.pos1.y", pos1.getY());
@@ -57,8 +58,6 @@ public class ArenaCreateCommand implements CommandExecutor {
         arenaConfig.set("region.pos2.y", pos2.getY());
         arenaConfig.set("region.pos2.z", pos2.getZ());
         arenaHandler.saveArenaConfig();
-        sender.sendMessage(langHandler.getMessage("arena.region-created"));
-
         return true;
     }
 }

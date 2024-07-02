@@ -4,6 +4,7 @@ import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -44,7 +45,8 @@ public class SpectateGuiListener implements Listener {
                     }
 
                     player.teleport(target.getLocation());
-                    player.sendMessage(langHandler.getMessage("spectate.teleported") + playerName);
+                    player.sendMessage(langHandler.getMessage("spectate.teleported", playerName));
+                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
                 }
             }
         }

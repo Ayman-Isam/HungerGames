@@ -3,16 +3,21 @@ package me.aymanisam.hungergames.handlers;
 import me.aymanisam.hungergames.HungerGames;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 
 public class SupplyDropHandler {
@@ -30,11 +35,10 @@ public class SupplyDropHandler {
         this.langHandler = new LangHandler(plugin);
     }
 
-    public void setSupplyDrop() {
-        FileConfiguration config = plugin.getConfig();
-        FileConfiguration arenaConfig = arenaHandler.getArenaConfig();
+    public void setSupplyDrop(World world) {
+        FileConfiguration config = configHandler.getWorldConfig(world);
+        FileConfiguration arenaConfig = arenaHandler.getArenaConfig(world);
 
-        World world = plugin.getServer().getWorld(Objects.requireNonNull(arenaConfig.getString("region.world")));
         assert world != null;
         WorldBorder border = world.getWorldBorder();
 
@@ -58,21 +62,34 @@ public class SupplyDropHandler {
 
             Block portalBlock = world.getBlockAt((int) x, highestY + 1, (int) z);
             portalBlock.setType(Material.END_GATEWAY);
+
             Location portalBlockLocation = portalBlock.getLocation().add(0.5, 0.5, 0.5);
             ArmorStand armorStand = (ArmorStand) world.spawnEntity(portalBlockLocation, EntityType.ARMOR_STAND);
-
             armorStand.setVisible(false);
             armorStand.setGravity(false);
             armorStand.setCanPickupItems(false);
 
+            PersistentDataContainer armorStandData = armorStand.getPersistentDataContainer();
+            armorStandData.set(new NamespacedKey(plugin, "supplydrop"), PersistentDataType.STRING, "true");
+
             Block topmostBlock = world.getBlockAt((int) x, highestY + 2, (int) z);
             topmostBlock.setType(Material.RED_SHULKER_BOX);
+
+            if (topmostBlock.getState() instanceof ShulkerBox) {
+                ShulkerBox shulkerBox = (ShulkerBox) topmostBlock.getState();
+
+                PersistentDataContainer shulkerBoxData = shulkerBox.getPersistentDataContainer();
+                shulkerBoxData.set(new NamespacedKey(plugin, "supplydrop"), PersistentDataType.STRING, "true");
+
+                shulkerBox.update();
+            }
+
             world.playSound(portalBlockLocation, Sound.BLOCK_END_PORTAL_SPAWN, 1.0f, 1.0f);
 
             int minSupplyDropContent = config.getInt("min-supply-drop-content");
             int maxSupplyDropContent = config.getInt("max-supply-drop-content");
 
-            YamlConfiguration itemsConfig = configHandler.loadItemsConfig();
+            YamlConfiguration itemsConfig = configHandler.loadItemsConfig(world);
 
             List<Location> blockList = new ArrayList<>();
             blockList.add(topmostBlock.getLocation());
@@ -83,7 +100,7 @@ public class SupplyDropHandler {
 
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 langHandler.getLangConfig(player);
-                player.sendMessage(langHandler.getMessage("supplydrop.spawned") + message);
+                player.sendMessage(langHandler.getMessage("supplydrop.spawned", message));
             }
         }
     }

@@ -15,17 +15,15 @@ import java.util.Map;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 
 public class CompassHandler {
-    private final HungerGames plugin;
     private final LangHandler langHandler;
 
     private final Map<Player, Integer> teammateIndexMap = new HashMap<>();
 
     public CompassHandler (HungerGames plugin) {
-        this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
     }
 
-    public Player findNearestTeammate(Player player) {
+    public Player findNearestTeammate(Player player, Boolean message) {
         List<Player> playerTeam = null;
         for (List<Player> team : teams) {
             if (team.contains(player)) {
@@ -62,16 +60,18 @@ public class CompassHandler {
 
         teammateIndexMap.put(player, index);
 
-        if (teammate != null) {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(langHandler.getMessage("arena.compass-teammate") + teammate.getName()));
-        } else {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(langHandler.getMessage("arena.compass-nomates")));
+        if (message) {
+            if (teammate != null) {
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(langHandler.getMessage("arena.compass-teammate", teammate.getName())));
+            } else {
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(langHandler.getMessage("arena.compass-nomates")));
+            }
         }
 
         return teammate;
     }
 
-    public Player findNearestEnemy(Player player){
+    public Player findNearestEnemy(Player player, Boolean message){
         double closestDistance = Double.MAX_VALUE;
         Player closestPlayer = null;
 
@@ -95,8 +95,8 @@ public class CompassHandler {
             }
         }
 
-        if (closestPlayer != null) {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(langHandler.getMessage("arena.compass-enemy") + closestPlayer.getName()));
+        if (closestPlayer != null && message) {
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(langHandler.getMessage("arena.compass-enemy", closestPlayer.getName())));
         }
 
         return closestPlayer;

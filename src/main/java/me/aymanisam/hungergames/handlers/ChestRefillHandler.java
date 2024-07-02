@@ -34,15 +34,16 @@ public class ChestRefillHandler {
         this.langHandler = new LangHandler(plugin);
     }
 
-    public void refillChests() {
-        YamlConfiguration itemsConfig = configHandler.loadItemsConfig();
+    public void refillChests(World world) {
+        YamlConfiguration itemsConfig = configHandler.loadItemsConfig(world);
         if (itemsConfig == null) {
             plugin.getLogger().info("Items config is null");
             return;
         }
 
-        File chestLocationFile = new File(plugin.getDataFolder(), "chest-locations.yml");
-        FileConfiguration chestLocationsConfig = YamlConfiguration.loadConfiguration(chestLocationFile);
+        File worldFolder = new File(plugin.getDataFolder() + File.separator + world.getName());
+        File chestLocationsFile = new File(worldFolder, "chest-locations.yml");
+        FileConfiguration chestLocationsConfig = YamlConfiguration.loadConfiguration(chestLocationsFile);
 
         List<Map<?, ?>> serializedChestLocations = chestLocationsConfig.getMapList("chest-locations");
         List<Map<?, ?>> serializedBarrelLocations = chestLocationsConfig.getMapList("barrel-locations");
@@ -58,14 +59,14 @@ public class ChestRefillHandler {
                 .map(locationMap -> Location.deserialize((Map<String, Object>) locationMap))
                 .collect(Collectors.toList());
 
-        int minChestContent = plugin.getConfig().getInt("min-chest-content");
-        int maxChestContent = plugin.getConfig().getInt("max-chest-content");
+        int minChestContent = configHandler.getWorldConfig(world).getInt("min-chest-content");
+        int maxChestContent = configHandler.getWorldConfig(world).getInt("max-chest-content");
 
-        int minBarrelContent = plugin.getConfig().getInt("min-barrel-content");
-        int maxBarrelContent = plugin.getConfig().getInt("max-barrel-content");
+        int minBarrelContent = configHandler.getWorldConfig(world).getInt("min-barrel-content");
+        int maxBarrelContent = configHandler.getWorldConfig(world).getInt("max-barrel-content");
 
-        int minTrappedChestContent = plugin.getConfig().getInt("min-trapped-chest-content");
-        int maxTrappedChestContent = plugin.getConfig().getInt("max-trapped-chest-content");
+        int minTrappedChestContent = configHandler.getWorldConfig(world).getInt("min-trapped-chest-content");
+        int maxTrappedChestContent = configHandler.getWorldConfig(world).getInt("max-trapped-chest-content");
 
         refillInventory(chestLocations, "chest-items", itemsConfig, minChestContent, maxChestContent);
         refillInventory(barrelLocations, "barrel-items", itemsConfig, minBarrelContent, maxBarrelContent);

@@ -3,10 +3,14 @@ package me.aymanisam.hungergames.commands;
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.*;
 import me.aymanisam.hungergames.listeners.TeamVotingListener;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+
+import static me.aymanisam.hungergames.HungerGames.gameWorld;
 
 public class StartGameCommand implements CommandExecutor {
     private final HungerGames plugin;
@@ -14,6 +18,7 @@ public class StartGameCommand implements CommandExecutor {
     private final SetSpawnHandler setSpawnHandler;
     private final ArenaHandler arenaHandler;
     private final CountDownHandler countDownHandler;
+    private final ConfigHandler configHandler;
 
     public StartGameCommand(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener) {
         this.plugin = plugin;
@@ -21,12 +26,13 @@ public class StartGameCommand implements CommandExecutor {
         this.setSpawnHandler = setSpawnHandler;
         this.arenaHandler = new ArenaHandler(plugin);
         this.countDownHandler = new CountDownHandler(plugin, setSpawnHandler, gameSequenceHandler, teamVotingListener);
+        this.configHandler = new ConfigHandler(plugin);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage("not-a-player"));
+            sender.sendMessage(langHandler.getMessage("no-server"));
             return true;
         }
 
@@ -45,7 +51,7 @@ public class StartGameCommand implements CommandExecutor {
             return true;
         }
 
-        String world = arenaHandler.getArenaConfig().getString("region.world");
+        String world = arenaHandler.getArenaConfig(player.getWorld()).getString("region.world");
 
         if (world == null) {
             sender.sendMessage(langHandler.getMessage("startgame.set-arena"));
@@ -57,9 +63,10 @@ public class StartGameCommand implements CommandExecutor {
             return true;
         }
 
-        if (setSpawnHandler.spawnPointMap.size() < plugin.getConfig().getInt("min-players")) {
-            String message = String.format(langHandler.getMessage("startgame.min-players"), plugin.getConfig().getInt("min-players"));
-            sender.sendMessage(message);
+        int minPlayers = configHandler.getWorldConfig(gameWorld).getInt("min-players");
+
+        if (setSpawnHandler.spawnPointMap.size() < minPlayers) {
+            sender.sendMessage(langHandler.getMessage("startgame.min-players", minPlayers));
             return true;
         }
 

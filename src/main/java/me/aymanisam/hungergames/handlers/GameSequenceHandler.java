@@ -1,10 +1,7 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.commands.ChestRefillCommand;
-import me.aymanisam.hungergames.commands.SupplyDropCommand;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.boss.BarColor;
@@ -20,8 +17,11 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.*;
 import java.util.logging.Level;
 
+import static me.aymanisam.hungergames.HungerGames.gameWorld;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
+import static me.aymanisam.hungergames.listeners.PlayerListener.playerKills;
+import static me.aymanisam.hungergames.listeners.TeamVotingListener.playerVotes;
 
 public class GameSequenceHandler {
     private final HungerGames plugin;
@@ -32,6 +32,8 @@ public class GameSequenceHandler {
     private final WorldBorderHandler worldBorderHandler;
     private final ScoreBoardHandler scoreBoardHandler;
     private final ResetPlayerHandler resetPlayerHandler;
+    private final ConfigHandler configHandler;
+    private final WorldResetHandler worldResetHandler;
 
     public int gracePeriodTaskId;
     public int timerTaskId;
@@ -39,7 +41,6 @@ public class GameSequenceHandler {
     public BukkitTask chestRefillTask;
     public BukkitTask supplyDropTask;
     public static final List<Player> playersAlive = new ArrayList<>();
-
     public static Map<Player, BossBar> playerBossBars = new HashMap<>();
 
     public GameSequenceHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
@@ -51,6 +52,8 @@ public class GameSequenceHandler {
         this.worldBorderHandler = new WorldBorderHandler(plugin);
         this.scoreBoardHandler = new ScoreBoardHandler(plugin);
         this.resetPlayerHandler = new ResetPlayerHandler();
+        this.configHandler = new ConfigHandler(plugin);
+        this.worldResetHandler = new WorldResetHandler(plugin);
     }
 
     public void startGame() {
@@ -59,22 +62,24 @@ public class GameSequenceHandler {
         setSpawnHandler.playersWaiting.clear();
         setSpawnHandler.spawnPointMap.clear();
 
-        worldBorderHandler.startWorldBorder();
+        worldBorderHandler.startWorldBorder(gameWorld);
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             langHandler.getLangConfig(player);
-            player.sendTitle("", langHandler.getMessage("game.game-start"),5,20,10);
+            player.sendTitle("", langHandler.getMessage("game.start"),5,20,10);
             player.sendMessage(langHandler.getMessage("game.grace-start"));
         }
 
-        int gracePeriod = plugin.getConfig().getInt("grace-period");
+        int gracePeriod = configHandler.getWorldConfig(gameWorld).getInt("grace-period");
         gracePeriodTaskId = plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-            World world = plugin.getServer().getWorld(Objects.requireNonNull(arenaHandler.getArenaConfig().getString("region.world")));
+            World world = gameWorld;
             assert world != null;
             world.setPVP(true);
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 langHandler.getLangConfig(player);
                 player.sendMessage(langHandler.getMessage("game.grace-end"));
+                player.sendTitle("", langHandler.getMessage("game.grace-end"),5,20,10);
+                player.playSound(player.getLocation(), Sound.ENTITY_ELDER_GUARDIAN_CURSE, 1.0f, 1.0f);
             }
         }, gracePeriod * 20L);
 
@@ -85,8 +90,8 @@ public class GameSequenceHandler {
 
             playerBossBars.put(player, bossBar);
 
-            if (plugin.getConfig().getBoolean("bedrock-buff.enabled") && player.getName().startsWith(".")) {
-                List<String> effectNames = plugin.getConfig().getStringList("bedrock-buff.effects");
+            if (configHandler.getWorldConfig(gameWorld).getBoolean("bedrock-buff.enabled") && player.getName().startsWith(".")) {
+                List<String> effectNames = configHandler.getWorldConfig(gameWorld).getStringList("bedrock-buff.effects");
                 for (String effectName : effectNames) {
                     PotionEffectType effectType = PotionEffectType.getByName(effectName);
                     if (effectType != null) {
@@ -96,44 +101,40 @@ public class GameSequenceHandler {
             }
         }
 
-        int supplyDropInterval = plugin.getConfig().getInt("supplydrop.interval") * 20;
-        SupplyDropCommand supplyDropCommand = new SupplyDropCommand(plugin);
-        PluginCommand supplyDropPluginCommand = plugin.getCommand("supplydrop");
+        int supplyDropInterval = configHandler.getWorldConfig(gameWorld).getInt("supplydrop.interval") * 20;
+        SupplyDropHandler supplyDropHandler = new SupplyDropHandler(plugin);
 
         supplyDropTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
-            supplyDropCommand.onCommand(
-                    plugin.getServer().getConsoleSender(), supplyDropPluginCommand, "supplydrop", new String[0]);
+            supplyDropHandler.setSupplyDrop(gameWorld);
         }, supplyDropInterval, supplyDropInterval);
 
-        int chestRefillInterval = plugin.getConfig().getInt("chestrefill.interval") * 20;
-        ChestRefillCommand chestRefillCommand = new ChestRefillCommand(plugin);
-        PluginCommand chestRefillPluginCommand = plugin.getCommand("chestrefill");
+        int chestRefillInterval = configHandler.getWorldConfig(gameWorld).getInt("chestrefill.interval") * 20;
+        ChestRefillHandler chestRefillHandler = new ChestRefillHandler(plugin);
 
         chestRefillTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
-            chestRefillCommand.onCommand(
-                    plugin.getServer().getConsoleSender(), chestRefillPluginCommand, "chestrefill", new String[0]);
+            chestRefillHandler.refillChests(gameWorld);
         }, 0, chestRefillInterval);
 
         mainGame();
     }
 
     public void mainGame() {
-        timeLeft = plugin.getConfig().getInt("game-time");
+        timeLeft = configHandler.getWorldConfig(gameWorld).getInt("game-time");
 
         timerTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             for (Map.Entry<Player, BossBar> entry : playerBossBars.entrySet()) {
                 BossBar bossBar = entry.getValue();
-                bossBar.setProgress((double) timeLeft / plugin.getConfig().getInt("game-time"));
+                bossBar.setProgress((double) timeLeft / configHandler.getWorldConfig(gameWorld).getInt("game-time"));
                 int minutes = (timeLeft - 1) / 60;
                 int seconds = (timeLeft - 1) % 60;
                 String timeFormatted = String.format("%02d:%02d", minutes, seconds);
-                bossBar.setTitle(langHandler.getMessage("game.score-time") + timeFormatted);
+                bossBar.setTitle(langHandler.getMessage("score.time", timeFormatted));
             }
             timeLeft--;
 
             scoreBoardHandler.getScoreBoard();
 
-            if (plugin.getConfig().getInt("players-per-team") > 1) {
+            if (configHandler.getWorldConfig(gameWorld).getInt("players-per-team") > 1) {
                 if (teamsAlive.size() <= 1) {
                     plugin.getServer().getScheduler().cancelTask(timerTaskId);
 
@@ -157,23 +158,7 @@ public class GameSequenceHandler {
                         }
                     }
 
-                    if (winningTeam != null) {
-                        StringBuilder allNames = new StringBuilder();
-                        for (Player teamMember : winningTeam) {
-                            allNames.append(teamMember.getName()).append(", ");
-                        }
-
-                        if (!allNames.isEmpty()) {
-                            allNames.setLength(allNames.length() - 2);
-                        }
-
-                        for (Player player : plugin.getServer().getOnlinePlayers()) {
-                            langHandler.getLangConfig(player);
-                            player.sendTitle("", ChatColor.LIGHT_PURPLE + allNames.toString() + langHandler.getMessage("game.winner-text"), 5, 20, 10);
-                            player.sendMessage(ChatColor.LIGHT_PURPLE + allNames.toString() + langHandler.getMessage("game.winner-text"));
-                            player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
-                        }
-                    }
+                    winningTeam(winningTeam, null);
 
                     endGame();
                 }
@@ -189,7 +174,7 @@ public class GameSequenceHandler {
                     Player winner = playersAlive.get(0);
                     for (Player player : plugin.getServer().getOnlinePlayers()) {
                         langHandler.getLangConfig(player);
-                        player.sendMessage(ChatColor.LIGHT_PURPLE + winner.getName() + langHandler.getMessage("game.winner-text"));
+                        player.sendMessage(langHandler.getMessage("game.winner-text", winner.getName()));
                         player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
                     }
                     endGame();
@@ -197,16 +182,95 @@ public class GameSequenceHandler {
             }
 
             if (timeLeft < 0) {
-                for (Player player : plugin.getServer().getOnlinePlayers()) {
-                    langHandler.getLangConfig(player);
-                    player.sendMessage(langHandler.getMessage("game.time-up"));
+                if (configHandler.getWorldConfig(gameWorld).getInt("players-per-team") > 1) {
+                    determineWinningTeam();
+                    endGame();
+                } else {
+                    Player winner = null;
+                    int maxKills = -1;
+                    for (Map.Entry<Player, Integer> entry : playerKills.entrySet()) {
+                        if (entry.getValue() > maxKills) {
+                            maxKills = entry.getValue();
+                            winner = entry.getKey();
+                        }
+                        if (winner != null) {
+                            for (Player player : plugin.getServer().getOnlinePlayers()) {
+                                langHandler.getLangConfig(player);
+                                player.sendTitle("", langHandler.getMessage("game.winner-kills", winner.getName()), 5, 20, 10);
+                                player.sendMessage(langHandler.getMessage("game.winner-kills", winner.getName()));
+                                player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+                            }
+                        }
+                    }
+                    endGame();
                 }
-                endGame();
             }
         }, 0L, 20L);
     }
 
+    private void winningTeam(List<Player> winningTeam, String winReason) {
+        if (winningTeam != null) {
+            StringBuilder allNames = new StringBuilder();
+            for (Player teamMember : winningTeam) {
+                allNames.append(teamMember.getName()).append(", ");
+            }
+
+            if (!allNames.isEmpty()) {
+                allNames.setLength(allNames.length() - 2);
+            }
+
+            String messageKey;
+            if ("kills".equals(winReason)) {
+                messageKey = "game.timeup-kills";
+            } else if ("alive".equals(winReason)) {
+                messageKey = "game.timeup-alive";
+            } else {
+                messageKey = "game.winner";
+            }
+
+            for (Player player : plugin.getServer().getOnlinePlayers()) {
+                langHandler.getLangConfig(player);
+                player.sendTitle("", langHandler.getMessage(messageKey, allNames.toString()), 5, 20, 10);
+                player.sendMessage(langHandler.getMessage(messageKey, allNames.toString()));
+                player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+            }
+        }
+    }
+
+    private void determineWinningTeam() {
+        List<Player> winningTeam = null;
+        int maxAlivePlayers = -1;
+        int maxKills = -1;
+        String winReason = null;
+        for (List<Player> team : teamsAlive) {
+            int alivePlayers = team.size();
+            int teamKills = 0;
+            for (Player player : team) {
+                teamKills += playerKills.getOrDefault(player, 0);
+            }
+            if (alivePlayers > maxAlivePlayers) {
+                maxAlivePlayers = alivePlayers;
+                maxKills = teamKills;
+                winningTeam = team;
+                winReason = "alive";
+            } else if (alivePlayers == maxAlivePlayers && teamKills > maxKills) {
+                maxKills = teamKills;
+                winningTeam = team;
+                winReason = "kills";
+            } else if (alivePlayers == maxAlivePlayers) {
+                for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    langHandler.getLangConfig(player);
+                    player.sendMessage(langHandler.getMessage("game.timeup-no-winner"));
+                }
+            }
+        }
+
+        winningTeam(winningTeam, winReason);
+    }
+
     public void endGame() {
+        World world = gameWorld;
+
         HungerGames.gameStarted = false;
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
@@ -217,17 +281,10 @@ public class GameSequenceHandler {
             playerBossBars.remove(player);
         }
 
-        worldBorderHandler.resetWorldBorder();
+        worldBorderHandler.resetWorldBorder(world);
 
-        String worldName = arenaHandler.getArenaConfig().getString("region.world");
-        if (worldName == null) {
-            plugin.getLogger().log(Level.SEVERE, "World name is not specified.");
-            return;
-        }
+        worldResetHandler.removeShulkers(world);
 
-        World world = plugin.getServer().getWorld(worldName);
-
-        assert world != null;
         if (!world.getEntitiesByClass(Item.class).isEmpty()) {
             plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "kill @e[type=item]");
         }
@@ -257,9 +314,9 @@ public class GameSequenceHandler {
             plugin.getServer().getScheduler().cancelTask(supplyDropTask.getTaskId());
         }
 
-        arenaHandler.removeShulkers();
-
         playersAlive.clear();
+
+        playerVotes.clear();
 
         if (plugin.isEnabled()) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
@@ -269,13 +326,17 @@ public class GameSequenceHandler {
                 }
             }, 100L);
 
-            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                for (Player player: Bukkit.getServer().getOnlinePlayers()) {
-                    player.sendMessage(langHandler.getMessage("join.auto-join"));
-                    player.sendTitle("",langHandler.getMessage("join.auto-join"), 5, 20, 10);
-                    setSpawnHandler.teleportPlayerToSpawnpoint(player);
-                }
-            }, 200L);
+            if (configHandler.getWorldConfig(gameWorld).getBoolean("auto-join")) {
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                    for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+                        if (!setSpawnHandler.spawnPointMap.containsValue(player)) {
+                            player.sendMessage(langHandler.getMessage("game.auto-join"));
+                            player.sendTitle("", langHandler.getMessage("game.auto-join"), 5, 20, 10);
+                            setSpawnHandler.teleportPlayerToSpawnpoint(player);
+                        }
+                    }
+                }, 200L);
+            }
         }
     }
 

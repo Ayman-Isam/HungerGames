@@ -11,9 +11,12 @@ import org.bukkit.block.EndGateway;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.ArmorStand;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -28,31 +31,35 @@ public class ArenaHandler {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.arenaSelectListener = new ArenaSelectListener(plugin);
-        createArenaConfig();
     }
 
-    public void createArenaConfig() {
-        arenaFile = new File(plugin.getDataFolder(), "arena.yml");
+    public void createArenaConfig(World world) {
+        String worldName = world.getName();
+        arenaFile = new File(plugin.getDataFolder() + File.separator + worldName, "arena.yml");
         if (!arenaFile.exists()) {
             arenaFile.getParentFile().mkdirs();
+            File tempFile = new File(plugin.getDataFolder(), "arena.yml");
             try {
-                plugin.saveResource("arena.yml", false);
+                plugin.saveResource("arena.yml", true);
+                if(tempFile.exists()) {
+                    tempFile.renameTo(arenaFile);
+                }
             } catch (Exception e) {
-                plugin.getLogger().log(Level.SEVERE, langHandler.getMessage("arena.create-error"), e);
+                plugin.getLogger().log(Level.SEVERE, "Could not create arena.yml from", e);
             }
         }
 
         try {
             arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
         } catch (Exception e) {
-            plugin.getLogger().log(Level.SEVERE, langHandler.getMessage("arena.load-error"), e);
+            plugin.getLogger().log(Level.SEVERE, "Could not load arena.yml from", e);
         }
     }
 
-    public FileConfiguration getArenaConfig() {
-        createArenaConfig();
+    public FileConfiguration getArenaConfig(World world) {
+        createArenaConfig(world);
         if (arenaConfig == null) {
-            plugin.getLogger().log(Level.SEVERE, langHandler.getMessage("arena.load-error"));
+            plugin.getLogger().log(Level.SEVERE, "Could not load arena.yml from");
             return null;
         }
         return arenaConfig;
@@ -62,18 +69,27 @@ public class ArenaHandler {
         try {
             arenaConfig.save(arenaFile);
         } catch (IOException e) {
-            plugin.getLogger().log(Level.SEVERE, langHandler.getMessage("arena.save-error") + arenaFile, e);
+            plugin.getLogger().log(Level.SEVERE, "Could not save arena.yml to" + arenaFile, e);
         }
     }
 
-    public void loadChunks() {
-        String worldName = arenaConfig.getString("region.world");
-        if (worldName == null) {
-            plugin.getLogger().log(Level.SEVERE, "World name is not specified in the arena config.");
-            return;
+    private List<Chunk> getChunksToLoadOrUnload(World world) {
+        List<Chunk> chunks = new ArrayList<>();
+
+        arenaConfig = (YamlConfiguration) getArenaConfig(world);
+
+        if (arenaConfig == null) {
+            plugin.getLogger().log(Level.SEVERE, "Arena config is not initialized properly for world" + world.getName());
+            return chunks;
         }
 
-        World world = plugin.getServer().getWorld(worldName);
+        String worldName = arenaConfig.getString("region.world");
+
+        if (worldName == null) {
+            plugin.getLogger().log(Level.SEVERE, "World name is not specified in the arena config for world: " + world.getName());
+            return chunks;
+        }
+
         double pos1x = arenaConfig.getDouble("region.pos1.x");
         double pos1z = arenaConfig.getDouble("region.pos1.z");
         double pos2x = arenaConfig.getDouble("region.pos2.x");
@@ -91,33 +107,29 @@ public class ArenaHandler {
 
         for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
             for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-                assert world != null;
-                if (!world.isChunkLoaded(chunkX, chunkZ)) {
-                    world.loadChunk(chunkX, chunkZ);
-                }
-                world.setChunkForceLoaded(chunkX, chunkZ, true);
+                chunks.add(world.getChunkAt(chunkX, chunkZ));
             }
+        }
+
+        return chunks;
+    }
+
+    public void loadChunks(World world) {
+        List<Chunk> chunks = getChunksToLoadOrUnload(world);
+        for (Chunk chunk : chunks) {
+            if (!chunk.isLoaded()) {
+                chunk.load();
+            }
+            chunk.setForceLoaded(true);
         }
     }
 
-    public void removeShulkers() {
-        World world = plugin.getServer().getWorld(Objects.requireNonNull(arenaConfig.getString("region.world")));
-
-        assert world != null;
-        for (Chunk chunk : world.getLoadedChunks()) {
-            for (BlockState blockState : chunk.getTileEntities()) {
-                if (blockState instanceof ShulkerBox) {
-                    Block shulkerBlock = blockState.getBlock();
-
-                    arenaSelectListener.removeShulkerSurroundings(shulkerBlock);
-
-                    blockState.setType(Material.AIR);
-                    blockState.update(true);
-                }
-                if (blockState instanceof EndGateway) {
-                    blockState.setType(Material.AIR);
-                    blockState.update(true);
-                }
+    public void unloadChunks(World world) {
+        List<Chunk> chunks = getChunksToLoadOrUnload(world);
+        for (Chunk chunk : chunks) {
+            chunk.setForceLoaded(false);
+            if (chunk.isLoaded()) {
+                chunk.unload();
             }
         }
     }
