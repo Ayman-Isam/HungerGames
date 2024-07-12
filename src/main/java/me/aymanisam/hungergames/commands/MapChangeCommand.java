@@ -3,16 +3,20 @@ package me.aymanisam.hungergames.commands;
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.SetSpawnHandler;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Collectors;
 
 import static me.aymanisam.hungergames.HungerGames.*;
+import static me.aymanisam.hungergames.listeners.TeamVotingListener.giveVotingBook;
 
 public class MapChangeCommand implements CommandExecutor {
     private final HungerGames plugin;
@@ -70,6 +74,8 @@ public class MapChangeCommand implements CommandExecutor {
         }
 
         sender.sendMessage(langHandler.getMessage("map.switched", mapName));
+
+        giveVotingBook(player, langHandler);
 
         gameWorld = world;
 

@@ -1,8 +1,7 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'io.papermc.paperweight.userdev' version '1.7.1'
 }
 
 group = 'me.aymanisam'
@@ -10,6 +9,7 @@ version = '1.5.0-1.20'
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven {
         name = "spigotmc-repo"
         url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
@@ -19,15 +19,23 @@ repositories {
         url = "https://oss.sonatype.org/content/groups/public/"
     }
     maven {
-        url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
+        url = 'https://papermc.io/repo/repository/maven-public/'
+    }
+    maven {
+        url = "https://jitpack.io"
+    }
+    maven {
+        url 'https://repo.codemc.io/repository/maven-releases/'
     }
 }
 
 dependencies {
     compileOnly "org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT"
     implementation 'commons-io:commons-io:2.11.0'
-    compileOnly 'me.clip:placeholderapi:2.11.6'
     implementation("org.bstats:bstats-bukkit:2.2.1")
+    paperweight.paperDevBundle("1.20.4-R0.1-SNAPSHOT")
+    compileOnly 'com.github.NEZNAMY:TAB-API:4.1.6'
+    compileOnly 'com.github.retrooper:packetevents-spigot:2.4.0'
 }
 
 def targetJavaVersion = 17
@@ -48,7 +56,12 @@ tasks.withType(JavaCompile).configureEach {
     }
 }
 
+tasks.assemble {
+    dependsOn(tasks.reobfJar)
+}
+
 shadowJar {
+    archiveFileName = "Hungergames-1.5.0-1.20.jar"
     relocate 'org.bstats', "${group}.bstats"
     archiveClassifier.set('')
 }

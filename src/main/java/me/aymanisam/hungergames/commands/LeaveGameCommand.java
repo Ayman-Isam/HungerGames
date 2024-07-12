@@ -54,7 +54,7 @@ public class LeaveGameCommand implements CommandExecutor {
 
         for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             langHandler.getLangConfig(onlinePlayer);
-            onlinePlayer.sendMessage(langHandler.getMessage("game.left", player.getName()));
+            onlinePlayer.sendMessage(langHandler.getMessage("game.left", player.getName(), setSpawnHandler.spawnPointMap.size(), setSpawnHandler.spawnPoints.size()));
         }
 
         return true;

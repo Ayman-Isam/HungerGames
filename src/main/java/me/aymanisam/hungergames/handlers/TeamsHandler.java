@@ -1,5 +1,7 @@
 package me.aymanisam.hungergames.handlers;
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityEffect;
 import me.aymanisam.hungergames.HungerGames;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -8,11 +10,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
+import static com.github.retrooper.packetevents.protocol.potion.PotionTypes.GLOWING;
 import static me.aymanisam.hungergames.HungerGames.gameWorld;
+import static me.aymanisam.hungergames.commands.ToggleChatCommand.playerChatModes;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 
 public class TeamsHandler {
@@ -35,6 +37,7 @@ public class TeamsHandler {
             Collections.shuffle(playersAlive);
             teams.clear();
 
+
             for (int i = 0; i < numTeams; i++) {
                 teams.add(new ArrayList<>());
             }
@@ -52,6 +55,9 @@ public class TeamsHandler {
 
             for (int i = 0; i < numTeams; i++) {
                 List<Player> team = teams.get(i);
+
+                makeTeammatesGlow(team);
+
                 if (team.size() < teamSizeConfig) {
                     // Apply extra effects to players in teams with fewer players
                     double ratio = teamSizeConfig / (double) team.size();
@@ -65,7 +71,7 @@ public class TeamsHandler {
 
                 for (Player player : team) {
                     langHandler.getLangConfig(player);
-                    player.sendMessage(langHandler.getMessage("team.id") + (i + 1));
+                    player.sendMessage(langHandler.getMessage("team.id", (i + 1)));
 
                     if (!getTeammateNames(team, player).isEmpty()) {
                         player.sendMessage(langHandler.getMessage("team.members",getTeammateNames(team, player)));
@@ -87,6 +93,17 @@ public class TeamsHandler {
         }
     }
 
+    public List<Player> getTeammates(Player currentPlayer) {
+        for (List<Player> team : teams) {
+            if (team.contains(currentPlayer)) {
+                List<Player> teammates = new ArrayList<>(team);
+                teammates.remove(currentPlayer);
+                return teammates;
+            }
+        }
+        return Collections.emptyList();
+    }
+
     private String getTeammateNames(List<Player> team, Player currentPlayer) {
         StringBuilder teammates = new StringBuilder();
         for (Player player : team) {
@@ -98,5 +115,35 @@ public class TeamsHandler {
             }
         }
         return teammates.toString();
+    }
+
+    private void makeTeammatesGlow(List<Player> team) {
+        for (Player playerToGlow: team) {
+            for (Player playerToSeeGlow : team) {
+                if (!playerToGlow.equals(playerToSeeGlow)) {
+                    makePlayerGlow(playerToGlow, playerToSeeGlow);
+                }
+            }
+        }
+    }
+
+    public void makePlayerGlow(Player playerToGlow, Player playerToSeeGlow) {
+        int entityId = playerToGlow.getEntityId();
+        WrapperPlayServerEntityEffect entityEffectPacket = new WrapperPlayServerEntityEffect(entityId, GLOWING, 0, 1000, (byte)0);
+        System.out.println("Sending glow packet to " + playerToSeeGlow.getName() + " for " + playerToGlow.getName());
+        PacketEvents.getAPI().getPlayerManager().sendPacket(playerToSeeGlow, entityEffectPacket);
+    }
+
+    public boolean isPlayerInAnyTeam(Player player) {
+        for (List<Player> team : teams) {
+            if (team.contains(player)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isChatModeEnabled(Player player) {
+        return playerChatModes.getOrDefault(player, true);
     }
 }

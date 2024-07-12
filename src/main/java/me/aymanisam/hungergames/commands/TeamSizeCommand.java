@@ -49,7 +49,6 @@ public class TeamSizeCommand implements CommandExecutor {
         configHandler.getWorldConfig(world).set("players-per-team", newSize);
         configHandler.saveWorldConfig(world);
 
-        System.out.println(configHandler);
 
         sender.sendMessage(langHandler.getMessage("team.size", newSize));
 

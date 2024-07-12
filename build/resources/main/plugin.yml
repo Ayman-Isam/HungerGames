@@ -4,7 +4,8 @@ main: me.aymanisam.hungergames.HungerGames
 api-version: '1.20'
 authors: [ 'AymanIsam' ]
 website: 'github.com/AymanIsam/Hunger-Games'
-softdepend: [PlaceholderAPI]
+depend:
+  - packetevents
 
 commands:
   hg:
@@ -23,6 +24,9 @@ permissions:
   hungergames.spectate:
     description: "Allows you to spectate players in HungerGames"
     default: true
+  hungergames.teamchat:
+    description: "Allows you to toggle teamchat in HungerGames"
+    default: true
   hungergames.select:
     description: "Allows you to select an arena in HungerGames"
     default: op
@@ -31,7 +35,7 @@ permissions:
     default: op
   hungergames.map:
     description: "Allows you to switch maps in HungerGames"
-    default: true
+    default: op
   hungergames.teamsize:
     description: "Allows you to set the team size in HungerGames"
     default: op

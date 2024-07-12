@@ -4,6 +4,8 @@ import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.listeners.TeamVotingListener;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.Collections;
 

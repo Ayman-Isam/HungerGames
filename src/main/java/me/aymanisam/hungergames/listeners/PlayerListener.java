@@ -120,6 +120,8 @@ public class PlayerListener implements Listener {
             }
         }
 
+        System.out.println(teamsAlive);
+
         World world = plugin.getServer().getWorld("world");
         assert world != null;
 
@@ -189,17 +191,6 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (event.getEntityType() == EntityType.PLAYER) {
-            if (event.getDamager().getType().equals(EntityType.ENDER_PEARL)) {
-                event.setDamage(2.0);
-            }
-            return;
-        }
-
-        if (configHandler.getWorldConfig(gameWorld).getInt("players-per-team") < 2) {
-            return;
-        }
-
         Entity damager = event.getDamager();
         Entity damaged = event.getEntity();
 
@@ -225,6 +216,12 @@ public class PlayerListener implements Listener {
                         break;
                     }
                 }
+            }
+        }
+
+        if (event.getEntityType() == EntityType.PLAYER) {
+            if (event.getDamager().getType().equals(EntityType.ENDER_PEARL)) {
+                event.setDamage(2.0);
             }
         }
     }

@@ -144,7 +144,5 @@ public class SetSpawnHandler {
                 }
             }, 100L);
         }
-
-
     }
 }

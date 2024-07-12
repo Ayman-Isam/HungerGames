@@ -4,6 +4,7 @@ import me.aymanisam.hungergames.commands.*;
 import me.aymanisam.hungergames.handlers.GameSequenceHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.SetSpawnHandler;
+import me.aymanisam.hungergames.handlers.TeamsHandler;
 import me.aymanisam.hungergames.listeners.TeamVotingListener;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -25,13 +26,15 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
     private final SetSpawnHandler setSpawnHandler;
     private final GameSequenceHandler gameSequenceHandler;
     private final TeamVotingListener teamVotingListener;
+    private final TeamsHandler teamsHandler;
 
-    public CommandDispatcher(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener) {
+    public CommandDispatcher(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener, TeamsHandler teamsHandler) {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.setSpawnHandler = setSpawnHandler;
         this.gameSequenceHandler = gameSequenceHandler;
         this.teamVotingListener = teamVotingListener;
+        this.teamsHandler = teamsHandler;
     }
 
     @Override
@@ -47,6 +50,9 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     break;
                 case "start":
                     executor = new StartGameCommand(plugin, setSpawnHandler, gameSequenceHandler, teamVotingListener);
+                    break;
+                case "teamchat":
+                    executor = new ToggleChatCommand(plugin, teamsHandler);
                     break;
                 case "spectate":
                     executor = new SpectatePlayerCommand(plugin);
@@ -106,7 +112,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length == 1) {
             List<String> completions = new ArrayList<>();
-            String[] commands = {"join", "leave", "start", "spectate", "select", "end", "map", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig"};
+            String[] commands = {"join", "leave", "start", "spectate", "select", "end", "teamchat", "map", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig"};
             for (String subcommand : commands) {
                 if (sender.hasPermission("hungergames." + subcommand)) {
                     completions.add(subcommand);

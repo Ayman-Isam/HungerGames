@@ -230,7 +230,7 @@ barrel-items:
     weight: 2
     enchantments:
       - type: POWER
-        level: 3
+        level: 2
 
   - type: CROSSBOW
     amount: 1

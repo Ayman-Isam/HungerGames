@@ -49,6 +49,8 @@ public class ArenaCreateCommand implements CommandExecutor {
             return true;
         }
 
+        player.sendMessage(langHandler.getMessage("arena.region-created"));
+
         FileConfiguration arenaConfig = arenaHandler.getArenaConfig(player.getWorld());
         arenaConfig.set("region.world", Objects.requireNonNull(pos1.getWorld()).getName());
         arenaConfig.set("region.pos1.x", pos1.getX());

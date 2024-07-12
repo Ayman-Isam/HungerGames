@@ -1,48 +1,57 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
+import me.neznamy.tab.api.TabAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.gameWorld;
-import static me.aymanisam.hungergames.handlers.GameSequenceHandler.timeLeft;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
+import static me.aymanisam.hungergames.handlers.GameSequenceHandler.timeLeft;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 
 public class ScoreBoardHandler {
     private final HungerGames plugin;
     private final LangHandler langHandler;
     private final ConfigHandler configHandler;
+    private boolean Tab;
+    private boolean Packet;
+
+    public static int startingPlayers;
 
     public ScoreBoardHandler(HungerGames plugin) {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.configHandler = new ConfigHandler(plugin);
+        this.Tab = plugin.isPluginLoadedWithBaseName("TAB");
+        this.Packet = plugin.isPluginLoadedWithBaseName("packetevents");
     }
 
-    private Score createScore(Objective objective, String messageKey, int timeLeft, int interval) {
-        int minutes = timeLeft / 60;
-        int seconds = timeLeft % 60;
-        String timeFormatted = String.format("%02d:%02d", minutes, seconds);
-
+    private ChatColor getColor(int interval, int countdown) {
         ChatColor color;
-        if (timeLeft <= interval / 3) {
+        if (countdown <= interval / 3) {
             color = ChatColor.RED;
-        } else if (timeLeft <= 2 * interval / 3) {
+        } else if (countdown <= 2 * interval / 3) {
             color = ChatColor.YELLOW;
         } else {
             color = ChatColor.GREEN;
         }
 
-        return objective.getScore(langHandler.getMessage(messageKey, color + timeFormatted));
+        return color;
+    }
+
+    private Score createScore(Objective objective, String messageKey, int countdown, int interval) {
+        int minutes = countdown / 60;
+        int seconds = countdown % 60;
+        String timeFormatted = String.format("%02d:%02d", minutes, seconds);
+
+        return objective.getScore(langHandler.getMessage(messageKey, getColor(interval, countdown) + timeFormatted));
     }
 
     public void getScoreBoard() {
@@ -53,6 +62,8 @@ public class ScoreBoardHandler {
         int chestRefillInterval = worldConfig.getInt("chestrefill.interval");
         int supplyDropInterval = worldConfig.getInt("supplydrop.interval");
         int playersPerTeam = worldConfig.getInt("players-per-team");
+        int borderStartSize = worldConfig.getInt("border.size");
+        int borderEndSize = worldConfig.getInt("border.final-size");
 
         int playersAliveSize = playersAlive.size();
         int worldBorderSize = (int) gameWorld.getWorldBorder().getSize();
@@ -60,6 +71,8 @@ public class ScoreBoardHandler {
         int pvpTimeLeft = (timeLeft - gameTimeConfig) + pvpTimeConfig;
         int chestRefillTimeLeft = timeLeft % chestRefillInterval;
         int supplyDropTimeLeft = timeLeft % supplyDropInterval;
+
+        ChatColor borderColor;
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             langHandler.getLangConfig(player);
@@ -79,10 +92,18 @@ public class ScoreBoardHandler {
 
             objective.getScore("  ").setScore(15);
 
-            Score playersAliveScore = objective.getScore(langHandler.getMessage("score.alive", playersAliveSize));
+            Score playersAliveScore = objective.getScore(langHandler.getMessage("score.alive", getColor(startingPlayers, playersAliveSize).toString() + playersAliveSize));
             playersAliveScore.setScore(14);
 
-            Score worldBorderSizeScore = objective.getScore(langHandler.getMessage("score.border", worldBorderSize));
+            if (borderStartSize == worldBorderSize) {
+                borderColor = ChatColor.GREEN;
+            } else if (borderEndSize == worldBorderSize) {
+                borderColor = ChatColor.RED;
+            } else {
+                borderColor = ChatColor.YELLOW;
+            }
+
+            Score worldBorderSizeScore = objective.getScore(langHandler.getMessage("score.border", borderColor.toString() + worldBorderSize));
             worldBorderSizeScore.setScore(13);
 
             objective.getScore("  ").setScore(12);
@@ -120,7 +141,7 @@ public class ScoreBoardHandler {
                             if (!teamMember.equals(player)) {
                                 String teammateName = teamMember.getName();
                                 ChatColor color = playersAlive.contains(teamMember) ? ChatColor.GREEN : ChatColor.RED;
-                                String scoreName = langHandler.getMessage("score.teammate") + color + teammateName;
+                                String scoreName = langHandler.getMessage("score.teammate", color + teammateName);
                                 Score teammateScore = objective.getScore(scoreName);
                                 teammateScore.setScore(4);
                             }

@@ -7,17 +7,18 @@ import org.bukkit.World;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.*;
-import java.util.logging.Level;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static me.aymanisam.hungergames.HungerGames.gameWorld;
+import static me.aymanisam.hungergames.handlers.ScoreBoardHandler.startingPlayers;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
 import static me.aymanisam.hungergames.listeners.PlayerListener.playerKills;
@@ -27,8 +28,6 @@ public class GameSequenceHandler {
     private final HungerGames plugin;
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
-    private final ArenaHandler arenaHandler;
-    private final TeamsHandler teamsHandler;
     private final WorldBorderHandler worldBorderHandler;
     private final ScoreBoardHandler scoreBoardHandler;
     private final ResetPlayerHandler resetPlayerHandler;
@@ -47,8 +46,6 @@ public class GameSequenceHandler {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.setSpawnHandler = setSpawnHandler;
-        this.arenaHandler = new ArenaHandler(plugin);
-        this.teamsHandler = new TeamsHandler(plugin);
         this.worldBorderHandler = new WorldBorderHandler(plugin);
         this.scoreBoardHandler = new ScoreBoardHandler(plugin);
         this.resetPlayerHandler = new ResetPlayerHandler();
@@ -60,6 +57,7 @@ public class GameSequenceHandler {
         HungerGames.gameStarted = true;
 
         setSpawnHandler.playersWaiting.clear();
+        startingPlayers = setSpawnHandler.spawnPointMap.size();
         setSpawnHandler.spawnPointMap.clear();
 
         worldBorderHandler.startWorldBorder(gameWorld);
@@ -193,13 +191,18 @@ public class GameSequenceHandler {
                             maxKills = entry.getValue();
                             winner = entry.getKey();
                         }
-                        if (winner != null) {
-                            for (Player player : plugin.getServer().getOnlinePlayers()) {
-                                langHandler.getLangConfig(player);
+
+                        for (Player player : plugin.getServer().getOnlinePlayers()) {
+                            langHandler.getLangConfig(player);
+                            if (winner != null) {
                                 player.sendTitle("", langHandler.getMessage("game.winner-kills", winner.getName()), 5, 20, 10);
                                 player.sendMessage(langHandler.getMessage("game.winner-kills", winner.getName()));
-                                player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+                            } else {
+                                player.sendTitle("", langHandler.getMessage("game.timeup-no-winner"), 5, 20, 10);
+                                player.sendMessage(langHandler.getMessage("game.timeup-no-winner"));
                             }
+
+                            player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
                         }
                     }
                     endGame();
@@ -225,7 +228,7 @@ public class GameSequenceHandler {
             } else if ("alive".equals(winReason)) {
                 messageKey = "game.timeup-alive";
             } else {
-                messageKey = "game.winner";
+                messageKey = "game.timeup-no-winner";
             }
 
             for (Player player : plugin.getServer().getOnlinePlayers()) {
@@ -238,34 +241,34 @@ public class GameSequenceHandler {
     }
 
     private void determineWinningTeam() {
-        List<Player> winningTeam = null;
+        List<List<Player>> potentialWinningTeams = new ArrayList<>();
         int maxAlivePlayers = -1;
         int maxKills = -1;
-        String winReason = null;
+
         for (List<Player> team : teamsAlive) {
             int alivePlayers = team.size();
-            int teamKills = 0;
-            for (Player player : team) {
-                teamKills += playerKills.getOrDefault(player, 0);
-            }
-            if (alivePlayers > maxAlivePlayers) {
+            int teamKills = team.stream().mapToInt(player -> playerKills.getOrDefault(player, 0)).sum();
+
+            if (alivePlayers > maxAlivePlayers || (alivePlayers == maxAlivePlayers && teamKills > maxKills)) {
                 maxAlivePlayers = alivePlayers;
                 maxKills = teamKills;
-                winningTeam = team;
-                winReason = "alive";
-            } else if (alivePlayers == maxAlivePlayers && teamKills > maxKills) {
-                maxKills = teamKills;
-                winningTeam = team;
-                winReason = "kills";
-            } else if (alivePlayers == maxAlivePlayers) {
-                for (Player player : plugin.getServer().getOnlinePlayers()) {
-                    langHandler.getLangConfig(player);
-                    player.sendMessage(langHandler.getMessage("game.timeup-no-winner"));
-                }
+                potentialWinningTeams.clear();
+                potentialWinningTeams.add(team);
+            } else if (alivePlayers == maxAlivePlayers && teamKills == maxKills) {
+                potentialWinningTeams.add(team);
             }
         }
 
-        winningTeam(winningTeam, winReason);
+        if (potentialWinningTeams.size() == 1) {
+            List<Player> winningTeam = potentialWinningTeams.get(0);
+            String winReason = maxAlivePlayers > 0 ? "alive" : "kills";
+            winningTeam(winningTeam, winReason);
+        } else {
+            for (Player player : plugin.getServer().getOnlinePlayers()) {
+                langHandler.getLangConfig(player);
+                player.sendMessage(langHandler.getMessage("game.timeup-no-winner"));
+            }
+        }
     }
 
     public void endGame() {

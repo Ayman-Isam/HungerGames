@@ -40,7 +40,6 @@ public class ChestRefillCommand implements CommandExecutor {
             return true;
         }
 
-        System.out.println(player.getWorld());
         FileConfiguration ArenaConfig = arenaHandler.getArenaConfig(player.getWorld());
         String worldName = ArenaConfig.getString("region.world");
 

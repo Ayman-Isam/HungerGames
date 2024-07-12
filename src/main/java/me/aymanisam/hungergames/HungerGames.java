@@ -1,11 +1,16 @@
 package me.aymanisam.hungergames;
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.PacketEventsAPI;
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import me.aymanisam.hungergames.handlers.*;
 import me.aymanisam.hungergames.listeners.*;
+import net.minecraft.server.packs.repository.Pack;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -19,7 +24,15 @@ public final class HungerGames extends JavaPlugin {
     public static World gameWorld;
 
     private GameSequenceHandler gameSequenceHandler;
-    private WorldResetHandler worldresetHandler;
+
+    @Override
+    public void onLoad() {
+        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+        PacketEvents.getAPI().getSettings()
+                .reEncodeByDefault(false)
+                .checkForUpdates(true);
+        PacketEvents.getAPI().load();
+    }
 
     @Override
     public void onEnable() {
@@ -32,20 +45,18 @@ public final class HungerGames extends JavaPlugin {
 
         gameWorld = Bukkit.getWorlds().get(0);
 
-        System.out.println(gameWorld.getName());
-
         // Initializing shared classes
         TeamVotingListener teamVotingListener = new TeamVotingListener(this);
         getServer().getPluginManager().registerEvents(teamVotingListener, this);
         SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this);
         CompassHandler compassHandler = new CompassHandler(this);
         this.gameSequenceHandler = new GameSequenceHandler(this, setSpawnHandler);
-        this.worldresetHandler = new WorldResetHandler(this);
         ArenaHandler arenaHandler = new ArenaHandler(this);
         ConfigHandler configHandler = new ConfigHandler(this);
+        TeamsHandler teamsHandler = new TeamsHandler(this);
 
         // Registering command handler
-        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, setSpawnHandler, gameSequenceHandler, teamVotingListener));
+        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, setSpawnHandler, gameSequenceHandler, teamVotingListener, teamsHandler));
 
         // Registering Listeners
         ArenaSelectListener arenaSelectListener = new ArenaSelectListener(this);
@@ -66,6 +77,9 @@ public final class HungerGames extends JavaPlugin {
         CompassListener compassListener = new CompassListener(this, compassHandler);
         getServer().getPluginManager().registerEvents(compassListener, this);
 
+        TeamChatListener teamChatListener = new TeamChatListener(teamsHandler);
+        getServer().getPluginManager().registerEvents(teamChatListener, this);
+
         File serverDirectory = new File(".");
         File[] files = serverDirectory.listFiles();
 
@@ -82,6 +96,7 @@ public final class HungerGames extends JavaPlugin {
         }
 
         List<World> worlds = getServer().getWorlds();
+
         for (World world : worlds) {
             String worldName = world.getName();
 
@@ -95,14 +110,29 @@ public final class HungerGames extends JavaPlugin {
                 configHandler.loadItemsConfig(world);
             }
         }
+
+        PacketEvents.getAPI().init();
+
     }
+
 
     @Override
     public void onDisable() {
         gameSequenceHandler.endGame();
+        PacketEvents.getAPI().terminate();
     }
 
     public File getPluginFile() {
         return this.getFile();
+    }
+
+    public boolean isPluginLoadedWithBaseName(String baseName) {
+        Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
+        for (Plugin plugin : plugins) {
+            if (plugin.getName().startsWith(baseName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
