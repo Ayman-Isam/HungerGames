@@ -40,16 +40,20 @@ public class CountDownHandler {
             int votedSolo = Collections.frequency(TeamVotingListener.playerVotes.values(), "solo");
             int votedDuo = Collections.frequency(TeamVotingListener.playerVotes.values(), "duo");
             int votedTrio = Collections.frequency(TeamVotingListener.playerVotes.values(), "trio");
+            int votedVersus = Collections.frequency(TeamVotingListener.playerVotes.values(), "versus");
 
-            if (votedSolo >= votedDuo && votedSolo >= votedTrio) {
+            if (votedSolo >= votedDuo && votedSolo >= votedTrio && votedSolo >= votedVersus) {
                 highestVotedGameMode = langHandler.getMessage("team.solo-inv");
                 teamSize = 1;
-            } else if (votedDuo >= votedTrio) {
+            } else if (votedDuo >= votedTrio && votedDuo >= votedVersus) {
                 highestVotedGameMode = langHandler.getMessage("team.duo-inv");
                 teamSize = 2;
-            } else {
+            } else if (votedTrio >= votedVersus) {
                 highestVotedGameMode = langHandler.getMessage("team.trio-inv");
                 teamSize = 3;
+            } else {
+                highestVotedGameMode = langHandler.getMessage("team.versus-inv");
+                teamSize = 0;
             }
 
             for (Player player : plugin.getServer().getOnlinePlayers()) {

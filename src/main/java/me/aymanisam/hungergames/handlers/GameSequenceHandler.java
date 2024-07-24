@@ -172,7 +172,7 @@ public class GameSequenceHandler {
                     Player winner = playersAlive.get(0);
                     for (Player player : plugin.getServer().getOnlinePlayers()) {
                         langHandler.getLangConfig(player);
-                        player.sendMessage(langHandler.getMessage("game.winner-text", winner.getName()));
+                        player.sendMessage(langHandler.getMessage("game.winner", winner.getName()));
                         player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
                     }
                     endGame();

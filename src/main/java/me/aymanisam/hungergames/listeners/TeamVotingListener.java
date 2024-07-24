@@ -57,15 +57,24 @@ public class TeamVotingListener implements Listener {
         trioMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         trio.setItemMeta(trioMeta);
 
+        ItemStack versus = new ItemStack(Material.GOLDEN_SWORD);
+        ItemMeta versusMeta = versus.getItemMeta();
+        assert versusMeta != null;
+        versusMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage("team.versus-inv"));
+        versusMeta.setLore(Collections.singletonList(langHandler.getMessage("team.votes", getVoteCount("versus"))));
+        versusMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        versus.setItemMeta(versusMeta);
+
         ItemStack backButton = new ItemStack(Material.BARRIER);
         ItemMeta backMeta = backButton.getItemMeta();
         assert backMeta != null;
         backMeta.setDisplayName(ChatColor.RED + langHandler.getMessage("team.close-inv"));
         backButton.setItemMeta(backMeta);
 
-        inventory.setItem(3, solo);
-        inventory.setItem(4, duo);
-        inventory.setItem(5, trio);
+        inventory.setItem(2, solo);
+        inventory.setItem(3, duo);
+        inventory.setItem(4, trio);
+        inventory.setItem(5, versus);
         inventory.setItem(8, backButton);
 
         player.openInventory(inventory);
@@ -109,6 +118,11 @@ public class TeamVotingListener implements Listener {
         } else if (displayName.equals(langHandler.getMessage("team.trio-inv"))) {
             playerVotes.put(player, "trio");
             player.sendMessage(langHandler.getMessage("team.voted-trio"));
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
+            player.closeInventory();
+        } else if (displayName.equals(langHandler.getMessage("team.versus-inv"))) {
+            playerVotes.put(player, "versus");
+            player.sendMessage(langHandler.getMessage("team.voted-versus"));
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
             player.closeInventory();
         } else if (displayName.equals(langHandler.getMessage("team.close-inv"))){

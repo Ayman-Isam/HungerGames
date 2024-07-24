@@ -113,14 +113,14 @@ public class PlayerListener implements Listener {
         for (List<Player> team: teamsAlive) {
             if (team.contains(player)) {
                 team.remove(player);
+                System.out.println(teamsAlive);
+                System.out.println(teams);
                 if (team.isEmpty()) {
                     teamsAlive.remove(team);
                 }
                 break;
             }
         }
-
-        System.out.println(teamsAlive);
 
         World world = plugin.getServer().getWorld("world");
         assert world != null;
