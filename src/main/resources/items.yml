@@ -63,9 +63,9 @@ chest-items:
     amount: 1
     weight: 2
 
-  - type: SHIELD
-    amount: 1
-    weight: 2
+#  - type: SHIELD
+#    amount: 1
+#    weight: 2
 
   - type: BOW
     amount: 1

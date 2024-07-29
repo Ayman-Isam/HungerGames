@@ -13,8 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-import static me.aymanisam.hungergames.HungerGames.gameStarted;
-import static me.aymanisam.hungergames.HungerGames.gameWorld;
+import static me.aymanisam.hungergames.HungerGames.*;
 
 public class ToggleChatCommand implements CommandExecutor {
     private final LangHandler langHandler;
@@ -42,12 +41,12 @@ public class ToggleChatCommand implements CommandExecutor {
             return true;
         }
 
-        if (!gameStarted) {
+        if (!gameStarted && !gameStarting) {
             player.sendMessage(langHandler.getMessage("game.not-started"));
             return true;
         }
 
-        if (configHandler.getWorldConfig(gameWorld).getInt("players-per-team") < 1) {
+        if (configHandler.getWorldConfig(gameWorld).getInt("players-per-team") == 1) {
             player.sendMessage(langHandler.getMessage("game.not-team"));
             return true;
         }

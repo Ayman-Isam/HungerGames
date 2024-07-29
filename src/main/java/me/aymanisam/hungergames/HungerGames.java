@@ -1,21 +1,21 @@
 package me.aymanisam.hungergames;
 
 import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.PacketEventsAPI;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import me.aymanisam.hungergames.handlers.*;
 import me.aymanisam.hungergames.listeners.*;
-import net.minecraft.server.packs.repository.Pack;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
+
+import static me.aymanisam.hungergames.handlers.VersionHandler.getLatestPluginVersion;
 
 public final class HungerGames extends JavaPlugin {
 
@@ -36,8 +36,8 @@ public final class HungerGames extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        int pluginId = 21512;
-        Metrics metrics = new Metrics(this, pluginId);
+        int bstatsPluginId = 21512;
+        Metrics metrics = new Metrics(this, bstatsPluginId);
         LangHandler langHandler = new LangHandler(this);
         langHandler.saveLanguageFiles();
         langHandler.updateLanguageKeys();
@@ -49,14 +49,17 @@ public final class HungerGames extends JavaPlugin {
         TeamVotingListener teamVotingListener = new TeamVotingListener(this);
         getServer().getPluginManager().registerEvents(teamVotingListener, this);
         SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this);
+        ScoreBoardHandler scoreBoardHandler = new ScoreBoardHandler(this);
         CompassHandler compassHandler = new CompassHandler(this);
-        this.gameSequenceHandler = new GameSequenceHandler(this, setSpawnHandler);
+        CompassListener compassListener = new CompassListener(this, compassHandler, scoreBoardHandler);
         ArenaHandler arenaHandler = new ArenaHandler(this);
         ConfigHandler configHandler = new ConfigHandler(this);
-        TeamsHandler teamsHandler = new TeamsHandler(this);
+        TeamsHandler teamsHandler = new TeamsHandler(this, scoreBoardHandler);
+        this.gameSequenceHandler = new GameSequenceHandler(this, setSpawnHandler, compassListener, teamsHandler);
+        CountDownHandler countDownHandler = new CountDownHandler(this, setSpawnHandler, gameSequenceHandler, teamVotingListener, scoreBoardHandler);
 
         // Registering command handler
-        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, setSpawnHandler, gameSequenceHandler, teamVotingListener, teamsHandler));
+        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, setSpawnHandler, gameSequenceHandler, teamVotingListener, teamsHandler, scoreBoardHandler, countDownHandler));
 
         // Registering Listeners
         ArenaSelectListener arenaSelectListener = new ArenaSelectListener(this);
@@ -74,7 +77,6 @@ public final class HungerGames extends JavaPlugin {
         SpectateGuiListener spectateGuiListener = new SpectateGuiListener(this);
         getServer().getPluginManager().registerEvents(spectateGuiListener, this);
 
-        CompassListener compassListener = new CompassListener(this, compassHandler);
         getServer().getPluginManager().registerEvents(compassListener, this);
 
         TeamChatListener teamChatListener = new TeamChatListener(teamsHandler);
@@ -113,6 +115,22 @@ public final class HungerGames extends JavaPlugin {
 
         PacketEvents.getAPI().init();
 
+        int spigotPluginId = 111936;
+
+        String latestVersionString = getLatestPluginVersion(spigotPluginId);
+        int latestHyphenIndex = latestVersionString.indexOf('-');
+        String latestVersion = (latestHyphenIndex != -1) ? latestVersionString.substring(0, latestHyphenIndex) : latestVersionString;
+
+        String currentVersionString = this.getDescription().getVersion();
+        int currentHyphenIndex = currentVersionString.indexOf('-');
+        String currentVersion = (currentHyphenIndex != -1) ? latestVersionString.substring(0, currentHyphenIndex) : latestVersionString;
+
+        if (latestVersion.equals("Error: null")) {
+            this.getLogger().log(Level.WARNING, "Failed to check for updates");
+        } else if (!Objects.equals(latestVersion, currentVersion)) {
+            this.getLogger().log(Level.WARNING, "You are not running the latest version of HungerGames! Please update " +
+                    "your plugin to the latest version (" + latestVersion + ") for the best experience and bug fixes.");
+        }
     }
 
 
@@ -124,15 +142,5 @@ public final class HungerGames extends JavaPlugin {
 
     public File getPluginFile() {
         return this.getFile();
-    }
-
-    public boolean isPluginLoadedWithBaseName(String baseName) {
-        Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
-        for (Plugin plugin : plugins) {
-            if (plugin.getName().startsWith(baseName)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

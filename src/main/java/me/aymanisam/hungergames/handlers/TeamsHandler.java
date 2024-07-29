@@ -1,44 +1,58 @@
 package me.aymanisam.hungergames.handlers;
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
+import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
+import com.github.retrooper.packetevents.protocol.particle.Particle;
+import com.github.retrooper.packetevents.protocol.particle.data.ParticleData;
+import com.github.retrooper.packetevents.protocol.particle.type.ParticleType;
+import com.github.retrooper.packetevents.protocol.particle.type.ParticleTypes;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChatMessage;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerInfo;
 import me.aymanisam.hungergames.HungerGames;
-import org.bukkit.Material;
+import net.md_5.bungee.api.ChatMessageType;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
-import static me.aymanisam.hungergames.HungerGames.gameWorld;
 import static me.aymanisam.hungergames.commands.ToggleChatCommand.playerChatModes;
+import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 
 public class TeamsHandler {
     private final LangHandler langHandler;
-    private final ConfigHandler configHandler;
+    private final ScoreBoardHandler scoreBoardHandler;
 
     public static final List<List<Player>> teams = new ArrayList<>();
     public static final List<List<Player>> teamsAlive = new ArrayList<>();
 
-    public TeamsHandler(HungerGames plugin) {
+    public TeamsHandler(HungerGames plugin, ScoreBoardHandler scoreBoardHandler) {
         this.langHandler = new LangHandler(plugin);
-        this.configHandler = new ConfigHandler(plugin);
+        this.scoreBoardHandler = scoreBoardHandler;
     }
 
     public void createTeam() {
-        int teamSizeConfig = configHandler.getWorldConfig(gameWorld).getInt("players-per-team", 4); // Default to 4 if not set
         Collections.shuffle(playersAlive);
         teams.clear();
         teamsAlive.clear();
 
+        boolean versus = false;
+
         int numTeams;
-        if (teamSizeConfig < 1) {
-            // Two-team mode
+        if (playersPerTeam < 1) {
             numTeams = 2;
+            versus = true;
         } else {
-            // Calculate number of teams based on team size and number of players
-            numTeams = (playersAlive.size() + teamSizeConfig - 1) / teamSizeConfig;
+            numTeams = (playersAlive.size() + playersPerTeam - 1) / playersPerTeam;
         }
 
         for (int i = 0; i < numTeams; i++) {
@@ -56,19 +70,56 @@ public class TeamsHandler {
             teamsAlive.add(teamCopy);
             processTeam(team);
         }
+
+        applyEffectsToPlayers();
+    }
+
+    private void applyHeartEffect(Player playerToEffect, Player playerToSeeEffect) {
+        Particle<ParticleData> heartParticle = new Particle<>(ParticleTypes.HEART);
+        EntityData heartEffect = new EntityData(17, EntityDataTypes.PARTICLE, heartParticle);
+        List<EntityData> metadataList = Collections.singletonList(heartEffect);
+        WrapperPlayServerEntityMetadata entityMetadataPacket = new WrapperPlayServerEntityMetadata(playerToEffect.getEntityId(), metadataList);
+        PacketEvents.getAPI().getPlayerManager().sendPacket(playerToSeeEffect, entityMetadataPacket);
+    }
+
+    private void applyAngryEffect(Player playerToEffect, Player playerToSeeEffect) {
+        Particle<ParticleData> angryParticle = new Particle<>(ParticleTypes.ANGRY_VILLAGER);
+        EntityData heartEffect = new EntityData(17, EntityDataTypes.PARTICLE, angryParticle);
+        List<EntityData> metadataList = Collections.singletonList(heartEffect);
+        WrapperPlayServerEntityMetadata entityMetadataPacket = new WrapperPlayServerEntityMetadata(playerToEffect.getEntityId(), metadataList);
+        PacketEvents.getAPI().getPlayerManager().sendPacket(playerToSeeEffect, entityMetadataPacket);
+    }
+
+    public void applyEffectsToPlayers() {
+        for (List<Player> team : teams) {
+            for (Player player : team) {
+                // Apply heart effect to teammates
+                for (Player teammate : team) {
+                    if (!teammate.equals(player)) {
+                        applyHeartEffect(teammate, player);
+                    }
+                }
+
+                // Apply villager angry effect to enemies
+                for (Player enemy : Bukkit.getOnlinePlayers()) {
+                    if (!team.contains(enemy)) {
+                        applyAngryEffect(enemy, player);
+                    }
+                }
+            }
+        }
     }
 
     private void processTeam(List<Player> team) {
-        makeTeammatesGlow(team);
-        int teamSizeConfig = configHandler.getWorldConfig(gameWorld).getInt("players-per-team", 4); // Default to 4 if not set
+        if (playersPerTeam != 1) {
+            if (team.size() < playersPerTeam) {
+                // Apply extra effects to players in teams with fewer players
+                adjustPlayerHealthBasedOnTeamSize(team, playersPerTeam);
+            }
 
-        if (team.size() < teamSizeConfig && teamSizeConfig > 1) {
-            // Apply extra effects to players in teams with fewer players
-            adjustPlayerHealthBasedOnTeamSize(team, teamSizeConfig);
-        }
-
-        for (Player player : team) {
-            sendTeamMessagesAndSetupItems(player, team);
+            for (Player player : team) {
+                sendTeamMessagesAndSetupItems(player, team);
+            }
         }
     }
 
@@ -77,7 +128,7 @@ public class TeamsHandler {
         double newMaxHealth = 20.0 * ratio;
         int newMaxHealthRounded = (int) Math.round(newMaxHealth);
         for (Player player : team) {
-            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(newMaxHealthRounded);
+            Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(newMaxHealthRounded);
             player.setHealth(newMaxHealthRounded);
         }
     }
@@ -99,6 +150,7 @@ public class TeamsHandler {
     private void setupCompassForPlayer(Player player) {
         ItemStack item = new ItemStack(Material.COMPASS);
         ItemMeta meta = item.getItemMeta();
+        assert meta != null;
         meta.setDisplayName(langHandler.getMessage("team.compass-teammate"));
         meta.addEnchant(Enchantment.DURABILITY, 1, true);
         List<String> lore = new ArrayList<>();
@@ -133,18 +185,34 @@ public class TeamsHandler {
         return teammates.toString();
     }
 
-    private void makeTeammatesGlow(List<Player> team) {
-        for (Player playerToGlow: team) {
-            for (Player playerToSeeGlow : team) {
-                if (!playerToGlow.equals(playerToSeeGlow)) {
-                    makePlayerGlow(playerToGlow, playerToSeeGlow);
-                }
-            }
+    public void playerGlow(Player playerToGlow, Player playerToSeeGlow, Boolean glow) {
+        // Step 1: Create entity metadata for glowing effect
+        byte glowingEffectValue;
+
+        if (glow) {
+            glowingEffectValue = (byte) 0x40; // Bit mask value for glowing effect
+        } else {
+            glowingEffectValue = (byte) 0x00; // Bit mask value for removing effect
         }
+
+        EntityData metadata = new EntityData(0, EntityDataTypes.BYTE, glowingEffectValue);
+
+        // Step 2: Create a list of EntityData and add the glowing effect metadata
+        List<EntityData> metadataList = Collections.singletonList(metadata);
+
+        // Step 3: Create the WrapperPlayServerEntityMetadata packet
+        WrapperPlayServerEntityMetadata entityMetadataPacket = new WrapperPlayServerEntityMetadata(playerToGlow.getEntityId(), metadataList);
+
+        // Step 4: Send the glowing effect packet to the player
+        PacketEvents.getAPI().getPlayerManager().sendPacket(playerToSeeGlow, entityMetadataPacket);
     }
 
-    public void makePlayerGlow(Player playerToGlow, Player playerToSeeGlow) {
-
+    public void removeGlowFromAllPlayers() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            for (Player viewer : Bukkit.getOnlinePlayers()) {
+                playerGlow(player, viewer, false);
+            }
+        }
     }
 
     public boolean isPlayerInAnyTeam(Player player) {
@@ -157,6 +225,6 @@ public class TeamsHandler {
     }
 
     public boolean isChatModeEnabled(Player player) {
-        return playerChatModes.getOrDefault(player, true);
+        return playerChatModes.getOrDefault(player, false);
     }
 }

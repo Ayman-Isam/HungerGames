@@ -20,12 +20,12 @@ public class StartGameCommand implements CommandExecutor {
     private final CountDownHandler countDownHandler;
     private final ConfigHandler configHandler;
 
-    public StartGameCommand(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener) {
+    public StartGameCommand(HungerGames plugin, SetSpawnHandler setSpawnHandler, CountDownHandler countDownHandler) {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.setSpawnHandler = setSpawnHandler;
         this.arenaHandler = new ArenaHandler(plugin);
-        this.countDownHandler = new CountDownHandler(plugin, setSpawnHandler, gameSequenceHandler, teamVotingListener);
+        this.countDownHandler = countDownHandler;
         this.configHandler = new ConfigHandler(plugin);
     }
 

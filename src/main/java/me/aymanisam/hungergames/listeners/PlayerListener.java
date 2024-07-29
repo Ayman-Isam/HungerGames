@@ -8,10 +8,13 @@ import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -19,8 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static me.aymanisam.hungergames.HungerGames.gameStarted;
-import static me.aymanisam.hungergames.HungerGames.gameWorld;
+import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
@@ -46,12 +48,16 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         event.setQuitMessage(null);
 
-        if (gameStarted) {
+        if (gameStarted || gameStarting) {
             playersAlive.remove(player);
         } else {
             setSpawnHandler.removePlayerFromSpawnPoint(player);
         }
 
+        removeFromTeam(player);
+    }
+
+    private void removeFromTeam(Player player) {
         for (List<Player> team: teamsAlive) {
             if (team.contains(player)) {
                 team.remove(player);
@@ -91,7 +97,7 @@ public class PlayerListener implements Listener {
         }
 
         boolean autoJoin = configHandler.getWorldConfig(player.getWorld()).getBoolean("auto-join");
-        if (autoJoin && !gameStarted && !HungerGames.gameStarting) {
+        if (autoJoin && !gameStarted && !gameStarting) {
             setSpawnHandler.teleportPlayerToSpawnpoint(player);
             event.setJoinMessage(null);
         }
@@ -104,23 +110,13 @@ public class PlayerListener implements Listener {
         if (gameStarted) {
             playersAlive.remove(player);
             event.setDeathMessage(null);
-        } else if (HungerGames.gameStarting){
+        } else if (gameStarting){
             playersAlive.remove(player);
         } else {
             setSpawnHandler.removePlayerFromSpawnPoint(player);
         }
 
-        for (List<Player> team: teamsAlive) {
-            if (team.contains(player)) {
-                team.remove(player);
-                System.out.println(teamsAlive);
-                System.out.println(teams);
-                if (team.isEmpty()) {
-                    teamsAlive.remove(team);
-                }
-                break;
-            }
-        }
+        removeFromTeam(player);
 
         World world = plugin.getServer().getWorld("world");
         assert world != null;

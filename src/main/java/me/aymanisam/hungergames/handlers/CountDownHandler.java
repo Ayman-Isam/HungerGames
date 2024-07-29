@@ -4,14 +4,19 @@ import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.listeners.TeamVotingListener;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static me.aymanisam.hungergames.HungerGames.gameWorld;
 import static me.aymanisam.hungergames.HungerGames.gameWorld;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
+import static org.bukkit.plugin.java.JavaPlugin.getPlugin;
 
 public class CountDownHandler {
     private final HungerGames plugin;
@@ -21,18 +26,24 @@ public class CountDownHandler {
     private final SetSpawnHandler setSpawnHandler;
     private final TeamVotingListener teamVotingListener;
     private final ConfigHandler configHandler;
+    private final List<BukkitTask> countDownTasks = new ArrayList<>();
 
-    public CountDownHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener) {
+    public static int playersPerTeam;
+
+    public CountDownHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener, ScoreBoardHandler scoreBoardHandler) {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.gameSequenceHandler = gameSequenceHandler;
-        this.teamsHandler = new TeamsHandler(plugin);
+        this.teamsHandler = new TeamsHandler(plugin, scoreBoardHandler);
         this.setSpawnHandler = setSpawnHandler;
         this.teamVotingListener = teamVotingListener;
         this.configHandler = new ConfigHandler(plugin);
     }
 
     public void startCountDown() {
+
+        playersPerTeam = configHandler.getWorldConfig(gameWorld).getInt("players-per-team");
+
         if (configHandler.getWorldConfig(gameWorld).getBoolean("voting")) {
             String highestVotedGameMode;
             int teamSize;
@@ -57,6 +68,7 @@ public class CountDownHandler {
             }
 
             for (Player player : plugin.getServer().getOnlinePlayers()) {
+                player.sendMessage(langHandler.getMessage("team.voted-highest", highestVotedGameMode));
                 player.sendTitle("", langHandler.getMessage("team.voted-highest", highestVotedGameMode), 5, 40, 10);
                 player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1.0f, 1.0f);
                 teamVotingListener.closeVotingInventory(player);
@@ -66,7 +78,10 @@ public class CountDownHandler {
             configHandler.getWorldConfig(gameWorld).set("players-per-team", teamSize);
             configHandler.saveWorldConfig(gameWorld);
 
-            plugin.getServer().getScheduler().runTaskLater(plugin, this::runAfterDelay, 20L * 5);
+            playersPerTeam = teamSize;
+
+            BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, this::runAfterDelay, 20L * 5);
+            countDownTasks.add(task);
         }
     }
 
@@ -75,13 +90,13 @@ public class CountDownHandler {
 
         teamsHandler.createTeam();
 
-        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+        countDownTasks.add(plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             this.gameSequenceHandler.startGame();
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.0f);
             }
             HungerGames.gameStarting = false;
-        }, 20L * 20);
+        }, 20L * 20));
 
         countDown("startgame.20-s", 20L * 0);
         countDown("startgame.15-s", 20L * 5);
@@ -94,7 +109,7 @@ public class CountDownHandler {
     }
 
     private void countDown(String messageKey, long delayInTicks) {
-        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+        BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 langHandler.getLangConfig(player);
                 String message = langHandler.getMessage(messageKey);
@@ -102,5 +117,13 @@ public class CountDownHandler {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
             }
         }, delayInTicks);
+        countDownTasks.add(task);
+    }
+
+    public void cancelCountDown() {
+        for (BukkitTask task : countDownTasks) {
+            task.cancel();
+        }
+        countDownTasks.clear();
     }
 }

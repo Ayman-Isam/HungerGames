@@ -34,8 +34,7 @@ dependencies {
     implementation 'commons-io:commons-io:2.11.0'
     implementation("org.bstats:bstats-bukkit:2.2.1")
     paperweight.paperDevBundle("1.20.4-R0.1-SNAPSHOT")
-    compileOnly 'com.github.NEZNAMY:TAB-API:4.1.6'
-    compileOnly 'com.github.retrooper:packetevents-spigot:2.4.0'
+    implementation 'com.github.retrooper:packetevents-spigot:2.4.0'
 }
 
 def targetJavaVersion = 17
@@ -63,7 +62,10 @@ tasks.assemble {
 shadowJar {
     archiveFileName = "Hungergames-1.5.0-1.20.jar"
     relocate 'org.bstats', "${group}.bstats"
+    relocate 'com.github.retrooper.packetevents', "${group}.packetevents.api"
+    relocate 'io.github.retrooper.packetevents', "${group}.packetevents.impl"
     archiveClassifier.set('')
+    minimize()
 }
 
 processResources {

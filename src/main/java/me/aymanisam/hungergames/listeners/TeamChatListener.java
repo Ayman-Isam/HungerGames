@@ -9,6 +9,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import java.util.List;
 
 import static me.aymanisam.hungergames.HungerGames.gameStarted;
+import static me.aymanisam.hungergames.HungerGames.gameStarting;
 
 public class TeamChatListener implements Listener {
     private final TeamsHandler teamsHandler;
@@ -21,16 +22,21 @@ public class TeamChatListener implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player sender = event.getPlayer();
 
-        if (gameStarted && teamsHandler.isPlayerInAnyTeam(sender) && teamsHandler.isChatModeEnabled(sender)) {
-            event.setCancelled(true);
-
+        if ((gameStarted || gameStarting) && teamsHandler.isPlayerInAnyTeam(sender) && teamsHandler.isChatModeEnabled(sender)) {
             List<Player> teammates = teamsHandler.getTeammates(sender);
 
+            teammates.add(sender);
+
+            event.setCancelled(true);
+
             String message = event.getMessage();
+            String format = event.getFormat();
 
             for (Player teammate : teammates) {
-                teammate.sendMessage(message);
+                teammate.sendMessage(String.format(format, sender.getDisplayName(), message));
             }
+
+            System.out.println("Modified Recipients: " + teammates);
         }
     }
 }

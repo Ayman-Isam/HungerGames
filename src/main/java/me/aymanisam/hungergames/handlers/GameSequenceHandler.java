@@ -1,6 +1,7 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.listeners.CompassListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static me.aymanisam.hungergames.HungerGames.gameWorld;
+import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
 import static me.aymanisam.hungergames.handlers.ScoreBoardHandler.startingPlayers;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
@@ -33,6 +35,8 @@ public class GameSequenceHandler {
     private final ResetPlayerHandler resetPlayerHandler;
     private final ConfigHandler configHandler;
     private final WorldResetHandler worldResetHandler;
+    private final CompassListener compassListener;
+    private final TeamsHandler teamsHandler;
 
     public int gracePeriodTaskId;
     public int timerTaskId;
@@ -42,7 +46,7 @@ public class GameSequenceHandler {
     public static final List<Player> playersAlive = new ArrayList<>();
     public static Map<Player, BossBar> playerBossBars = new HashMap<>();
 
-    public GameSequenceHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
+    public GameSequenceHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler, CompassListener compassListener, TeamsHandler teamsHandler) {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.setSpawnHandler = setSpawnHandler;
@@ -51,6 +55,8 @@ public class GameSequenceHandler {
         this.resetPlayerHandler = new ResetPlayerHandler();
         this.configHandler = new ConfigHandler(plugin);
         this.worldResetHandler = new WorldResetHandler(plugin);
+        this.compassListener = compassListener;
+        this.teamsHandler = teamsHandler;
     }
 
     public void startGame() {
@@ -120,124 +126,149 @@ public class GameSequenceHandler {
         timeLeft = configHandler.getWorldConfig(gameWorld).getInt("game-time");
 
         timerTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-            for (Map.Entry<Player, BossBar> entry : playerBossBars.entrySet()) {
-                BossBar bossBar = entry.getValue();
-                bossBar.setProgress((double) timeLeft / configHandler.getWorldConfig(gameWorld).getInt("game-time"));
-                int minutes = (timeLeft - 1) / 60;
-                int seconds = (timeLeft - 1) % 60;
-                String timeFormatted = String.format("%02d:%02d", minutes, seconds);
-                bossBar.setTitle(langHandler.getMessage("score.time", timeFormatted));
-            }
+            updateBossBars();
             timeLeft--;
 
             scoreBoardHandler.getScoreBoard();
 
-            if (configHandler.getWorldConfig(gameWorld).getInt("players-per-team") > 1) {
+            if (playersPerTeam != 1) {
                 if (teamsAlive.size() <= 1) {
-                    plugin.getServer().getScheduler().cancelTask(timerTaskId);
-
-                    for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        langHandler.getLangConfig(player);
-                        player.sendMessage(langHandler.getMessage("game.game-end"));
-                    }
-
-                    List<Player> winningTeamAlive = teamsAlive.get(0);
-                    List<Player> winningTeam = null;
-
-                    for (List<Player> team: teams) {
-                        for (Player player : winningTeamAlive) {
-                            if (team.contains(player)) {
-                                winningTeam = team;
-                                break;
-                            }
-                        }
-                        if (winningTeam != null) {
-                            break;
-                        }
-                    }
-
-                    winningTeam(winningTeam, null);
-
-                    endGame();
+                    endGameWithTeams();
                 }
             } else {
                 if (playersAlive.size() <= 1) {
-                    plugin.getServer().getScheduler().cancelTask(timerTaskId);
-
-                    for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        langHandler.getLangConfig(player);
-                        player.sendMessage(langHandler.getMessage("game.game-end"));
-                    }
-
-                    Player winner = playersAlive.get(0);
-                    for (Player player : plugin.getServer().getOnlinePlayers()) {
-                        langHandler.getLangConfig(player);
-                        player.sendMessage(langHandler.getMessage("game.winner", winner.getName()));
-                        player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
-                    }
-                    endGame();
+                    endGameWithPlayers();
                 }
             }
 
             if (timeLeft < 0) {
-                if (configHandler.getWorldConfig(gameWorld).getInt("players-per-team") > 1) {
-                    determineWinningTeam();
-                    endGame();
-                } else {
-                    Player winner = null;
-                    int maxKills = -1;
-                    for (Map.Entry<Player, Integer> entry : playerKills.entrySet()) {
-                        if (entry.getValue() > maxKills) {
-                            maxKills = entry.getValue();
-                            winner = entry.getKey();
-                        }
-
-                        for (Player player : plugin.getServer().getOnlinePlayers()) {
-                            langHandler.getLangConfig(player);
-                            if (winner != null) {
-                                player.sendTitle("", langHandler.getMessage("game.winner-kills", winner.getName()), 5, 20, 10);
-                                player.sendMessage(langHandler.getMessage("game.winner-kills", winner.getName()));
-                            } else {
-                                player.sendTitle("", langHandler.getMessage("game.timeup-no-winner"), 5, 20, 10);
-                                player.sendMessage(langHandler.getMessage("game.timeup-no-winner"));
-                            }
-
-                            player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
-                        }
-                    }
-                    endGame();
-                }
+                handleTimeUp();
             }
         }, 0L, 20L);
     }
 
+    private void updateBossBars() {
+        for (Map.Entry<Player, BossBar> entry : playerBossBars.entrySet()) {
+            BossBar bossBar = entry.getValue();
+            bossBar.setProgress((double) timeLeft / configHandler.getWorldConfig(gameWorld).getInt("game-time"));
+            int minutes = (timeLeft - 1) / 60;
+            int seconds = (timeLeft - 1) % 60;
+            String timeFormatted = String.format("%02d:%02d", minutes, seconds);
+            bossBar.setTitle(langHandler.getMessage("score.time", timeFormatted));
+        }
+    }
+
+    private void endGameWithTeams() {
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            langHandler.getLangConfig(player);
+            player.sendMessage(langHandler.getMessage("game.game-end"));
+        }
+
+        if (teamsAlive.size() == 1) {
+            List<Player> winningTeam = teamsAlive.get(0);
+            winningTeam(winningTeam, "winner");
+        } else {
+            determineWinningTeam();
+        }
+
+        endGame();
+    }
+
+    private void endGameWithPlayers() {
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            langHandler.getLangConfig(player);
+            player.sendMessage(langHandler.getMessage("game.game-end"));
+        }
+
+        Player winner = playersAlive.isEmpty() ? null : playersAlive.get(0);
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            langHandler.getLangConfig(player);
+            if (winner != null) {
+                player.sendMessage(langHandler.getMessage("game.winner", winner.getName()));
+                player.sendTitle("", langHandler.getMessage("game.winner", winner.getName()), 5, 20, 10);
+                player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+            } else {
+                player.sendMessage(langHandler.getMessage("game.team-no-winner"));
+            }
+        }
+        endGame();
+    }
+
+    private void handleTimeUp() {
+        if (playersPerTeam != 1) {
+            determineWinningTeam();
+            endGame();
+        } else {
+            determineSoloWinner();
+        }
+    }
+
+    private void determineSoloWinner() {
+        Player winner = null;
+        int maxKills = -1;
+        for (Map.Entry<Player, Integer> entry : playerKills.entrySet()) {
+            if (entry.getValue() > maxKills) {
+                maxKills = entry.getValue();
+                winner = entry.getKey();
+            }
+        }
+
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            langHandler.getLangConfig(player);
+            if (winner != null) {
+                player.sendTitle("", langHandler.getMessage("game.solo-kills", winner.getName()), 5, 20, 10);
+                player.sendMessage(langHandler.getMessage("game.solo-kills", winner.getName()));
+            } else {
+                player.sendTitle("", langHandler.getMessage("game.team-no-winner"), 5, 20, 10);
+                player.sendMessage(langHandler.getMessage("game.team-no-winner"));
+            }
+
+            player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+        }
+        endGame();
+    }
+
     private void winningTeam(List<Player> winningTeam, String winReason) {
         if (winningTeam != null) {
-            StringBuilder allNames = new StringBuilder();
-            for (Player teamMember : winningTeam) {
-                allNames.append(teamMember.getName()).append(", ");
-            }
-
-            if (!allNames.isEmpty()) {
-                allNames.setLength(allNames.length() - 2);
-            }
-
-            String messageKey;
-            if ("kills".equals(winReason)) {
-                messageKey = "game.timeup-kills";
-            } else if ("alive".equals(winReason)) {
-                messageKey = "game.timeup-alive";
-            } else {
-                messageKey = "game.timeup-no-winner";
-            }
+            String allNames = getAllPlayerNames(winningTeam);
+            String messageKey = getMessageKey(winReason);
+            String titleKey = getTitleKey(winReason);
 
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 langHandler.getLangConfig(player);
-                player.sendTitle("", langHandler.getMessage(messageKey, allNames.toString()), 5, 20, 10);
-                player.sendMessage(langHandler.getMessage(messageKey, allNames.toString()));
+                player.sendTitle("", langHandler.getMessage(messageKey, allNames), 5, 20, 10);
+                player.sendMessage(langHandler.getMessage(titleKey, allNames));
                 player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
             }
         }
+    }
+
+    private String getAllPlayerNames(List<Player> players) {
+        StringBuilder allNames = new StringBuilder();
+        for (Player player : players) {
+            allNames.append(player.getName()).append(", ");
+        }
+        if (!allNames.isEmpty()) {
+            allNames.setLength(allNames.length() - 2); // Remove trailing comma and space
+        }
+        return allNames.toString();
+    }
+
+    private String getMessageKey(String winReason) {
+        return switch (winReason) {
+            case "winner" -> "game.winner";
+            case "team-kills" -> "game.team-kills";
+            case "team-alive" -> "game.team-alive";
+            default -> "game.team-no-winner";
+        };
+    }
+
+    private String getTitleKey(String winReason) {
+        return switch (winReason) {
+            case "winner" -> "game.winner";
+            case "team-kills", "team-alive" -> "game.time-up";
+            default -> "game.team-no-winner";
+        };
     }
 
     private void determineWinningTeam() {
@@ -261,12 +292,12 @@ public class GameSequenceHandler {
 
         if (potentialWinningTeams.size() == 1) {
             List<Player> winningTeam = potentialWinningTeams.get(0);
-            String winReason = maxAlivePlayers > 0 ? "alive" : "kills";
+            String winReason = maxAlivePlayers > 0 ? "team-alive" : "team-kills";
             winningTeam(winningTeam, winReason);
         } else {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 langHandler.getLangConfig(player);
-                player.sendMessage(langHandler.getMessage("game.timeup-no-winner"));
+                player.sendMessage(langHandler.getMessage("game.team-no-winner"));
             }
         }
     }
@@ -316,6 +347,9 @@ public class GameSequenceHandler {
         if (supplyDropTask != null) {
             plugin.getServer().getScheduler().cancelTask(supplyDropTask.getTaskId());
         }
+
+        compassListener.cancelGlowTask();
+        teamsHandler.removeGlowFromAllPlayers();
 
         playersAlive.clear();
 

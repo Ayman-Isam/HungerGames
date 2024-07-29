@@ -1,7 +1,6 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
-import me.neznamy.tab.api.TabAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -12,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static me.aymanisam.hungergames.HungerGames.gameWorld;
+import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.timeLeft;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
@@ -20,8 +20,6 @@ public class ScoreBoardHandler {
     private final HungerGames plugin;
     private final LangHandler langHandler;
     private final ConfigHandler configHandler;
-    private boolean Tab;
-    private boolean Packet;
 
     public static int startingPlayers;
 
@@ -29,8 +27,6 @@ public class ScoreBoardHandler {
         this.plugin = plugin;
         this.langHandler = new LangHandler(plugin);
         this.configHandler = new ConfigHandler(plugin);
-        this.Tab = plugin.isPluginLoadedWithBaseName("TAB");
-        this.Packet = plugin.isPluginLoadedWithBaseName("packetevents");
     }
 
     private ChatColor getColor(int interval, int countdown) {
@@ -61,7 +57,6 @@ public class ScoreBoardHandler {
         int pvpTimeConfig = worldConfig.getInt("grace-period");
         int chestRefillInterval = worldConfig.getInt("chestrefill.interval");
         int supplyDropInterval = worldConfig.getInt("supplydrop.interval");
-        int playersPerTeam = worldConfig.getInt("players-per-team");
         int borderStartSize = worldConfig.getInt("border.size");
         int borderEndSize = worldConfig.getInt("border.final-size");
 
@@ -82,7 +77,7 @@ public class ScoreBoardHandler {
 
             Objective objective;
 
-            if (playersPerTeam > 1) {
+            if (playersPerTeam != 1) {
                 objective = scoreboard.registerNewObjective(langHandler.getMessage("score.name-team"), "dummy", langHandler.getMessage("score.name-team"), RenderType.INTEGER);
             } else {
                 objective = scoreboard.registerNewObjective(langHandler.getMessage("score.name-solo"), "dummy", langHandler.getMessage("score.name-solo"), RenderType.INTEGER);

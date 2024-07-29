@@ -39,10 +39,11 @@ chestrefill:
 game:
   game-end: "&6The game has ended!"
   winner: "&b{0} &dis the winner!"
-  winner-kills: "&dTime's up! &b{0} &dwon with most kills!"
-  timeup-no-winner: "&6Time's up! No winner was found!"
-  timeup-kills: "&dTime's up! &b{0} &dwon with their team having most kills!"
-  timeup-alive: "&6Time's up! &b{0} &dwon with their team having most players alive!"
+  solo-kills: "&dTime's up! &b{0} &dwon with most kills!"
+  team-no-winner: "&6Time's up! No winner was found!"
+  time-up: "&6Time's up! &b{0} &dwon"
+  team-kills: "&6Time's up! &b{0} &dwon with their team having most kills!"
+  team-alive: "&6Time's up! &b{0} &dwon with their team having \n most players alive!"
   killed-message: "&b{0} &chas been eliminated from the game by &d{1}"
   death-message: "&b{0} &chas eliminated themselves from the game"
   start: "&aThe game has started!"
@@ -112,7 +113,7 @@ spectate:
   message: "&dSpectate players with /hg spectate"
 
 startgame:
-  min-players: "&cThere must be at least &b{0} players to start the game!"
+  min-players: "&cThere must be at least &b{0}&c players to start the game!"
   set-spawn-arena: "&cSet up the arena and spawn points first!"
   set-spawn: "&cSet up spawn points first!"
   set-arena: "&cSet up the arena first!"

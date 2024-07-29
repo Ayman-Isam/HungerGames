@@ -5,11 +5,13 @@ import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 
 public class WorldBorderHandler {
     private final HungerGames plugin;
     private final LangHandler langHandler;
     private final ConfigHandler configHandler;
+    private BukkitTask borderShrinkTask;
 
     public WorldBorderHandler(HungerGames plugin) {
         this.plugin = plugin;
@@ -30,7 +32,7 @@ public class WorldBorderHandler {
         border.setCenter(centerX, centerZ);
 
         int duration = endTime - startTime;
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+        borderShrinkTask = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             if (HungerGames.gameStarted) {
                 border.setSize(finalSize, duration);
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
@@ -45,6 +47,10 @@ public class WorldBorderHandler {
     }
 
     public void resetWorldBorder(World world) {
+        if (borderShrinkTask != null) {
+            borderShrinkTask.cancel();
+        }
+
         FileConfiguration config = configHandler.getWorldConfig(world);
         int borderSize = config.getInt("border.size");
         WorldBorder border = world.getWorldBorder();

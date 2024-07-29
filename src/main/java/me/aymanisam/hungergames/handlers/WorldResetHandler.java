@@ -71,8 +71,6 @@ public class WorldResetHandler {
 
             arenaHandler.unloadChunks(world);
 
-            System.out.println(Arrays.toString(world.getLoadedChunks()));
-
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 try {
                     Bukkit.getLogger().info("Starting to unload world");
