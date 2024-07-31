@@ -214,11 +214,5 @@ public class PlayerListener implements Listener {
                 }
             }
         }
-
-        if (event.getEntityType() == EntityType.PLAYER) {
-            if (event.getDamager().getType().equals(EntityType.ENDER_PEARL)) {
-                event.setDamage(2.0);
-            }
-        }
     }
 }
