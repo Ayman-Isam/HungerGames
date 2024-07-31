@@ -160,3 +160,10 @@ team:
   nomates: "&cYou have no teammates!"
   chat-enabled: "&dTeamChat enabled! Only teammates will see your messages."
   chat-disabled: "&dTeamChat disabled! Everyone will see your messages."
+
+tips:
+  0: "&aTip: &7Use your compass to track enemies and teammates. Sneak-click to switch teammates."
+  1: "&aTip: &7Chests refill periodically, keep an eye out for them."
+  2: "&aTip: &7Eliminating players grants you special effects. Use this to your advantage!"
+  3: "&aTip: &7Watch out for supply drops, they contain valuable items."
+  4: "&aTip: &7Use /hg teamchat to toggle between team-only and public messages."

@@ -19,38 +19,38 @@ public class SetSpawnCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
 
-    public SetSpawnCommand(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
-        this.langHandler = new LangHandler(plugin);
+    public SetSpawnCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
+        this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage("player-only"));
+            sender.sendMessage(langHandler.getMessage(null, "player-only"));
             return true;
         }
 
-        langHandler.getLangConfig(player);
+        ;
 
         if (!(player.hasPermission("hungergames.setspawn"))) {
-            sender.sendMessage(langHandler.getMessage("no-permission"));
+            sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
         ItemStack stick = new ItemStack(Material.STICK);
         ItemMeta meta = stick.getItemMeta();
         assert meta != null;
-        meta.setDisplayName(langHandler.getMessage("setspawn.stick-name"));
+        meta.setDisplayName(langHandler.getMessage(player, "setspawn.stick-name"));
         stick.setItemMeta(meta);
         List<String> lore = new ArrayList<>();
-        lore.add(langHandler.getMessage("setspawn.stick-left"));
+        lore.add(langHandler.getMessage(player, "setspawn.stick-left"));
         meta.setLore(lore);
         player.getInventory().addItem(stick);
         setSpawnHandler.createSetSpawnConfig(player.getWorld());
         setSpawnHandler.setSpawnConfig.set("spawnpoints", new ArrayList<>());
         setSpawnHandler.saveSetSpawnConfig();
-        sender.sendMessage(langHandler.getMessage("setspawn.spawn-reset"));
+        sender.sendMessage(langHandler.getMessage(player, "setspawn.spawn-reset"));
         return true;
     }
 }

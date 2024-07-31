@@ -22,7 +22,7 @@ public class ConfigHandler {
     private File worldFile;
     private final Map<World, FileConfiguration> worldConfigs = new HashMap<>();
 
-    public ConfigHandler(HungerGames plugin) {
+    public ConfigHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
     }
 

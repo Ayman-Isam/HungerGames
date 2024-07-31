@@ -17,27 +17,27 @@ public class ArenaCreateCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final ArenaHandler arenaHandler;
 
-    public ArenaCreateCommand(HungerGames plugin) {
-        this.langHandler = new LangHandler(plugin);
-        this.arenaHandler = new ArenaHandler(plugin);
+    public ArenaCreateCommand(HungerGames plugin, LangHandler langHandler) {
+        this.langHandler = langHandler;
+        this.arenaHandler = new ArenaHandler(plugin, langHandler);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage("no-server"));
+            sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
 
-        langHandler.getLangConfig(player);
+        ;
 
         if (!(player.hasPermission("hungergames.create"))) {
-            sender.sendMessage(langHandler.getMessage("no-permission"));
+            sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
         if (!(player.hasMetadata("arena_pos1") && player.hasMetadata("arena_pos2"))) {
-            sender.sendMessage(langHandler.getMessage("arena.no-values"));
+            sender.sendMessage(langHandler.getMessage(player, "arena.no-values"));
             return true;
         }
 
@@ -45,11 +45,11 @@ public class ArenaCreateCommand implements CommandExecutor {
         Location pos2 = (Location) player.getMetadata("arena_pos2").get(0).value();
 
         if (pos1 == null || pos2 == null) {
-            sender.sendMessage(langHandler.getMessage("arena.no-values"));
+            sender.sendMessage(langHandler.getMessage(player, "arena.no-values"));
             return true;
         }
 
-        player.sendMessage(langHandler.getMessage("arena.region-created"));
+        player.sendMessage(langHandler.getMessage(player, "arena.region-created"));
 
         FileConfiguration arenaConfig = arenaHandler.getArenaConfig(player.getWorld());
         arenaConfig.set("region.world", Objects.requireNonNull(pos1.getWorld()).getName());

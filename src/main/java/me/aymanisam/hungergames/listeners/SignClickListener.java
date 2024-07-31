@@ -15,8 +15,8 @@ public class SignClickListener implements Listener {
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
 
-    public SignClickListener(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
-        this.langHandler = new LangHandler(plugin);
+    public SignClickListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
+        this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
     }
 
@@ -24,7 +24,7 @@ public class SignClickListener implements Listener {
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Player player = event.getPlayer();
-            langHandler.getLangConfig(player);
+            ;
 
             Block block = event.getClickedBlock();
             assert block != null;
@@ -32,17 +32,17 @@ public class SignClickListener implements Listener {
             if (block.getState() instanceof Sign sign) {
                 if (sign.getLine(0).equalsIgnoreCase("[Join]")) {
                     if (HungerGames.gameStarted) {
-                        player.sendMessage(langHandler.getMessage("startgame.started"));
+                        player.sendMessage(langHandler.getMessage(player, "startgame.started"));
                         return;
                     }
 
                     if (HungerGames.gameStarting) {
-                        player.sendMessage(langHandler.getMessage("startgame.starting"));
+                        player.sendMessage(langHandler.getMessage(player, "startgame.starting"));
                         return;
                     }
 
                     if (setSpawnHandler.spawnPointMap.containsValue(player)) {
-                        player.sendMessage(langHandler.getMessage("game.already-joined"));
+                        player.sendMessage(langHandler.getMessage(player, "game.already-joined"));
                         return;
                     }
 

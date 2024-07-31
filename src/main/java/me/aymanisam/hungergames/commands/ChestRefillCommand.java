@@ -19,24 +19,24 @@ public class ChestRefillCommand implements CommandExecutor {
     private final ArenaHandler arenaHandler;
     private final ChestRefillHandler chestRefillHandler;
 
-    public ChestRefillCommand(HungerGames plugin) {
+    public ChestRefillCommand(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
-        this.arenaHandler = new ArenaHandler(plugin);
-        this.chestRefillHandler = new ChestRefillHandler(plugin);
+        this.langHandler = langHandler;
+        this.arenaHandler = new ArenaHandler(plugin, langHandler);
+        this.chestRefillHandler = new ChestRefillHandler(plugin, langHandler);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage("no-server"));
+            sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
 
-        langHandler.getLangConfig(player);
+        ;
 
         if (!player.hasPermission("hungergames.chestrefill")) {
-            player.sendMessage(langHandler.getMessage("no-permission"));
+            player.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
@@ -44,7 +44,7 @@ public class ChestRefillCommand implements CommandExecutor {
         String worldName = ArenaConfig.getString("region.world");
 
         if (worldName == null) {
-            sender.sendMessage(langHandler.getMessage("chestrefill.no-arena"));
+            sender.sendMessage(langHandler.getMessage(player, "chestrefill.no-arena"));
             return true;
         }
 

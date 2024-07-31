@@ -31,15 +31,15 @@ public class SetSpawnHandler {
     public List<String> playersWaiting;
     private File setSpawnFile;
 
-    public SetSpawnHandler(HungerGames plugin) {
+    public SetSpawnHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
+        this.langHandler = langHandler;
         this.spawnPoints = new ArrayList<>();
         this.spawnPointMap = new HashMap<>();
         this.playersWaiting = new ArrayList<>();
         this.resetPlayerHandler = new ResetPlayerHandler();
-        this.teamVotingListener = new TeamVotingListener(plugin);
-        this.configHandler = new ConfigHandler(plugin);
+        this.teamVotingListener = new TeamVotingListener(plugin, langHandler);
+        this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
     public void createSetSpawnConfig(World world) {
@@ -85,7 +85,7 @@ public class SetSpawnHandler {
             }
         }
 
-        player.sendMessage(langHandler.getMessage("game.join-fail"));
+        player.sendMessage(langHandler.getMessage(player, "game.join-fail"));
         return null;
     }
 
@@ -131,8 +131,7 @@ public class SetSpawnHandler {
         player.teleport(teleportLocation);
 
         for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
-            langHandler.getLangConfig(onlinePlayer);
-            onlinePlayer.sendMessage(langHandler.getMessage("setspawn.joined-message", player.getName(), spawnPointMap.size(),spawnPoints.size()));
+            onlinePlayer.sendMessage(langHandler.getMessage(onlinePlayer, "setspawn.joined-message", player.getName(), spawnPointMap.size(),spawnPoints.size()));
         }
 
         resetPlayerHandler.resetPlayer(player);

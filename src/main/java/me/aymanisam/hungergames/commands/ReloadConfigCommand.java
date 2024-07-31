@@ -16,24 +16,24 @@ public class ReloadConfigCommand implements CommandExecutor {
     private final ConfigHandler configHandler;
     private final ArenaHandler arenaHandler;
 
-    public ReloadConfigCommand(HungerGames plugin) {
+    public ReloadConfigCommand(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
-        this.configHandler = new ConfigHandler(plugin);
-        this.arenaHandler = new ArenaHandler(plugin);
+        this.langHandler = langHandler;
+        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.arenaHandler = new ArenaHandler(plugin, langHandler);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage("no-server"));
+            sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
 
-        langHandler.getLangConfig(player);
+        ;
 
         if (!player.hasPermission("hungergames.reloadconfig")) {
-            player.sendMessage(langHandler.getMessage("no-permission"));
+            player.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
@@ -43,7 +43,7 @@ public class ReloadConfigCommand implements CommandExecutor {
         langHandler.updateLanguageKeys();
         arenaHandler.getArenaConfig(player.getWorld());
 
-        sender.sendMessage(langHandler.getMessage("config-reloaded"));
+        sender.sendMessage(langHandler.getMessage(player, "config-reloaded"));
         return true;
     }
 }

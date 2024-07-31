@@ -16,28 +16,28 @@ public class TeamSizeCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final ConfigHandler configHandler;
 
-    public TeamSizeCommand(HungerGames plugin) {
+    public TeamSizeCommand(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
-        this.configHandler = new ConfigHandler(plugin);
+        this.langHandler = langHandler;
+        this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage("no-server"));
+            sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
 
-        langHandler.getLangConfig(player);
+        ;
 
         if (!(player.hasPermission("hungergames.teamsize"))) {
-            sender.sendMessage(langHandler.getMessage("no-permission"));
+            sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
         if (args.length != 1) {
-            sender.sendMessage(langHandler.getMessage("team.usage"));
+            sender.sendMessage(langHandler.getMessage(player, "team.usage"));
             return true;
         }
 
@@ -50,7 +50,7 @@ public class TeamSizeCommand implements CommandExecutor {
         configHandler.saveWorldConfig(world);
 
 
-        sender.sendMessage(langHandler.getMessage("team.size", newSize));
+        sender.sendMessage(langHandler.getMessage(player, "team.size", newSize));
 
         return true;
     }

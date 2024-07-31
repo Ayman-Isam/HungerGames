@@ -28,10 +28,10 @@ public class ChestRefillHandler {
     private final ConfigHandler configHandler;
     private final LangHandler langHandler;
 
-    public ChestRefillHandler(HungerGames plugin) {
+    public ChestRefillHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.configHandler = new ConfigHandler(plugin);
-        this.langHandler = new LangHandler(plugin);
+        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.langHandler = langHandler;
     }
 
     public void refillChests(World world) {
@@ -73,8 +73,8 @@ public class ChestRefillHandler {
         refillInventory(trappedChestLocations, "trapped-chest-items", itemsConfig, minTrappedChestContent, maxTrappedChestContent);
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            langHandler.getLangConfig(player);
-            player.sendMessage(langHandler.getMessage("chestrefill.refilled"));
+            ;
+            player.sendMessage(langHandler.getMessage(player, "chestrefill.refilled"));
         }
     }
 

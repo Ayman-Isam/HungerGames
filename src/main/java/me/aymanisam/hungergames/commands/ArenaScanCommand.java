@@ -28,23 +28,23 @@ public class ArenaScanCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final ArenaHandler arenaHandler;
 
-    public ArenaScanCommand(HungerGames plugin) {
+    public ArenaScanCommand(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
-        this.arenaHandler = new ArenaHandler(plugin);
+        this.langHandler = langHandler;
+        this.arenaHandler = new ArenaHandler(plugin, langHandler);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage("no-server"));
+            sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
 
-        langHandler.getLangConfig(player);
+        ;
 
         if (!(player.hasPermission("hungergames.scanarena"))) {
-            sender.sendMessage(langHandler.getMessage("no-permission"));
+            sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
@@ -52,7 +52,7 @@ public class ArenaScanCommand implements CommandExecutor {
 
         if (!config.isSet("region.pos1.x") || !config.isSet("region.pos1.y") || !config.isSet("region.pos1.z")
                 || !config.isSet("region.pos2.x") || !config.isSet("region.pos2.y") || !config.isSet("region.pos2.z")) {
-            sender.sendMessage(langHandler.getMessage("scanarena.region-undef"));
+            sender.sendMessage(langHandler.getMessage(player, "scanarena.region-undef"));
             return true;
         }
 
@@ -92,14 +92,14 @@ public class ArenaScanCommand implements CommandExecutor {
                 .collect(Collectors.toList()));
         try {
             chestLocationsConfig.save(chestLocationsFile);
-            sender.sendMessage(langHandler.getMessage("scanarena.saved-locations"));
+            sender.sendMessage(langHandler.getMessage(player, "scanarena.saved-locations"));
         } catch (IOException e) {
-            sender.sendMessage(langHandler.getMessage("scanarena.failed-locations"));
+            sender.sendMessage(langHandler.getMessage(player, "scanarena.failed-locations"));
         }
 
-        player.sendMessage(langHandler.getMessage("scanarena.found-chests", chestLocations.size()));
-        player.sendMessage(langHandler.getMessage("scanarena.found-barrels", barrelLocations.size()));
-        player.sendMessage(langHandler.getMessage("scanarena.found-trapped-chests", trappedChestLocations.size()));
+        player.sendMessage(langHandler.getMessage(player, "scanarena.found-chests", chestLocations.size()));
+        player.sendMessage(langHandler.getMessage(player, "scanarena.found-barrels", barrelLocations.size()));
+        player.sendMessage(langHandler.getMessage(player, "scanarena.found-trapped-chests", trappedChestLocations.size()));
 
         return true;
     }

@@ -35,8 +35,8 @@ public class TeamsHandler {
     public static final List<List<Player>> teams = new ArrayList<>();
     public static final List<List<Player>> teamsAlive = new ArrayList<>();
 
-    public TeamsHandler(HungerGames plugin, ScoreBoardHandler scoreBoardHandler) {
-        this.langHandler = new LangHandler(plugin);
+    public TeamsHandler(HungerGames plugin, LangHandler langHandler, ScoreBoardHandler scoreBoardHandler) {
+        this.langHandler = langHandler;
         this.scoreBoardHandler = scoreBoardHandler;
     }
 
@@ -134,16 +134,16 @@ public class TeamsHandler {
     }
 
     private void sendTeamMessagesAndSetupItems(Player player, List<Player> team) {
-        langHandler.getLangConfig(player);
+        ;
         int teamId = teams.indexOf(team) + 1;
-        player.sendMessage(langHandler.getMessage("team.id", teamId));
+        player.sendMessage(langHandler.getMessage(player, "team.id", teamId));
 
         String teammateNames = getTeammateNames(team, player);
         if (!teammateNames.isEmpty()) {
-            player.sendMessage(langHandler.getMessage("team.members", teammateNames));
+            player.sendMessage(langHandler.getMessage(player, "team.members", teammateNames));
             setupCompassForPlayer(player);
         } else {
-            player.sendMessage(langHandler.getMessage("team.no-teammates"));
+            player.sendMessage(langHandler.getMessage(player, "team.no-teammates"));
         }
     }
 
@@ -151,11 +151,11 @@ public class TeamsHandler {
         ItemStack item = new ItemStack(Material.COMPASS);
         ItemMeta meta = item.getItemMeta();
         assert meta != null;
-        meta.setDisplayName(langHandler.getMessage("team.compass-teammate"));
+        meta.setDisplayName(langHandler.getMessage(player, "team.compass-teammate"));
         meta.addEnchant(Enchantment.DURABILITY, 1, true);
         List<String> lore = new ArrayList<>();
-        lore.add(langHandler.getMessage("team.compass-click"));
-        lore.add(langHandler.getMessage("team.compass-shift-click"));
+        lore.add(langHandler.getMessage(player, "team.compass-click"));
+        lore.add(langHandler.getMessage(player, "team.compass-shift-click"));
         meta.setLore(lore);
         item.setItemMeta(meta);
         player.getInventory().setItem(8, item);

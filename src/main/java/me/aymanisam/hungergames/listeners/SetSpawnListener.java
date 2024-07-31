@@ -32,20 +32,20 @@ public class SetSpawnListener implements Listener {
 
     private final Map<Location, BlockData> originalBlockDataMap = new HashMap<>();
 
-    public SetSpawnListener(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
-        this.langHandler = new LangHandler(plugin);
+    public SetSpawnListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
+        this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
-        this.configHandler = new ConfigHandler(plugin);
+        this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        langHandler.getLangConfig(player);
+        ;
         ItemStack item = event.getItem();
-        if (item != null && item.getType() == Material.STICK && item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(langHandler.getMessage("setspawn.stick-name"))) {
+        if (item != null && item.getType() == Material.STICK && item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(langHandler.getMessage(player, "setspawn.stick-name"))) {
             if (!(player.hasPermission("hungergames.setspawn"))) {
-                player.sendMessage(langHandler.getMessage("no-permission"));
+                player.sendMessage(langHandler.getMessage(player, "no-permission"));
                 return;
             }
 
@@ -55,32 +55,32 @@ public class SetSpawnListener implements Listener {
                 String newSpawnPoint = Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
 
                 if (setSpawnHandler.spawnPoints.contains(newSpawnPoint)) {
-                    player.sendMessage(langHandler.getMessage("setspawn.duplicate"));
+                    player.sendMessage(langHandler.getMessage(player, "setspawn.duplicate"));
                     event.setCancelled(true);
                     return;
                 }
 
                 if (setSpawnHandler.spawnPoints.size() >= config.getInt("max-players")) {
-                    player.sendMessage(langHandler.getMessage("setspawn.max-spawn"));
+                    player.sendMessage(langHandler.getMessage(player, "setspawn.max-spawn"));
                     event.setCancelled(true);
                     return;
                 }
 
                 setSpawnHandler.spawnPoints.add(newSpawnPoint);
                 setSpawnHandler.saveSetSpawnConfig();
-                player.sendMessage(langHandler.getMessage("setspawn.pos-set", setSpawnHandler.spawnPoints.size(), location.getBlockX(), location.getBlockY(), location.getBlockZ()));
+                player.sendMessage(langHandler.getMessage(player, "setspawn.pos-set", setSpawnHandler.spawnPoints.size(), location.getBlockX(), location.getBlockY(), location.getBlockZ()));
                 updateGoldBlocksViewForPlayer(player);
             } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 Location location = Objects.requireNonNull(event.getClickedBlock()).getLocation();
                 String newSpawnPoint = Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
 
                 if (!setSpawnHandler.spawnPoints.contains(newSpawnPoint)) {
-                    player.sendMessage(langHandler.getMessage("setspawn.not-spawn"));
+                    player.sendMessage(langHandler.getMessage(player, "setspawn.not-spawn"));
                     event.setCancelled(true);
                     return;
                 }
 
-                player.sendMessage(langHandler.getMessage("setspawn.pos-removed", setSpawnHandler.spawnPoints.size(), location.getBlockX(), location.getBlockY(), location.getBlockZ()));
+                player.sendMessage(langHandler.getMessage(player, "setspawn.pos-removed", setSpawnHandler.spawnPoints.size(), location.getBlockX(), location.getBlockY(), location.getBlockZ()));
                 setSpawnHandler.spawnPoints.remove(newSpawnPoint);
                 setSpawnHandler.saveSetSpawnConfig();
                 updateGoldBlocksViewForPlayer(player);
@@ -92,11 +92,11 @@ public class SetSpawnListener implements Listener {
     @EventHandler
     public void onItemHeldChange(PlayerItemHeldEvent event) {
         Player player = event.getPlayer();
-        langHandler.getLangConfig(player);
+        ;
         ItemStack item = player.getInventory().getItem(event.getNewSlot());
-        if (item != null && item.getType() == Material.STICK && item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(langHandler.getMessage("setspawn.stick-name"))) {
+        if (item != null && item.getType() == Material.STICK && item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(langHandler.getMessage(player, "setspawn.stick-name"))) {
             if (!(player.hasPermission("hungergames.setspawn"))) {
-                player.sendMessage(langHandler.getMessage("no-permission"));
+                player.sendMessage(langHandler.getMessage(player, "no-permission"));
                 return;
             }
             makePlayerSeeGoldBlocks(player);

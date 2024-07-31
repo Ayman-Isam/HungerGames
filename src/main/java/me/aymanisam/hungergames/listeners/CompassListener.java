@@ -25,11 +25,11 @@ public class CompassListener implements Listener {
     private final TeamsHandler teamsHandler;
     private final Map<Player, BukkitTask> glowTasks = new HashMap<>();
 
-    public CompassListener(HungerGames plugin, CompassHandler compassHandler, ScoreBoardHandler scoreBoardHandler) {
+    public CompassListener(HungerGames plugin, LangHandler langHandler, CompassHandler compassHandler, ScoreBoardHandler scoreBoardHandler) {
         this.plugin = plugin;
         this.compassHandler = compassHandler;
-        this.langHandler = new LangHandler(plugin);
-        this.teamsHandler = new TeamsHandler(plugin, scoreBoardHandler);
+        this.langHandler = langHandler;
+        this.teamsHandler = new TeamsHandler(plugin, langHandler, scoreBoardHandler);
 
         new BukkitRunnable() {
             @Override
@@ -43,10 +43,10 @@ public class CompassListener implements Listener {
         for (Player player : Bukkit.getOnlinePlayers()) {
             ItemStack itemInHand = player.getInventory().getItemInMainHand();
             if (itemInHand.getType() == Material.COMPASS) {
-                if (Objects.requireNonNull(itemInHand.getItemMeta()).getDisplayName().equals(langHandler.getMessage("team.compass-teammate"))) {
+                if (Objects.requireNonNull(itemInHand.getItemMeta()).getDisplayName().equals(langHandler.getMessage(player, "team.compass-teammate"))) {
                     Player nearestPlayer = compassHandler.findNearestTeammate(player, false);
                     trackPlayer(player, nearestPlayer, false);
-                } else if (Objects.requireNonNull(itemInHand.getItemMeta()).getDisplayName().equals(langHandler.getMessage("team.compass-enemy"))) {
+                } else if (Objects.requireNonNull(itemInHand.getItemMeta()).getDisplayName().equals(langHandler.getMessage(player, "team.compass-enemy"))) {
                     Player nearestPlayer = compassHandler.findNearestEnemy(player, false);
                     if (nearestPlayer != null) {
                         player.setCompassTarget(nearestPlayer.getLocation());
@@ -61,12 +61,12 @@ public class CompassListener implements Listener {
         Player player = event.getPlayer();
         ItemStack itemInHand = player.getInventory().getItemInMainHand();
 
-        if (itemInHand.getType() == Material.COMPASS && Objects.requireNonNull(itemInHand.getItemMeta()).getDisplayName().equals(langHandler.getMessage("team.compass-teammate"))) {
+        if (itemInHand.getType() == Material.COMPASS && Objects.requireNonNull(itemInHand.getItemMeta()).getDisplayName().equals(langHandler.getMessage(player, "team.compass-teammate"))) {
             if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 Player nearestPlayer = compassHandler.findNearestTeammate(player, true);
                 trackPlayer(player, nearestPlayer, true);
             }
-        } else if (itemInHand.getType() == Material.COMPASS && Objects.requireNonNull(itemInHand.getItemMeta()).getDisplayName().equals(langHandler.getMessage("team.compass-enemy"))) {
+        } else if (itemInHand.getType() == Material.COMPASS && Objects.requireNonNull(itemInHand.getItemMeta()).getDisplayName().equals(langHandler.getMessage(player, "team.compass-enemy"))) {
             if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 Player nearestPlayer = compassHandler.findNearestEnemy(player, true);
                 if (nearestPlayer != null) {

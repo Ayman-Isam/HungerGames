@@ -18,15 +18,15 @@ public class SpectatePlayerHandler {
 
     private final Map<Integer, Player> slotPlayerMap = new HashMap<>();
 
-    public SpectatePlayerHandler(HungerGames plugin) {
-        this.langHandler = new LangHandler(plugin);
+    public SpectatePlayerHandler(HungerGames plugin, LangHandler langHandler) {
+        this.langHandler = langHandler;
     }
 
     public void openSpectatorGUI(Player spectator) {
         slotPlayerMap.clear();
 
         int size = (int) Math.ceil(playersAlive.size() / 9.0) * 9;
-        Inventory gui = Bukkit.createInventory(null, size, langHandler.getMessage("spectate.gui-message"));
+        Inventory gui = Bukkit.createInventory(null, size, langHandler.getMessage(spectator, "spectate.gui-message"));
         for (int i = 0; i < playersAlive.size(); i++) {
             Player player = playersAlive.get(i);
             ItemStack playerItem = new ItemStack(Material.PLAYER_HEAD);

@@ -16,22 +16,22 @@ public class SupplyDropCommand implements CommandExecutor {
     private final SupplyDropHandler supplyDropHandler;
 
 
-    public SupplyDropCommand(HungerGames plugin) {
-        this.langHandler = new LangHandler(plugin);
-        this.supplyDropHandler = new SupplyDropHandler(plugin);
+    public SupplyDropCommand(HungerGames plugin, LangHandler langHandler) {
+        this.langHandler = langHandler;
+        this.supplyDropHandler = new SupplyDropHandler(plugin, langHandler);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage("no-server"));
+            sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
 
-        langHandler.getLangConfig(player);
+        ;
 
         if (!player.hasPermission("hungergames.supplydrop")) {
-            player.sendMessage(langHandler.getMessage("no-permission"));
+            player.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 

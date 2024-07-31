@@ -17,35 +17,35 @@ import java.util.List;
 public class ArenaSelectCommand implements CommandExecutor {
     private final LangHandler langHandler;
 
-    public ArenaSelectCommand(HungerGames plugin) {
-        this.langHandler = new LangHandler(plugin);
+    public ArenaSelectCommand(HungerGames plugin, LangHandler langHandler) {
+        this.langHandler = langHandler;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage("no-server"));
+            sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
 
-        langHandler.getLangConfig(player);
+        ;
 
         if (!(player.hasPermission("hungergames.select"))) {
-            sender.sendMessage(langHandler.getMessage("no-permission"));
+            sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
         ItemStack blazeRod = new ItemStack(Material.BLAZE_ROD);
         ItemMeta meta = blazeRod.getItemMeta();
         assert meta != null;
-        meta.setDisplayName(langHandler.getMessage("arena.stick-name"));
+        meta.setDisplayName(langHandler.getMessage(player, "arena.stick-name"));
         List<String> lore = new ArrayList<>();
-        lore.add(langHandler.getMessage("arena.stick-left"));
-        lore.add(langHandler.getMessage("arena.stick-right"));
+        lore.add(langHandler.getMessage(player, "arena.stick-left"));
+        lore.add(langHandler.getMessage(player, "arena.stick-right"));
         meta.setLore(lore);
         blazeRod.setItemMeta(meta);
         player.getInventory().addItem(blazeRod);
-        sender.sendMessage(langHandler.getMessage("arena.given-stick"));
+        sender.sendMessage(langHandler.getMessage(player, "arena.given-stick"));
 
         return true;
     }

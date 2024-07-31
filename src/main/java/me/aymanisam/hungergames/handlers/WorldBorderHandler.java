@@ -13,10 +13,10 @@ public class WorldBorderHandler {
     private final ConfigHandler configHandler;
     private BukkitTask borderShrinkTask;
 
-    public WorldBorderHandler(HungerGames plugin) {
+    public WorldBorderHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
-        this.configHandler = new ConfigHandler(plugin);
+        this.langHandler = langHandler;
+        this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
     public void startWorldBorder(World world) {
@@ -36,8 +36,8 @@ public class WorldBorderHandler {
             if (HungerGames.gameStarted) {
                 border.setSize(finalSize, duration);
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
-                    langHandler.getLangConfig(player);
-                    langHandler.getMessage("border.start-shrink");
+                    ;
+                    langHandler.getMessage(player, "border.start-shrink");
                 }
             } else {
                 int borderSize = config.getInt("border.size");

@@ -21,9 +21,9 @@ public class WorldResetHandler {
     private final HungerGames plugin;
     private final ArenaHandler arenaHandler;
 
-    public WorldResetHandler(HungerGames plugin) {
+    public WorldResetHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.arenaHandler = new ArenaHandler(plugin);
+        this.arenaHandler = new ArenaHandler(plugin, langHandler);
     }
 
     public void saveWorldState(World world) {

@@ -17,30 +17,30 @@ public class SpectatePlayerCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final SpectatePlayerHandler spectatePlayerHandler;
 
-    public SpectatePlayerCommand(HungerGames plugin) {
-        this.langHandler = new LangHandler(plugin);
-        this.spectatePlayerHandler = new SpectatePlayerHandler(plugin);
+    public SpectatePlayerCommand(HungerGames plugin, LangHandler langHandler) {
+        this.langHandler = langHandler;
+        this.spectatePlayerHandler = new SpectatePlayerHandler(plugin, langHandler);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage("no-server"));
+            sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
 
         if (!(player.hasPermission("hungergames.spectate"))) {
-            sender.sendMessage(langHandler.getMessage("no-permission"));
+            sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
         if (!(player.getGameMode() == GameMode.SPECTATOR)) {
-            player.sendMessage(langHandler.getMessage("spectate.not-spectator"));
+            player.sendMessage(langHandler.getMessage(player, "spectate.not-spectator"));
             return true;
         }
 
         if (playersAlive.isEmpty()) {
-            player.sendMessage(langHandler.getMessage("spectate.no-player"));
+            player.sendMessage(langHandler.getMessage(player, "spectate.no-player"));
             return true;
         }
 

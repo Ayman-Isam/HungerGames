@@ -21,33 +21,33 @@ public class ToggleChatCommand implements CommandExecutor {
     private final TeamsHandler teamsHandler;
     public static final Map<Player, Boolean> playerChatModes = new HashMap<>();
 
-    public ToggleChatCommand(HungerGames plugin, TeamsHandler teamsHandler){
-        this.langHandler = new LangHandler(plugin);
-        this.configHandler = new ConfigHandler(plugin);
+    public ToggleChatCommand(HungerGames plugin, LangHandler langHandler, TeamsHandler teamsHandler){
+        this.langHandler = langHandler;
+        this.configHandler = new ConfigHandler(plugin, langHandler);
         this.teamsHandler = teamsHandler;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage("no-server"));
+            sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
 
-        langHandler.getLangConfig(player);
+        ;
 
         if (!player.hasPermission("hungergames.teamchat")) {
-            player.sendMessage(langHandler.getMessage("no-permission"));
+            player.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
         if (!gameStarted && !gameStarting) {
-            player.sendMessage(langHandler.getMessage("game.not-started"));
+            player.sendMessage(langHandler.getMessage(player, "game.not-started"));
             return true;
         }
 
         if (configHandler.getWorldConfig(gameWorld).getInt("players-per-team") == 1) {
-            player.sendMessage(langHandler.getMessage("game.not-team"));
+            player.sendMessage(langHandler.getMessage(player, "game.not-team"));
             return true;
         }
 
@@ -56,9 +56,9 @@ public class ToggleChatCommand implements CommandExecutor {
 
 
         if (!currentMode) {
-            player.sendMessage(langHandler.getMessage("team.chat-enabled"));
+            player.sendMessage(langHandler.getMessage(player, "team.chat-enabled"));
         } else {
-            player.sendMessage(langHandler.getMessage("team.chat-disabled"));
+            player.sendMessage(langHandler.getMessage(player, "team.chat-disabled"));
         }
 
         return true;

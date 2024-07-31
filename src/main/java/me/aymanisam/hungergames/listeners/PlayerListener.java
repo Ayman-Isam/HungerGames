@@ -36,11 +36,11 @@ public class PlayerListener implements Listener {
     private final Map<Player, Location> deathLocations = new HashMap<>();
     public static final Map<Player, Integer> playerKills = new HashMap<>();
 
-    public PlayerListener(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
+    public PlayerListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
         this.setSpawnHandler = setSpawnHandler;
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
-        this.configHandler = new ConfigHandler(plugin);
+        this.langHandler = langHandler;
+        this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
     @EventHandler
@@ -125,8 +125,8 @@ public class PlayerListener implements Listener {
         if (spectating) {
             player.setGameMode(GameMode.SPECTATOR);
             if (gameStarted) {
-                player.sendTitle("", langHandler.getMessage("spectate.spectating-player"), 5, 20, 10);
-                player.sendMessage(langHandler.getMessage("spectate.message"));
+                player.sendTitle("", langHandler.getMessage(player, "spectate.spectating-player"), 5, 20, 10);
+                player.sendMessage(langHandler.getMessage(player, "spectate.message"));
                 deathLocations.put(player, player.getLocation());
             }
         }
@@ -155,9 +155,9 @@ public class PlayerListener implements Listener {
             for (Player p : plugin.getServer().getOnlinePlayers()) {
                 langHandler.getLangConfig(p);
                 if (killer != null)
-                    p.sendMessage(langHandler.getMessage("game.killed-message", player.getName(), killer.getName()));
+                    p.sendMessage(langHandler.getMessage(player, "game.killed-message", player.getName(), killer.getName()));
                 else {
-                    p.sendMessage(langHandler.getMessage("game.death-message", player.getName()));
+                    p.sendMessage(langHandler.getMessage(player, "game.death-message", player.getName()));
                 }
             }
         }

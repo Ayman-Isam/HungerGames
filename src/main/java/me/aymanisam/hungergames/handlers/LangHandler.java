@@ -4,7 +4,6 @@ import me.aymanisam.hungergames.HungerGames;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Squid;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +18,6 @@ import java.util.logging.Level;
 
 public class LangHandler {
     private final HungerGames plugin;
-    private YamlConfiguration langConfig;
 
     private final Map<String, YamlConfiguration> langConfigs = new HashMap<>();
 
@@ -27,10 +25,12 @@ public class LangHandler {
         this.plugin = plugin;
     }
 
-    public String getMessage(String key, Object... args) {
-        if (langConfig == null) {
-            File defaultLangFile = new File(plugin.getDataFolder(), "lang/en_US.yml");
-            langConfig = YamlConfiguration.loadConfiguration(defaultLangFile);
+    public String getMessage(Player player, String key, Object... args) {
+        YamlConfiguration langConfig;
+        if (player != null) {
+            langConfig = getLangConfig(player);
+        } else {
+            langConfig = getLangConfig();
         }
 
         String message = langConfig.getString(key);
@@ -58,17 +58,36 @@ public class LangHandler {
         for (File langFile : langFiles) {
             String locale = langFile.getName().replace(".yml", "");
             YamlConfiguration langConfig = YamlConfiguration.loadConfiguration(langFile);
-            langConfigs.put(locale, langConfig);
+            langConfigs.put(locale.toLowerCase(), langConfig);
         }
     }
 
-    public YamlConfiguration getLangConfig (Player player) {
+    public YamlConfiguration getLangConfig(Player player) {
+        if (langConfigs.isEmpty()) {
+            loadLanguageConfigs();
+        }
+
         String locale = player.getLocale();
         if (langConfigs.containsKey(locale)) {
             return langConfigs.get(locale);
         } else {
-            return langConfigs.get("en_US");
+            plugin.getLogger().log(Level.WARNING, "Locale " + locale + " not found. Using default 'en_us' configuration.");
+            return langConfigs.get("en_us");
         }
+    }
+
+    public YamlConfiguration getLangConfig() {
+        if (langConfigs.isEmpty()) {
+            loadLanguageConfigs();
+        }
+
+        YamlConfiguration config = langConfigs.get("en_us");
+        if (config == null) {
+            plugin.getLogger().log(Level.WARNING, "Language configuration for 'en_us' is missing. Using default configuration.");
+            config = new YamlConfiguration();
+        }
+
+        return config;
     }
 
     public void saveLanguageFiles() {

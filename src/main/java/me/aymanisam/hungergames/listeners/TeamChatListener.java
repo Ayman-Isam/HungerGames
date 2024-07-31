@@ -3,6 +3,7 @@ package me.aymanisam.hungergames.listeners;
 import me.aymanisam.hungergames.handlers.TeamsHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
@@ -35,8 +36,6 @@ public class TeamChatListener implements Listener {
             for (Player teammate : teammates) {
                 teammate.sendMessage(String.format(format, sender.getDisplayName(), message));
             }
-
-            System.out.println("Modified Recipients: " + teammates);
         }
     }
 }

@@ -30,14 +30,14 @@ public class CountDownHandler {
 
     public static int playersPerTeam;
 
-    public CountDownHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener, ScoreBoardHandler scoreBoardHandler) {
+    public CountDownHandler(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener, ScoreBoardHandler scoreBoardHandler) {
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
+        this.langHandler = langHandler;
         this.gameSequenceHandler = gameSequenceHandler;
-        this.teamsHandler = new TeamsHandler(plugin, scoreBoardHandler);
+        this.teamsHandler = new TeamsHandler(plugin, langHandler, scoreBoardHandler);
         this.setSpawnHandler = setSpawnHandler;
         this.teamVotingListener = teamVotingListener;
-        this.configHandler = new ConfigHandler(plugin);
+        this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
     public void startCountDown() {
@@ -54,22 +54,22 @@ public class CountDownHandler {
             int votedVersus = Collections.frequency(TeamVotingListener.playerVotes.values(), "versus");
 
             if (votedSolo >= votedDuo && votedSolo >= votedTrio && votedSolo >= votedVersus) {
-                highestVotedGameMode = langHandler.getMessage("team.solo-inv");
+                highestVotedGameMode = langHandler.getMessage(null, "team.solo-inv");
                 teamSize = 1;
             } else if (votedDuo >= votedTrio && votedDuo >= votedVersus) {
-                highestVotedGameMode = langHandler.getMessage("team.duo-inv");
+                highestVotedGameMode = langHandler.getMessage(null, "team.duo-inv");
                 teamSize = 2;
             } else if (votedTrio >= votedVersus) {
-                highestVotedGameMode = langHandler.getMessage("team.trio-inv");
+                highestVotedGameMode = langHandler.getMessage(null, "team.trio-inv");
                 teamSize = 3;
             } else {
-                highestVotedGameMode = langHandler.getMessage("team.versus-inv");
+                highestVotedGameMode = langHandler.getMessage(null, "team.versus-inv");
                 teamSize = 0;
             }
 
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                player.sendMessage(langHandler.getMessage("team.voted-highest", highestVotedGameMode));
-                player.sendTitle("", langHandler.getMessage("team.voted-highest", highestVotedGameMode), 5, 40, 10);
+                player.sendMessage(langHandler.getMessage(player, "team.voted-highest", highestVotedGameMode));
+                player.sendTitle("", langHandler.getMessage(player, "team.voted-highest", highestVotedGameMode), 5, 40, 10);
                 player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1.0f, 1.0f);
                 teamVotingListener.closeVotingInventory(player);
             }
@@ -111,8 +111,8 @@ public class CountDownHandler {
     private void countDown(String messageKey, long delayInTicks) {
         BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                langHandler.getLangConfig(player);
-                String message = langHandler.getMessage(messageKey);
+                ;
+                String message = langHandler.getMessage(player, messageKey);
                 player.sendTitle("", message, 5, 20, 10);
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
             }

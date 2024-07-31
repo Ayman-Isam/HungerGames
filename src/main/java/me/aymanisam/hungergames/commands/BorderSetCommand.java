@@ -18,36 +18,36 @@ public class BorderSetCommand implements CommandExecutor {
     private final ArenaHandler arenaHandler;
     private final ConfigHandler configHandler;
 
-    public BorderSetCommand(HungerGames plugin) {
+    public BorderSetCommand(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
-        this.arenaHandler = new ArenaHandler(plugin);
-        this.configHandler = new ConfigHandler(plugin);
+        this.langHandler = langHandler;
+        this.arenaHandler = new ArenaHandler(plugin, langHandler);
+        this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage("no-server"));
+            sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
 
-        langHandler.getLangConfig(player);
+        ;
 
         if (!player.hasPermission("hungergames.border")) {
-            player.sendMessage(langHandler.getMessage("no-permission"));
+            player.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
         if (args.length != 3) {
-            sender.sendMessage(langHandler.getMessage("border.usage"));
+            sender.sendMessage(langHandler.getMessage(player, "border.usage"));
             return true;
         }
 
         World world = player.getWorld();
 
         if (arenaHandler.getArenaConfig(world).get("region") == null) {
-            sender.sendMessage(langHandler.getMessage("supplydrop.no-arena"));
+            sender.sendMessage(langHandler.getMessage(player, "supplydrop.no-arena"));
             return true;
         }
 
@@ -58,14 +58,14 @@ public class BorderSetCommand implements CommandExecutor {
             centerX = Integer.parseInt(args[1]);
             centerZ = Integer.parseInt(args[2]);
         } catch (NumberFormatException e) {
-            sender.sendMessage(langHandler.getMessage("border.invalid-args"));
+            sender.sendMessage(langHandler.getMessage(player, "border.invalid-args"));
             return true;
         }
 
         WorldBorder worldBorder = world.getWorldBorder();
         worldBorder.setSize(newSize);
         worldBorder.setCenter(centerX, centerZ);
-        sender.sendMessage(langHandler.getMessage("border.success-message", newSize, centerX, centerZ));
+        sender.sendMessage(langHandler.getMessage(player, "border.success-message", newSize, centerX, centerZ));
         configHandler.getWorldConfig(world).set("border.size", newSize);
         configHandler.getWorldConfig(world).set("border.center-x", centerX);
         configHandler.getWorldConfig(world).set("border.center-z", centerZ);

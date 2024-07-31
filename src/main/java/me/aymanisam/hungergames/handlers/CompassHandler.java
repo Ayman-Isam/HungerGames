@@ -19,8 +19,8 @@ public class CompassHandler {
 
     private final Map<Player, Integer> teammateIndexMap = new HashMap<>();
 
-    public CompassHandler (HungerGames plugin) {
-        this.langHandler = new LangHandler(plugin);
+    public CompassHandler (HungerGames plugin, LangHandler langHandler) {
+        this.langHandler = langHandler;
     }
 
     public Player findNearestTeammate(Player player, Boolean message) {
@@ -34,7 +34,7 @@ public class CompassHandler {
         }
 
         if (playerTeam == null || playerTeam.isEmpty()) {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(langHandler.getMessage("arena.compass-nomates")));
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(langHandler.getMessage(player, "arena.compass-nomates")));
             return null;
         }
 
@@ -62,9 +62,9 @@ public class CompassHandler {
 
         if (message) {
             if (teammate != null) {
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(langHandler.getMessage("arena.compass-teammate", teammate.getName())));
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(langHandler.getMessage(player, "arena.compass-teammate", teammate.getName())));
             } else {
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(langHandler.getMessage("arena.compass-nomates")));
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(langHandler.getMessage(player, "arena.compass-nomates")));
             }
         }
 
@@ -96,7 +96,7 @@ public class CompassHandler {
         }
 
         if (closestPlayer != null && message) {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(langHandler.getMessage("arena.compass-enemy", closestPlayer.getName())));
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(langHandler.getMessage(player, "arena.compass-enemy", closestPlayer.getName())));
         }
 
         return closestPlayer;

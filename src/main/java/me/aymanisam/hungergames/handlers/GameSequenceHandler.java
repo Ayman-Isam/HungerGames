@@ -46,15 +46,15 @@ public class GameSequenceHandler {
     public static final List<Player> playersAlive = new ArrayList<>();
     public static Map<Player, BossBar> playerBossBars = new HashMap<>();
 
-    public GameSequenceHandler(HungerGames plugin, SetSpawnHandler setSpawnHandler, CompassListener compassListener, TeamsHandler teamsHandler) {
+    public GameSequenceHandler(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, CompassListener compassListener, TeamsHandler teamsHandler) {
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
+        this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
-        this.worldBorderHandler = new WorldBorderHandler(plugin);
-        this.scoreBoardHandler = new ScoreBoardHandler(plugin);
+        this.worldBorderHandler = new WorldBorderHandler(plugin, langHandler);
+        this.scoreBoardHandler = new ScoreBoardHandler(plugin, langHandler);
         this.resetPlayerHandler = new ResetPlayerHandler();
-        this.configHandler = new ConfigHandler(plugin);
-        this.worldResetHandler = new WorldResetHandler(plugin);
+        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.worldResetHandler = new WorldResetHandler(plugin, langHandler);
         this.compassListener = compassListener;
         this.teamsHandler = teamsHandler;
     }
@@ -69,9 +69,9 @@ public class GameSequenceHandler {
         worldBorderHandler.startWorldBorder(gameWorld);
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            langHandler.getLangConfig(player);
-            player.sendTitle("", langHandler.getMessage("game.start"),5,20,10);
-            player.sendMessage(langHandler.getMessage("game.grace-start"));
+            ;
+            player.sendTitle("", langHandler.getMessage(player, "game.start"),5,20,10);
+            player.sendMessage(langHandler.getMessage(player, "game.grace-start"));
         }
 
         int gracePeriod = configHandler.getWorldConfig(gameWorld).getInt("grace-period");
@@ -80,16 +80,16 @@ public class GameSequenceHandler {
             assert world != null;
             world.setPVP(true);
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                langHandler.getLangConfig(player);
-                player.sendMessage(langHandler.getMessage("game.grace-end"));
-                player.sendTitle("", langHandler.getMessage("game.grace-end"),5,20,10);
+                ;
+                player.sendMessage(langHandler.getMessage(player, "game.grace-end"));
+                player.sendTitle("", langHandler.getMessage(player, "game.grace-end"),5,20,10);
                 player.playSound(player.getLocation(), Sound.ENTITY_ELDER_GUARDIAN_CURSE, 1.0f, 1.0f);
             }
         }, gracePeriod * 20L);
 
         for (Player player : playersAlive) {
-            langHandler.getLangConfig(player);
-            BossBar bossBar = plugin.getServer().createBossBar(langHandler.getMessage("time-remaining"), BarColor.GREEN, BarStyle.SOLID);
+            ;
+            BossBar bossBar = plugin.getServer().createBossBar(langHandler.getMessage(player, "time-remaining"), BarColor.GREEN, BarStyle.SOLID);
             bossBar.addPlayer(player);
 
             playerBossBars.put(player, bossBar);
@@ -106,14 +106,14 @@ public class GameSequenceHandler {
         }
 
         int supplyDropInterval = configHandler.getWorldConfig(gameWorld).getInt("supplydrop.interval") * 20;
-        SupplyDropHandler supplyDropHandler = new SupplyDropHandler(plugin);
+        SupplyDropHandler supplyDropHandler = new SupplyDropHandler(plugin, langHandler);
 
         supplyDropTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
             supplyDropHandler.setSupplyDrop(gameWorld);
         }, supplyDropInterval, supplyDropInterval);
 
         int chestRefillInterval = configHandler.getWorldConfig(gameWorld).getInt("chestrefill.interval") * 20;
-        ChestRefillHandler chestRefillHandler = new ChestRefillHandler(plugin);
+        ChestRefillHandler chestRefillHandler = new ChestRefillHandler(plugin, langHandler);
 
         chestRefillTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
             chestRefillHandler.refillChests(gameWorld);
@@ -149,19 +149,20 @@ public class GameSequenceHandler {
 
     private void updateBossBars() {
         for (Map.Entry<Player, BossBar> entry : playerBossBars.entrySet()) {
+            Player player = entry.getKey();
             BossBar bossBar = entry.getValue();
             bossBar.setProgress((double) timeLeft / configHandler.getWorldConfig(gameWorld).getInt("game-time"));
             int minutes = (timeLeft - 1) / 60;
             int seconds = (timeLeft - 1) % 60;
             String timeFormatted = String.format("%02d:%02d", minutes, seconds);
-            bossBar.setTitle(langHandler.getMessage("score.time", timeFormatted));
+            bossBar.setTitle(langHandler.getMessage(player, "score.time", timeFormatted));
         }
     }
 
     private void endGameWithTeams() {
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            langHandler.getLangConfig(player);
-            player.sendMessage(langHandler.getMessage("game.game-end"));
+            ;
+            player.sendMessage(langHandler.getMessage(player, "game.game-end"));
         }
 
         if (teamsAlive.size() == 1) {
@@ -176,19 +177,19 @@ public class GameSequenceHandler {
 
     private void endGameWithPlayers() {
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            langHandler.getLangConfig(player);
-            player.sendMessage(langHandler.getMessage("game.game-end"));
+            ;
+            player.sendMessage(langHandler.getMessage(player, "game.game-end"));
         }
 
         Player winner = playersAlive.isEmpty() ? null : playersAlive.get(0);
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            langHandler.getLangConfig(player);
+            ;
             if (winner != null) {
-                player.sendMessage(langHandler.getMessage("game.winner", winner.getName()));
-                player.sendTitle("", langHandler.getMessage("game.winner", winner.getName()), 5, 20, 10);
+                player.sendMessage(langHandler.getMessage(player, "game.winner", winner.getName()));
+                player.sendTitle("", langHandler.getMessage(player, "game.winner", winner.getName()), 5, 20, 10);
                 player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
             } else {
-                player.sendMessage(langHandler.getMessage("game.team-no-winner"));
+                player.sendMessage(langHandler.getMessage(player, "game.team-no-winner"));
             }
         }
         endGame();
@@ -214,13 +215,13 @@ public class GameSequenceHandler {
         }
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            langHandler.getLangConfig(player);
+            ;
             if (winner != null) {
-                player.sendTitle("", langHandler.getMessage("game.solo-kills", winner.getName()), 5, 20, 10);
-                player.sendMessage(langHandler.getMessage("game.solo-kills", winner.getName()));
+                player.sendTitle("", langHandler.getMessage(player, "game.solo-kills", winner.getName()), 5, 20, 10);
+                player.sendMessage(langHandler.getMessage(player, "game.solo-kills", winner.getName()));
             } else {
-                player.sendTitle("", langHandler.getMessage("game.team-no-winner"), 5, 20, 10);
-                player.sendMessage(langHandler.getMessage("game.team-no-winner"));
+                player.sendTitle("", langHandler.getMessage(player, "game.team-no-winner"), 5, 20, 10);
+                player.sendMessage(langHandler.getMessage(player, "game.team-no-winner"));
             }
 
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
@@ -235,9 +236,9 @@ public class GameSequenceHandler {
             String titleKey = getTitleKey(winReason);
 
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                langHandler.getLangConfig(player);
-                player.sendTitle("", langHandler.getMessage(messageKey, allNames), 5, 20, 10);
-                player.sendMessage(langHandler.getMessage(titleKey, allNames));
+                ;
+                player.sendTitle("", langHandler.getMessage(player, messageKey, allNames), 5, 20, 10);
+                player.sendMessage(langHandler.getMessage(player, titleKey, allNames));
                 player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
             }
         }
@@ -296,8 +297,8 @@ public class GameSequenceHandler {
             winningTeam(winningTeam, winReason);
         } else {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                langHandler.getLangConfig(player);
-                player.sendMessage(langHandler.getMessage("game.team-no-winner"));
+                ;
+                player.sendMessage(langHandler.getMessage(player, "game.team-no-winner"));
             }
         }
     }
@@ -358,8 +359,8 @@ public class GameSequenceHandler {
         if (plugin.isEnabled()) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                 for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-                    player.sendMessage(langHandler.getMessage("game.join-instruction"));
-                    player.sendTitle("",langHandler.getMessage("game.join-instruction"), 5, 20, 10);
+                    player.sendMessage(langHandler.getMessage(player, "game.join-instruction"));
+                    player.sendTitle("",langHandler.getMessage(player, "game.join-instruction"), 5, 20, 10);
                 }
             }, 100L);
 
@@ -367,8 +368,8 @@ public class GameSequenceHandler {
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                     for (Player player : Bukkit.getServer().getOnlinePlayers()) {
                         if (!setSpawnHandler.spawnPointMap.containsValue(player)) {
-                            player.sendMessage(langHandler.getMessage("game.auto-join"));
-                            player.sendTitle("", langHandler.getMessage("game.auto-join"), 5, 20, 10);
+                            player.sendMessage(langHandler.getMessage(player, "game.auto-join"));
+                            player.sendTitle("", langHandler.getMessage(player, "game.auto-join"), 5, 20, 10);
                             setSpawnHandler.teleportPlayerToSpawnpoint(player);
                         }
                     }

@@ -23,10 +23,10 @@ public class ScoreBoardHandler {
 
     public static int startingPlayers;
 
-    public ScoreBoardHandler(HungerGames plugin) {
+    public ScoreBoardHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
-        this.configHandler = new ConfigHandler(plugin);
+        this.langHandler = langHandler;
+        this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
     private ChatColor getColor(int interval, int countdown) {
@@ -42,12 +42,12 @@ public class ScoreBoardHandler {
         return color;
     }
 
-    private Score createScore(Objective objective, String messageKey, int countdown, int interval) {
+    private Score createScore(Player player, Objective objective, String messageKey, int countdown, int interval) {
         int minutes = countdown / 60;
         int seconds = countdown % 60;
         String timeFormatted = String.format("%02d:%02d", minutes, seconds);
 
-        return objective.getScore(langHandler.getMessage(messageKey, getColor(interval, countdown) + timeFormatted));
+        return objective.getScore(langHandler.getMessage(player, messageKey, getColor(interval, countdown) + timeFormatted));
     }
 
     public void getScoreBoard() {
@@ -70,7 +70,7 @@ public class ScoreBoardHandler {
         ChatColor borderColor;
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            langHandler.getLangConfig(player);
+            ;
             ScoreboardManager manager = Bukkit.getScoreboardManager();
             assert manager != null;
             Scoreboard scoreboard = manager.getNewScoreboard();
@@ -78,16 +78,16 @@ public class ScoreBoardHandler {
             Objective objective;
 
             if (playersPerTeam != 1) {
-                objective = scoreboard.registerNewObjective(langHandler.getMessage("score.name-team"), "dummy", langHandler.getMessage("score.name-team"), RenderType.INTEGER);
+                objective = scoreboard.registerNewObjective(langHandler.getMessage(player, "score.name-team"), "dummy", langHandler.getMessage(player, "score.name-team"), RenderType.INTEGER);
             } else {
-                objective = scoreboard.registerNewObjective(langHandler.getMessage("score.name-solo"), "dummy", langHandler.getMessage("score.name-solo"), RenderType.INTEGER);
+                objective = scoreboard.registerNewObjective(langHandler.getMessage(player, "score.name-solo"), "dummy", langHandler.getMessage(player, "score.name-solo"), RenderType.INTEGER);
             }
 
             objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
             objective.getScore("  ").setScore(15);
 
-            Score playersAliveScore = objective.getScore(langHandler.getMessage("score.alive", getColor(startingPlayers, playersAliveSize).toString() + playersAliveSize));
+            Score playersAliveScore = objective.getScore(langHandler.getMessage(player, "score.alive", getColor(startingPlayers, playersAliveSize).toString() + playersAliveSize));
             playersAliveScore.setScore(14);
 
             if (borderStartSize == worldBorderSize) {
@@ -98,32 +98,32 @@ public class ScoreBoardHandler {
                 borderColor = ChatColor.YELLOW;
             }
 
-            Score worldBorderSizeScore = objective.getScore(langHandler.getMessage("score.border", borderColor.toString() + worldBorderSize));
+            Score worldBorderSizeScore = objective.getScore(langHandler.getMessage(player, "score.border", borderColor.toString() + worldBorderSize));
             worldBorderSizeScore.setScore(13);
 
             objective.getScore("  ").setScore(12);
 
-            Score timeScore = createScore(objective, "score.time", timeLeft, gameTimeConfig);
+            Score timeScore = createScore(player, objective, "score.time", timeLeft, gameTimeConfig);
             timeScore.setScore(11);
 
-            Score borderShrinkScore = createScore(objective, "score.borderShrink", borderShrinkTimeLeft, borderShrinkTimeConfig);
+            Score borderShrinkScore = createScore(player, objective, "score.borderShrink", borderShrinkTimeLeft, borderShrinkTimeConfig);
             if (borderShrinkTimeLeft >= 0) {
                 borderShrinkScore.setScore(10);
             }
 
-            Score pvpScore = createScore(objective, "score.pvp", pvpTimeLeft, pvpTimeConfig);
+            Score pvpScore = createScore(player, objective, "score.pvp", pvpTimeLeft, pvpTimeConfig);
             if (pvpTimeLeft >= 0) {
                 pvpScore.setScore(9);
             }
 
             objective.getScore("").setScore(8);
 
-            Score chestRefillScore = createScore(objective, "score.chestrefill", chestRefillTimeLeft, chestRefillInterval);
+            Score chestRefillScore = createScore(player, objective, "score.chestrefill", chestRefillTimeLeft, chestRefillInterval);
             if (chestRefillTimeLeft >= 0) {
                 chestRefillScore.setScore(7);
             }
 
-            Score supplyDropScore = createScore(objective, "score.supplydrop", supplyDropTimeLeft, supplyDropInterval);
+            Score supplyDropScore = createScore(player, objective, "score.supplydrop", supplyDropTimeLeft, supplyDropInterval);
             if (supplyDropTimeLeft >= 0) {
                 supplyDropScore.setScore(6);
             }
@@ -136,7 +136,7 @@ public class ScoreBoardHandler {
                             if (!teamMember.equals(player)) {
                                 String teammateName = teamMember.getName();
                                 ChatColor color = playersAlive.contains(teamMember) ? ChatColor.GREEN : ChatColor.RED;
-                                String scoreName = langHandler.getMessage("score.teammate", color + teammateName);
+                                String scoreName = langHandler.getMessage(player, "score.teammate", color + teammateName);
                                 Score teammateScore = objective.getScore(scoreName);
                                 teammateScore.setScore(4);
                             }

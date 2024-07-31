@@ -13,28 +13,28 @@ public class SaveWorldCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final WorldResetHandler worldResetHandler;
 
-    public SaveWorldCommand(HungerGames plugin) {
-        this.langHandler = new LangHandler(plugin);
-        this.worldResetHandler = new WorldResetHandler(plugin);
+    public SaveWorldCommand(HungerGames plugin, LangHandler langHandler) {
+        this.langHandler = langHandler;
+        this.worldResetHandler = new WorldResetHandler(plugin, langHandler);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage("no-server"));
+            sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
 
-        langHandler.getLangConfig(player);
+        ;
 
         if (!player.hasPermission("hungergames.saveworld")) {
-            player.sendMessage(langHandler.getMessage("no-permission"));
+            player.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
         worldResetHandler.saveWorldState(player.getWorld());
 
-        player.sendMessage(langHandler.getMessage("game.worldsaved", player.getWorld().getName()));
+        player.sendMessage(langHandler.getMessage(player, "game.worldsaved", player.getWorld().getName()));
 
         return true;
     }

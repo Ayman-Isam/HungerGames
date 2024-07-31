@@ -23,33 +23,33 @@ public class MapChangeCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
 
-    public MapChangeCommand(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
+    public MapChangeCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
+        this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage("no-server"));
+            sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
 
-        langHandler.getLangConfig(player);
+        ;
 
         if (!player.hasPermission("hungergames.map")) {
-            player.sendMessage(langHandler.getMessage("no-permission"));
+            player.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
         if (gameStarted || gameStarting) {
-            player.sendMessage(langHandler.getMessage("map.game-running"));
+            player.sendMessage(langHandler.getMessage(player, "map.game-running"));
             return true;
         }
 
         if (args.length != 1) {
-            sender.sendMessage(langHandler.getMessage("map.no-args"));
+            sender.sendMessage(langHandler.getMessage(player, "map.no-args"));
             return false;
         }
 
@@ -63,7 +63,7 @@ public class MapChangeCommand implements CommandExecutor {
         World world = plugin.getServer().getWorld(mapName);
 
         if (world == null) {
-            sender.sendMessage(langHandler.getMessage("map.not-found", mapName));
+            sender.sendMessage(langHandler.getMessage(player, "map.not-found", mapName));
             plugin.getLogger().info("Loaded maps:" + plugin.getServer().getWorlds().stream().map(World::getName).collect(Collectors.joining(", ")));
             return false;
         }
@@ -73,7 +73,7 @@ public class MapChangeCommand implements CommandExecutor {
             setSpawnHandler.teleportPlayerToSpawnpoint(p);
         }
 
-        sender.sendMessage(langHandler.getMessage("map.switched", mapName));
+        sender.sendMessage(langHandler.getMessage(player, "map.switched", mapName));
 
         giveVotingBook(player, langHandler);
 

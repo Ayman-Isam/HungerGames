@@ -27,10 +27,10 @@ public class ArenaHandler {
     private final LangHandler langHandler;
     private final ArenaSelectListener arenaSelectListener;
 
-    public ArenaHandler(HungerGames plugin) {
+    public ArenaHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
-        this.arenaSelectListener = new ArenaSelectListener(plugin);
+        this.langHandler = langHandler;
+        this.arenaSelectListener = new ArenaSelectListener(plugin, langHandler);
     }
 
     public void createArenaConfig(World world) {

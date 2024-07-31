@@ -23,52 +23,52 @@ public class TeamVotingListener implements Listener {
 
     public static final Map<Player, String> playerVotes = new HashMap<>();
 
-    public TeamVotingListener(HungerGames plugin) {
-        this.langHandler = new LangHandler(plugin);
+    public TeamVotingListener(HungerGames plugin, LangHandler langHandler) {
+        this.langHandler = langHandler;
     }
 
     public void openVotingInventory(Player player) {
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         giveVotingBook(player, langHandler);
 
-        Inventory inventory = Bukkit.createInventory(null, 9, langHandler.getMessage("team.voting-inv"));
+        Inventory inventory = Bukkit.createInventory(null, 9, langHandler.getMessage(player, "team.voting-inv"));
 
         ItemStack solo = new ItemStack(Material.NETHERITE_SWORD);
         ItemMeta soloMeta = solo.getItemMeta();
         assert soloMeta != null;
-        soloMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage("team.solo-inv"));
-        soloMeta.setLore(Collections.singletonList(langHandler.getMessage("team.votes", getVoteCount("solo"))));
+        soloMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage(player, "team.solo-inv"));
+        soloMeta.setLore(Collections.singletonList(langHandler.getMessage(player, "team.votes", getVoteCount("solo"))));
         soloMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         solo.setItemMeta(soloMeta);
 
         ItemStack duo = new ItemStack(Material.DIAMOND_SWORD);
         ItemMeta duoMeta = duo.getItemMeta();
         assert duoMeta != null;
-        duoMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage("team.duo-inv"));
-        duoMeta.setLore(Collections.singletonList(langHandler.getMessage("team.votes", getVoteCount("duo"))));
+        duoMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage(player, "team.duo-inv"));
+        duoMeta.setLore(Collections.singletonList(langHandler.getMessage(player, "team.votes", getVoteCount("duo"))));
         duoMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         duo.setItemMeta(duoMeta);
 
         ItemStack trio = new ItemStack(Material.IRON_SWORD);
         ItemMeta trioMeta = trio.getItemMeta();
         assert trioMeta != null;
-        trioMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage("team.trio-inv"));
-        trioMeta.setLore(Collections.singletonList(langHandler.getMessage("team.votes", getVoteCount("trio"))));
+        trioMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage(player, "team.trio-inv"));
+        trioMeta.setLore(Collections.singletonList(langHandler.getMessage(player, "team.votes", getVoteCount("trio"))));
         trioMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         trio.setItemMeta(trioMeta);
 
         ItemStack versus = new ItemStack(Material.GOLDEN_SWORD);
         ItemMeta versusMeta = versus.getItemMeta();
         assert versusMeta != null;
-        versusMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage("team.versus-inv"));
-        versusMeta.setLore(Collections.singletonList(langHandler.getMessage("team.votes", getVoteCount("versus"))));
+        versusMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage(player, "team.versus-inv"));
+        versusMeta.setLore(Collections.singletonList(langHandler.getMessage(player, "team.votes", getVoteCount("versus"))));
         versusMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         versus.setItemMeta(versusMeta);
 
         ItemStack backButton = new ItemStack(Material.BARRIER);
         ItemMeta backMeta = backButton.getItemMeta();
         assert backMeta != null;
-        backMeta.setDisplayName(ChatColor.RED + langHandler.getMessage("team.close-inv"));
+        backMeta.setDisplayName(ChatColor.RED + langHandler.getMessage(player, "team.close-inv"));
         backButton.setItemMeta(backMeta);
 
         inventory.setItem(2, solo);
@@ -91,7 +91,9 @@ public class TeamVotingListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!event.getView().getTitle().equals(langHandler.getMessage("team.voting-inv")) || !(event.getWhoClicked() instanceof Player player)) {
+        Player player = (Player) event.getWhoClicked();
+
+        if (!event.getView().getTitle().equals(langHandler.getMessage(player, "team.voting-inv"))) {
             return;
         }
 
@@ -105,27 +107,27 @@ public class TeamVotingListener implements Listener {
 
         String displayName = Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName();
 
-        if (displayName.equals(langHandler.getMessage("team.solo-inv"))) {
+        if (displayName.equals(langHandler.getMessage(player, "team.solo-inv"))) {
             playerVotes.put(player, "solo");
-            player.sendMessage(langHandler.getMessage("team.voted-solo"));
+            player.sendMessage(langHandler.getMessage(player, "team.voted-solo"));
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
             player.closeInventory();
-        } else if (displayName.equals(langHandler.getMessage("team.duo-inv"))) {
+        } else if (displayName.equals(langHandler.getMessage(player, "team.duo-inv"))) {
             playerVotes.put(player, "duo");
-            player.sendMessage(langHandler.getMessage("team.voted-duo"));
+            player.sendMessage(langHandler.getMessage(player, "team.voted-duo"));
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
             player.closeInventory();
-        } else if (displayName.equals(langHandler.getMessage("team.trio-inv"))) {
+        } else if (displayName.equals(langHandler.getMessage(player, "team.trio-inv"))) {
             playerVotes.put(player, "trio");
-            player.sendMessage(langHandler.getMessage("team.voted-trio"));
+            player.sendMessage(langHandler.getMessage(player, "team.voted-trio"));
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
             player.closeInventory();
-        } else if (displayName.equals(langHandler.getMessage("team.versus-inv"))) {
+        } else if (displayName.equals(langHandler.getMessage(player, "team.versus-inv"))) {
             playerVotes.put(player, "versus");
-            player.sendMessage(langHandler.getMessage("team.voted-versus"));
+            player.sendMessage(langHandler.getMessage(player, "team.voted-versus"));
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
             player.closeInventory();
-        } else if (displayName.equals(langHandler.getMessage("team.close-inv"))){
+        } else if (displayName.equals(langHandler.getMessage(player, "team.close-inv"))){
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 1.0f);
             player.closeInventory();
         }
@@ -134,9 +136,9 @@ public class TeamVotingListener implements Listener {
     public static void giveVotingBook(Player player, LangHandler langHandler) {
         ItemStack itemStack = new ItemStack(Material.BOOK);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        langHandler.getLangConfig(player);
+        ;
         assert itemMeta != null;
-        itemMeta.setDisplayName(langHandler.getMessage("team.voting-inv"));
+        itemMeta.setDisplayName(langHandler.getMessage(player, "team.voting-inv"));
         itemStack.setItemMeta(itemMeta);
         player.getInventory().setItem(8, itemStack);
     }
@@ -153,7 +155,9 @@ public class TeamVotingListener implements Listener {
             return;
         }
 
-        if (meta.getDisplayName().equals(langHandler.getMessage("team.voting-inv"))) {
+        Player player = event.getPlayer();
+
+        if (meta.getDisplayName().equals(langHandler.getMessage(player, "team.voting-inv"))) {
             openVotingInventory(event.getPlayer());
         }
     }

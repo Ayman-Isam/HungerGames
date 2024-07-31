@@ -24,26 +24,26 @@ public class ArenaSelectListener implements Listener {
     private final HungerGames plugin;
     private final LangHandler langHandler;
 
-    public ArenaSelectListener(HungerGames plugin) {
-        this.langHandler = new LangHandler(plugin);
+    public ArenaSelectListener(HungerGames plugin, LangHandler langHandler) {
+        this.langHandler = langHandler;
         this.plugin = plugin;
     }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        langHandler.getLangConfig(player);
+        ;
         ItemStack item = event.getItem();
-        if (item != null && item.getType() == Material.BLAZE_ROD && item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(langHandler.getMessage("arena.stick-name"))) {
+        if (item != null && item.getType() == Material.BLAZE_ROD && item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(langHandler.getMessage(player, "arena.stick-name"))) {
             if (!(player.hasPermission("hungergames.select"))) {
-                player.sendMessage(langHandler.getMessage("no-permission"));
+                player.sendMessage(langHandler.getMessage(player, "no-permission"));
                 return;
             }
             if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-                player.sendMessage(langHandler.getMessage("setspawn.first-pos", Objects.requireNonNull(event.getClickedBlock()).getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ()));
+                player.sendMessage(langHandler.getMessage(player, "setspawn.first-pos", Objects.requireNonNull(event.getClickedBlock()).getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ()));
                 player.setMetadata("arena_pos1", new FixedMetadataValue(plugin, event.getClickedBlock().getLocation()));
             } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                player.sendMessage(langHandler.getMessage("setspawn.second-pos", Objects.requireNonNull(event.getClickedBlock()).getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ()));
+                player.sendMessage(langHandler.getMessage(player, "setspawn.second-pos", Objects.requireNonNull(event.getClickedBlock()).getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ()));
                 player.setMetadata("arena_pos2", new FixedMetadataValue(plugin, event.getClickedBlock().getLocation()));
             }
             event.setCancelled(true);

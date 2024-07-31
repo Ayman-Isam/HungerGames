@@ -17,29 +17,29 @@ public class LeaveGameCommand implements CommandExecutor {
     private final SetSpawnHandler setSpawnHandler;
     private final ConfigHandler configHandler;
 
-    public LeaveGameCommand(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
+    public LeaveGameCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
+        this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
-        this.configHandler = new ConfigHandler(plugin);
+        this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage("no-server"));
+            sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
 
-        langHandler.getLangConfig(player);
+        ;
 
         if (!(player.hasPermission("hungergames.leave"))) {
-            sender.sendMessage(langHandler.getMessage("no-permission"));
+            sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
         if (!(setSpawnHandler.spawnPointMap.containsValue(player))) {
-            player.sendMessage(langHandler.getMessage("game.not-joined"));
+            player.sendMessage(langHandler.getMessage(player, "game.not-joined"));
             return true;
         }
 
@@ -54,7 +54,7 @@ public class LeaveGameCommand implements CommandExecutor {
 
         for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
             langHandler.getLangConfig(onlinePlayer);
-            onlinePlayer.sendMessage(langHandler.getMessage("game.left", player.getName(), setSpawnHandler.spawnPointMap.size(), setSpawnHandler.spawnPoints.size()));
+            onlinePlayer.sendMessage(langHandler.getMessage(player, "game.left", player.getName(), setSpawnHandler.spawnPointMap.size(), setSpawnHandler.spawnPoints.size()));
         }
 
         return true;

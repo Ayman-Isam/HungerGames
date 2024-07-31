@@ -27,9 +27,9 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
     private final ScoreBoardHandler scoreBoardHandler;
     private final CountDownHandler countDownHandler;
 
-    public CommandDispatcher(HungerGames plugin, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener, TeamsHandler teamsHandler, ScoreBoardHandler scoreBoardHandler, CountDownHandler countDownHandler) {
+    public CommandDispatcher(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener, TeamsHandler teamsHandler, ScoreBoardHandler scoreBoardHandler, CountDownHandler countDownHandler) {
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
+        this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.gameSequenceHandler = gameSequenceHandler;
         this.teamVotingListener = teamVotingListener;
@@ -44,66 +44,63 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
             CommandExecutor executor;
             switch (args[0].toLowerCase()) {
                 case "join":
-                    executor = new JoinGameCommand(plugin, setSpawnHandler);
+                    executor = new JoinGameCommand(plugin, langHandler, setSpawnHandler);
                     break;
                 case "leave":
-                    executor = new LeaveGameCommand(plugin, setSpawnHandler);
+                    executor = new LeaveGameCommand(plugin, langHandler, setSpawnHandler);
                     break;
                 case "start":
-                    executor = new StartGameCommand(plugin, setSpawnHandler, countDownHandler);
+                    executor = new StartGameCommand(plugin, langHandler, setSpawnHandler, countDownHandler);
                     break;
                 case "teamchat":
-                    executor = new ToggleChatCommand(plugin, teamsHandler);
+                    executor = new ToggleChatCommand(plugin, langHandler, teamsHandler);
                     break;
                 case "spectate":
-                    executor = new SpectatePlayerCommand(plugin);
+                    executor = new SpectatePlayerCommand(plugin, langHandler);
                     break;
                 case "select":
-                    executor = new ArenaSelectCommand(plugin);
+                    executor = new ArenaSelectCommand(plugin, langHandler);
                     break;
                 case "end":
-                    executor = new EndGameCommand(plugin, gameSequenceHandler, countDownHandler, setSpawnHandler);
+                    executor = new EndGameCommand(plugin, langHandler, gameSequenceHandler, countDownHandler, setSpawnHandler);
                     break;
                 case "map":
-                    executor = new MapChangeCommand(plugin, setSpawnHandler);
+                    executor = new MapChangeCommand(plugin, langHandler, setSpawnHandler);
                     break;
                 case "teamsize":
-                    executor = new TeamSizeCommand(plugin);
+                    executor = new TeamSizeCommand(plugin, langHandler);
                     break;
                 case "chestrefill":
-                    executor = new ChestRefillCommand(plugin);
+                    executor = new ChestRefillCommand(plugin, langHandler);
                     break;
                 case "supplydrop":
-                    executor = new SupplyDropCommand(plugin);
+                    executor = new SupplyDropCommand(plugin, langHandler);
                     break;
                 case "setspawn":
-                    executor = new SetSpawnCommand(plugin, setSpawnHandler);
+                    executor = new SetSpawnCommand(plugin, langHandler, setSpawnHandler);
                     break;
                 case "create":
-                    executor = new ArenaCreateCommand(plugin);
+                    executor = new ArenaCreateCommand(plugin, langHandler);
                     break;
                 case "scanarena":
-                    executor = new ArenaScanCommand(plugin);
+                    executor = new ArenaScanCommand(plugin, langHandler);
                     break;
                 case "border":
-                    executor = new BorderSetCommand(plugin);
+                    executor = new BorderSetCommand(plugin, langHandler);
                     break;
                 case "reloadconfig":
-                    executor = new ReloadConfigCommand(plugin);
+                    executor = new ReloadConfigCommand(plugin, langHandler);
                     break;
                 case "saveworld":
-                    executor = new SaveWorldCommand(plugin);
+                    executor = new SaveWorldCommand(plugin, langHandler);
                     break;
                 default:
-                    if (sender instanceof Player) {
-                        langHandler.getLangConfig((Player) sender);
-                    }
-                    sender.sendMessage(langHandler.getMessage("unknown-subcommand", args[0]));
+                    sender.sendMessage(langHandler.getMessage(sender instanceof Player ? (Player) sender : null, "unknown-subcommand", args[0]));
                     return false;
             }
             return executor.onCommand(sender, command, label, Arrays.copyOfRange(args, 1, args.length));
         } else {
-            sender.sendMessage(langHandler.getMessage("usage"));
+            sender.sendMessage(langHandler.getMessage(sender instanceof Player ? (Player) sender : null, "usage"));
             return false;
         }
     }
@@ -111,43 +108,43 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (args.length == 1) {
-            List<String> completions = new ArrayList<>();
-            String[] commands = {"join", "leave", "start", "spectate", "select", "end", "teamchat", "map", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig"};
-            for (String subcommand : commands) {
-                if (sender.hasPermission("hungergames." + subcommand)) {
-                    completions.add(subcommand);
+        if (sender instanceof Player player) {
+            if (args.length == 1) {
+                List<String> completions = new ArrayList<>();
+                String[] commands = {"join", "leave", "start", "spectate", "select", "end", "teamchat", "map", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig"};
+                for (String subcommand : commands) {
+                    if (sender.hasPermission("hungergames." + subcommand)) {
+                        completions.add(subcommand);
+                    }
+                }
+                return completions;
+            } else if (args[0].equalsIgnoreCase("border")) {
+                List<String> completions = new ArrayList<>();
+                switch (args.length) {
+                    case 2:
+                        completions.add(langHandler.getMessage(player, "border.args-1"));
+                        break;
+                    case 3:
+                        completions.add(langHandler.getMessage(player, "border.args-2"));
+                        break;
+                    case 4:
+                        completions.add(langHandler.getMessage(player, "border.args-3"));
+                        break;
+                }
+                return completions;
+            } else if (args[0].equalsIgnoreCase("teamsize")) {
+                if (args.length == 2) {
+                    List<String> completions = new ArrayList<>();
+                    langHandler.getLangConfig((Player) sender);
+                    completions.add(langHandler.getMessage(player, "border.args-1"));
+                    return completions;
+                }
+            } else if (args[0].equalsIgnoreCase("map")) {
+                if (args.length == 2) {
+                    return plugin.getServer().getWorlds().stream().map(World::getName).collect(Collectors.toList());
                 }
             }
-            return completions;
-        } else if (args[0].equalsIgnoreCase("border")) {
-            List<String> completions = new ArrayList<>();
-            langHandler.getLangConfig((Player) sender);
-            switch (args.length) {
-                case 2:
-                    completions.add(langHandler.getMessage("border.args-1"));
-                    break;
-                case 3:
-                    completions.add(langHandler.getMessage("border.args-2"));
-                    break;
-                case 4:
-                    completions.add(langHandler.getMessage("border.args-3"));
-                    break;
-            }
-            return completions;
-        } else if (args[0].equalsIgnoreCase("teamsize")) {
-            if (args.length == 2) {
-                List<String> completions = new ArrayList<>();
-                langHandler.getLangConfig((Player) sender);
-                completions.add(langHandler.getMessage("border.args-1"));
-                return completions;
-            }
-        } else if (args[0].equalsIgnoreCase("map")) {
-            if (args.length == 2) {
-                return plugin.getServer().getWorlds().stream().map(World::getName).collect(Collectors.toList());
-            }
         }
-
         return new ArrayList<>();
     }
 }

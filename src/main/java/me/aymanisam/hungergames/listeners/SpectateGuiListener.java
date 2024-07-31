@@ -17,9 +17,9 @@ public class SpectateGuiListener implements Listener {
     private final HungerGames plugin;
     private final LangHandler langHandler;
 
-    public SpectateGuiListener(HungerGames plugin) {
+    public SpectateGuiListener(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.langHandler = new LangHandler(plugin);
+        this.langHandler = langHandler;
     }
 
     @EventHandler
@@ -40,12 +40,12 @@ public class SpectateGuiListener implements Listener {
                     Player target = Bukkit.getPlayerExact(playerName);
 
                     if (target == null) {
-                        player.sendMessage(langHandler.getMessage("spectate.null-player"));
+                        player.sendMessage(langHandler.getMessage(player, "spectate.null-player"));
                         return;
                     }
 
                     player.teleport(target.getLocation());
-                    player.sendMessage(langHandler.getMessage("spectate.teleported", playerName));
+                    player.sendMessage(langHandler.getMessage(player, "spectate.teleported", playerName));
                     player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
                 }
             }

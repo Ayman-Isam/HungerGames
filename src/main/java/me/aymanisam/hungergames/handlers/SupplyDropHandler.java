@@ -27,12 +27,12 @@ public class SupplyDropHandler {
     private final ChestRefillHandler chestRefillHandler;
     private final LangHandler langHandler;
 
-    public SupplyDropHandler(HungerGames plugin) {
+    public SupplyDropHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.configHandler = new ConfigHandler(plugin);
-        this.arenaHandler = new ArenaHandler(plugin);
-        this.chestRefillHandler = new ChestRefillHandler(plugin);
-        this.langHandler = new LangHandler(plugin);
+        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.arenaHandler = new ArenaHandler(plugin, langHandler);
+        this.chestRefillHandler = new ChestRefillHandler(plugin, langHandler);
+        this.langHandler = langHandler;
     }
 
     public void setSupplyDrop(World world) {
@@ -99,8 +99,8 @@ public class SupplyDropHandler {
             String message = " X: " + topmostBlock.getX() + " Y: " + topmostBlock.getY() + " Z: " + topmostBlock.getZ();
 
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                langHandler.getLangConfig(player);
-                player.sendMessage(langHandler.getMessage("supplydrop.spawned", message));
+                ;
+                player.sendMessage(langHandler.getMessage(player, "supplydrop.spawned", message));
             }
         }
     }
