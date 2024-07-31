@@ -19,7 +19,7 @@ public class TeamChatListener implements Listener {
         this.teamsHandler = teamsHandler;
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player sender = event.getPlayer();
 
