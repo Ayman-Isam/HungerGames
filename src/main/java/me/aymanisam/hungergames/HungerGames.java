@@ -44,7 +44,7 @@ public final class HungerGames extends JavaPlugin {
         langHandler.updateLanguageKeys();
         langHandler.loadLanguageConfigs();
 
-        gameWorld = Bukkit.getWorlds().get(0);
+        gameWorld = Bukkit.getWorld(Objects.requireNonNull(getConfig().getString("default-world")));
 
         // Initializing shared classes
         TeamVotingListener teamVotingListener = new TeamVotingListener(this, langHandler);

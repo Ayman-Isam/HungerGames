@@ -16,6 +16,8 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 
@@ -190,6 +192,46 @@ public class ChestRefillHandler {
                                 itemMeta.setDisplayName(meta);
                             }
                         }
+
+                        if (itemMap.containsKey("nbt")) {
+                            Map<String, Object> nbtData = (Map<String, Object>) itemMap.get("nbt");
+                            ItemMeta itemMeta = item.getItemMeta();
+                            PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
+
+                            for (Map.Entry<String, Object> entry : nbtData.entrySet()) {
+                                String key = entry.getKey();
+                                Object value = entry.getValue();
+
+                                NamespacedKey namespacedKey = new NamespacedKey(plugin, key);
+
+                                if (value instanceof String) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.STRING, (String) value);
+                                } else if (value instanceof Integer) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.INTEGER, (Integer) value);
+                                } else if (value instanceof Double) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.DOUBLE, (Double) value);
+                                } else if (value instanceof Byte) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.BYTE, (Byte) value);
+                                } else if (value instanceof Long) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.LONG, (Long) value);
+                                } else if (value instanceof Float) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.FLOAT, (Float) value);
+                                } else if (value instanceof Short) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.SHORT, (Short) value);
+                                } else if (value instanceof byte[]) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.BYTE_ARRAY, (byte[]) value);
+                                } else if (value instanceof int[]) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.INTEGER_ARRAY, (int[]) value);
+                                } else if (value instanceof long[]) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.LONG_ARRAY, (long[]) value);
+                                } else if (value instanceof List) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.STRING, value.toString());
+                                }
+                            }
+
+                            item.setItemMeta(itemMeta);
+                        }
+
                         return Collections.nCopies(weight, item).stream();
                     })
                     .collect(Collectors.toList());
