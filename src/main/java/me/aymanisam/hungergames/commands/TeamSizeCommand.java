@@ -7,7 +7,6 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,8 +27,6 @@ public class TeamSizeCommand implements CommandExecutor {
             sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
-
-        ;
 
         if (!(player.hasPermission("hungergames.teamsize"))) {
             sender.sendMessage(langHandler.getMessage(player, "no-permission"));

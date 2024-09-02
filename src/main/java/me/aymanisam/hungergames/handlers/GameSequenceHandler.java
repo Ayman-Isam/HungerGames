@@ -18,10 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static me.aymanisam.hungergames.HungerGames.gameWorld;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
 import static me.aymanisam.hungergames.handlers.ScoreBoardHandler.startingPlayers;
-import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
 import static me.aymanisam.hungergames.listeners.PlayerListener.playerKills;
 import static me.aymanisam.hungergames.listeners.TeamVotingListener.playerVotes;
@@ -59,43 +57,39 @@ public class GameSequenceHandler {
         this.teamsHandler = teamsHandler;
     }
 
-    public void startGame() {
+    public void startGame(World world) {
         HungerGames.gameStarted = true;
 
         setSpawnHandler.playersWaiting.clear();
         startingPlayers = setSpawnHandler.spawnPointMap.size();
         setSpawnHandler.spawnPointMap.clear();
 
-        worldBorderHandler.startWorldBorder(gameWorld);
+        worldBorderHandler.startWorldBorder(world);
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            ;
-            player.sendTitle("", langHandler.getMessage(player, "game.start"),5,20,10);
+            player.sendTitle("", langHandler.getMessage(player, "game.start"), 5, 20, 10);
             player.sendMessage(langHandler.getMessage(player, "game.grace-start"));
         }
 
-        int gracePeriod = configHandler.getWorldConfig(gameWorld).getInt("grace-period");
+        int gracePeriod = configHandler.getWorldConfig(world).getInt("grace-period");
         gracePeriodTaskId = plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-            World world = gameWorld;
             assert world != null;
             world.setPVP(true);
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                ;
                 player.sendMessage(langHandler.getMessage(player, "game.grace-end"));
-                player.sendTitle("", langHandler.getMessage(player, "game.grace-end"),5,20,10);
+                player.sendTitle("", langHandler.getMessage(player, "game.grace-end"), 5, 20, 10);
                 player.playSound(player.getLocation(), Sound.ENTITY_ELDER_GUARDIAN_CURSE, 1.0f, 1.0f);
             }
         }, gracePeriod * 20L);
 
         for (Player player : playersAlive) {
-            ;
             BossBar bossBar = plugin.getServer().createBossBar(langHandler.getMessage(player, "time-remaining"), BarColor.GREEN, BarStyle.SOLID);
             bossBar.addPlayer(player);
 
             playerBossBars.put(player, bossBar);
 
-            if (configHandler.getWorldConfig(gameWorld).getBoolean("bedrock-buff.enabled") && player.getName().startsWith(".")) {
-                List<String> effectNames = configHandler.getWorldConfig(gameWorld).getStringList("bedrock-buff.effects");
+            if (configHandler.getWorldConfig(world).getBoolean("bedrock-buff.enabled") && player.getName().startsWith(".")) {
+                List<String> effectNames = configHandler.getWorldConfig(world).getStringList("bedrock-buff.effects");
                 for (String effectName : effectNames) {
                     PotionEffectType effectType = PotionEffectType.getByName(effectName);
                     if (effectType != null) {
@@ -105,53 +99,53 @@ public class GameSequenceHandler {
             }
         }
 
-        int supplyDropInterval = configHandler.getWorldConfig(gameWorld).getInt("supplydrop.interval") * 20;
+        int supplyDropInterval = configHandler.getWorldConfig(world).getInt("supplydrop.interval") * 20;
         SupplyDropHandler supplyDropHandler = new SupplyDropHandler(plugin, langHandler);
 
         supplyDropTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
-            supplyDropHandler.setSupplyDrop(gameWorld);
+            supplyDropHandler.setSupplyDrop(world);
         }, supplyDropInterval, supplyDropInterval);
 
-        int chestRefillInterval = configHandler.getWorldConfig(gameWorld).getInt("chestrefill.interval") * 20;
+        int chestRefillInterval = configHandler.getWorldConfig(world).getInt("chestrefill.interval") * 20;
         ChestRefillHandler chestRefillHandler = new ChestRefillHandler(plugin, langHandler);
 
         chestRefillTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
-            chestRefillHandler.refillChests(gameWorld);
+            chestRefillHandler.refillChests(world);
         }, 0, chestRefillInterval);
 
-        mainGame();
+        mainGame(world);
     }
 
-    public void mainGame() {
-        timeLeft = configHandler.getWorldConfig(gameWorld).getInt("game-time");
+    public void mainGame(World world) {
+        timeLeft = configHandler.getWorldConfig(world).getInt("game-time");
 
         timerTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-            updateBossBars();
+            updateBossBars(world);
             timeLeft--;
 
-            scoreBoardHandler.getScoreBoard();
+            scoreBoardHandler.getScoreBoard(world);
 
             if (playersPerTeam != 1) {
                 if (teamsAlive.size() <= 1) {
-                    endGameWithTeams();
+                    endGameWithTeams(world);
                 }
             } else {
                 if (playersAlive.size() <= 1) {
-                    endGameWithPlayers();
+                    endGameWithPlayers(world);
                 }
             }
 
             if (timeLeft < 0) {
-                handleTimeUp();
+                handleTimeUp(world);
             }
         }, 0L, 20L);
     }
 
-    private void updateBossBars() {
+    private void updateBossBars(World world) {
         for (Map.Entry<Player, BossBar> entry : playerBossBars.entrySet()) {
             Player player = entry.getKey();
             BossBar bossBar = entry.getValue();
-            bossBar.setProgress((double) timeLeft / configHandler.getWorldConfig(gameWorld).getInt("game-time"));
+            bossBar.setProgress((double) timeLeft / configHandler.getWorldConfig(world).getInt("game-time"));
             int minutes = (timeLeft - 1) / 60;
             int seconds = (timeLeft - 1) % 60;
             String timeFormatted = String.format("%02d:%02d", minutes, seconds);
@@ -159,9 +153,8 @@ public class GameSequenceHandler {
         }
     }
 
-    private void endGameWithTeams() {
+    private void endGameWithTeams(World world) {
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            ;
             player.sendMessage(langHandler.getMessage(player, "game.game-end"));
         }
 
@@ -172,18 +165,16 @@ public class GameSequenceHandler {
             determineWinningTeam();
         }
 
-        endGame();
+        endGame(false, world);
     }
 
-    private void endGameWithPlayers() {
+    private void endGameWithPlayers(World world) {
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            ;
             player.sendMessage(langHandler.getMessage(player, "game.game-end"));
         }
 
         Player winner = playersAlive.isEmpty() ? null : playersAlive.get(0);
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            ;
             if (winner != null) {
                 player.sendMessage(langHandler.getMessage(player, "game.winner", winner.getName()));
                 player.sendTitle("", langHandler.getMessage(player, "game.winner", winner.getName()), 5, 20, 10);
@@ -192,19 +183,19 @@ public class GameSequenceHandler {
                 player.sendMessage(langHandler.getMessage(player, "game.team-no-winner"));
             }
         }
-        endGame();
+        endGame(false, world);
     }
 
-    private void handleTimeUp() {
+    private void handleTimeUp(World world) {
         if (playersPerTeam != 1) {
             determineWinningTeam();
-            endGame();
+            endGame(false, world);
         } else {
-            determineSoloWinner();
+            determineSoloWinner(world);
         }
     }
 
-    private void determineSoloWinner() {
+    private void determineSoloWinner(World world) {
         Player winner = null;
         int maxKills = -1;
         for (Map.Entry<Player, Integer> entry : playerKills.entrySet()) {
@@ -215,7 +206,6 @@ public class GameSequenceHandler {
         }
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            ;
             if (winner != null) {
                 player.sendTitle("", langHandler.getMessage(player, "game.solo-kills", winner.getName()), 5, 20, 10);
                 player.sendMessage(langHandler.getMessage(player, "game.solo-kills", winner.getName()));
@@ -226,7 +216,7 @@ public class GameSequenceHandler {
 
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
         }
-        endGame();
+        endGame(false, world);
     }
 
     private void winningTeam(List<Player> winningTeam, String winReason) {
@@ -236,7 +226,6 @@ public class GameSequenceHandler {
             String titleKey = getTitleKey(winReason);
 
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                ;
                 player.sendTitle("", langHandler.getMessage(player, messageKey, allNames), 5, 20, 10);
                 player.sendMessage(langHandler.getMessage(player, titleKey, allNames));
                 player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
@@ -297,15 +286,12 @@ public class GameSequenceHandler {
             winningTeam(winningTeam, winReason);
         } else {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                ;
                 player.sendMessage(langHandler.getMessage(player, "game.team-no-winner"));
             }
         }
     }
 
-    public void endGame() {
-        World world = gameWorld;
-
+    public void endGame(Boolean disable, World world) {
         HungerGames.gameStarted = false;
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
@@ -319,6 +305,11 @@ public class GameSequenceHandler {
         worldBorderHandler.resetWorldBorder(world);
 
         worldResetHandler.removeShulkers(world);
+
+        if (!disable && configHandler.getWorldConfig(world).getBoolean("reset-world")) {
+            worldResetHandler.sendToWorld();
+            worldResetHandler.resetWorldState(world);
+        }
 
         if (!world.getEntitiesByClass(Item.class).isEmpty()) {
             plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "kill @e[type=item]");
@@ -360,11 +351,11 @@ public class GameSequenceHandler {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                 for (Player player : Bukkit.getServer().getOnlinePlayers()) {
                     player.sendMessage(langHandler.getMessage(player, "game.join-instruction"));
-                    player.sendTitle("",langHandler.getMessage(player, "game.join-instruction"), 5, 20, 10);
+                    player.sendTitle("", langHandler.getMessage(player, "game.join-instruction"), 5, 20, 10);
                 }
             }, 100L);
 
-            if (configHandler.getWorldConfig(gameWorld).getBoolean("auto-join")) {
+            if (configHandler.getWorldConfig(world).getBoolean("auto-join")) {
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                     for (Player player : Bukkit.getServer().getOnlinePlayers()) {
                         if (!setSpawnHandler.spawnPointMap.containsValue(player)) {

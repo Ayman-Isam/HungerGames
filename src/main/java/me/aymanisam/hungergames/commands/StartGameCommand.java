@@ -2,15 +2,11 @@ package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.*;
-import me.aymanisam.hungergames.listeners.TeamVotingListener;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import static me.aymanisam.hungergames.HungerGames.gameWorld;
 
 public class StartGameCommand implements CommandExecutor {
     private final HungerGames plugin;
@@ -63,7 +59,7 @@ public class StartGameCommand implements CommandExecutor {
             return true;
         }
 
-        int minPlayers = configHandler.getWorldConfig(gameWorld).getInt("min-players");
+        int minPlayers = configHandler.getWorldConfig(player.getWorld()).getInt("min-players");
 
         if (setSpawnHandler.spawnPointMap.size() < minPlayers) {
             sender.sendMessage(langHandler.getMessage(player, "startgame.min-players", minPlayers));
@@ -72,7 +68,7 @@ public class StartGameCommand implements CommandExecutor {
 
         HungerGames.gameStarting = true;
 
-        countDownHandler.startCountDown();
+        countDownHandler.startCountDown(player.getWorld());
 
         return true;
     }

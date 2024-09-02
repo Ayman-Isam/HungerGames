@@ -131,7 +131,7 @@ public class SetSpawnHandler {
         player.teleport(teleportLocation);
 
         for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
-            onlinePlayer.sendMessage(langHandler.getMessage(onlinePlayer, "setspawn.joined-message", player.getName(), spawnPointMap.size(),spawnPoints.size()));
+            onlinePlayer.sendMessage(langHandler.getMessage(onlinePlayer, "setspawn.joined-message", player.getName(), spawnPointMap.size(), spawnPoints.size()));
         }
 
         resetPlayerHandler.resetPlayer(player);

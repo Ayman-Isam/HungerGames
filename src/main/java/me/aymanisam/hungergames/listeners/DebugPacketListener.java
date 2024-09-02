@@ -1,7 +1,7 @@
 package me.aymanisam.hungergames.listeners;
 
-import com.github.retrooper.packetevents.event.*;
-import org.bukkit.plugin.java.JavaPlugin;
+import com.github.retrooper.packetevents.event.PacketListener;
+import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 
 public class DebugPacketListener implements PacketListener {
 

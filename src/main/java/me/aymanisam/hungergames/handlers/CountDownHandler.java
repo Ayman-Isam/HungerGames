@@ -3,20 +3,15 @@ package me.aymanisam.hungergames.handlers;
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.listeners.TeamVotingListener;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static me.aymanisam.hungergames.HungerGames.gameWorld;
-import static me.aymanisam.hungergames.HungerGames.gameWorld;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
-import static org.bukkit.plugin.java.JavaPlugin.getPlugin;
 
 public class CountDownHandler {
     private final HungerGames plugin;
@@ -40,11 +35,11 @@ public class CountDownHandler {
         this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
-    public void startCountDown() {
+    public void startCountDown(World world) {
 
-        playersPerTeam = configHandler.getWorldConfig(gameWorld).getInt("players-per-team");
+        playersPerTeam = configHandler.getWorldConfig(world).getInt("players-per-team");
 
-        if (configHandler.getWorldConfig(gameWorld).getBoolean("voting")) {
+        if (configHandler.getWorldConfig(world).getBoolean("voting")) {
             String highestVotedGameMode;
             int teamSize;
 
@@ -74,31 +69,34 @@ public class CountDownHandler {
                 teamVotingListener.closeVotingInventory(player);
             }
 
-            configHandler.createWorldConfig(gameWorld);
-            configHandler.getWorldConfig(gameWorld).set("players-per-team", teamSize);
-            configHandler.saveWorldConfig(gameWorld);
+            configHandler.createWorldConfig(world);
+            configHandler.getWorldConfig(world).set("players-per-team", teamSize);
+            configHandler.saveWorldConfig(world);
 
             playersPerTeam = teamSize;
 
-            BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, this::runAfterDelay, 20L * 5);
+            BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> runAfterDelay(world), 20L * 5);
+            countDownTasks.add(task);
+        } else {
+            BukkitTask task = plugin.getServer().getScheduler().runTask(plugin, () -> runAfterDelay(world));
             countDownTasks.add(task);
         }
     }
 
-    private void runAfterDelay() {
+    private void runAfterDelay(World world) {
         playersAlive.addAll(setSpawnHandler.spawnPointMap.values());
 
         teamsHandler.createTeam();
 
         countDownTasks.add(plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            this.gameSequenceHandler.startGame();
+            this.gameSequenceHandler.startGame(world);
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.0f);
             }
             HungerGames.gameStarting = false;
         }, 20L * 20));
 
-        countDown("startgame.20-s", 20L * 0);
+        countDown("startgame.20-s", 0L);
         countDown("startgame.15-s", 20L * 5);
         countDown("startgame.10-s", 20L * 10);
         countDown("startgame.5-s", 20L * 15);
@@ -111,7 +109,6 @@ public class CountDownHandler {
     private void countDown(String messageKey, long delayInTicks) {
         BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                ;
                 String message = langHandler.getMessage(player, messageKey);
                 player.sendTitle("", message, 5, 20, 10);
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);

@@ -25,8 +25,6 @@ public class SaveWorldCommand implements CommandExecutor {
             return true;
         }
 
-        ;
-
         if (!player.hasPermission("hungergames.saveworld")) {
             player.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;

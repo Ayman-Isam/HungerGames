@@ -11,8 +11,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-
 public class ChestRefillCommand implements CommandExecutor {
     private final HungerGames plugin;
     private final LangHandler langHandler;
@@ -32,8 +30,6 @@ public class ChestRefillCommand implements CommandExecutor {
             sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
-
-        ;
 
         if (!player.hasPermission("hungergames.chestrefill")) {
             player.sendMessage(langHandler.getMessage(player, "no-permission"));

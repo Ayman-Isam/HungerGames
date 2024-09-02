@@ -9,8 +9,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import static me.aymanisam.hungergames.HungerGames.gameWorld;
-
 public class SupplyDropCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final SupplyDropHandler supplyDropHandler;
@@ -27,8 +25,6 @@ public class SupplyDropCommand implements CommandExecutor {
             sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
-
-        ;
 
         if (!player.hasPermission("hungergames.supplydrop")) {
             player.sendMessage(langHandler.getMessage(player, "no-permission"));

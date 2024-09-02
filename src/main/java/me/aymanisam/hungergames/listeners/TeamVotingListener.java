@@ -16,7 +16,10 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class TeamVotingListener implements Listener {
     private final LangHandler langHandler;
@@ -127,7 +130,7 @@ public class TeamVotingListener implements Listener {
             player.sendMessage(langHandler.getMessage(player, "team.voted-versus"));
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
             player.closeInventory();
-        } else if (displayName.equals(langHandler.getMessage(player, "team.close-inv"))){
+        } else if (displayName.equals(langHandler.getMessage(player, "team.close-inv"))) {
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 1.0f);
             player.closeInventory();
         }
@@ -136,7 +139,6 @@ public class TeamVotingListener implements Listener {
     public static void giveVotingBook(Player player, LangHandler langHandler) {
         ItemStack itemStack = new ItemStack(Material.BOOK);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        ;
         assert itemMeta != null;
         itemMeta.setDisplayName(langHandler.getMessage(player, "team.voting-inv"));
         itemStack.setItemMeta(itemMeta);

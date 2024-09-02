@@ -3,14 +3,14 @@ package me.aymanisam.hungergames.handlers;
 import me.aymanisam.hungergames.HungerGames;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
-import java.util.logging.Level;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 public class TipsHandler {
     private final HungerGames plugin;
@@ -52,7 +52,7 @@ public class TipsHandler {
 
         }
 
-        tipIndex = (tipIndex ) % tips.size();
+        tipIndex = (tipIndex) % tips.size();
     }
 
     public void startSendingTips(long interval) {

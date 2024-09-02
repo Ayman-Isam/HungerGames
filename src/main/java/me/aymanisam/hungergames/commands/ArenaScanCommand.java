@@ -7,7 +7,9 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.*;
+import org.bukkit.block.Barrel;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -41,8 +43,6 @@ public class ArenaScanCommand implements CommandExecutor {
             return true;
         }
 
-        ;
-
         if (!(player.hasPermission("hungergames.scanarena"))) {
             sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
@@ -57,6 +57,8 @@ public class ArenaScanCommand implements CommandExecutor {
         }
 
         World world = plugin.getServer().getWorld(Objects.requireNonNull(config.getString("region.world")));
+
+        arenaHandler.loadChunks(world);
 
         List<Location> chestLocations = new ArrayList<>();
         List<Location> barrelLocations = new ArrayList<>();
@@ -79,6 +81,7 @@ public class ArenaScanCommand implements CommandExecutor {
                 }
             }
         }
+
 
         FileConfiguration chestLocationsConfig = new YamlConfiguration();
         chestLocationsConfig.set("chest-locations", chestLocations.stream()

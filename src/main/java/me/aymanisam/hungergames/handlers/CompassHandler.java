@@ -19,7 +19,7 @@ public class CompassHandler {
 
     private final Map<Player, Integer> teammateIndexMap = new HashMap<>();
 
-    public CompassHandler (HungerGames plugin, LangHandler langHandler) {
+    public CompassHandler(HungerGames plugin, LangHandler langHandler) {
         this.langHandler = langHandler;
     }
 
@@ -71,7 +71,7 @@ public class CompassHandler {
         return teammate;
     }
 
-    public Player findNearestEnemy(Player player, Boolean message){
+    public Player findNearestEnemy(Player player, Boolean message) {
         double closestDistance = Double.MAX_VALUE;
         Player closestPlayer = null;
 

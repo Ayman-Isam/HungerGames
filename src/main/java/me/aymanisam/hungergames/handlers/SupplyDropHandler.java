@@ -3,18 +3,14 @@ package me.aymanisam.hungergames.handlers;
 import me.aymanisam.hungergames.HungerGames;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,8 +71,7 @@ public class SupplyDropHandler {
             Block topmostBlock = world.getBlockAt((int) x, highestY + 2, (int) z);
             topmostBlock.setType(Material.RED_SHULKER_BOX);
 
-            if (topmostBlock.getState() instanceof ShulkerBox) {
-                ShulkerBox shulkerBox = (ShulkerBox) topmostBlock.getState();
+            if (topmostBlock.getState() instanceof ShulkerBox shulkerBox) {
 
                 PersistentDataContainer shulkerBoxData = shulkerBox.getPersistentDataContainer();
                 shulkerBoxData.set(new NamespacedKey(plugin, "supplydrop"), PersistentDataType.STRING, "true");
@@ -99,7 +94,6 @@ public class SupplyDropHandler {
             String message = " X: " + topmostBlock.getX() + " Y: " + topmostBlock.getY() + " Z: " + topmostBlock.getZ();
 
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                ;
                 player.sendMessage(langHandler.getMessage(player, "supplydrop.spawned", message));
             }
         }

@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static me.aymanisam.hungergames.HungerGames.worldNames;
+
 public class CommandDispatcher implements CommandExecutor, TabCompleter {
     private final HungerGames plugin;
     private final LangHandler langHandler;
@@ -141,7 +143,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 }
             } else if (args[0].equalsIgnoreCase("map")) {
                 if (args.length == 2) {
-                    return plugin.getServer().getWorlds().stream().map(World::getName).collect(Collectors.toList());
+                    return worldNames;
                 }
             }
         }

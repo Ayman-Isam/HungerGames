@@ -6,12 +6,12 @@ import me.aymanisam.hungergames.handlers.*;
 import me.aymanisam.hungergames.listeners.*;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -22,7 +22,7 @@ public final class HungerGames extends JavaPlugin {
 
     public static boolean gameStarted = false;
     public static boolean gameStarting = false;
-    public static World gameWorld;
+    public static List<String> worldNames = new ArrayList<>();
 
     private GameSequenceHandler gameSequenceHandler;
 
@@ -44,8 +44,6 @@ public final class HungerGames extends JavaPlugin {
         langHandler.updateLanguageKeys();
         langHandler.loadLanguageConfigs();
 
-        gameWorld = Bukkit.getWorld(Objects.requireNonNull(getConfig().getString("default-world")));
-
         // Initializing shared classes
         TeamVotingListener teamVotingListener = new TeamVotingListener(this, langHandler);
         getServer().getPluginManager().registerEvents(teamVotingListener, this);
@@ -57,7 +55,7 @@ public final class HungerGames extends JavaPlugin {
         ConfigHandler configHandler = new ConfigHandler(this, langHandler);
         TeamsHandler teamsHandler = new TeamsHandler(this, langHandler, scoreBoardHandler);
         this.gameSequenceHandler = new GameSequenceHandler(this, langHandler, setSpawnHandler, compassListener, teamsHandler);
-        CountDownHandler countDownHandler = new CountDownHandler(this, langHandler ,setSpawnHandler, gameSequenceHandler, teamVotingListener, scoreBoardHandler);
+        CountDownHandler countDownHandler = new CountDownHandler(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener, scoreBoardHandler);
 
         // Registering command handler
         Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener, teamsHandler, scoreBoardHandler, countDownHandler));
@@ -75,7 +73,7 @@ public final class HungerGames extends JavaPlugin {
         PlayerListener playerListener = new PlayerListener(this, langHandler, setSpawnHandler);
         getServer().getPluginManager().registerEvents(playerListener, this);
 
-        SpectateGuiListener spectateGuiListener = new SpectateGuiListener(this,langHandler);
+        SpectateGuiListener spectateGuiListener = new SpectateGuiListener(this, langHandler);
         getServer().getPluginManager().registerEvents(spectateGuiListener, this);
 
         getServer().getPluginManager().registerEvents(compassListener, this);
@@ -92,27 +90,15 @@ public final class HungerGames extends JavaPlugin {
                     File levelDat = new File(file, "level.dat");
                     if (levelDat.exists()) {
                         String worldName = file.getName();
-                        Bukkit.getServer().createWorld(new WorldCreator(worldName));
+                        if (!worldName.contains("the_end")) {
+                            worldNames.add(worldName);
+                        }
                     }
                 }
             }
         }
 
-        List<World> worlds = getServer().getWorlds();
-
-        for (World world : worlds) {
-            String worldName = world.getName();
-
-            if (!worldName.contains("the_end")) {
-                File worldFolder = new File(getDataFolder(), worldName);
-                if (!worldFolder.exists()) {
-                    worldFolder.mkdirs();
-                }
-                arenaHandler.createArenaConfig(world);
-                configHandler.createWorldConfig(world);
-                configHandler.loadItemsConfig(world);
-            }
-        }
+        System.out.println(worldNames);
 
         PacketEvents.getAPI().init();
 
@@ -141,7 +127,9 @@ public final class HungerGames extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        gameSequenceHandler.endGame();
+        for (World world: Bukkit.getWorlds()) {
+            gameSequenceHandler.endGame(true, world);
+        }
         PacketEvents.getAPI().terminate();
     }
 

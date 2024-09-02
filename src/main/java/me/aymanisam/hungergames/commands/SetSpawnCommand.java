@@ -31,8 +31,6 @@ public class SetSpawnCommand implements CommandExecutor {
             return true;
         }
 
-        ;
-
         if (!(player.hasPermission("hungergames.setspawn"))) {
             sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;

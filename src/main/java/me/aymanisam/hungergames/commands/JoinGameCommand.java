@@ -25,8 +25,6 @@ public class JoinGameCommand implements CommandExecutor {
             return true;
         }
 
-        ;
-
         if (!(player.hasPermission("hungergames.join"))) {
             sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;

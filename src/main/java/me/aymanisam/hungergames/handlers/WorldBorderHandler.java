@@ -36,7 +36,6 @@ public class WorldBorderHandler {
             if (HungerGames.gameStarted) {
                 border.setSize(finalSize, duration);
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
-                    ;
                     langHandler.getMessage(player, "border.start-shrink");
                 }
             } else {

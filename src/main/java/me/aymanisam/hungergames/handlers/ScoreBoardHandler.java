@@ -3,14 +3,13 @@ package me.aymanisam.hungergames.handlers;
 import me.aymanisam.hungergames.HungerGames;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
 import java.util.List;
-import java.util.Objects;
 
-import static me.aymanisam.hungergames.HungerGames.gameWorld;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.timeLeft;
@@ -50,8 +49,8 @@ public class ScoreBoardHandler {
         return objective.getScore(langHandler.getMessage(player, messageKey, getColor(interval, countdown) + timeFormatted));
     }
 
-    public void getScoreBoard() {
-        FileConfiguration worldConfig = configHandler.getWorldConfig(gameWorld);
+    public void getScoreBoard(World world) {
+        FileConfiguration worldConfig = configHandler.getWorldConfig(world);
         int gameTimeConfig = worldConfig.getInt("game-time");
         int borderShrinkTimeConfig = worldConfig.getInt("border.start-time");
         int pvpTimeConfig = worldConfig.getInt("grace-period");
@@ -61,7 +60,7 @@ public class ScoreBoardHandler {
         int borderEndSize = worldConfig.getInt("border.final-size");
 
         int playersAliveSize = playersAlive.size();
-        int worldBorderSize = (int) gameWorld.getWorldBorder().getSize();
+        int worldBorderSize = (int) world.getWorldBorder().getSize();
         int borderShrinkTimeLeft = (timeLeft - gameTimeConfig) + borderShrinkTimeConfig;
         int pvpTimeLeft = (timeLeft - gameTimeConfig) + pvpTimeConfig;
         int chestRefillTimeLeft = timeLeft % chestRefillInterval;
@@ -70,7 +69,6 @@ public class ScoreBoardHandler {
         ChatColor borderColor;
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            ;
             ScoreboardManager manager = Bukkit.getScoreboardManager();
             assert manager != null;
             Scoreboard scoreboard = manager.getNewScoreboard();

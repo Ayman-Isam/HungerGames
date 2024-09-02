@@ -16,7 +16,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class CompassListener implements Listener {
     private final HungerGames plugin;
@@ -46,7 +48,7 @@ public class CompassListener implements Listener {
                 if (Objects.requireNonNull(itemInHand.getItemMeta()).getDisplayName().equals(langHandler.getMessage(player, "team.compass-teammate"))) {
                     Player nearestPlayer = compassHandler.findNearestTeammate(player, false);
                     trackPlayer(player, nearestPlayer, false);
-                } else if (Objects.requireNonNull(itemInHand.getItemMeta()).getDisplayName().equals(langHandler.getMessage(player, "team.compass-enemy"))) {
+                } else {
                     Player nearestPlayer = compassHandler.findNearestEnemy(player, false);
                     if (nearestPlayer != null) {
                         player.setCompassTarget(nearestPlayer.getLocation());

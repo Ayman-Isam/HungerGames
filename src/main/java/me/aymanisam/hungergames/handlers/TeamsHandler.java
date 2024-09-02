@@ -5,24 +5,21 @@ import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
 import com.github.retrooper.packetevents.protocol.particle.Particle;
 import com.github.retrooper.packetevents.protocol.particle.data.ParticleData;
-import com.github.retrooper.packetevents.protocol.particle.type.ParticleType;
 import com.github.retrooper.packetevents.protocol.particle.type.ParticleTypes;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChatMessage;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerInfo;
 import me.aymanisam.hungergames.HungerGames;
-import net.md_5.bungee.api.ChatMessageType;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.scoreboard.Team;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 import static me.aymanisam.hungergames.commands.ToggleChatCommand.playerChatModes;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
@@ -31,6 +28,7 @@ import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive
 public class TeamsHandler {
     private final LangHandler langHandler;
     private final ScoreBoardHandler scoreBoardHandler;
+    private final ConfigHandler configHandler;
 
     public static final List<List<Player>> teams = new ArrayList<>();
     public static final List<List<Player>> teamsAlive = new ArrayList<>();
@@ -38,6 +36,7 @@ public class TeamsHandler {
     public TeamsHandler(HungerGames plugin, LangHandler langHandler, ScoreBoardHandler scoreBoardHandler) {
         this.langHandler = langHandler;
         this.scoreBoardHandler = scoreBoardHandler;
+        this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
     public void createTeam() {
@@ -71,7 +70,7 @@ public class TeamsHandler {
             processTeam(team);
         }
 
-        applyEffectsToPlayers();
+        // applyEffectsToPlayers();
     }
 
     private void applyHeartEffect(Player playerToEffect, Player playerToSeeEffect) {
@@ -134,7 +133,6 @@ public class TeamsHandler {
     }
 
     private void sendTeamMessagesAndSetupItems(Player player, List<Player> team) {
-        ;
         int teamId = teams.indexOf(team) + 1;
         player.sendMessage(langHandler.getMessage(player, "team.id", teamId));
 
@@ -186,7 +184,10 @@ public class TeamsHandler {
     }
 
     public void playerGlow(Player playerToGlow, Player playerToSeeGlow, Boolean glow) {
-        // Step 1: Create entity metadata for glowing effect
+        if (!configHandler.getWorldConfig(playerToGlow.getWorld()).getBoolean("glowing")) {
+            return;
+        }
+
         byte glowingEffectValue;
 
         if (glow) {
@@ -197,13 +198,10 @@ public class TeamsHandler {
 
         EntityData metadata = new EntityData(0, EntityDataTypes.BYTE, glowingEffectValue);
 
-        // Step 2: Create a list of EntityData and add the glowing effect metadata
         List<EntityData> metadataList = Collections.singletonList(metadata);
 
-        // Step 3: Create the WrapperPlayServerEntityMetadata packet
         WrapperPlayServerEntityMetadata entityMetadataPacket = new WrapperPlayServerEntityMetadata(playerToGlow.getEntityId(), metadataList);
 
-        // Step 4: Send the glowing effect packet to the player
         PacketEvents.getAPI().getPlayerManager().sendPacket(playerToSeeGlow, entityMetadataPacket);
     }
 

@@ -75,7 +75,6 @@ public class ChestRefillHandler {
         refillInventory(trappedChestLocations, "trapped-chest-items", itemsConfig, minTrappedChestContent, maxTrappedChestContent);
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            ;
             player.sendMessage(langHandler.getMessage(player, "chestrefill.refilled"));
         }
     }
@@ -115,7 +114,7 @@ public class ChestRefillHandler {
                         if (type.equals("POTION") || type.equals("SPLASH_POTION") || type.equals("LINGERING_POTION") || type.equals("TIPPED_ARROW")) {
                             item = new ItemStack(Objects.requireNonNull(Material.getMaterial(type)), amount);
                             ItemMeta itemMeta = item.getItemMeta();
-                            if (itemMeta != null && meta!= null) {
+                            if (itemMeta != null && meta != null) {
                                 itemMeta.setDisplayName(meta);
                             }
                             PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
@@ -132,7 +131,7 @@ public class ChestRefillHandler {
                             item = new ItemStack(material, amount);
                             Object enchantsObj = itemMap.get("enchantments");
                             ItemMeta itemMeta = item.getItemMeta();
-                            if (itemMeta != null && meta!= null) {
+                            if (itemMeta != null && meta != null) {
                                 itemMeta.setDisplayName(meta);
                             }
                             if (enchantsObj instanceof List<?> enchantList) {
@@ -159,7 +158,7 @@ public class ChestRefillHandler {
                             FireworkMeta fireworkMeta = (FireworkMeta) item.getItemMeta();
                             assert fireworkMeta != null;
                             ItemMeta itemMeta = item.getItemMeta();
-                            if (itemMeta != null && meta!= null) {
+                            if (itemMeta != null && meta != null) {
                                 itemMeta.setDisplayName(meta);
                             }
                             fireworkMeta.setPower((Integer) itemMap.get("power"));
@@ -188,7 +187,7 @@ public class ChestRefillHandler {
                             Material material = Material.getMaterial(type);
                             item = new ItemStack(material, amount);
                             ItemMeta itemMeta = item.getItemMeta();
-                            if (itemMeta != null && meta!= null) {
+                            if (itemMeta != null && meta != null) {
                                 itemMeta.setDisplayName(meta);
                             }
                         }

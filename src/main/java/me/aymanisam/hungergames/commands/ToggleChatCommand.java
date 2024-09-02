@@ -21,7 +21,7 @@ public class ToggleChatCommand implements CommandExecutor {
     private final TeamsHandler teamsHandler;
     public static final Map<Player, Boolean> playerChatModes = new HashMap<>();
 
-    public ToggleChatCommand(HungerGames plugin, LangHandler langHandler, TeamsHandler teamsHandler){
+    public ToggleChatCommand(HungerGames plugin, LangHandler langHandler, TeamsHandler teamsHandler) {
         this.langHandler = langHandler;
         this.configHandler = new ConfigHandler(plugin, langHandler);
         this.teamsHandler = teamsHandler;
@@ -34,8 +34,6 @@ public class ToggleChatCommand implements CommandExecutor {
             return true;
         }
 
-        ;
-
         if (!player.hasPermission("hungergames.teamchat")) {
             player.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
@@ -46,7 +44,7 @@ public class ToggleChatCommand implements CommandExecutor {
             return true;
         }
 
-        if (configHandler.getWorldConfig(gameWorld).getInt("players-per-team") == 1) {
+        if (configHandler.getWorldConfig(player.getWorld()).getInt("players-per-team") == 1) {
             player.sendMessage(langHandler.getMessage(player, "game.not-team"));
             return true;
         }

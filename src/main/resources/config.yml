@@ -14,6 +14,8 @@ min-supply-drop-content: 2
 max-supply-drop-content: 6
 # Default world
 default-world: "world"
+# Reset world, this restores the world to a previous state
+reset-world: false
 # Players Per Team
 players-per-team: 1
 # Length of the game in seconds (default: 900)

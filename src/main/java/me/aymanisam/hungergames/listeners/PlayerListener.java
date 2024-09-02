@@ -8,13 +8,10 @@ import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -58,7 +55,7 @@ public class PlayerListener implements Listener {
     }
 
     private void removeFromTeam(Player player) {
-        for (List<Player> team: teamsAlive) {
+        for (List<Player> team : teamsAlive) {
             if (team.contains(player)) {
                 team.remove(player);
                 if (team.isEmpty()) {
@@ -89,7 +86,6 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        player.teleport(gameWorld.getSpawnLocation());
 
         boolean spectating = configHandler.getWorldConfig(player.getWorld()).getBoolean("spectating");
         if (spectating) {
@@ -110,7 +106,7 @@ public class PlayerListener implements Listener {
         if (gameStarted) {
             playersAlive.remove(player);
             event.setDeathMessage(null);
-        } else if (gameStarting){
+        } else if (gameStarting) {
             playersAlive.remove(player);
         } else {
             setSpawnHandler.removePlayerFromSpawnPoint(player);
@@ -121,7 +117,7 @@ public class PlayerListener implements Listener {
         World world = plugin.getServer().getWorld("world");
         assert world != null;
 
-        boolean spectating = configHandler.getWorldConfig(gameWorld).getBoolean("spectating");
+        boolean spectating = configHandler.getWorldConfig(player.getWorld()).getBoolean("spectating");
         if (spectating) {
             player.setGameMode(GameMode.SPECTATOR);
             if (gameStarted) {
@@ -134,7 +130,7 @@ public class PlayerListener implements Listener {
         Player killer = event.getEntity().getKiller();
         if (killer != null) {
             playerKills.put(killer, playerKills.getOrDefault(killer, 0) + 1);
-            List<Map<?, ?>> effectMaps = configHandler.getWorldConfig(gameWorld).getMapList("killer-effects");
+            List<Map<?, ?>> effectMaps = configHandler.getWorldConfig(player.getWorld()).getMapList("killer-effects");
             for (Map<?, ?> effectMap : effectMaps) {
                 String effectName = (String) effectMap.get("effect");
                 int duration = (int) effectMap.get("duration");

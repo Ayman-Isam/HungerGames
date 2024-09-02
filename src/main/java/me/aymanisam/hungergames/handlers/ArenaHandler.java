@@ -3,21 +3,14 @@ package me.aymanisam.hungergames.handlers;
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.listeners.ArenaSelectListener;
 import org.bukkit.Chunk;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.EndGateway;
-import org.bukkit.block.ShulkerBox;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.ArmorStand;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 
 public class ArenaHandler {
@@ -25,12 +18,14 @@ public class ArenaHandler {
     private YamlConfiguration arenaConfig;
     private File arenaFile;
     private final LangHandler langHandler;
+    private final ConfigHandler configHandler;
     private final ArenaSelectListener arenaSelectListener;
 
     public ArenaHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.arenaSelectListener = new ArenaSelectListener(plugin, langHandler);
+        this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
     public void createArenaConfig(World world) {
@@ -41,7 +36,7 @@ public class ArenaHandler {
             File tempFile = new File(plugin.getDataFolder(), "arena.yml");
             try {
                 plugin.saveResource("arena.yml", true);
-                if(tempFile.exists()) {
+                if (tempFile.exists()) {
                     tempFile.renameTo(arenaFile);
                 }
             } catch (Exception e) {
@@ -128,9 +123,20 @@ public class ArenaHandler {
         List<Chunk> chunks = getChunksToLoadOrUnload(world);
         for (Chunk chunk : chunks) {
             chunk.setForceLoaded(false);
-            if (chunk.isLoaded()) {
-                chunk.unload();
+        }
+    }
+
+    public void loadWorldFiles(World world) {
+        String worldName = world.getName();
+
+        if (!worldName.contains("the_end")) {
+            File worldFolder = new File(plugin.getDataFolder(), worldName);
+            if (!worldFolder.exists()) {
+                worldFolder.mkdirs();
             }
+            createArenaConfig(world);
+            configHandler.createWorldConfig(world);
+            configHandler.loadItemsConfig(world);
         }
     }
 }

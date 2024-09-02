@@ -31,8 +31,6 @@ public class LeaveGameCommand implements CommandExecutor {
             return true;
         }
 
-        ;
-
         if (!(player.hasPermission("hungergames.leave"))) {
             sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;

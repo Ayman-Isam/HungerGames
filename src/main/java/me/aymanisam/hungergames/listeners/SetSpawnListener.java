@@ -8,7 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -16,7 +15,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
@@ -41,7 +39,6 @@ public class SetSpawnListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        ;
         ItemStack item = event.getItem();
         if (item != null && item.getType() == Material.STICK && item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(langHandler.getMessage(player, "setspawn.stick-name"))) {
             if (!(player.hasPermission("hungergames.setspawn"))) {
@@ -92,7 +89,6 @@ public class SetSpawnListener implements Listener {
     @EventHandler
     public void onItemHeldChange(PlayerItemHeldEvent event) {
         Player player = event.getPlayer();
-        ;
         ItemStack item = player.getInventory().getItem(event.getNewSlot());
         if (item != null && item.getType() == Material.STICK && item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(langHandler.getMessage(player, "setspawn.stick-name"))) {
             if (!(player.hasPermission("hungergames.setspawn"))) {
@@ -111,7 +107,7 @@ public class SetSpawnListener implements Listener {
         originalBlockDataMap.remove(brokenBlockLocation);
     }
 
-    public void makePlayerSeeGoldBlocks (Player player) {
+    public void makePlayerSeeGoldBlocks(Player player) {
         for (String locationStr : setSpawnHandler.spawnPoints) {
             String[] parts = locationStr.split(",");
             if (parts.length == 4) {

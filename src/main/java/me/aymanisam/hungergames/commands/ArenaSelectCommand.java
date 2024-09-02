@@ -28,8 +28,6 @@ public class ArenaSelectCommand implements CommandExecutor {
             return true;
         }
 
-        ;
-
         if (!(player.hasPermission("hungergames.select"))) {
             sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
