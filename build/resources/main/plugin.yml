@@ -20,8 +20,8 @@ permissions:
   hungergames.join:
     description: "Allows you to join the game in HungerGames"
     default: true
-  hungergames.leave:
-    description: "Allows you to leave the game in HungerGames"
+  hungergames.lobby:
+    description: "Allows you return tot he lobby in HungerGames"
     default: true
   hungergames.start:
     description: "Allows you to start the game in HungerGames"

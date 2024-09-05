@@ -10,16 +10,14 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEn
 import me.aymanisam.hungergames.HungerGames;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static me.aymanisam.hungergames.commands.ToggleChatCommand.playerChatModes;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
@@ -30,8 +28,8 @@ public class TeamsHandler {
     private final ScoreBoardHandler scoreBoardHandler;
     private final ConfigHandler configHandler;
 
-    public static final List<List<Player>> teams = new ArrayList<>();
-    public static final List<List<Player>> teamsAlive = new ArrayList<>();
+    public static final Map<World, List<List<Player>>> teams = new HashMap<>();
+    public static final Map<World, List<List<Player>>> teamsAlive = new HashMap<>();
 
     public TeamsHandler(HungerGames plugin, LangHandler langHandler, ScoreBoardHandler scoreBoardHandler) {
         this.langHandler = langHandler;
@@ -39,10 +37,15 @@ public class TeamsHandler {
         this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
-    public void createTeam() {
-        Collections.shuffle(playersAlive);
-        teams.clear();
-        teamsAlive.clear();
+    public void createTeam(World world) {
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+        Collections.shuffle(worldPlayersAlive);
+
+        List<List<Player>> worldTeams = teams.computeIfAbsent(world, k -> new ArrayList<>());
+        List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world, k -> new ArrayList<>());
+
+        worldTeams.clear();
+        worldTeamsAlive.clear();
 
         boolean versus = false;
 
@@ -51,23 +54,24 @@ public class TeamsHandler {
             numTeams = 2;
             versus = true;
         } else {
-            numTeams = (playersAlive.size() + playersPerTeam - 1) / playersPerTeam;
+            numTeams = (worldPlayersAlive.size() + playersPerTeam - 1) / playersPerTeam;
         }
+
 
         for (int i = 0; i < numTeams; i++) {
-            teams.add(new ArrayList<>());
+            worldTeams.add(new ArrayList<>());
         }
 
-        for (int i = 0; i < playersAlive.size(); i++) {
-            Player player = playersAlive.get(i);
-            List<Player> team = teams.get(i % numTeams);
+        for (int i = 0; i < worldPlayersAlive.size(); i++) {
+            Player player = worldPlayersAlive.get(i);
+            List<Player> team = worldTeams.get(i % numTeams);
             team.add(player);
         }
 
-        for (List<Player> team : teams) {
+        for (List<Player> team : worldTeams) {
             List<Player> teamCopy = new ArrayList<>(team);
-            teamsAlive.add(teamCopy);
-            processTeam(team);
+            worldTeamsAlive.add(teamCopy);
+            processTeam(team, world);
         }
 
         // applyEffectsToPlayers();
@@ -89,27 +93,7 @@ public class TeamsHandler {
         PacketEvents.getAPI().getPlayerManager().sendPacket(playerToSeeEffect, entityMetadataPacket);
     }
 
-    public void applyEffectsToPlayers() {
-        for (List<Player> team : teams) {
-            for (Player player : team) {
-                // Apply heart effect to teammates
-                for (Player teammate : team) {
-                    if (!teammate.equals(player)) {
-                        applyHeartEffect(teammate, player);
-                    }
-                }
-
-                // Apply villager angry effect to enemies
-                for (Player enemy : Bukkit.getOnlinePlayers()) {
-                    if (!team.contains(enemy)) {
-                        applyAngryEffect(enemy, player);
-                    }
-                }
-            }
-        }
-    }
-
-    private void processTeam(List<Player> team) {
+    private void processTeam(List<Player> team, World world) {
         if (playersPerTeam != 1) {
             if (team.size() < playersPerTeam) {
                 // Apply extra effects to players in teams with fewer players
@@ -117,7 +101,7 @@ public class TeamsHandler {
             }
 
             for (Player player : team) {
-                sendTeamMessagesAndSetupItems(player, team);
+                sendTeamMessagesAndSetupItems(player, team, world);
             }
         }
     }
@@ -132,8 +116,10 @@ public class TeamsHandler {
         }
     }
 
-    private void sendTeamMessagesAndSetupItems(Player player, List<Player> team) {
-        int teamId = teams.indexOf(team) + 1;
+    private void sendTeamMessagesAndSetupItems(Player player, List<Player> team, World world) {
+        List<List<Player>> worldTeams = teams.computeIfAbsent(world, k -> new ArrayList<>());
+
+        int teamId = worldTeams.indexOf(team) + 1;
         player.sendMessage(langHandler.getMessage(player, "team.id", teamId));
 
         String teammateNames = getTeammateNames(team, player);
@@ -159,8 +145,10 @@ public class TeamsHandler {
         player.getInventory().setItem(8, item);
     }
 
-    public List<Player> getTeammates(Player currentPlayer) {
-        for (List<Player> team : teams) {
+    public List<Player> getTeammates(Player currentPlayer, World world) {
+        List<List<Player>> worldTeams = teams.computeIfAbsent(world, k -> new ArrayList<>());
+
+        for (List<Player> team : worldTeams) {
             if (team.contains(currentPlayer)) {
                 List<Player> teammates = new ArrayList<>(team);
                 teammates.remove(currentPlayer);
@@ -205,16 +193,18 @@ public class TeamsHandler {
         PacketEvents.getAPI().getPlayerManager().sendPacket(playerToSeeGlow, entityMetadataPacket);
     }
 
-    public void removeGlowFromAllPlayers() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            for (Player viewer : Bukkit.getOnlinePlayers()) {
+    public void removeGlowFromAllPlayers(World world) {
+        for (Player player : world.getPlayers()) {
+            for (Player viewer : world.getPlayers()) {
                 playerGlow(player, viewer, false);
             }
         }
     }
 
-    public boolean isPlayerInAnyTeam(Player player) {
-        for (List<Player> team : teams) {
+    public boolean isPlayerInAnyTeam(Player player, World world) {
+        List<List<Player>> worldTeams = teams.computeIfAbsent(world, k -> new ArrayList<>());
+
+        for (List<Player> team : worldTeams) {
             if (team.contains(player)) {
                 return true;
             }

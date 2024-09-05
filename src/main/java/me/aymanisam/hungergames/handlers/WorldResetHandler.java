@@ -16,11 +16,13 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class WorldResetHandler {
     private final HungerGames plugin;
     private final ArenaHandler arenaHandler;
-    private BukkitTask teleportWorldTask;
+    private final Map<World, BukkitTask> teleportTasks = new HashMap<>();
 
     public WorldResetHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
@@ -47,11 +49,13 @@ public class WorldResetHandler {
         });
     }
 
-    public void sendToWorld() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            World voidWorld = Bukkit.getWorld("world");
-            assert voidWorld != null;
-            player.teleport(voidWorld.getSpawnLocation());
+    public void sendToWorld(World world) {
+        for (Player player : world.getPlayers()) {
+            String lobbyWorldName = (String) plugin.getConfig().get("lobby-world");
+            assert lobbyWorldName != null;
+            World lobbyWorld = Bukkit.getWorld(lobbyWorldName);
+            assert lobbyWorld != null;
+            player.teleport(lobbyWorld.getSpawnLocation());
         }
     }
 
@@ -62,7 +66,6 @@ public class WorldResetHandler {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (!templateDirectory.exists()) {
                 Bukkit.getLogger().severe("Template directory does not exist");
-                System.out.println(templateDirectory);
                 return;
             }
 
@@ -86,19 +89,21 @@ public class WorldResetHandler {
 
                     loadWorld(world.getName());
 
-                    teleportWorldTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+                    BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
                         World reloadedWorld = Bukkit.getWorld(world.getName());
                         if (reloadedWorld == null) {
                             return;
                         }
 
-                        for (Player player : Bukkit.getOnlinePlayers()) {
+                        for (Player player : world.getPlayers()) {
                             player.teleport(reloadedWorld.getSpawnLocation());
                             player.setGameMode(GameMode.ADVENTURE);
                         }
 
-                        Bukkit.getScheduler().cancelTask(teleportWorldTask.getTaskId());
+                        Bukkit.getScheduler().cancelTask(teleportTasks.get(world).getTaskId());
                     }, 0L, 5L);
+
+                    teleportTasks.put(world, task);
 
                 } catch (IOException e) {
                     Bukkit.getLogger().severe("An error occurred: " + e.getMessage());

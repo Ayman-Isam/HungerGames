@@ -15,6 +15,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static me.aymanisam.hungergames.HungerGames.*;
@@ -47,7 +49,7 @@ public class MapChangeCommand implements CommandExecutor {
             return true;
         }
 
-        if (gameStarted || gameStarting) {
+        if (gameStarted.getOrDefault(player.getWorld(), false) || gameStarting.getOrDefault(player.getWorld(), false)) {
             player.sendMessage(langHandler.getMessage(player, "map.game-running"));
             return true;
         }
@@ -55,12 +57,6 @@ public class MapChangeCommand implements CommandExecutor {
         if (args.length != 1) {
             sender.sendMessage(langHandler.getMessage(player, "map.no-args"));
             return false;
-        }
-
-        for (Player p : plugin.getServer().getOnlinePlayers()) {
-            if (setSpawnHandler.spawnPointMap.containsValue(p)) {
-                setSpawnHandler.removePlayerFromSpawnPoint(p);
-            }
         }
 
         String mapName = args[0];
@@ -85,7 +81,15 @@ public class MapChangeCommand implements CommandExecutor {
 
         for (Player p : plugin.getServer().getOnlinePlayers()) {
             p.teleport(world.getSpawnLocation());
-            setSpawnHandler.teleportPlayerToSpawnpoint(p);
+            setSpawnHandler.teleportPlayerToSpawnpoint(p, world);
+        }
+
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(player.getWorld(), k -> new HashMap<>());
+
+        for (Player p : player.getWorld().getPlayers()) {
+            if (worldSpawnPointMap.containsValue(p)) {
+                setSpawnHandler.removePlayerFromSpawnPoint(p, world);
+            }
         }
 
         sender.sendMessage(langHandler.getMessage(player, "map.switched", mapName));

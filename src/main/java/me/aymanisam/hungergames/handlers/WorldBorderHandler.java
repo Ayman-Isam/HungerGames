@@ -1,17 +1,23 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static me.aymanisam.hungergames.HungerGames.gameStarted;
+
 public class WorldBorderHandler {
     private final HungerGames plugin;
     private final LangHandler langHandler;
     private final ConfigHandler configHandler;
-    private BukkitTask borderShrinkTask;
+    private final Map<World, BukkitTask> borderShrinkTask = new HashMap<>();
 
     public WorldBorderHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
@@ -32,10 +38,10 @@ public class WorldBorderHandler {
         border.setCenter(centerX, centerZ);
 
         int duration = endTime - startTime;
-        borderShrinkTask = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            if (HungerGames.gameStarted) {
+        BukkitTask worldBorderShrinkTask = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (gameStarted.getOrDefault(world, false)) {
                 border.setSize(finalSize, duration);
-                for (Player player : plugin.getServer().getOnlinePlayers()) {
+                for (Player player : world.getPlayers()) {
                     langHandler.getMessage(player, "border.start-shrink");
                 }
             } else {
@@ -43,11 +49,13 @@ public class WorldBorderHandler {
                 border.setSize(borderSize);
             }
         }, startTime * 20L);
+        borderShrinkTask.put(world, worldBorderShrinkTask);
     }
 
     public void resetWorldBorder(World world) {
-        if (borderShrinkTask != null) {
-            borderShrinkTask.cancel();
+        BukkitTask worldBorderShrinkTask = borderShrinkTask.get(world);
+        if (worldBorderShrinkTask != null) {
+            worldBorderShrinkTask.cancel();
         }
 
         FileConfiguration config = configHandler.getWorldConfig(world);

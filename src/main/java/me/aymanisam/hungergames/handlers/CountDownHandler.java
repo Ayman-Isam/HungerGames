@@ -7,9 +7,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 
@@ -21,7 +19,7 @@ public class CountDownHandler {
     private final SetSpawnHandler setSpawnHandler;
     private final TeamVotingListener teamVotingListener;
     private final ConfigHandler configHandler;
-    private final List<BukkitTask> countDownTasks = new ArrayList<>();
+    private final Map<World, List<BukkitTask>> countDownTasks = new HashMap<>();
 
     public static int playersPerTeam;
 
@@ -39,14 +37,18 @@ public class CountDownHandler {
 
         playersPerTeam = configHandler.getWorldConfig(world).getInt("players-per-team");
 
+        List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world, k -> new ArrayList<>());
+
         if (configHandler.getWorldConfig(world).getBoolean("voting")) {
             String highestVotedGameMode;
             int teamSize;
 
-            int votedSolo = Collections.frequency(TeamVotingListener.playerVotes.values(), "solo");
-            int votedDuo = Collections.frequency(TeamVotingListener.playerVotes.values(), "duo");
-            int votedTrio = Collections.frequency(TeamVotingListener.playerVotes.values(), "trio");
-            int votedVersus = Collections.frequency(TeamVotingListener.playerVotes.values(), "versus");
+            Map<Player, String> worldPlayerVotes = TeamVotingListener.playerVotes.computeIfAbsent(world, k -> new HashMap<>());
+
+            int votedSolo = (int) worldPlayerVotes.values().stream().filter("solo"::equals).count();
+            int votedDuo = (int) worldPlayerVotes.values().stream().filter("duo"::equals).count();
+            int votedTrio = (int) worldPlayerVotes.values().stream().filter("trio"::equals).count();
+            int votedVersus = (int) worldPlayerVotes.values().stream().filter("versus"::equals).count();
 
             if (votedSolo >= votedDuo && votedSolo >= votedTrio && votedSolo >= votedVersus) {
                 highestVotedGameMode = langHandler.getMessage(null, "team.solo-inv");
@@ -62,7 +64,7 @@ public class CountDownHandler {
                 teamSize = 0;
             }
 
-            for (Player player : plugin.getServer().getOnlinePlayers()) {
+            for (Player player : world.getPlayers()) {
                 player.sendMessage(langHandler.getMessage(player, "team.voted-highest", highestVotedGameMode));
                 player.sendTitle("", langHandler.getMessage(player, "team.voted-highest", highestVotedGameMode), 5, 40, 10);
                 player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1.0f, 1.0f);
@@ -76,51 +78,60 @@ public class CountDownHandler {
             playersPerTeam = teamSize;
 
             BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> runAfterDelay(world), 20L * 5);
-            countDownTasks.add(task);
+            worldCountDownTasks.add(task);
         } else {
             BukkitTask task = plugin.getServer().getScheduler().runTask(plugin, () -> runAfterDelay(world));
-            countDownTasks.add(task);
+            worldCountDownTasks.add(task);
         }
     }
 
     private void runAfterDelay(World world) {
-        playersAlive.addAll(setSpawnHandler.spawnPointMap.values());
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world, k -> new HashMap<>());
 
-        teamsHandler.createTeam();
+        List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world, k -> new ArrayList<>());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
 
-        countDownTasks.add(plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+        worldPlayersAlive.addAll(worldSpawnPointMap.values());
+
+        teamsHandler.createTeam(world);
+
+        worldCountDownTasks.add(plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             this.gameSequenceHandler.startGame(world);
-            for (Player player : plugin.getServer().getOnlinePlayers()) {
+            for (Player player : world.getPlayers()) {
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.0f);
             }
-            HungerGames.gameStarting = false;
+            HungerGames.gameStarting.put(world, false);
         }, 20L * 20));
 
-        countDown("startgame.20-s", 0L);
-        countDown("startgame.15-s", 20L * 5);
-        countDown("startgame.10-s", 20L * 10);
-        countDown("startgame.5-s", 20L * 15);
-        countDown("startgame.4-s", 20L * 16);
-        countDown("startgame.3-s", 20L * 17);
-        countDown("startgame.2-s", 20L * 18);
-        countDown("startgame.1-s", 20L * 19);
+        countDown("startgame.20-s", 0L, world);
+        countDown("startgame.15-s", 20L * 5, world);
+        countDown("startgame.10-s", 20L * 10, world);
+        countDown("startgame.5-s", 20L * 15, world);
+        countDown("startgame.4-s", 20L * 16, world);
+        countDown("startgame.3-s", 20L * 17, world);
+        countDown("startgame.2-s", 20L * 18, world);
+        countDown("startgame.1-s", 20L * 19, world);
     }
 
-    private void countDown(String messageKey, long delayInTicks) {
+    private void countDown(String messageKey, long delayInTicks, World world) {
+        List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world, k -> new ArrayList<>());
+
         BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            for (Player player : plugin.getServer().getOnlinePlayers()) {
+            for (Player player : world.getPlayers()) {
                 String message = langHandler.getMessage(player, messageKey);
                 player.sendTitle("", message, 5, 20, 10);
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
             }
         }, delayInTicks);
-        countDownTasks.add(task);
+        worldCountDownTasks.add(task);
     }
 
-    public void cancelCountDown() {
-        for (BukkitTask task : countDownTasks) {
+    public void cancelCountDown(World world) {
+        List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world, k -> new ArrayList<>());
+
+        for (BukkitTask task : worldCountDownTasks) {
             task.cancel();
         }
-        countDownTasks.clear();
+        worldCountDownTasks.clear();
     }
 }

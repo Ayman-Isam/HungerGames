@@ -47,7 +47,7 @@ public class SetSpawnCommand implements CommandExecutor {
         player.getInventory().addItem(stick);
         setSpawnHandler.createSetSpawnConfig(player.getWorld());
         setSpawnHandler.setSpawnConfig.set("spawnpoints", new ArrayList<>());
-        setSpawnHandler.saveSetSpawnConfig();
+        setSpawnHandler.saveSetSpawnConfig(player.getWorld());
         sender.sendMessage(langHandler.getMessage(player, "setspawn.spawn-reset"));
         return true;
     }

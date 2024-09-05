@@ -93,7 +93,7 @@ public class SupplyDropHandler {
 
             String message = " X: " + topmostBlock.getX() + " Y: " + topmostBlock.getY() + " Z: " + topmostBlock.getZ();
 
-            for (Player player : plugin.getServer().getOnlinePlayers()) {
+            for (Player player : world.getPlayers()) {
                 player.sendMessage(langHandler.getMessage(player, "supplydrop.spawned", message));
             }
         }

@@ -7,21 +7,19 @@ import me.aymanisam.hungergames.listeners.*;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.WorldCreator;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.handlers.VersionHandler.getLatestPluginVersion;
 
 public final class HungerGames extends JavaPlugin {
 
-    public static boolean gameStarted = false;
-    public static boolean gameStarting = false;
+    public static Map<World, Boolean> gameStarted = new HashMap<>();
+    public static Map<World, Boolean> gameStarting = new HashMap<>();
     public static List<String> worldNames = new ArrayList<>();
 
     private GameSequenceHandler gameSequenceHandler;
@@ -98,8 +96,6 @@ public final class HungerGames extends JavaPlugin {
             }
         }
 
-        System.out.println(worldNames);
-
         PacketEvents.getAPI().init();
 
         int spigotPluginId = 111936;
@@ -135,5 +131,10 @@ public final class HungerGames extends JavaPlugin {
 
     public File getPluginFile() {
         return this.getFile();
+    }
+
+    public static boolean isAnyGameStartingOrStarted(Player player) {
+        return gameStarted.getOrDefault(player.getWorld(), false) ||
+                gameStarting.getOrDefault(player.getWorld(), false);
     }
 }

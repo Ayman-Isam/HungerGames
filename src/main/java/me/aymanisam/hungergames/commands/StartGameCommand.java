@@ -8,6 +8,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static me.aymanisam.hungergames.HungerGames.gameStarted;
+import static me.aymanisam.hungergames.HungerGames.gameStarting;
+
 public class StartGameCommand implements CommandExecutor {
     private final HungerGames plugin;
     private final LangHandler langHandler;
@@ -37,12 +45,12 @@ public class StartGameCommand implements CommandExecutor {
             return true;
         }
 
-        if (HungerGames.gameStarted) {
+        if (gameStarted.getOrDefault(player.getWorld(), false)) {
             sender.sendMessage(langHandler.getMessage(player, "startgame.started"));
             return true;
         }
 
-        if (HungerGames.gameStarting) {
+        if (gameStarting.getOrDefault(player.getWorld(), false)) {
             sender.sendMessage(langHandler.getMessage(player, "startgame.starting"));
             return true;
         }
@@ -54,19 +62,23 @@ public class StartGameCommand implements CommandExecutor {
             return true;
         }
 
-        if (setSpawnHandler.spawnPoints.isEmpty()) {
+        List<String> worldSpawnPoints = setSpawnHandler.spawnPoints.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
+
+        if (worldSpawnPoints.isEmpty()) {
             sender.sendMessage(langHandler.getMessage(player, "startgame.set-spawn"));
             return true;
         }
 
         int minPlayers = configHandler.getWorldConfig(player.getWorld()).getInt("min-players");
 
-        if (setSpawnHandler.spawnPointMap.size() < minPlayers) {
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(player.getWorld(), k -> new HashMap<>());
+
+        if (worldSpawnPointMap.size() < minPlayers) {
             sender.sendMessage(langHandler.getMessage(player, "startgame.min-players", minPlayers));
             return true;
         }
 
-        HungerGames.gameStarting = true;
+        gameStarting.put(player.getWorld(), false);
 
         countDownHandler.startCountDown(player.getWorld());
 

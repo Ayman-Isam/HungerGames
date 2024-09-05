@@ -74,7 +74,7 @@ public class ChestRefillHandler {
         refillInventory(barrelLocations, "barrel-items", itemsConfig, minBarrelContent, maxBarrelContent);
         refillInventory(trappedChestLocations, "trapped-chest-items", itemsConfig, minTrappedChestContent, maxTrappedChestContent);
 
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
+        for (Player player : world.getPlayers()) {
             player.sendMessage(langHandler.getMessage(player, "chestrefill.refilled"));
         }
     }

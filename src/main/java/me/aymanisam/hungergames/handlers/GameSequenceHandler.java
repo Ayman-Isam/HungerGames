@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static me.aymanisam.hungergames.HungerGames.gameStarted;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
 import static me.aymanisam.hungergames.handlers.ScoreBoardHandler.startingPlayers;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
@@ -36,13 +37,13 @@ public class GameSequenceHandler {
     private final CompassListener compassListener;
     private final TeamsHandler teamsHandler;
 
-    public int gracePeriodTaskId;
-    public int timerTaskId;
-    public static int timeLeft;
-    public BukkitTask chestRefillTask;
-    public BukkitTask supplyDropTask;
-    public static final List<Player> playersAlive = new ArrayList<>();
-    public static Map<Player, BossBar> playerBossBars = new HashMap<>();
+    public Map<World, Integer> gracePeriodTaskId = new HashMap<>();
+    public Map<World, Integer> timerTaskId = new HashMap<>();
+    public static Map<World, Integer> timeLeft = new HashMap<>();
+    public Map<World, BukkitTask> chestRefillTask = new HashMap<>();
+    public Map<World, BukkitTask> supplyDropTask = new HashMap<>();
+    public static Map<World, List<Player>> playersAlive = new HashMap<>();
+    public static Map<World, Map<Player, BossBar>> playerBossBars = new HashMap<>();
 
     public GameSequenceHandler(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, CompassListener compassListener, TeamsHandler teamsHandler) {
         this.plugin = plugin;
@@ -58,35 +59,43 @@ public class GameSequenceHandler {
     }
 
     public void startGame(World world) {
-        HungerGames.gameStarted = true;
+        gameStarted.put(world, true);
 
-        setSpawnHandler.playersWaiting.clear();
-        startingPlayers = setSpawnHandler.spawnPointMap.size();
-        setSpawnHandler.spawnPointMap.clear();
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world, k -> new HashMap<>());
+        List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(world, k -> new ArrayList<>());
+
+        worldPlayersWaiting.clear();
+        startingPlayers.put(world, worldSpawnPointMap.values().size());
+        worldSpawnPointMap.clear();
 
         worldBorderHandler.startWorldBorder(world);
 
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
+        for (Player player : world.getPlayers()) {
             player.sendTitle("", langHandler.getMessage(player, "game.start"), 5, 20, 10);
             player.sendMessage(langHandler.getMessage(player, "game.grace-start"));
         }
 
         int gracePeriod = configHandler.getWorldConfig(world).getInt("grace-period");
-        gracePeriodTaskId = plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-            assert world != null;
+        int worldGracePeriodTaskId = plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
             world.setPVP(true);
-            for (Player player : plugin.getServer().getOnlinePlayers()) {
+            for (Player player : world.getPlayers()) {
                 player.sendMessage(langHandler.getMessage(player, "game.grace-end"));
                 player.sendTitle("", langHandler.getMessage(player, "game.grace-end"), 5, 20, 10);
                 player.playSound(player.getLocation(), Sound.ENTITY_ELDER_GUARDIAN_CURSE, 1.0f, 1.0f);
             }
         }, gracePeriod * 20L);
 
-        for (Player player : playersAlive) {
+        gracePeriodTaskId.put(world, worldGracePeriodTaskId);
+
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+
+        for (Player player : worldPlayersAlive) {
             BossBar bossBar = plugin.getServer().createBossBar(langHandler.getMessage(player, "time-remaining"), BarColor.GREEN, BarStyle.SOLID);
             bossBar.addPlayer(player);
 
-            playerBossBars.put(player, bossBar);
+            Map<Player, BossBar> worldPlayerBossBars = playerBossBars.computeIfAbsent(world, k -> new HashMap<>());
+
+            worldPlayerBossBars.put(player, bossBar);
 
             if (configHandler.getWorldConfig(world).getBoolean("bedrock-buff.enabled") && player.getName().startsWith(".")) {
                 List<String> effectNames = configHandler.getWorldConfig(world).getStringList("bedrock-buff.effects");
@@ -102,79 +111,92 @@ public class GameSequenceHandler {
         int supplyDropInterval = configHandler.getWorldConfig(world).getInt("supplydrop.interval") * 20;
         SupplyDropHandler supplyDropHandler = new SupplyDropHandler(plugin, langHandler);
 
-        supplyDropTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
-            supplyDropHandler.setSupplyDrop(world);
-        }, supplyDropInterval, supplyDropInterval);
+        BukkitTask worldSupplyDropTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> supplyDropHandler.setSupplyDrop(world), supplyDropInterval, supplyDropInterval);
+        supplyDropTask.put(world, worldSupplyDropTask);
 
         int chestRefillInterval = configHandler.getWorldConfig(world).getInt("chestrefill.interval") * 20;
         ChestRefillHandler chestRefillHandler = new ChestRefillHandler(plugin, langHandler);
 
-        chestRefillTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
-            chestRefillHandler.refillChests(world);
-        }, 0, chestRefillInterval);
+        BukkitTask worldChestRefillTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> chestRefillHandler.refillChests(world), 0, chestRefillInterval);
+        supplyDropTask.put(world, worldChestRefillTask);
 
         mainGame(world);
     }
 
     public void mainGame(World world) {
-        timeLeft = configHandler.getWorldConfig(world).getInt("game-time");
+        int initialTimeLeft = configHandler.getWorldConfig(world).getInt("game-time");
+        timeLeft.put(world, initialTimeLeft);
 
-        timerTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+        int worldTimerTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             updateBossBars(world);
-            timeLeft--;
+            int currentTimeLeft = timeLeft.get(world);
+            currentTimeLeft--;
+            timeLeft.put(world, currentTimeLeft);
 
             scoreBoardHandler.getScoreBoard(world);
 
+            List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world, k -> new ArrayList<>());
+            List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+
             if (playersPerTeam != 1) {
-                if (teamsAlive.size() <= 1) {
+                if (worldTeamsAlive.size() <= 1) {
                     endGameWithTeams(world);
                 }
             } else {
-                if (playersAlive.size() <= 1) {
+                if (worldPlayersAlive.size() <= 1) {
                     endGameWithPlayers(world);
                 }
             }
 
-            if (timeLeft < 0) {
+            if (currentTimeLeft < 0) {
                 handleTimeUp(world);
             }
         }, 0L, 20L);
+        timerTaskId.put(world, worldTimerTaskId);
     }
 
     private void updateBossBars(World world) {
-        for (Map.Entry<Player, BossBar> entry : playerBossBars.entrySet()) {
+        Map<Player, BossBar> worldPlayerBossBars = playerBossBars.computeIfAbsent(world, k -> new HashMap<>());
+
+        int worldTimeLeft = timeLeft.get(world);
+
+        for (Map.Entry<Player, BossBar> entry : worldPlayerBossBars.entrySet()) {
             Player player = entry.getKey();
             BossBar bossBar = entry.getValue();
-            bossBar.setProgress((double) timeLeft / configHandler.getWorldConfig(world).getInt("game-time"));
-            int minutes = (timeLeft - 1) / 60;
-            int seconds = (timeLeft - 1) % 60;
+            bossBar.setProgress((double) worldTimeLeft / configHandler.getWorldConfig(world).getInt("game-time"));
+            int minutes = (worldTimeLeft - 1) / 60;
+            int seconds = (worldTimeLeft - 1) % 60;
             String timeFormatted = String.format("%02d:%02d", minutes, seconds);
             bossBar.setTitle(langHandler.getMessage(player, "score.time", timeFormatted));
         }
     }
 
     private void endGameWithTeams(World world) {
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
+        for (Player player : world.getPlayers()) {
             player.sendMessage(langHandler.getMessage(player, "game.game-end"));
         }
 
-        if (teamsAlive.size() == 1) {
-            List<Player> winningTeam = teamsAlive.get(0);
-            winningTeam(winningTeam, "winner");
+        List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world, k -> new ArrayList<>());
+
+        if (worldTeamsAlive.size() == 1) {
+            List<Player> winningTeam = worldTeamsAlive.get(0);
+            winningTeam(winningTeam, "winner", world);
         } else {
-            determineWinningTeam();
+            determineWinningTeam(world);
         }
 
         endGame(false, world);
     }
 
     private void endGameWithPlayers(World world) {
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
+        for (Player player : world.getPlayers()) {
             player.sendMessage(langHandler.getMessage(player, "game.game-end"));
         }
 
-        Player winner = playersAlive.isEmpty() ? null : playersAlive.get(0);
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+
+        Player winner = worldPlayersAlive.isEmpty() ? null : worldPlayersAlive.get(0);
+        for (Player player : world.getPlayers()) {
             if (winner != null) {
                 player.sendMessage(langHandler.getMessage(player, "game.winner", winner.getName()));
                 player.sendTitle("", langHandler.getMessage(player, "game.winner", winner.getName()), 5, 20, 10);
@@ -188,7 +210,7 @@ public class GameSequenceHandler {
 
     private void handleTimeUp(World world) {
         if (playersPerTeam != 1) {
-            determineWinningTeam();
+            determineWinningTeam(world);
             endGame(false, world);
         } else {
             determineSoloWinner(world);
@@ -205,7 +227,7 @@ public class GameSequenceHandler {
             }
         }
 
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
+        for (Player player : world.getPlayers()) {
             if (winner != null) {
                 player.sendTitle("", langHandler.getMessage(player, "game.solo-kills", winner.getName()), 5, 20, 10);
                 player.sendMessage(langHandler.getMessage(player, "game.solo-kills", winner.getName()));
@@ -219,13 +241,13 @@ public class GameSequenceHandler {
         endGame(false, world);
     }
 
-    private void winningTeam(List<Player> winningTeam, String winReason) {
+    private void winningTeam(List<Player> winningTeam, String winReason, World world) {
         if (winningTeam != null) {
             String allNames = getAllPlayerNames(winningTeam);
             String messageKey = getMessageKey(winReason);
             String titleKey = getTitleKey(winReason);
 
-            for (Player player : plugin.getServer().getOnlinePlayers()) {
+            for (Player player : world.getPlayers()) {
                 player.sendTitle("", langHandler.getMessage(player, messageKey, allNames), 5, 20, 10);
                 player.sendMessage(langHandler.getMessage(player, titleKey, allNames));
                 player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
@@ -261,12 +283,14 @@ public class GameSequenceHandler {
         };
     }
 
-    private void determineWinningTeam() {
+    private void determineWinningTeam(World world) {
         List<List<Player>> potentialWinningTeams = new ArrayList<>();
         int maxAlivePlayers = -1;
         int maxKills = -1;
 
-        for (List<Player> team : teamsAlive) {
+        List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world, k -> new ArrayList<>());
+
+        for (List<Player> team : worldTeamsAlive) {
             int alivePlayers = team.size();
             int teamKills = team.stream().mapToInt(player -> playerKills.getOrDefault(player, 0)).sum();
 
@@ -283,23 +307,26 @@ public class GameSequenceHandler {
         if (potentialWinningTeams.size() == 1) {
             List<Player> winningTeam = potentialWinningTeams.get(0);
             String winReason = maxAlivePlayers > 0 ? "team-alive" : "team-kills";
-            winningTeam(winningTeam, winReason);
+            winningTeam(winningTeam, winReason, world);
         } else {
-            for (Player player : plugin.getServer().getOnlinePlayers()) {
+            for (Player player : world.getPlayers()) {
                 player.sendMessage(langHandler.getMessage(player, "game.team-no-winner"));
             }
         }
     }
 
     public void endGame(Boolean disable, World world) {
-        HungerGames.gameStarted = false;
+        gameStarted.put(world, false);
 
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world, k -> new HashMap<>());
+
+        for (Player player : world.getPlayers()) {
             resetPlayerHandler.resetPlayer(player);
             removeBossBar(player);
             player.teleport(player.getWorld().getSpawnLocation());
             scoreBoardHandler.removeScoreboard(player);
-            playerBossBars.remove(player);
+            Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(world, k -> new HashMap<>());
+            worldPlayerBossBar.remove(player);
         }
 
         worldBorderHandler.resetWorldBorder(world);
@@ -307,7 +334,7 @@ public class GameSequenceHandler {
         worldResetHandler.removeShulkers(world);
 
         if (!disable && configHandler.getWorldConfig(world).getBoolean("reset-world")) {
-            worldResetHandler.sendToWorld();
+            worldResetHandler.sendToWorld(world);
             worldResetHandler.resetWorldState(world);
         }
 
@@ -329,27 +356,34 @@ public class GameSequenceHandler {
 
         world.setPVP(false);
 
-        plugin.getServer().getScheduler().cancelTask(timerTaskId);
-        plugin.getServer().getScheduler().cancelTask(gracePeriodTaskId);
+        int worldGracePeriodTaskId = gracePeriodTaskId.get(world);
+        int worldTimerTaskId = timerTaskId.get(world);
+        BukkitTask worldChestRefillTask = chestRefillTask.get(world);
+        BukkitTask worldSupplyDropTask = supplyDropTask.get(world);
 
-        if (chestRefillTask != null) {
-            plugin.getServer().getScheduler().cancelTask(chestRefillTask.getTaskId());
+        plugin.getServer().getScheduler().cancelTask(worldTimerTaskId);
+        plugin.getServer().getScheduler().cancelTask(worldGracePeriodTaskId);
+
+        if (worldChestRefillTask != null) {
+            plugin.getServer().getScheduler().cancelTask(worldChestRefillTask.getTaskId());
         }
 
-        if (supplyDropTask != null) {
-            plugin.getServer().getScheduler().cancelTask(supplyDropTask.getTaskId());
+        if (worldSupplyDropTask != null) {
+            plugin.getServer().getScheduler().cancelTask(worldSupplyDropTask.getTaskId());
         }
 
-        compassListener.cancelGlowTask();
-        teamsHandler.removeGlowFromAllPlayers();
+        compassListener.cancelGlowTask(world);
+        teamsHandler.removeGlowFromAllPlayers(world);
 
-        playersAlive.clear();
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+
+        worldPlayersAlive.clear();
 
         playerVotes.clear();
 
         if (plugin.isEnabled()) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+                for (Player player : world.getPlayers()) {
                     player.sendMessage(langHandler.getMessage(player, "game.join-instruction"));
                     player.sendTitle("", langHandler.getMessage(player, "game.join-instruction"), 5, 20, 10);
                 }
@@ -357,11 +391,11 @@ public class GameSequenceHandler {
 
             if (configHandler.getWorldConfig(world).getBoolean("auto-join")) {
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-                        if (!setSpawnHandler.spawnPointMap.containsValue(player)) {
+                    for (Player player : world.getPlayers()) {
+                        if (!worldSpawnPointMap.containsValue(player)) {
                             player.sendMessage(langHandler.getMessage(player, "game.auto-join"));
                             player.sendTitle("", langHandler.getMessage(player, "game.auto-join"), 5, 20, 10);
-                            setSpawnHandler.teleportPlayerToSpawnpoint(player);
+                            setSpawnHandler.teleportPlayerToSpawnpoint(player, world);
                         }
                     }
                 }, 200L);
@@ -370,10 +404,12 @@ public class GameSequenceHandler {
     }
 
     public void removeBossBar(Player player) {
-        BossBar bossBar = playerBossBars.get(player);
+        Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(player.getWorld(), k -> new HashMap<>());
+
+        BossBar bossBar = worldPlayerBossBar.get(player);
         if (bossBar != null) {
             bossBar.removePlayer(player);
-            playerBossBars.remove(player);
+            worldPlayerBossBar.remove(player);
         }
     }
 }

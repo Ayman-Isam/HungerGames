@@ -3,7 +3,6 @@ package me.aymanisam.hungergames;
 import me.aymanisam.hungergames.commands.*;
 import me.aymanisam.hungergames.handlers.*;
 import me.aymanisam.hungergames.listeners.TeamVotingListener;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,7 +14,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static me.aymanisam.hungergames.HungerGames.worldNames;
 
@@ -49,7 +47,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     executor = new JoinGameCommand(plugin, langHandler, setSpawnHandler);
                     break;
                 case "leave":
-                    executor = new LeaveGameCommand(plugin, langHandler, setSpawnHandler);
+                    executor = new LobbyReturnCommand(plugin, langHandler, setSpawnHandler);
                     break;
                 case "start":
                     executor = new StartGameCommand(plugin, langHandler, setSpawnHandler, countDownHandler);
@@ -96,6 +94,9 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 case "saveworld":
                     executor = new SaveWorldCommand(plugin, langHandler);
                     break;
+                case "setsign":
+                    executor = new SignSetCommand(plugin, langHandler, setSpawnHandler);
+                    break;
                 default:
                     sender.sendMessage(langHandler.getMessage(sender instanceof Player ? (Player) sender : null, "unknown-subcommand", args[0]));
                     return false;
@@ -113,7 +114,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 List<String> completions = new ArrayList<>();
-                String[] commands = {"join", "leave", "start", "spectate", "select", "end", "teamchat", "map", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig"};
+                String[] commands = {"join", "leave", "start", "spectate", "select", "end", "teamchat", "map", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig", "setsign"};
                 for (String subcommand : commands) {
                     if (sender.hasPermission("hungergames." + subcommand)) {
                         completions.add(subcommand);

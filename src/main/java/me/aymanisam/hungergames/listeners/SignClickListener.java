@@ -3,6 +3,10 @@ package me.aymanisam.hungergames.listeners;
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.SetSpawnHandler;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -11,11 +15,21 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static me.aymanisam.hungergames.HungerGames.gameStarted;
+import static me.aymanisam.hungergames.HungerGames.worldNames;
+
 public class SignClickListener implements Listener {
+    private final HungerGames plugin;
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
 
     public SignClickListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
+        this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
     }
@@ -29,25 +43,44 @@ public class SignClickListener implements Listener {
             assert block != null;
 
             if (block.getState() instanceof Sign sign) {
-                if (sign.getLine(0).equalsIgnoreCase("[Join]")) {
-                    if (HungerGames.gameStarted) {
-                        player.sendMessage(langHandler.getMessage(player, "startgame.started"));
-                        return;
+                for (String worldName : worldNames) {
+                    if (sign.getLine(1).contains(worldName)) {
+                        World world = Bukkit.getWorld(worldName);
+                        if (world == null) {
+                            Bukkit.getScheduler().runTask(plugin, () -> {
+                                World createdWorld = Bukkit.createWorld(WorldCreator.name(worldName));
+                                if (setSpawnHandler.playersWaiting.get(createdWorld).contains(player)) {
+                                    return;
+                                }
+                                setSpawnHandler.teleportPlayerToSpawnpoint(player, createdWorld);
+                            });
+                        } else {
+                            setSpawnHandler.teleportPlayerToSpawnpoint(player, world);
+                        }
+                        break;
                     }
-
-                    if (HungerGames.gameStarting) {
-                        player.sendMessage(langHandler.getMessage(player, "startgame.starting"));
-                        return;
-                    }
-
-                    if (setSpawnHandler.spawnPointMap.containsValue(player)) {
-                        player.sendMessage(langHandler.getMessage(player, "game.already-joined"));
-                        return;
-                    }
-
-                    setSpawnHandler.teleportPlayerToSpawnpoint(player);
                 }
             }
+        }
+    }
+
+    public void setSignContent(List<Location> locations) {
+        String lobbyWorld = plugin.getConfig().getString("lobby-world");
+        List<String> worlds = new ArrayList<>(worldNames);
+        worlds.remove(lobbyWorld);
+
+        for (Location location : locations) {
+            String worldName = worlds.get(0);
+
+            if (location.getBlock().getState() instanceof Sign sign) {
+                sign.setEditable(false);
+                sign.setLine(0, "Join");
+                sign.setLine(1, worldName);
+                sign.setGlowingText(true);
+                sign.update();
+            }
+
+            worlds.remove(0);
         }
     }
 }
