@@ -88,12 +88,10 @@ public class CompassListener implements Listener {
                 World world = player.getWorld();
                 Map<Player, BukkitTask> worldGlowTasks = glowTasks.computeIfAbsent(world, k -> new HashMap<>());
 
-                // Cancel previous task if it exists
                 if (worldGlowTasks.containsKey(player)) {
                     worldGlowTasks.get(player).cancel();
                 }
 
-                // Schedule new task and store it in the map
                 BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                     teamsHandler.playerGlow(nearestPlayer, player, false);
                 }, 200L);
@@ -105,9 +103,14 @@ public class CompassListener implements Listener {
     public void cancelGlowTask(World world) {
         Map<Player, BukkitTask> worldGlowTasks = glowTasks.get(world);
 
+        if (worldGlowTasks == null) {
+            return;
+        }
+
         for (BukkitTask task : worldGlowTasks.values()) {
             task.cancel();
         }
+
         worldGlowTasks.clear();
     }
 }

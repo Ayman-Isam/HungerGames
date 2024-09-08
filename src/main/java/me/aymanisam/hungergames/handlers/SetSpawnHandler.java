@@ -1,6 +1,8 @@
 package me.aymanisam.hungergames.handlers;
 
+import com.google.common.collect.Sets;
 import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.listeners.SignClickListener;
 import me.aymanisam.hungergames.listeners.TeamVotingListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -17,6 +19,7 @@ import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.gameStarted;
 import static me.aymanisam.hungergames.HungerGames.gameStarting;
+import static me.aymanisam.hungergames.listeners.TeamVotingListener.giveVotingBook;
 
 public class SetSpawnHandler {
     private final HungerGames plugin;
@@ -24,6 +27,9 @@ public class SetSpawnHandler {
     private final LangHandler langHandler;
     private final TeamVotingListener teamVotingListener;
     private final ConfigHandler configHandler;
+    private final ArenaHandler arenaHandler;
+    private final SignHandler signHandler;
+    private final SignClickListener signClickListener;
 
     public FileConfiguration setSpawnConfig;
     public Map<World, List<String>> spawnPoints;
@@ -31,7 +37,7 @@ public class SetSpawnHandler {
     public Map<World, List<Player>> playersWaiting;
     private File setSpawnFile;
 
-    public SetSpawnHandler(HungerGames plugin, LangHandler langHandler) {
+    public SetSpawnHandler(HungerGames plugin, LangHandler langHandler, ArenaHandler arenaHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.spawnPoints = new HashMap<>();
@@ -40,6 +46,9 @@ public class SetSpawnHandler {
         this.resetPlayerHandler = new ResetPlayerHandler();
         this.teamVotingListener = new TeamVotingListener(plugin, langHandler);
         this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.arenaHandler = arenaHandler;
+        this.signHandler = new SignHandler(plugin);
+        this.signClickListener = new SignClickListener(plugin, langHandler, this, arenaHandler);
     }
 
     public void createSetSpawnConfig(World world) {
@@ -125,6 +134,7 @@ public class SetSpawnHandler {
 
         worldSpawnPointMap.put(spawnPoint, player);
         worldPlayersWaiting.add(player);
+        signClickListener.setSignContent(signHandler.loadSignLocations());
 
         String[] coords = spawnPoint.split(",");
         double x = Double.parseDouble(coords[1]) + 0.5;

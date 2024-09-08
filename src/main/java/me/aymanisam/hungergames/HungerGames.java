@@ -45,27 +45,27 @@ public final class HungerGames extends JavaPlugin {
         // Initializing shared classes
         TeamVotingListener teamVotingListener = new TeamVotingListener(this, langHandler);
         getServer().getPluginManager().registerEvents(teamVotingListener, this);
-        SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this, langHandler);
+        ArenaHandler arenaHandler = new ArenaHandler(this, langHandler);
+        SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this, langHandler, arenaHandler);
         ScoreBoardHandler scoreBoardHandler = new ScoreBoardHandler(this, langHandler);
         CompassHandler compassHandler = new CompassHandler(this, langHandler);
         CompassListener compassListener = new CompassListener(this, langHandler, compassHandler, scoreBoardHandler);
-        ArenaHandler arenaHandler = new ArenaHandler(this, langHandler);
         ConfigHandler configHandler = new ConfigHandler(this, langHandler);
         TeamsHandler teamsHandler = new TeamsHandler(this, langHandler, scoreBoardHandler);
         this.gameSequenceHandler = new GameSequenceHandler(this, langHandler, setSpawnHandler, compassListener, teamsHandler);
         CountDownHandler countDownHandler = new CountDownHandler(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener, scoreBoardHandler);
 
         // Registering command handler
-        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener, teamsHandler, scoreBoardHandler, countDownHandler));
+        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener, teamsHandler, scoreBoardHandler, countDownHandler, arenaHandler));
 
         // Registering Listeners
         ArenaSelectListener arenaSelectListener = new ArenaSelectListener(this, langHandler);
         getServer().getPluginManager().registerEvents(arenaSelectListener, this);
 
-        SetSpawnListener setSpawnListener = new SetSpawnListener(this, langHandler, setSpawnHandler);
+        SetSpawnListener setSpawnListener = new SetSpawnListener(this, langHandler, setSpawnHandler, arenaHandler);
         getServer().getPluginManager().registerEvents(setSpawnListener, this);
 
-        SignClickListener signClickListener = new SignClickListener(this, langHandler, setSpawnHandler);
+        SignClickListener signClickListener = new SignClickListener(this, langHandler, setSpawnHandler, arenaHandler);
         getServer().getPluginManager().registerEvents(signClickListener, this);
 
         PlayerListener playerListener = new PlayerListener(this, langHandler, setSpawnHandler);
@@ -118,6 +118,8 @@ public final class HungerGames extends JavaPlugin {
 
         TipsHandler tipsHandler = new TipsHandler(this, langHandler);
         tipsHandler.startSendingTips(600);
+
+        configHandler.loadSignLocations();
     }
 
 

@@ -1,9 +1,8 @@
 package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.handlers.ConfigHandler;
-import me.aymanisam.hungergames.handlers.LangHandler;
-import me.aymanisam.hungergames.handlers.SetSpawnHandler;
+import me.aymanisam.hungergames.handlers.*;
+import me.aymanisam.hungergames.listeners.SignClickListener;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
@@ -24,12 +23,18 @@ public class LobbyReturnCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
     private final ConfigHandler configHandler;
+    private final ArenaHandler arenaHandler;
+    private final SignClickListener signClickListener;
+    private final SignHandler signHandler;
 
-    public LobbyReturnCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
+    public LobbyReturnCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.arenaHandler = arenaHandler;
+        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
+        this.signHandler = new SignHandler(plugin);
     }
 
     @Override
@@ -39,7 +44,7 @@ public class LobbyReturnCommand implements CommandExecutor {
             return true;
         }
 
-        if (!(player.hasPermission("hungergames.leave"))) {
+        if (!(player.hasPermission("hungergames.lobby"))) {
             sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
@@ -53,19 +58,7 @@ public class LobbyReturnCommand implements CommandExecutor {
 
         setSpawnHandler.removePlayerFromSpawnPoint(player, player.getWorld());
 
-        assert lobbyWorldName != null;
-        World lobbyWorld = Bukkit.getWorld(lobbyWorldName);
-        if (lobbyWorld != null) {
-            player.teleport(lobbyWorld.getSpawnLocation());
-        } else {
-            plugin.getLogger().log(Level.SEVERE, "Could not find lobbyWorld [ " + lobbyWorldName + "]");
-        }
-
-        boolean spectating = configHandler.getWorldConfig(player.getWorld()).getBoolean("spectating");
-        if (spectating) {
-            player.setGameMode(GameMode.SPECTATOR);
-        }
-
+        List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
         Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(player.getWorld(), k -> new HashMap<>());
         List<String> worldSpawnPoints = setSpawnHandler.spawnPoints.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
 
@@ -74,6 +67,18 @@ public class LobbyReturnCommand implements CommandExecutor {
             onlinePlayer.sendMessage(langHandler.getMessage(player, "game.left", player.getName(),
                     worldSpawnPointMap.size(), worldSpawnPoints.size()));
         }
+
+        assert lobbyWorldName != null;
+        World lobbyWorld = Bukkit.getWorld(lobbyWorldName);
+        if (lobbyWorld != null) {
+            player.teleport(lobbyWorld.getSpawnLocation());
+        } else {
+            plugin.getLogger().log(Level.SEVERE, "Could not find lobbyWorld [ " + lobbyWorldName + "]");
+        }
+
+        player.setGameMode(GameMode.ADVENTURE);
+        worldPlayersWaiting.remove(player);
+        signClickListener.setSignContent(signHandler.loadSignLocations());
 
         return true;
     }

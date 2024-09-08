@@ -33,8 +33,6 @@ auto-start:
   players: 8
 # Minimum number of players in a game, default is 2
 min-players: 2
-# Maximum number of players in a game, default is 24
-max-players: 24
 # Enable or disable players spectating on death, default is false, set to true to enable
 spectating: true
 # Enable auto-joining of games, default is false, set to true to enable

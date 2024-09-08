@@ -53,6 +53,7 @@ public class PlayerListener implements Listener {
             worldPlayersAlive.remove(player);
         } else {
             setSpawnHandler.removePlayerFromSpawnPoint(player, player.getWorld());
+            worldPlayersAlive.remove(player);
         }
 
         removeFromTeam(player);
@@ -118,6 +119,7 @@ public class PlayerListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
 
+        List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
 
         if (gameStarted.getOrDefault(player.getWorld(), false)) {
@@ -127,6 +129,7 @@ public class PlayerListener implements Listener {
             worldPlayersAlive.remove(player);
         } else {
             setSpawnHandler.removePlayerFromSpawnPoint(player, player.getWorld());
+            worldPlayersAlive.remove(player);
         }
 
         removeFromTeam(player);

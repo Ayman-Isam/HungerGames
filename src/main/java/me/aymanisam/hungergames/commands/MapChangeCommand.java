@@ -94,8 +94,6 @@ public class MapChangeCommand implements CommandExecutor {
 
         sender.sendMessage(langHandler.getMessage(player, "map.switched", mapName));
 
-        giveVotingBook(player, langHandler);
-
         return true;
     }
 }

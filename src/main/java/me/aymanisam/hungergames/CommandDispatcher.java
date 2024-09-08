@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static me.aymanisam.hungergames.HungerGames.worldNames;
@@ -26,8 +27,9 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
     private final TeamsHandler teamsHandler;
     private final ScoreBoardHandler scoreBoardHandler;
     private final CountDownHandler countDownHandler;
+    private final ArenaHandler arenaHandler;
 
-    public CommandDispatcher(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener, TeamsHandler teamsHandler, ScoreBoardHandler scoreBoardHandler, CountDownHandler countDownHandler) {
+    public CommandDispatcher(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener, TeamsHandler teamsHandler, ScoreBoardHandler scoreBoardHandler, CountDownHandler countDownHandler, ArenaHandler arenaHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
@@ -36,6 +38,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
         this.teamsHandler = teamsHandler;
         this.scoreBoardHandler = scoreBoardHandler;
         this.countDownHandler = countDownHandler;
+        this.arenaHandler = arenaHandler;
     }
 
     @Override
@@ -46,8 +49,8 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 case "join":
                     executor = new JoinGameCommand(plugin, langHandler, setSpawnHandler);
                     break;
-                case "leave":
-                    executor = new LobbyReturnCommand(plugin, langHandler, setSpawnHandler);
+                case "lobby":
+                    executor = new LobbyReturnCommand(plugin, langHandler, setSpawnHandler, arenaHandler);
                     break;
                 case "start":
                     executor = new StartGameCommand(plugin, langHandler, setSpawnHandler, countDownHandler);
@@ -95,7 +98,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     executor = new SaveWorldCommand(plugin, langHandler);
                     break;
                 case "setsign":
-                    executor = new SignSetCommand(plugin, langHandler, setSpawnHandler);
+                    executor = new SignSetCommand(plugin, langHandler, setSpawnHandler, arenaHandler);
                     break;
                 default:
                     sender.sendMessage(langHandler.getMessage(sender instanceof Player ? (Player) sender : null, "unknown-subcommand", args[0]));
@@ -114,7 +117,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 List<String> completions = new ArrayList<>();
-                String[] commands = {"join", "leave", "start", "spectate", "select", "end", "teamchat", "map", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig", "setsign"};
+                String[] commands = {"join", "lobby", "start", "spectate", "select", "end", "teamchat", "map", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig", "setsign"};
                 for (String subcommand : commands) {
                     if (sender.hasPermission("hungergames." + subcommand)) {
                         completions.add(subcommand);
@@ -142,8 +145,10 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     completions.add(langHandler.getMessage(player, "border.args-1"));
                     return completions;
                 }
-            } else if (args[0].equalsIgnoreCase("map")) {
+            } else if (args[0].equalsIgnoreCase("map") || (args[0].equalsIgnoreCase("join"))) {
                 if (args.length == 2) {
+                    String worldNameToRemove = (String) plugin.getConfig().get("lobby-world");
+                    worldNames.remove(worldNameToRemove);
                     return worldNames;
                 }
             }

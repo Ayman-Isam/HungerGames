@@ -77,6 +77,20 @@ public class ConfigHandler {
         return YamlConfiguration.loadConfiguration(itemsFile);
     }
 
+    public YamlConfiguration loadSignLocations() {
+        File signFile = new File(plugin.getDataFolder(), "signs.yml");
+        if (!signFile.exists()) {
+            signFile.getParentFile().mkdirs();
+            plugin.saveResource("signs.yml", true);
+            try {
+                Files.copy(new File(plugin.getDataFolder(), "signs.yml").toPath(), signFile.toPath());
+            } catch (IOException e) {
+                plugin.getLogger().log(Level.SEVERE, "Could not create sign file for world " + e);
+            }
+        }
+        return YamlConfiguration.loadConfiguration(signFile);
+    }
+
     public void checkConfigKeys() {
         YamlConfiguration pluginConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(plugin.getResource("config.yml"))));
         File serverConfigFile = new File(plugin.getDataFolder(), "config.yml");

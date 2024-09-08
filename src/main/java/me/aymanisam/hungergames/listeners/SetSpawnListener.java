@@ -1,9 +1,7 @@
 package me.aymanisam.hungergames.listeners;
 
 import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.handlers.ConfigHandler;
-import me.aymanisam.hungergames.handlers.LangHandler;
-import me.aymanisam.hungergames.handlers.SetSpawnHandler;
+import me.aymanisam.hungergames.handlers.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -25,13 +23,19 @@ public class SetSpawnListener implements Listener {
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
     private final ConfigHandler configHandler;
+    private final ArenaHandler arenaHandler;
+    private final SignClickListener signClickListener;
+    private final SignHandler signHandler;
 
     private final Map<World, Map<Location, BlockData>> originalBlockDataMap = new HashMap<>();
 
-    public SetSpawnListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
+    public SetSpawnListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.arenaHandler = arenaHandler;
+        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
+        this.signHandler = new SignHandler(plugin);
     }
 
     @EventHandler
@@ -59,13 +63,9 @@ public class SetSpawnListener implements Listener {
                     return;
                 }
 
-                if (worldSpawnPoints.size() >= config.getInt("max-players")) {
-                    player.sendMessage(langHandler.getMessage(player, "setspawn.max-spawn"));
-                    event.setCancelled(true);
-                    return;
-                }
-
                 worldSpawnPoints.add(newSpawnPoint);
+                signClickListener.setSignContent(signHandler.loadSignLocations());
+
                 setSpawnHandler.saveSetSpawnConfig(player.getWorld());
                 player.sendMessage(langHandler.getMessage(player, "setspawn.pos-set", worldSpawnPoints.size(), location.getBlockX(), location.getBlockY(), location.getBlockZ()));
                 updateGoldBlocksViewForPlayer(player);
@@ -81,6 +81,7 @@ public class SetSpawnListener implements Listener {
 
                 player.sendMessage(langHandler.getMessage(player, "setspawn.pos-removed", worldSpawnPoints.size(), location.getBlockX(), location.getBlockY(), location.getBlockZ()));
                 worldSpawnPoints.remove(newSpawnPoint);
+                signClickListener.setSignContent(signHandler.loadSignLocations());
                 setSpawnHandler.saveSetSpawnConfig(player.getWorld());
                 updateGoldBlocksViewForPlayer(player);
             }

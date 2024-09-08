@@ -60,7 +60,6 @@ public class EndGameCommand implements CommandExecutor {
             gameStarting.put(p.getWorld(), false);
             for (Player player : p.getWorld().getPlayers()) {
                 if (worldSpawnPointMap.containsValue(player)) {
-                    giveVotingBook(player, langHandler);
                     Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20.0);
                 }
             }

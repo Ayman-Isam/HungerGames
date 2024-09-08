@@ -118,7 +118,7 @@ public class GameSequenceHandler {
         ChestRefillHandler chestRefillHandler = new ChestRefillHandler(plugin, langHandler);
 
         BukkitTask worldChestRefillTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> chestRefillHandler.refillChests(world), 0, chestRefillInterval);
-        supplyDropTask.put(world, worldChestRefillTask);
+        chestRefillTask.put(world, worldChestRefillTask);
 
         mainGame(world);
     }
@@ -323,7 +323,11 @@ public class GameSequenceHandler {
         for (Player player : world.getPlayers()) {
             resetPlayerHandler.resetPlayer(player);
             removeBossBar(player);
-            player.teleport(player.getWorld().getSpawnLocation());
+            String lobbyWorldName = (String) plugin.getConfig().get("lobby-world");
+            assert lobbyWorldName != null;
+            World lobbyWorld = Bukkit.getWorld(lobbyWorldName);
+            assert lobbyWorld != null;
+            player.teleport(lobbyWorld.getSpawnLocation());
             scoreBoardHandler.removeScoreboard(player);
             Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(world, k -> new HashMap<>());
             worldPlayerBossBar.remove(player);
@@ -356,13 +360,18 @@ public class GameSequenceHandler {
 
         world.setPVP(false);
 
-        int worldGracePeriodTaskId = gracePeriodTaskId.get(world);
-        int worldTimerTaskId = timerTaskId.get(world);
+        if (gracePeriodTaskId.containsKey(world)) {
+            int worldGracePeriodTaskId = gracePeriodTaskId.get(world);
+            plugin.getServer().getScheduler().cancelTask(worldGracePeriodTaskId);
+        }
+
+        if (timerTaskId.containsKey(world)) {
+            int worldTimerTaskId = timerTaskId.get(world);
+            plugin.getServer().getScheduler().cancelTask(worldTimerTaskId);
+        }
+
         BukkitTask worldChestRefillTask = chestRefillTask.get(world);
         BukkitTask worldSupplyDropTask = supplyDropTask.get(world);
-
-        plugin.getServer().getScheduler().cancelTask(worldTimerTaskId);
-        plugin.getServer().getScheduler().cancelTask(worldGracePeriodTaskId);
 
         if (worldChestRefillTask != null) {
             plugin.getServer().getScheduler().cancelTask(worldChestRefillTask.getTaskId());

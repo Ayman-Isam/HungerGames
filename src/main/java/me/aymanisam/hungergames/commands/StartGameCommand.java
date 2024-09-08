@@ -78,7 +78,7 @@ public class StartGameCommand implements CommandExecutor {
             return true;
         }
 
-        gameStarting.put(player.getWorld(), false);
+        gameStarting.put(player.getWorld(), true);
 
         countDownHandler.startCountDown(player.getWorld());
 

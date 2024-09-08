@@ -2,8 +2,10 @@ package me.aymanisam.hungergames.commands;
 
 import com.google.common.collect.Sets;
 import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.handlers.ArenaHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.SetSpawnHandler;
+import me.aymanisam.hungergames.handlers.SignHandler;
 import me.aymanisam.hungergames.listeners.SignClickListener;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -24,11 +26,13 @@ public class SignSetCommand implements CommandExecutor {
     private final List<Location> signLocations = new ArrayList<>();
     private final SignClickListener signClickListener;
     private final SetSpawnHandler setSpawnHandler;
+    private final SignHandler signHandler;
 
-    public SignSetCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
+    public SignSetCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
-        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler);
+        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
+        this.signHandler = new SignHandler(plugin);
     }
 
     @Override
@@ -71,7 +75,9 @@ public class SignSetCommand implements CommandExecutor {
             signLocations.add(currentLocation);
         }
 
-        signClickListener.setSignContent(signLocations);
+        signHandler.saveSignLocations(signLocations);
+
+        signClickListener.setSignContent(signHandler.loadSignLocations());
 
         return true;
     }

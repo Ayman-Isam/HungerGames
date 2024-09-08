@@ -100,7 +100,6 @@ public class CountDownHandler {
             for (Player player : world.getPlayers()) {
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.0f);
             }
-            HungerGames.gameStarting.put(world, false);
         }, 20L * 20));
 
         countDown("startgame.20-s", 0L, world);
