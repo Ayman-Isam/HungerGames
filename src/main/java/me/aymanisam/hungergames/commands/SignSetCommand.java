@@ -1,6 +1,5 @@
 package me.aymanisam.hungergames.commands;
 
-import com.google.common.collect.Sets;
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.ArenaHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
@@ -56,29 +55,45 @@ public class SignSetCommand implements CommandExecutor {
             return true;
         }
 
-        int numSigns = worldNames.size() - 2;
-
-        Location finalBlockLocation = targetBlockLocation.clone().add(-numSigns,0,0);
-
-        int startX = targetBlockLocation.getBlockX();
-        int endX = finalBlockLocation.getBlockX();
-
-        for (int x = startX; x >= endX; x--) {
-            Location currentLocation = targetBlockLocation.clone();
-            currentLocation.setX(x);
-            Block currentBlock = currentLocation.getBlock();
-            if (!(currentBlock.getState() instanceof Sign)) {
-                player.sendMessage(langHandler.getMessage(player, "game.invalid-nearby", numSigns));
-                signLocations.clear();
-                return true;
-            }
-            signLocations.add(currentLocation);
-        }
+        if (checkNearbySigns(player, targetBlockLocation)) return true;
 
         signHandler.saveSignLocations(signLocations);
 
         signClickListener.setSignContent(signHandler.loadSignLocations());
 
         return true;
+    }
+
+    private boolean checkNearbySigns(Player player, Location targetBlockLocation) {
+        int numSigns = worldNames.size() - 2;
+
+        Location finalBlockLocation = targetBlockLocation.clone();
+
+        switch (player.getFacing()) {
+            case NORTH -> finalBlockLocation.add(numSigns, 0, 0);
+            case SOUTH -> finalBlockLocation.add(-numSigns, 0, 0);
+            case EAST -> finalBlockLocation.add(0, 0, numSigns);
+            case WEST -> finalBlockLocation.add(0, 0, -numSigns);
+            default -> System.out.println("WRONG DIRECTION");
+        }
+
+        int startX = targetBlockLocation.getBlockX();
+        int endX = finalBlockLocation.getBlockX();
+        int startZ = targetBlockLocation.getBlockZ();
+        int endZ = finalBlockLocation.getBlockZ();
+
+        for (int x = Math.min(startX, endX); x <= Math.max(startX, endX); x++) {
+            for (int z = Math.min(startZ, endZ); z <= Math.max(startZ, endZ); z++) {
+                Location currentLocation = new Location(targetBlockLocation.getWorld(), x, targetBlockLocation.getBlockY(), z);
+                Block currentBlock = currentLocation.getBlock();
+                if (!(currentBlock.getState() instanceof Sign)) {
+                    player.sendMessage(langHandler.getMessage(player, "game.invalid-nearby", numSigns));
+                    signLocations.clear();
+                    return true;
+                }
+                signLocations.add(currentLocation);
+            }
+        }
+        return false;
     }
 }
