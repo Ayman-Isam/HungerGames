@@ -50,7 +50,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     executor = new JoinGameCommand(plugin, langHandler, setSpawnHandler);
                     break;
                 case "lobby":
-                    executor = new LobbyReturnCommand(plugin, langHandler, setSpawnHandler, arenaHandler);
+                    executor = new LobbyReturnCommand(plugin, langHandler, setSpawnHandler, arenaHandler, countDownHandler, scoreBoardHandler);
                     break;
                 case "start":
                     executor = new StartGameCommand(plugin, langHandler, setSpawnHandler, countDownHandler);

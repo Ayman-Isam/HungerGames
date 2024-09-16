@@ -47,13 +47,14 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         event.setQuitMessage(null);
 
+        List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
 
-        if (isAnyGameStartingOrStarted(player)) {
+        if (gameStarted.getOrDefault(player.getWorld(), false)) {
             worldPlayersAlive.remove(player);
         } else {
             setSpawnHandler.removePlayerFromSpawnPoint(player, player.getWorld());
-            worldPlayersAlive.remove(player);
+            worldPlayersWaiting.remove(player);
         }
 
         removeFromTeam(player);
@@ -108,11 +109,7 @@ public class PlayerListener implements Listener {
 //            player.setGameMode(GameMode.SPECTATOR);
 //        }
 //
-//        boolean autoJoin = configHandler.getWorldConfig(player.getWorld()).getBoolean("auto-join");
-//        if (autoJoin && !gameStarted && !gameStarting) {
-//            setSpawnHandler.teleportPlayerToSpawnpoint(player);
-//            event.setJoinMessage(null);
-//        }
+        event.setJoinMessage(null);
     }
 
     @EventHandler
@@ -125,11 +122,9 @@ public class PlayerListener implements Listener {
         if (gameStarted.getOrDefault(player.getWorld(), false)) {
             worldPlayersAlive.remove(player);
             event.setDeathMessage(null);
-        } else if (gameStarting.getOrDefault(player.getWorld(), false)) {
-            worldPlayersAlive.remove(player);
         } else {
             setSpawnHandler.removePlayerFromSpawnPoint(player, player.getWorld());
-            worldPlayersAlive.remove(player);
+            worldPlayersWaiting.remove(player);
         }
 
         removeFromTeam(player);
@@ -138,7 +133,7 @@ public class PlayerListener implements Listener {
         assert world != null;
 
         boolean spectating = configHandler.getWorldConfig(player.getWorld()).getBoolean("spectating");
-        if (spectating) {
+        if (spectating && isAnyGameStartingOrStarted(world)) {
             player.setGameMode(GameMode.SPECTATOR);
             if (gameStarted.getOrDefault(player.getWorld(), false)) {
                 player.sendTitle("", langHandler.getMessage(player, "spectate.spectating-player"), 5, 20, 10);

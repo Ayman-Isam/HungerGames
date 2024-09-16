@@ -1,9 +1,7 @@
 package me.aymanisam.hungergames.listeners;
 
 import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.handlers.ArenaHandler;
-import me.aymanisam.hungergames.handlers.LangHandler;
-import me.aymanisam.hungergames.handlers.SetSpawnHandler;
+import me.aymanisam.hungergames.handlers.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -13,18 +11,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static me.aymanisam.hungergames.HungerGames.*;
+import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 
 public class SignClickListener implements Listener {
     private final HungerGames plugin;
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
     private final ArenaHandler arenaHandler;
+    private final ConfigHandler configHandler;
     private final Map<Player, Long> lastInteractTime = new HashMap<>();
     private final Map<Player, Long> lastMessageTime = new HashMap<>();
 
@@ -33,6 +30,7 @@ public class SignClickListener implements Listener {
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.arenaHandler = arenaHandler;
+        this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
     @EventHandler
@@ -92,6 +90,7 @@ public class SignClickListener implements Listener {
 
     public void setSignContent(List<Location> locations) {
         List<String> worlds = new ArrayList<>(worldNames);
+        Collections.sort(worlds);
 
         for (Location location : locations) {
             String worldName = worlds.get(0);
@@ -99,12 +98,19 @@ public class SignClickListener implements Listener {
 
             int worldPlayersWaitingSize = setSpawnHandler.playersWaiting.computeIfAbsent(world, k -> new ArrayList<>()).size();
             int worldSpawnPointSize = setSpawnHandler.spawnPoints.computeIfAbsent(world, k -> new ArrayList<>()).size();
+            List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
 
             if (location.getBlock().getState() instanceof Sign sign) {
                 sign.setEditable(false);
                 sign.setLine(0, ChatColor.BOLD + "Join");
                 sign.setLine(1, ChatColor.BOLD + worldName);
-                sign.setLine(2, ChatColor.BOLD + "[" + worldPlayersWaitingSize + "/" + worldSpawnPointSize + "]");
+                if (isAnyGameStartingOrStarted(world)) {
+                    sign.setLine(2, ChatColor.BOLD + "In Progress");
+                    sign.setLine(3, ChatColor.BOLD + "" + worldPlayersAlive.size() + " Alive");
+                } else {
+                    sign.setLine(2, ChatColor.BOLD + "Waiting");
+                    sign.setLine(3, ChatColor.BOLD + "[" + worldPlayersWaitingSize + "/" + worldSpawnPointSize + "]");
+                }
                 sign.update();
             }
 

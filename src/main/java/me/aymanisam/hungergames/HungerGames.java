@@ -54,6 +54,7 @@ public final class HungerGames extends JavaPlugin {
         TeamsHandler teamsHandler = new TeamsHandler(this, langHandler, scoreBoardHandler);
         this.gameSequenceHandler = new GameSequenceHandler(this, langHandler, setSpawnHandler, compassListener, teamsHandler);
         CountDownHandler countDownHandler = new CountDownHandler(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener, scoreBoardHandler);
+        setSpawnHandler.setCountDownHandler(countDownHandler);
 
         // Registering command handler
         Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener, teamsHandler, scoreBoardHandler, countDownHandler, arenaHandler));
@@ -135,8 +136,8 @@ public final class HungerGames extends JavaPlugin {
         return this.getFile();
     }
 
-    public static boolean isAnyGameStartingOrStarted(Player player) {
-        return gameStarted.getOrDefault(player.getWorld(), false) ||
-                gameStarting.getOrDefault(player.getWorld(), false);
+    public static boolean isAnyGameStartingOrStarted(World world) {
+        return gameStarted.getOrDefault(world, false) ||
+                gameStarting.getOrDefault(world, false);
     }
 }

@@ -1,11 +1,9 @@
 package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.handlers.ArenaHandler;
-import me.aymanisam.hungergames.handlers.LangHandler;
-import me.aymanisam.hungergames.handlers.SetSpawnHandler;
-import me.aymanisam.hungergames.handlers.SignHandler;
+import me.aymanisam.hungergames.handlers.*;
 import me.aymanisam.hungergames.listeners.SignClickListener;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -17,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.worldNames;
 
@@ -74,7 +73,7 @@ public class SignSetCommand implements CommandExecutor {
             case SOUTH -> finalBlockLocation.add(-numSigns, 0, 0);
             case EAST -> finalBlockLocation.add(0, 0, numSigns);
             case WEST -> finalBlockLocation.add(0, 0, -numSigns);
-            default -> System.out.println("WRONG DIRECTION");
+            default -> Bukkit.getLogger().log(Level.SEVERE, "WRONG DIRECTION");
         }
 
         int startX = targetBlockLocation.getBlockX();

@@ -30,6 +30,7 @@ public class SetSpawnHandler {
     private final ArenaHandler arenaHandler;
     private final SignHandler signHandler;
     private final SignClickListener signClickListener;
+    private CountDownHandler countDownHandler;
 
     public FileConfiguration setSpawnConfig;
     public Map<World, List<String>> spawnPoints;
@@ -49,6 +50,10 @@ public class SetSpawnHandler {
         this.arenaHandler = arenaHandler;
         this.signHandler = new SignHandler(plugin);
         this.signClickListener = new SignClickListener(plugin, langHandler, this, arenaHandler);
+    }
+
+    public void setCountDownHandler(CountDownHandler countDownHandler) {
+        this.countDownHandler = countDownHandler;
     }
 
     public void createSetSpawnConfig(World world) {
@@ -166,6 +171,13 @@ public class SetSpawnHandler {
                     teamVotingListener.openVotingInventory(player);
                 }
             }, 100L);
+        }
+
+        if (configHandler.getWorldConfig(world).getBoolean("auto-start.enabled")) {
+            if (world.getPlayers().size() >= configHandler.getWorldConfig(world).getInt("auto-start.players")) {
+                gameStarting.put(player.getWorld(), true);
+                countDownHandler.startCountDown(world);
+            }
         }
     }
 }

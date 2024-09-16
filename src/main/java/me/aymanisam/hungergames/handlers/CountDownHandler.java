@@ -86,12 +86,7 @@ public class CountDownHandler {
     }
 
     private void runAfterDelay(World world) {
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world, k -> new HashMap<>());
-
         List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world, k -> new ArrayList<>());
-        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
-
-        worldPlayersAlive.addAll(worldSpawnPointMap.values());
 
         teamsHandler.createTeam(world);
 

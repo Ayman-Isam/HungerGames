@@ -129,6 +129,7 @@ startgame:
   3-s: "&c3 seconds left!"
   2-s: "&c2 seconds left!"
   1-s: "&c1 second left!"
+  cancelled: "&cGame starting cancelled due to not enough players"
 
 supplydrop:
   no-arena: "&cCreate an arena first to run this command!"

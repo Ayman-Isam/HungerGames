@@ -2,6 +2,7 @@ package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.listeners.CompassListener;
+import me.aymanisam.hungergames.listeners.SignClickListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static me.aymanisam.hungergames.HungerGames.gameStarted;
+import static me.aymanisam.hungergames.HungerGames.gameStarting;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
 import static me.aymanisam.hungergames.handlers.ScoreBoardHandler.startingPlayers;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
@@ -36,6 +38,8 @@ public class GameSequenceHandler {
     private final WorldResetHandler worldResetHandler;
     private final CompassListener compassListener;
     private final TeamsHandler teamsHandler;
+    private final SignHandler signHandler;
+    private final SignClickListener signClickListener;
 
     public Map<World, Integer> gracePeriodTaskId = new HashMap<>();
     public Map<World, Integer> timerTaskId = new HashMap<>();
@@ -56,17 +60,26 @@ public class GameSequenceHandler {
         this.worldResetHandler = new WorldResetHandler(plugin, langHandler);
         this.compassListener = compassListener;
         this.teamsHandler = teamsHandler;
+        this.signHandler = new SignHandler(plugin);
+        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, new ArenaHandler(plugin, langHandler));
     }
 
     public void startGame(World world) {
         gameStarted.put(world, true);
+        gameStarting.put(world, false);
 
         Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world, k -> new HashMap<>());
         List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(world, k -> new ArrayList<>());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+
+        worldPlayersAlive.addAll(worldSpawnPointMap.values());
+
 
         worldPlayersWaiting.clear();
         startingPlayers.put(world, worldSpawnPointMap.values().size());
         worldSpawnPointMap.clear();
+
+        signClickListener.setSignContent(signHandler.loadSignLocations());
 
         worldBorderHandler.startWorldBorder(world);
 
@@ -86,8 +99,6 @@ public class GameSequenceHandler {
         }, gracePeriod * 20L);
 
         gracePeriodTaskId.put(world, worldGracePeriodTaskId);
-
-        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
 
         for (Player player : worldPlayersAlive) {
             BossBar bossBar = plugin.getServer().createBossBar(langHandler.getMessage(player, "time-remaining"), BarColor.GREEN, BarStyle.SOLID);
@@ -329,8 +340,6 @@ public class GameSequenceHandler {
             assert lobbyWorld != null;
             player.teleport(lobbyWorld.getSpawnLocation());
             scoreBoardHandler.removeScoreboard(player);
-            Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(world, k -> new HashMap<>());
-            worldPlayerBossBar.remove(player);
         }
 
         worldBorderHandler.resetWorldBorder(world);
@@ -390,6 +399,8 @@ public class GameSequenceHandler {
 
         playerVotes.clear();
 
+        signClickListener.setSignContent(signHandler.loadSignLocations());
+
         if (plugin.isEnabled()) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                 for (Player player : world.getPlayers()) {
@@ -412,13 +423,14 @@ public class GameSequenceHandler {
         }
     }
 
-    public void removeBossBar(Player player) {
+    public static void removeBossBar(Player player) {
         Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(player.getWorld(), k -> new HashMap<>());
 
         BossBar bossBar = worldPlayerBossBar.get(player);
         if (bossBar != null) {
             bossBar.removePlayer(player);
             worldPlayerBossBar.remove(player);
+            bossBar.setVisible(false);
         }
     }
 }
