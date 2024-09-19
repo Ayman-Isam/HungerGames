@@ -39,6 +39,13 @@ spectating: true
 auto-join: true
 # Enable voting for solo, duo, trio
 voting: false
+# Enable tips to let players get displayed tips periodically
+tips: true
+# Worlds that will be ignored by HungerGames
+ignored-worlds:
+  - "world_nether"
+  - "world_the_end"
+  # More worlds
 # Border settings
 border:
   # Border size in blocks, use size bigger than arena for no border, (default: 100)

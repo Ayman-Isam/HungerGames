@@ -54,7 +54,9 @@ game:
   already-joined: "&c您已经加入了游戏!"
   auto-join: "&b您已被自动加入游戏！"
   join-fail: "&c没有足够的出生点来加入!"
-  not-joined: "&c您还没有加入游戏!"
+  not-lobby: "&c你仍在大厅中！"
+  invalid-target: "&c目标方块不是告示牌"
+  invalid-nearby: "&c目标方块右侧的 {0} 个方块不是告示牌"
   join-instruction: "&d使用&b/hg join来加入游戏&d或点击告示牌!"
   left: "&b{0} &d还剩余&2[{1}/{2}]"
   worldsaved: "&a世界&b{0} &a已经被保存!"
@@ -127,6 +129,7 @@ startgame:
   3-s: "&c剩余3秒！"
   2-s: "&c剩余2秒！"
   1-s: "&c剩余1秒！"
+  cancelled: "&c由于玩家人数不足，游戏开始已取消"
   
 supplydrop:
   no-arena: "&c执行此命令前请先创建一个竞技场！"

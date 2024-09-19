@@ -35,6 +35,7 @@ public final class HungerGames extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        this.saveDefaultConfig();
         int bstatsPluginId = 21512;
         Metrics metrics = new Metrics(this, bstatsPluginId);
         LangHandler langHandler = new LangHandler(this);
@@ -89,7 +90,7 @@ public final class HungerGames extends JavaPlugin {
                     File levelDat = new File(file, "level.dat");
                     if (levelDat.exists()) {
                         String worldName = file.getName();
-                        if (!worldName.contains("the_end")) {
+                        if (!this.getConfig().getStringList("ignored-worlds").contains(worldName)) {
                             worldNames.add(worldName);
                         }
                     }
@@ -118,7 +119,9 @@ public final class HungerGames extends JavaPlugin {
         }
 
         TipsHandler tipsHandler = new TipsHandler(this, langHandler);
-        tipsHandler.startSendingTips(600);
+        if (this.getConfig().getBoolean("tips")) {
+            tipsHandler.startSendingTips(600);
+        }
 
         configHandler.loadSignLocations();
     }
