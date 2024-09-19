@@ -104,6 +104,7 @@ setspawn:
   game-started: "&cاللعبة بدأت بالفعل."
   joined-message: "&a{0} &7قد انضم &2[{1}/{2}]"
   spawn-filled: "&cجميع نقاط الظهور مشغولة حاليًا!"
+  cancelled: "&cتم إلغاء بدء اللعبة بسبب عدم وجود عدد كافٍ من اللاعبين"
 
 spectate:
   spectating-player: "&dأنت تشاهد الآن"

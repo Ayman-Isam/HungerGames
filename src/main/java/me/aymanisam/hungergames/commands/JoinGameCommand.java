@@ -11,10 +11,7 @@ import org.bukkit.entity.Player;
 import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static me.aymanisam.hungergames.HungerGames.*;
@@ -43,6 +40,7 @@ public class JoinGameCommand implements CommandExecutor {
         }
 
         if (!(args.length == 1)) {
+            System.out.println(Arrays.toString(args));
             sender.sendMessage(langHandler.getMessage(player, "map.no-args"));
             return false;
         }
@@ -52,10 +50,14 @@ public class JoinGameCommand implements CommandExecutor {
         if (!worldNames.contains(worldName)) {
             sender.sendMessage(langHandler.getMessage(player, "map.not-found", worldName));
             plugin.getLogger().info("Loaded maps:" + plugin.getServer().getWorlds().stream().map(World::getName).collect(Collectors.joining(", ")));
-            return false;
+            return true;
         }
 
         World world = Bukkit.getWorld(worldName);
+        if (world == null) {
+            player.sendMessage(langHandler.getMessage(player, "border.wrong-world"));
+            return true;
+        }
 
         if (gameStarted.getOrDefault(world, false)) {
             player.sendMessage(langHandler.getMessage(player, "startgame.started"));
@@ -75,7 +77,6 @@ public class JoinGameCommand implements CommandExecutor {
             return true;
         }
 
-        assert world != null;
         setSpawnHandler.createSetSpawnConfig(world);
 
         if (worldSpawnPoints.size() <= worldSpawnPointMap.size()) {

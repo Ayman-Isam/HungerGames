@@ -70,9 +70,6 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 case "map":
                     executor = new MapChangeCommand(plugin, langHandler, setSpawnHandler);
                     break;
-                case "teamsize":
-                    executor = new TeamSizeCommand(plugin, langHandler);
-                    break;
                 case "chestrefill":
                     executor = new ChestRefillCommand(plugin, langHandler);
                     break;
@@ -138,13 +135,6 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                         break;
                 }
                 return completions;
-            } else if (args[0].equalsIgnoreCase("teamsize")) {
-                if (args.length == 2) {
-                    List<String> completions = new ArrayList<>();
-                    langHandler.getLangConfig((Player) sender);
-                    completions.add(langHandler.getMessage(player, "border.args-1"));
-                    return completions;
-                }
             } else if (args[0].equalsIgnoreCase("map") || (args[0].equalsIgnoreCase("join"))) {
                 if (args.length == 2) {
                     String worldNameToRemove = (String) plugin.getConfig().get("lobby-world");
