@@ -110,7 +110,7 @@ public class LobbyReturnCommand implements CommandExecutor {
         }
         scoreBoardHandler.removeScoreboard(player);
 
-        if (gameStarted.getOrDefault(world, false)) {
+        if (gameStarted.getOrDefault(world, false) || gameStarting.getOrDefault(world, false)) {
             worldPlayersAlive.remove(player);
         } else {
             setSpawnHandler.removePlayerFromSpawnPoint(player, world);

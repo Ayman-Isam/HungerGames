@@ -71,7 +71,6 @@ public class LangHandler {
         if (langConfigs.containsKey(locale)) {
             return langConfigs.get(locale);
         } else {
-            plugin.getLogger().log(Level.WARNING, "Locale " + locale + " not found. Using default 'en_us' configuration.");
             return langConfigs.get("en_us");
         }
     }

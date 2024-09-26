@@ -50,7 +50,7 @@ public class PlayerListener implements Listener {
         List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
 
-        if (gameStarted.getOrDefault(player.getWorld(), false)) {
+        if (gameStarted.getOrDefault(player.getWorld(), false) || gameStarting.getOrDefault(player.getWorld(), false)) {
             worldPlayersAlive.remove(player);
         } else {
             setSpawnHandler.removePlayerFromSpawnPoint(player, player.getWorld());
@@ -119,7 +119,7 @@ public class PlayerListener implements Listener {
         List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
 
-        if (gameStarted.getOrDefault(player.getWorld(), false)) {
+        if (gameStarted.getOrDefault(player.getWorld(), false) || gameStarting.getOrDefault(player.getWorld(), false)) {
             worldPlayersAlive.remove(player);
             event.setDeathMessage(null);
         } else {

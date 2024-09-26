@@ -41,22 +41,24 @@ public class TeamsHandler {
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
         Collections.shuffle(worldPlayersAlive);
 
+        System.out.println("Number of Players Alive: " + playersAlive.size());
+        System.out.println("Number of Players Alive in the World: " + worldPlayersAlive.size());
+
         List<List<Player>> worldTeams = teams.computeIfAbsent(world, k -> new ArrayList<>());
         List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world, k -> new ArrayList<>());
 
         worldTeams.clear();
         worldTeamsAlive.clear();
 
-        boolean versus = false;
+
+        System.out.println("Players per team: " + playersPerTeam );
 
         int numTeams;
         if (playersPerTeam < 1) {
             numTeams = 2;
-            versus = true;
         } else {
             numTeams = (worldPlayersAlive.size() + playersPerTeam - 1) / playersPerTeam;
         }
-
 
         for (int i = 0; i < numTeams; i++) {
             worldTeams.add(new ArrayList<>());
@@ -74,7 +76,7 @@ public class TeamsHandler {
             processTeam(team, world);
         }
 
-        // applyEffectsToPlayers();
+        System.out.println("Number of teams: " + numTeams);
     }
 
     private void applyHeartEffect(Player playerToEffect, Player playerToSeeEffect) {

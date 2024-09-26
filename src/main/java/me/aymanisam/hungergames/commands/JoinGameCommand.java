@@ -4,6 +4,7 @@ import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.*;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,11 +21,13 @@ public class JoinGameCommand implements CommandExecutor {
     private final HungerGames plugin;
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
+    private final ArenaHandler arenaHandler;
 
     public JoinGameCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
+        this.arenaHandler = new ArenaHandler(plugin, langHandler);
     }
 
     @Override
@@ -40,7 +43,6 @@ public class JoinGameCommand implements CommandExecutor {
         }
 
         if (!(args.length == 1)) {
-            System.out.println(Arrays.toString(args));
             sender.sendMessage(langHandler.getMessage(player, "map.no-args"));
             return false;
         }
@@ -54,10 +56,6 @@ public class JoinGameCommand implements CommandExecutor {
         }
 
         World world = Bukkit.getWorld(worldName);
-        if (world == null) {
-            player.sendMessage(langHandler.getMessage(player, "border.wrong-world"));
-            return true;
-        }
 
         if (gameStarted.getOrDefault(world, false)) {
             player.sendMessage(langHandler.getMessage(player, "startgame.started"));
@@ -69,6 +67,18 @@ public class JoinGameCommand implements CommandExecutor {
             return true;
         }
 
+        if (world == null) {
+            World createdWorld = Bukkit.createWorld(WorldCreator.name(worldName));
+            assert createdWorld != null;
+            arenaHandler.loadWorldFiles(createdWorld);
+            if (setSpawnHandler.playersWaiting.get(createdWorld) != null && setSpawnHandler.playersWaiting.get(createdWorld).contains(player)) {
+                return true;
+            }
+            setSpawnHandler.teleportPlayerToSpawnpoint(player, createdWorld);
+        } else {
+            setSpawnHandler.teleportPlayerToSpawnpoint(player, world);
+        }
+
         Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world, k -> new HashMap<>());
         List<String> worldSpawnPoints = setSpawnHandler.spawnPoints.computeIfAbsent(world, k -> new ArrayList<>());
 
@@ -77,6 +87,7 @@ public class JoinGameCommand implements CommandExecutor {
             return true;
         }
 
+        assert world != null;
         setSpawnHandler.createSetSpawnConfig(world);
 
         if (worldSpawnPoints.size() <= worldSpawnPointMap.size()) {

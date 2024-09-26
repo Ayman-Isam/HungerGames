@@ -137,6 +137,11 @@ public class ArenaHandler {
             createArenaConfig(world);
             configHandler.createWorldConfig(world);
             configHandler.loadItemsConfig(world);
+            configHandler.checkConfigKeys(world);
+            configHandler.checkConfigKeys(null);
+            langHandler.saveLanguageFiles();
+            langHandler.updateLanguageKeys();
+            this.getArenaConfig(world);
         }
     }
 }

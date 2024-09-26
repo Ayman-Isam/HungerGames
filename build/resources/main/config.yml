@@ -41,6 +41,8 @@ auto-join: true
 voting: false
 # Enable tips to let players get displayed tips periodically
 tips: true
+# Enable glowing of teammates for tracking
+glowing: false
 # Worlds that will be ignored by HungerGames
 ignored-worlds:
   - "world_nether"

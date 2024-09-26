@@ -34,9 +34,6 @@ public class CountDownHandler {
     }
 
     public void startCountDown(World world) {
-
-        playersPerTeam = configHandler.getWorldConfig(world).getInt("players-per-team");
-
         List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world, k -> new ArrayList<>());
 
         if (configHandler.getWorldConfig(world).getBoolean("voting")) {
@@ -75,7 +72,9 @@ public class CountDownHandler {
             configHandler.getWorldConfig(world).set("players-per-team", teamSize);
             configHandler.saveWorldConfig(world);
 
-            playersPerTeam = teamSize;
+            playersPerTeam = configHandler.getWorldConfig(world).getInt("players-per-team");
+
+            System.out.println("Players per team " + playersPerTeam);
 
             BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> runAfterDelay(world), 20L * 5);
             worldCountDownTasks.add(task);
@@ -83,6 +82,11 @@ public class CountDownHandler {
             BukkitTask task = plugin.getServer().getScheduler().runTask(plugin, () -> runAfterDelay(world));
             worldCountDownTasks.add(task);
         }
+
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world, k -> new HashMap<>());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+
+        worldPlayersAlive.addAll(worldSpawnPointMap.values());
     }
 
     private void runAfterDelay(World world) {

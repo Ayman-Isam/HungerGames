@@ -91,9 +91,17 @@ public class ConfigHandler {
         return YamlConfiguration.loadConfiguration(signFile);
     }
 
-    public void checkConfigKeys() {
+    public void checkConfigKeys(World world) {
         YamlConfiguration pluginConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(plugin.getResource("config.yml"))));
-        File serverConfigFile = new File(plugin.getDataFolder(), "config.yml");
+
+        File serverConfigFile;
+
+        if (world == null) {
+            serverConfigFile = new File(plugin.getDataFolder(), "config.yml");
+        } else {
+            serverConfigFile = new File(plugin.getDataFolder() + File.separator + world.getName(), "config.yml");
+        }
+
         YamlConfiguration serverConfig = YamlConfiguration.loadConfiguration(serverConfigFile);
         Set<String> keys = pluginConfig.getKeys(true);
 

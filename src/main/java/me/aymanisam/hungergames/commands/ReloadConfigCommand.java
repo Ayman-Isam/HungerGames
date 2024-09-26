@@ -35,7 +35,8 @@ public class ReloadConfigCommand implements CommandExecutor {
             return true;
         }
 
-        configHandler.checkConfigKeys();
+        configHandler.checkConfigKeys(player.getWorld());
+        configHandler.checkConfigKeys(null);
         configHandler.loadItemsConfig(player.getWorld());
         langHandler.saveLanguageFiles();
         langHandler.updateLanguageKeys();

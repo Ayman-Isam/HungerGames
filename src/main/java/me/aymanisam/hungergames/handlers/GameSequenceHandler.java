@@ -72,9 +72,6 @@ public class GameSequenceHandler {
         List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(world, k -> new ArrayList<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
 
-        worldPlayersAlive.addAll(worldSpawnPointMap.values());
-
-
         worldPlayersWaiting.clear();
         startingPlayers.put(world, worldSpawnPointMap.values().size());
         worldSpawnPointMap.clear();
