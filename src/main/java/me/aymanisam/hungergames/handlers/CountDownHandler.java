@@ -74,8 +74,6 @@ public class CountDownHandler {
 
             playersPerTeam = configHandler.getWorldConfig(world).getInt("players-per-team");
 
-            System.out.println("Players per team " + playersPerTeam);
-
             BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> runAfterDelay(world), 20L * 5);
             worldCountDownTasks.add(task);
         } else {

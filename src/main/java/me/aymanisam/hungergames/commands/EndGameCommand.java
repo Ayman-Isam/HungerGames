@@ -1,7 +1,9 @@
 package me.aymanisam.hungergames.commands;
 
-import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.handlers.*;
+import me.aymanisam.hungergames.handlers.CountDownHandler;
+import me.aymanisam.hungergames.handlers.GameSequenceHandler;
+import me.aymanisam.hungergames.handlers.LangHandler;
+import me.aymanisam.hungergames.handlers.SetSpawnHandler;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,25 +16,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static me.aymanisam.hungergames.HungerGames.*;
+import static me.aymanisam.hungergames.HungerGames.gameStarting;
+import static me.aymanisam.hungergames.HungerGames.isGameStartingOrStarted;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
-import static me.aymanisam.hungergames.listeners.TeamVotingListener.giveVotingBook;
 
 public class EndGameCommand implements CommandExecutor {
-    private final HungerGames plugin;
     private final LangHandler langHandler;
     private final GameSequenceHandler gameSequenceHandler;
     private final CountDownHandler countDownHandler;
     private final SetSpawnHandler setSpawnHandler;
-    private final ConfigHandler configHandler;
 
-    public EndGameCommand(HungerGames plugin, LangHandler langHandler, GameSequenceHandler gameSequenceHandler, CountDownHandler countDownHandler, SetSpawnHandler setSpawnHandler) {
-        this.plugin = plugin;
+    public EndGameCommand(LangHandler langHandler, GameSequenceHandler gameSequenceHandler, CountDownHandler countDownHandler, SetSpawnHandler setSpawnHandler) {
         this.langHandler = langHandler;
         this.gameSequenceHandler = gameSequenceHandler;
         this.countDownHandler = countDownHandler;
         this.setSpawnHandler = setSpawnHandler;
-        this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
     @Override
@@ -42,7 +40,7 @@ public class EndGameCommand implements CommandExecutor {
             return true;
         }
 
-        if (!(gameStarted.getOrDefault(p.getWorld(), false)) && !(gameStarting.getOrDefault(p.getWorld(), false))) {
+        if (!isGameStartingOrStarted(p.getWorld())) {
             sender.sendMessage(langHandler.getMessage((Player) sender, "game.not-started"));
             return true;
         }

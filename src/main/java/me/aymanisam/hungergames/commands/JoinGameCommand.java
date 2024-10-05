@@ -1,7 +1,9 @@
 package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.handlers.*;
+import me.aymanisam.hungergames.handlers.ArenaHandler;
+import me.aymanisam.hungergames.handlers.LangHandler;
+import me.aymanisam.hungergames.handlers.SetSpawnHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -9,10 +11,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static me.aymanisam.hungergames.HungerGames.*;
@@ -67,18 +71,6 @@ public class JoinGameCommand implements CommandExecutor {
             return true;
         }
 
-        if (world == null) {
-            World createdWorld = Bukkit.createWorld(WorldCreator.name(worldName));
-            assert createdWorld != null;
-            arenaHandler.loadWorldFiles(createdWorld);
-            if (setSpawnHandler.playersWaiting.get(createdWorld) != null && setSpawnHandler.playersWaiting.get(createdWorld).contains(player)) {
-                return true;
-            }
-            setSpawnHandler.teleportPlayerToSpawnpoint(player, createdWorld);
-        } else {
-            setSpawnHandler.teleportPlayerToSpawnpoint(player, world);
-        }
-
         Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world, k -> new HashMap<>());
         List<String> worldSpawnPoints = setSpawnHandler.spawnPoints.computeIfAbsent(world, k -> new ArrayList<>());
 
@@ -87,12 +79,23 @@ public class JoinGameCommand implements CommandExecutor {
             return true;
         }
 
-        assert world != null;
-        setSpawnHandler.createSetSpawnConfig(world);
-
         if (worldSpawnPoints.size() <= worldSpawnPointMap.size()) {
             player.sendMessage(langHandler.getMessage(player, "game.join-fail"));
             return true;
+        }
+
+        if (world == null) {
+            World createdWorld = Bukkit.createWorld(WorldCreator.name(worldName));
+            assert createdWorld != null;
+            arenaHandler.loadWorldFiles(createdWorld);
+            if (setSpawnHandler.playersWaiting.get(createdWorld) != null && setSpawnHandler.playersWaiting.get(createdWorld).contains(player)) {
+                return true;
+            }
+            setSpawnHandler.teleportPlayerToSpawnpoint(player, createdWorld);
+            setSpawnHandler.createSetSpawnConfig(createdWorld);
+        } else {
+            setSpawnHandler.teleportPlayerToSpawnpoint(player, world);
+            setSpawnHandler.createSetSpawnConfig(world);
         }
 
         setSpawnHandler.teleportPlayerToSpawnpoint(player, world);

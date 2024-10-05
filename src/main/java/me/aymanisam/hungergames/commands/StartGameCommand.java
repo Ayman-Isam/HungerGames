@@ -17,7 +17,6 @@ import static me.aymanisam.hungergames.HungerGames.gameStarted;
 import static me.aymanisam.hungergames.HungerGames.gameStarting;
 
 public class StartGameCommand implements CommandExecutor {
-    private final HungerGames plugin;
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
     private final ArenaHandler arenaHandler;
@@ -25,7 +24,6 @@ public class StartGameCommand implements CommandExecutor {
     private final ConfigHandler configHandler;
 
     public StartGameCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, CountDownHandler countDownHandler) {
-        this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.arenaHandler = new ArenaHandler(plugin, langHandler);
@@ -55,9 +53,9 @@ public class StartGameCommand implements CommandExecutor {
             return true;
         }
 
-        String world = arenaHandler.getArenaConfig(player.getWorld()).getString("region.world");
+        String worldName = arenaHandler.getArenaConfig(player.getWorld()).getString("region.world");
 
-        if (world == null) {
+        if (worldName == null) {
             sender.sendMessage(langHandler.getMessage(player, "startgame.set-arena"));
             return true;
         }

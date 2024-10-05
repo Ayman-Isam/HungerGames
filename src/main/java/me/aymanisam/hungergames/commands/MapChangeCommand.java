@@ -17,10 +17,11 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import static me.aymanisam.hungergames.HungerGames.*;
-import static me.aymanisam.hungergames.listeners.TeamVotingListener.giveVotingBook;
+import static me.aymanisam.hungergames.HungerGames.isGameStartingOrStarted;
+import static me.aymanisam.hungergames.HungerGames.worldNames;
 
 public class MapChangeCommand implements CommandExecutor {
     private final HungerGames plugin;
@@ -49,7 +50,7 @@ public class MapChangeCommand implements CommandExecutor {
             return true;
         }
 
-        if (gameStarted.getOrDefault(player.getWorld(), false) || gameStarting.getOrDefault(player.getWorld(), false)) {
+        if (isGameStartingOrStarted(player.getWorld())) {
             player.sendMessage(langHandler.getMessage(player, "map.game-running"));
             return true;
         }
@@ -69,12 +70,23 @@ public class MapChangeCommand implements CommandExecutor {
 
         World world = Bukkit.getServer().createWorld(new WorldCreator(mapName));
 
-        String worldName = world.getName();
-
-        File worldFolder = new File(plugin.getDataFolder(), worldName);
+        File worldFolder = new File(plugin.getDataFolder(), mapName);
         if (!worldFolder.exists()) {
-            worldFolder.mkdirs();
+            try {
+                if (!worldFolder.mkdirs()) {
+                    plugin.getLogger().log(Level.SEVERE, "Failed to create directories for " + mapName);
+                }
+            } catch (SecurityException e) {
+                plugin.getLogger().log(Level.SEVERE, "No permission to create folders", e);
+            }
         }
+
+        if (world == null) {
+            plugin.getLogger().log(Level.SEVERE, "Could not switch to the map, world is null");
+            player.sendMessage(langHandler.getMessage(player, "border.wrong-world"));
+            return true;
+        }
+
         arenaHandler.createArenaConfig(world);
         configHandler.createWorldConfig(world);
         configHandler.loadItemsConfig(world);

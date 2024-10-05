@@ -22,11 +22,13 @@ import java.util.Map;
 public class WorldResetHandler {
     private final HungerGames plugin;
     private final ArenaHandler arenaHandler;
+    private final ConfigHandler configHandler;
     private final Map<World, BukkitTask> teleportTasks = new HashMap<>();
 
-    public WorldResetHandler(HungerGames plugin, LangHandler langHandler) {
+    public WorldResetHandler(HungerGames plugin, LangHandler langHandler, ConfigHandler configHandler) {
         this.plugin = plugin;
         this.arenaHandler = new ArenaHandler(plugin, langHandler);
+        this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
     public void saveWorldState(World world) {
@@ -51,7 +53,7 @@ public class WorldResetHandler {
 
     public void sendToWorld(World world) {
         for (Player player : world.getPlayers()) {
-            String lobbyWorldName = (String) plugin.getConfig().get("lobby-world");
+            String lobbyWorldName = (String) configHandler.createPluginSettings().get("lobby-world");
             assert lobbyWorldName != null;
             World lobbyWorld = Bukkit.getWorld(lobbyWorldName);
             assert lobbyWorld != null;

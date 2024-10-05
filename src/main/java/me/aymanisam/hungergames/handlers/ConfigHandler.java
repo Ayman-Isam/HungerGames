@@ -18,7 +18,6 @@ import java.util.logging.Level;
 public class ConfigHandler {
     private final HungerGames plugin;
 
-    private FileConfiguration worldConfig;
     private File worldFile;
     private final Map<World, FileConfiguration> worldConfigs = new HashMap<>();
 
@@ -39,8 +38,17 @@ public class ConfigHandler {
             }
         }
 
-        worldConfig = YamlConfiguration.loadConfiguration(worldFile);
+        YamlConfiguration.loadConfiguration(worldFile);
         worldConfigs.put(world, YamlConfiguration.loadConfiguration(worldFile));
+    }
+
+    public FileConfiguration createPluginSettings() {
+        File file = new File(plugin.getDataFolder(), "settings.yml");
+        if (!file.exists()) {
+            plugin.saveResource("settings.yml", true);
+        }
+
+        return YamlConfiguration.loadConfiguration(file);
     }
 
     public FileConfiguration getWorldConfig(World world) {
@@ -77,7 +85,7 @@ public class ConfigHandler {
         return YamlConfiguration.loadConfiguration(itemsFile);
     }
 
-    public YamlConfiguration loadSignLocations() {
+    public void loadSignLocations() {
         File signFile = new File(plugin.getDataFolder(), "signs.yml");
         if (!signFile.exists()) {
             signFile.getParentFile().mkdirs();
@@ -88,7 +96,7 @@ public class ConfigHandler {
                 plugin.getLogger().log(Level.SEVERE, "Could not create sign file for world " + e);
             }
         }
-        return YamlConfiguration.loadConfiguration(signFile);
+        YamlConfiguration.loadConfiguration(signFile);
     }
 
     public void checkConfigKeys(World world) {

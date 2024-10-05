@@ -15,16 +15,14 @@ import java.util.logging.Level;
 
 public class ArenaHandler {
     private final HungerGames plugin;
-    private YamlConfiguration arenaConfig;
-    private File arenaFile;
     private final LangHandler langHandler;
     private final ConfigHandler configHandler;
-    private final ArenaSelectListener arenaSelectListener;
+    private YamlConfiguration arenaConfig;
+    private File arenaFile;
 
     public ArenaHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
-        this.arenaSelectListener = new ArenaSelectListener(plugin, langHandler);
         this.configHandler = new ConfigHandler(plugin, langHandler);
     }
 
@@ -32,12 +30,17 @@ public class ArenaHandler {
         String worldName = world.getName();
         arenaFile = new File(plugin.getDataFolder() + File.separator + worldName, "arena.yml");
         if (!arenaFile.exists()) {
-            arenaFile.getParentFile().mkdirs();
+            if (!arenaFile.getParentFile().mkdirs()) {
+                plugin.getLogger().log(Level.SEVERE, "Could not find parent directory for world: " + worldName);
+            }
+
             File tempFile = new File(plugin.getDataFolder(), "arena.yml");
             try {
                 plugin.saveResource("arena.yml", true);
                 if (tempFile.exists()) {
-                    tempFile.renameTo(arenaFile);
+                    if (!tempFile.renameTo(arenaFile)) {
+                        plugin.getLogger().log(Level.SEVERE, "Could not rename arenaFile for world: " + worldName);
+                    }
                 }
             } catch (Exception e) {
                 plugin.getLogger().log(Level.SEVERE, "Could not create arena.yml from", e);
@@ -129,19 +132,20 @@ public class ArenaHandler {
     public void loadWorldFiles(World world) {
         String worldName = world.getName();
 
-        if (!worldName.contains("the_end")) {
-            File worldFolder = new File(plugin.getDataFolder(), worldName);
-            if (!worldFolder.exists()) {
-                worldFolder.mkdirs();
+        File worldFolder = new File(plugin.getDataFolder(), worldName);
+        if (!worldFolder.exists()) {
+            if (!worldFolder.mkdirs()){
+                plugin.getLogger().log(Level.SEVERE, "Could not find world folder for world: " + worldName);
             }
-            createArenaConfig(world);
-            configHandler.createWorldConfig(world);
-            configHandler.loadItemsConfig(world);
-            configHandler.checkConfigKeys(world);
-            configHandler.checkConfigKeys(null);
-            langHandler.saveLanguageFiles();
-            langHandler.updateLanguageKeys();
-            this.getArenaConfig(world);
         }
+
+        createArenaConfig(world);
+        configHandler.createWorldConfig(world);
+        configHandler.loadItemsConfig(world);
+        configHandler.checkConfigKeys(world);
+        configHandler.checkConfigKeys(null);
+        langHandler.saveLanguageFiles();
+        langHandler.updateLanguageKeys();
+        this.getArenaConfig(world);
     }
 }

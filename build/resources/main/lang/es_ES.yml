@@ -56,6 +56,7 @@ game:
   join-fail: "&c¡No hay suficientes puntos de aparición para unirte!"
   not-lobby: "&c¡Todavía estás en el vestíbulo!"
   invalid-target: "&cEl bloque objetivo no es un cartel"
+  sign-set: "&bSigns have been set"
   invalid-nearby: "&cLos {0} bloques a la derecha del bloque objetivo no son carteles"
   join-instruction: "&dÚnete al juego con &b/hg join &do haz clic en el cartel!"
   left: "&b{0} &dha salido &2[{1}/{2}]"

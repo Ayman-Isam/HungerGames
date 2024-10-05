@@ -56,6 +56,7 @@ game:
   join-fail: "&cNot enough spawnpoints to join!"
   not-lobby: "&cYou are still in the lobby!"
   invalid-target: "&cTarget block is not a sign"
+  sign-set: "&bSigns have been set"
   invalid-nearby: "&cThe {0} blocks to the right of the Target block aren't signs"
   join-instruction: "&dJoin the game with &b/hg join &dor click the sign!"
   left: "&b{0} &dhas left &2[{1}/{2}]"

@@ -11,13 +11,11 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class ReloadConfigCommand implements CommandExecutor {
-    private final HungerGames plugin;
     private final LangHandler langHandler;
     private final ConfigHandler configHandler;
     private final ArenaHandler arenaHandler;
 
     public ReloadConfigCommand(HungerGames plugin, LangHandler langHandler) {
-        this.plugin = plugin;
         this.langHandler = langHandler;
         this.configHandler = new ConfigHandler(plugin, langHandler);
         this.arenaHandler = new ArenaHandler(plugin, langHandler);
@@ -38,6 +36,8 @@ public class ReloadConfigCommand implements CommandExecutor {
         configHandler.checkConfigKeys(player.getWorld());
         configHandler.checkConfigKeys(null);
         configHandler.loadItemsConfig(player.getWorld());
+        configHandler.loadSignLocations();
+        configHandler.createWorldConfig(player.getWorld());
         langHandler.saveLanguageFiles();
         langHandler.updateLanguageKeys();
         arenaHandler.getArenaConfig(player.getWorld());

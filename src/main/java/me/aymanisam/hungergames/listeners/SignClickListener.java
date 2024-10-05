@@ -104,7 +104,7 @@ public class SignClickListener implements Listener {
                 sign.setEditable(false);
                 sign.setLine(0, ChatColor.BOLD + "Join");
                 sign.setLine(1, ChatColor.BOLD + worldName);
-                if (isAnyGameStartingOrStarted(world)) {
+                if (isGameStartingOrStarted(world)) {
                     sign.setLine(2, ChatColor.BOLD + "In Progress");
                     sign.setLine(3, ChatColor.BOLD + "" + worldPlayersAlive.size() + " Alive");
                 } else {

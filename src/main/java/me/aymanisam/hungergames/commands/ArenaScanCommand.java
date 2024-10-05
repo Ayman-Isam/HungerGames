@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ArenaScanCommand implements CommandExecutor {
@@ -50,13 +49,12 @@ public class ArenaScanCommand implements CommandExecutor {
 
         FileConfiguration config = arenaHandler.getArenaConfig(player.getWorld());
 
-        if (!config.isSet("region.pos1.x") || !config.isSet("region.pos1.y") || !config.isSet("region.pos1.z")
-                || !config.isSet("region.pos2.x") || !config.isSet("region.pos2.y") || !config.isSet("region.pos2.z")) {
+        if (!config.isSet("region.pos1.x") || !config.isSet("region.pos1.y") || !config.isSet("region.pos1.z") || !config.isSet("region.pos2.x") || !config.isSet("region.pos2.y") || !config.isSet("region.pos2.z")) {
             sender.sendMessage(langHandler.getMessage(player, "scanarena.region-undef"));
             return true;
         }
 
-        World world = plugin.getServer().getWorld(Objects.requireNonNull(config.getString("region.world")));
+        World world = player.getWorld();
 
         arenaHandler.loadChunks(world);
 
@@ -84,15 +82,10 @@ public class ArenaScanCommand implements CommandExecutor {
 
 
         FileConfiguration chestLocationsConfig = new YamlConfiguration();
-        chestLocationsConfig.set("chest-locations", chestLocations.stream()
-                .map(Location::serialize)
-                .collect(Collectors.toList()));
-        chestLocationsConfig.set("barrel-locations", barrelLocations.stream()
-                .map(Location::serialize)
-                .collect(Collectors.toList()));
-        chestLocationsConfig.set("trapped-chests-locations", trappedChestLocations.stream()
-                .map(Location::serialize)
-                .collect(Collectors.toList()));
+        chestLocationsConfig.set("chest-locations", chestLocations.stream().map(Location::serialize).collect(Collectors.toList()));
+        chestLocationsConfig.set("barrel-locations", barrelLocations.stream().map(Location::serialize).collect(Collectors.toList()));
+        chestLocationsConfig.set("trapped-chests-locations", trappedChestLocations.stream().map(Location::serialize).collect(Collectors.toList()));
+
         try {
             chestLocationsConfig.save(chestLocationsFile);
             sender.sendMessage(langHandler.getMessage(player, "scanarena.saved-locations"));
