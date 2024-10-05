@@ -1,6 +1,5 @@
 package me.aymanisam.hungergames.commands;
 
-import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -17,7 +16,7 @@ import java.util.List;
 public class ArenaSelectCommand implements CommandExecutor {
     private final LangHandler langHandler;
 
-    public ArenaSelectCommand(HungerGames plugin, LangHandler langHandler) {
+    public ArenaSelectCommand(LangHandler langHandler) {
         this.langHandler = langHandler;
     }
 
@@ -33,16 +32,18 @@ public class ArenaSelectCommand implements CommandExecutor {
             return true;
         }
 
-        ItemStack blazeRod = new ItemStack(Material.BLAZE_ROD);
-        ItemMeta meta = blazeRod.getItemMeta();
+        ItemStack arenaSelector = new ItemStack(Material.BLAZE_ROD);
+        ItemMeta meta = arenaSelector.getItemMeta();
         assert meta != null;
         meta.setDisplayName(langHandler.getMessage(player, "arena.stick-name"));
+
         List<String> lore = new ArrayList<>();
         lore.add(langHandler.getMessage(player, "arena.stick-left"));
         lore.add(langHandler.getMessage(player, "arena.stick-right"));
         meta.setLore(lore);
-        blazeRod.setItemMeta(meta);
-        player.getInventory().addItem(blazeRod);
+        arenaSelector.setItemMeta(meta);
+
+        player.getInventory().addItem(arenaSelector);
         sender.sendMessage(langHandler.getMessage(player, "arena.given-stick"));
 
         return true;

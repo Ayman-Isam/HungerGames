@@ -1,6 +1,5 @@
 package me.aymanisam.hungergames.listeners;
 
-import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.TeamsHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -9,7 +8,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.List;
 
-import static me.aymanisam.hungergames.HungerGames.isAnyGameStartingOrStarted;
+import static me.aymanisam.hungergames.HungerGames.isGameStartingOrStarted;
 
 public class TeamChatListener implements Listener {
     private final TeamsHandler teamsHandler;
@@ -22,7 +21,7 @@ public class TeamChatListener implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player sender = event.getPlayer();
 
-        if ((isAnyGameStartingOrStarted(sender.getWorld())) && teamsHandler.isPlayerInAnyTeam(sender, sender.getWorld()) && teamsHandler.isChatModeEnabled(sender)) {
+        if ((isGameStartingOrStarted(sender.getWorld())) && teamsHandler.isPlayerInAnyTeam(sender, sender.getWorld()) && teamsHandler.isChatModeEnabled(sender)) {
             List<Player> teammates = teamsHandler.getTeammates(sender, sender.getWorld());
 
             teammates.add(sender);

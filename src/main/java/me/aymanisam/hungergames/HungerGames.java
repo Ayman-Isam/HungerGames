@@ -7,7 +7,6 @@ import me.aymanisam.hungergames.listeners.*;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -26,6 +25,7 @@ public final class HungerGames extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        // PacketEvents code
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
         PacketEvents.getAPI().getSettings()
                 .reEncodeByDefault(false)
@@ -35,9 +35,10 @@ public final class HungerGames extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        this.saveDefaultConfig();
+        // Bstats
         int bstatsPluginId = 21512;
         Metrics metrics = new Metrics(this, bstatsPluginId);
+
         LangHandler langHandler = new LangHandler(this);
         langHandler.saveLanguageFiles();
         langHandler.updateLanguageKeys();
@@ -58,7 +59,7 @@ public final class HungerGames extends JavaPlugin {
         setSpawnHandler.setCountDownHandler(countDownHandler);
 
         // Registering command handler
-        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener, teamsHandler, scoreBoardHandler, countDownHandler, arenaHandler));
+        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener, teamsHandler, scoreBoardHandler, countDownHandler, arenaHandler, configHandler));
 
         // Registering Listeners
         ArenaSelectListener arenaSelectListener = new ArenaSelectListener(this, langHandler);
@@ -70,7 +71,7 @@ public final class HungerGames extends JavaPlugin {
         SignClickListener signClickListener = new SignClickListener(this, langHandler, setSpawnHandler, arenaHandler);
         getServer().getPluginManager().registerEvents(signClickListener, this);
 
-        PlayerListener playerListener = new PlayerListener(this, langHandler, setSpawnHandler);
+        PlayerListener playerListener = new PlayerListener(this, langHandler, setSpawnHandler, scoreBoardHandler);
         getServer().getPluginManager().registerEvents(playerListener, this);
 
         SpectateGuiListener spectateGuiListener = new SpectateGuiListener(this, langHandler);
@@ -84,13 +85,14 @@ public final class HungerGames extends JavaPlugin {
         File serverDirectory = new File(".");
         File[] files = serverDirectory.listFiles();
 
+        // Checking Files for World Files
         if (files != null) {
             for (File file : files) {
                 if (file.isDirectory()) {
                     File levelDat = new File(file, "level.dat");
                     if (levelDat.exists()) {
                         String worldName = file.getName();
-                        if (!this.getConfig().getStringList("ignored-worlds").contains(worldName)) {
+                        if (!configHandler.createPluginSettings().getStringList("ignored-worlds").contains(worldName)) {
                             worldNames.add(worldName);
                         }
                     }
@@ -98,8 +100,11 @@ public final class HungerGames extends JavaPlugin {
             }
         }
 
+        configHandler.createPluginSettings();
+
         PacketEvents.getAPI().init();
 
+        // Checks if the current version is the latest version
         int spigotPluginId = 111936;
 
         String latestVersionString = getLatestPluginVersion(spigotPluginId);
@@ -108,7 +113,7 @@ public final class HungerGames extends JavaPlugin {
 
         String currentVersionString = this.getDescription().getVersion();
         int currentHyphenIndex = currentVersionString.indexOf('-');
-        String currentVersion = (currentHyphenIndex != -1) ? latestVersionString.substring(0, currentHyphenIndex) : latestVersionString;
+        String currentVersion = (currentHyphenIndex != -1) ? currentVersionString.substring(0, currentHyphenIndex) : currentVersionString;
 
         if (latestVersion.equals("Error: null")) {
             this.getLogger().log(Level.WARNING, "Failed to check for updates");
@@ -119,7 +124,7 @@ public final class HungerGames extends JavaPlugin {
         }
 
         TipsHandler tipsHandler = new TipsHandler(this, langHandler);
-        if (this.getConfig().getBoolean("tips")) {
+        if (configHandler.createPluginSettings().getBoolean("tips")) {
             tipsHandler.startSendingTips(600);
         }
 
@@ -139,7 +144,7 @@ public final class HungerGames extends JavaPlugin {
         return this.getFile();
     }
 
-    public static boolean isAnyGameStartingOrStarted(World world) {
+    public static boolean isGameStartingOrStarted(World world) {
         return gameStarted.getOrDefault(world, false) ||
                 gameStarting.getOrDefault(world, false);
     }

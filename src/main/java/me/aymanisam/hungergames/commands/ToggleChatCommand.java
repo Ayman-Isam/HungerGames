@@ -13,13 +13,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-import static me.aymanisam.hungergames.HungerGames.*;
+import static me.aymanisam.hungergames.HungerGames.isGameStartingOrStarted;
 
 public class ToggleChatCommand implements CommandExecutor {
+    public static final Map<Player, Boolean> playerChatModes = new HashMap<>();
     private final LangHandler langHandler;
     private final ConfigHandler configHandler;
     private final TeamsHandler teamsHandler;
-    public static final Map<Player, Boolean> playerChatModes = new HashMap<>();
 
     public ToggleChatCommand(HungerGames plugin, LangHandler langHandler, TeamsHandler teamsHandler) {
         this.langHandler = langHandler;
@@ -39,7 +39,7 @@ public class ToggleChatCommand implements CommandExecutor {
             return true;
         }
 
-        if (!gameStarted.getOrDefault(player.getWorld(), false) && !gameStarting.getOrDefault(player.getWorld(), false)) {
+        if (!isGameStartingOrStarted(player.getWorld())) {
             player.sendMessage(langHandler.getMessage(player, "game.not-started"));
             return true;
         }
@@ -51,7 +51,6 @@ public class ToggleChatCommand implements CommandExecutor {
 
         boolean currentMode = teamsHandler.isChatModeEnabled(player);
         playerChatModes.put(player, !currentMode);
-
 
         if (!currentMode) {
             player.sendMessage(langHandler.getMessage(player, "team.chat-enabled"));

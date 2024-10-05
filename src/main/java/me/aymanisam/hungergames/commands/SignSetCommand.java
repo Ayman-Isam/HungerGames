@@ -1,7 +1,10 @@
 package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.handlers.*;
+import me.aymanisam.hungergames.handlers.ArenaHandler;
+import me.aymanisam.hungergames.handlers.LangHandler;
+import me.aymanisam.hungergames.handlers.SetSpawnHandler;
+import me.aymanisam.hungergames.handlers.SignHandler;
 import me.aymanisam.hungergames.listeners.SignClickListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,12 +26,10 @@ public class SignSetCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final List<Location> signLocations = new ArrayList<>();
     private final SignClickListener signClickListener;
-    private final SetSpawnHandler setSpawnHandler;
     private final SignHandler signHandler;
 
     public SignSetCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
         this.langHandler = langHandler;
-        this.setSpawnHandler = setSpawnHandler;
         this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
         this.signHandler = new SignHandler(plugin);
     }
@@ -46,17 +47,23 @@ public class SignSetCommand implements CommandExecutor {
         }
 
         Block targetBlock = player.getTargetBlockExact(10);
-        assert targetBlock != null;
-        Location targetBlockLocation = targetBlock.getLocation();
+        Location targetBlockLocation = null;
+        if (targetBlock != null) {
+            targetBlockLocation = targetBlock.getLocation();
+        }
 
-        if (!(targetBlock.getState() instanceof Sign)) {
+        if (targetBlockLocation == null || !(targetBlock.getState() instanceof Sign)) {
             sender.sendMessage(langHandler.getMessage(player, "game.invalid-target"));
             return true;
         }
 
-        if (checkNearbySigns(player, targetBlockLocation)) return true;
+        if (checkNearbySigns(player, targetBlockLocation)) {
+            return true;
+        }
 
         signHandler.saveSignLocations(signLocations);
+
+        player.sendMessage(langHandler.getMessage(player, "game.sign-set"));
 
         signClickListener.setSignContent(signHandler.loadSignLocations());
 
@@ -64,7 +71,7 @@ public class SignSetCommand implements CommandExecutor {
     }
 
     private boolean checkNearbySigns(Player player, Location targetBlockLocation) {
-        int numSigns = worldNames.size() - 2;
+        int numSigns = worldNames.size() - 2; // 1 lobbyworld and 1 because it's the target block
 
         Location finalBlockLocation = targetBlockLocation.clone();
 

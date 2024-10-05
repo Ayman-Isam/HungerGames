@@ -56,6 +56,7 @@ game:
   join-fail: "&c没有足够的出生点来加入!"
   not-lobby: "&c你仍在大厅中！"
   invalid-target: "&c目标方块不是告示牌"
+  sign-set: "&b标志已设置"
   invalid-nearby: "&c目标方块右侧的 {0} 个方块不是告示牌"
   join-instruction: "&d使用&b/hg join来加入游戏&d或点击告示牌!"
   left: "&b{0} &d还剩余&2[{1}/{2}]"

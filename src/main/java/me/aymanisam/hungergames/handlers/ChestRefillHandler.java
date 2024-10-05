@@ -47,19 +47,9 @@ public class ChestRefillHandler {
         File chestLocationsFile = new File(worldFolder, "chest-locations.yml");
         FileConfiguration chestLocationsConfig = YamlConfiguration.loadConfiguration(chestLocationsFile);
 
-        List<Map<?, ?>> serializedChestLocations = chestLocationsConfig.getMapList("chest-locations");
-        List<Map<?, ?>> serializedBarrelLocations = chestLocationsConfig.getMapList("barrel-locations");
-        List<Map<?, ?>> serializedTrappedChestLocations = chestLocationsConfig.getMapList("trapped-chests-locations");
-
-        List<Location> chestLocations = serializedChestLocations.stream()
-                .map(locationMap -> Location.deserialize((Map<String, Object>) locationMap))
-                .collect(Collectors.toList());
-        List<Location> barrelLocations = serializedBarrelLocations.stream()
-                .map(locationMap -> Location.deserialize((Map<String, Object>) locationMap))
-                .collect(Collectors.toList());
-        List<Location> trappedChestLocations = serializedTrappedChestLocations.stream()
-                .map(locationMap -> Location.deserialize((Map<String, Object>) locationMap))
-                .collect(Collectors.toList());
+        List<Location> chestLocations = deserializeLocations(chestLocationsConfig, "chest-locations");
+        List<Location> barrelLocations = deserializeLocations(chestLocationsConfig, "barrel-locations");
+        List<Location> trappedChestLocations = deserializeLocations(chestLocationsConfig, "trapped-chests-locations");
 
         int minChestContent = configHandler.getWorldConfig(world).getInt("min-chest-content");
         int maxChestContent = configHandler.getWorldConfig(world).getInt("max-chest-content");
@@ -79,6 +69,15 @@ public class ChestRefillHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private List<Location> deserializeLocations(FileConfiguration config, String key) {
+        List<Map<?, ?>> serializedLocations = config.getMapList(key);
+        return serializedLocations.stream()
+                .map(locationMap -> Location.deserialize((Map<String, Object>) locationMap))
+                .collect(Collectors.toList());
+    }
+
+    @SuppressWarnings("unchecked")
     public void refillInventory(List<Location> locations, String itemKey, YamlConfiguration itemsConfig, int minContent, int maxContent) {
         for (Location location : locations) {
             Block block = location.getBlock();
@@ -185,6 +184,7 @@ public class ChestRefillHandler {
                             item.setItemMeta(fireworkMeta);
                         } else {
                             Material material = Material.getMaterial(type);
+                            assert material != null;
                             item = new ItemStack(material, amount);
                             ItemMeta itemMeta = item.getItemMeta();
                             if (itemMeta != null && meta != null) {

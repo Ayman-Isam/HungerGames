@@ -57,7 +57,7 @@ public class GameSequenceHandler {
         this.scoreBoardHandler = new ScoreBoardHandler(plugin, langHandler);
         this.resetPlayerHandler = new ResetPlayerHandler();
         this.configHandler = new ConfigHandler(plugin, langHandler);
-        this.worldResetHandler = new WorldResetHandler(plugin, langHandler);
+        this.worldResetHandler = new WorldResetHandler(plugin, langHandler, configHandler);
         this.compassListener = compassListener;
         this.teamsHandler = teamsHandler;
         this.signHandler = new SignHandler(plugin);
@@ -331,7 +331,7 @@ public class GameSequenceHandler {
         for (Player player : world.getPlayers()) {
             resetPlayerHandler.resetPlayer(player);
             removeBossBar(player);
-            String lobbyWorldName = (String) plugin.getConfig().get("lobby-world");
+            String lobbyWorldName = (String) configHandler.createPluginSettings().get("lobby-world");
             assert lobbyWorldName != null;
             World lobbyWorld = Bukkit.getWorld(lobbyWorldName);
             assert lobbyWorld != null;
@@ -343,7 +343,7 @@ public class GameSequenceHandler {
 
         worldResetHandler.removeShulkers(world);
 
-        if (!disable && configHandler.getWorldConfig(world).getBoolean("reset-world")) {
+        if (!disable && configHandler.createPluginSettings().getBoolean("reset-world")) {
             worldResetHandler.sendToWorld(world);
             worldResetHandler.resetWorldState(world);
         }
@@ -405,18 +405,6 @@ public class GameSequenceHandler {
                     player.sendTitle("", langHandler.getMessage(player, "game.join-instruction"), 5, 20, 10);
                 }
             }, 100L);
-
-            if (configHandler.getWorldConfig(world).getBoolean("auto-join")) {
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    for (Player player : world.getPlayers()) {
-                        if (!worldSpawnPointMap.containsValue(player)) {
-                            player.sendMessage(langHandler.getMessage(player, "game.auto-join"));
-                            player.sendTitle("", langHandler.getMessage(player, "game.auto-join"), 5, 20, 10);
-                            setSpawnHandler.teleportPlayerToSpawnpoint(player, world);
-                        }
-                    }
-                }, 200L);
-            }
         }
     }
 

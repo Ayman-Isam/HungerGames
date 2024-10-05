@@ -56,6 +56,7 @@ game:
   join-fail: "&cPas assez de points d'apparition pour rejoindre !"
   not-lobby: "&cVous êtes toujours dans le hall !"
   invalid-target: "&cLe bloc cible n'est pas un panneau"
+  sign-set: "&bLes panneaux ont été installés"
   invalid-nearby: "&cLes {0} blocs à droite du bloc cible ne sont pas des panneaux"
   join-instruction: "&dRejoignez le jeu avec &b/hg join &dou cliquez sur le panneau !"
   left: "&b{0} &da quitté &2[{1}/{2}]"

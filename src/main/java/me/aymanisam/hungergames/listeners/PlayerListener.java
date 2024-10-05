@@ -1,9 +1,7 @@
 package me.aymanisam.hungergames.listeners;
 
 import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.handlers.ConfigHandler;
-import me.aymanisam.hungergames.handlers.LangHandler;
-import me.aymanisam.hungergames.handlers.SetSpawnHandler;
+import me.aymanisam.hungergames.handlers.*;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -23,6 +21,7 @@ import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
+import static me.aymanisam.hungergames.handlers.GameSequenceHandler.removeBossBar;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
 
@@ -31,15 +30,23 @@ public class PlayerListener implements Listener {
     private final SetSpawnHandler setSpawnHandler;
     private final LangHandler langHandler;
     private final ConfigHandler configHandler;
+    private final ArenaHandler arenaHandler;
+    private final SignHandler signHandler;
+    private final SignClickListener signClickListener;
+    private final ScoreBoardHandler scoreBoardHandler;
 
     private final Map<Player, Location> deathLocations = new HashMap<>();
     public static final Map<Player, Integer> playerKills = new HashMap<>();
 
-    public PlayerListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
+    public PlayerListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ScoreBoardHandler scoreBoardHandler) {
         this.setSpawnHandler = setSpawnHandler;
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.arenaHandler = new ArenaHandler(plugin, langHandler);
+        this.signHandler = new SignHandler(plugin);
+        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
+        this.scoreBoardHandler = scoreBoardHandler;
     }
 
     @EventHandler
@@ -95,7 +102,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        String lobbyWorldName = (String) plugin.getConfig().get("lobby-world");
+        String lobbyWorldName = (String) configHandler.createPluginSettings().get("lobby-world");
         assert lobbyWorldName != null;
         World lobbyWorld = Bukkit.getWorld(lobbyWorldName);
         if (lobbyWorld != null) {
@@ -103,39 +110,36 @@ public class PlayerListener implements Listener {
         } else {
             plugin.getLogger().log(Level.SEVERE, "Could not find lobbyWorld [ " + lobbyWorldName + "]");
         }
-
-//        boolean spectating = configHandler.getWorldConfig(player.getWorld()).getBoolean("spectating");
-//        if (spectating) {
-//            player.setGameMode(GameMode.SPECTATOR);
-//        }
-//
         event.setJoinMessage(null);
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
+        World world = player.getWorld();
 
-        List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
-        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
+        List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(world, k -> new ArrayList<>());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
 
-        if (gameStarted.getOrDefault(player.getWorld(), false) || gameStarting.getOrDefault(player.getWorld(), false)) {
+        if (gameStarted.getOrDefault(world, false) || gameStarting.getOrDefault(world, false)) {
             worldPlayersAlive.remove(player);
             event.setDeathMessage(null);
         } else {
-            setSpawnHandler.removePlayerFromSpawnPoint(player, player.getWorld());
+            setSpawnHandler.removePlayerFromSpawnPoint(player, world);
             worldPlayersWaiting.remove(player);
         }
 
         removeFromTeam(player);
+        removeBossBar(player);
 
-        World world = plugin.getServer().getWorld("world");
-        assert world != null;
+        scoreBoardHandler.removeScoreboard(player);
 
-        boolean spectating = configHandler.getWorldConfig(player.getWorld()).getBoolean("spectating");
-        if (spectating && isAnyGameStartingOrStarted(world)) {
-            player.setGameMode(GameMode.SPECTATOR);
-            if (gameStarted.getOrDefault(player.getWorld(), false)) {
+        signClickListener.setSignContent(signHandler.loadSignLocations());
+
+        boolean spectating = configHandler.createPluginSettings().getBoolean("spectating");
+        if (spectating) {
+            if (gameStarted.getOrDefault(world, false)) {
+                player.setGameMode(GameMode.SPECTATOR);
                 player.sendTitle("", langHandler.getMessage(player, "spectate.spectating-player"), 5, 20, 10);
                 player.sendMessage(langHandler.getMessage(player, "spectate.message"));
                 deathLocations.put(player, player.getLocation());
@@ -145,7 +149,7 @@ public class PlayerListener implements Listener {
         Player killer = event.getEntity().getKiller();
         if (killer != null) {
             playerKills.put(killer, playerKills.getOrDefault(killer, 0) + 1);
-            List<Map<?, ?>> effectMaps = configHandler.getWorldConfig(player.getWorld()).getMapList("killer-effects");
+            List<Map<?, ?>> effectMaps = configHandler.getWorldConfig(world).getMapList("killer-effects");
             for (Map<?, ?> effectMap : effectMaps) {
                 String effectName = (String) effectMap.get("effect");
                 int duration = (int) effectMap.get("duration");
@@ -162,8 +166,8 @@ public class PlayerListener implements Listener {
         world.spawnParticle(Particle.REDSTONE, location, 50, new Particle.DustOptions(Color.RED, 10f));
         world.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.4f, 1.0f);
 
-        if (gameStarted.getOrDefault(player.getWorld(), false)) {
-            for (Player p : player.getWorld().getPlayers()) {
+        if (gameStarted.getOrDefault(world, false)) {
+            for (Player p : world.getPlayers()) {
                 langHandler.getLangConfig(p);
                 if (killer != null)
                     p.sendMessage(langHandler.getMessage(player, "game.killed-message", player.getName(), killer.getName()));
@@ -177,6 +181,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
+
         if (deathLocations.containsKey(player)) {
             event.setRespawnLocation(deathLocations.get(player));
             deathLocations.remove(player);

@@ -12,13 +12,11 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class ChestRefillCommand implements CommandExecutor {
-    private final HungerGames plugin;
     private final LangHandler langHandler;
     private final ArenaHandler arenaHandler;
     private final ChestRefillHandler chestRefillHandler;
 
     public ChestRefillCommand(HungerGames plugin, LangHandler langHandler) {
-        this.plugin = plugin;
         this.langHandler = langHandler;
         this.arenaHandler = new ArenaHandler(plugin, langHandler);
         this.chestRefillHandler = new ChestRefillHandler(plugin, langHandler);

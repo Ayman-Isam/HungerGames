@@ -1,8 +1,10 @@
 package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.handlers.ConfigHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.WorldResetHandler;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,9 +15,9 @@ public class SaveWorldCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final WorldResetHandler worldResetHandler;
 
-    public SaveWorldCommand(HungerGames plugin, LangHandler langHandler) {
+    public SaveWorldCommand(HungerGames plugin, LangHandler langHandler, ConfigHandler configHandler) {
         this.langHandler = langHandler;
-        this.worldResetHandler = new WorldResetHandler(plugin, langHandler);
+        this.worldResetHandler = new WorldResetHandler(plugin, langHandler, configHandler);
     }
 
     @Override
@@ -30,9 +32,11 @@ public class SaveWorldCommand implements CommandExecutor {
             return true;
         }
 
-        worldResetHandler.saveWorldState(player.getWorld());
+        World world = player.getWorld();
 
-        player.sendMessage(langHandler.getMessage(player, "game.worldsaved", player.getWorld().getName()));
+        worldResetHandler.saveWorldState(world);
+
+        player.sendMessage(langHandler.getMessage(player, "game.worldsaved", world.getName()));
 
         return true;
     }
