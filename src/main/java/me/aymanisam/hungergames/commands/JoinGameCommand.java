@@ -46,7 +46,7 @@ public class JoinGameCommand implements CommandExecutor {
             return true;
         }
 
-        if (!(args.length == 1)) {
+        if (args.length != 1) {
             sender.sendMessage(langHandler.getMessage(player, "map.no-args"));
             return false;
         }
@@ -55,18 +55,22 @@ public class JoinGameCommand implements CommandExecutor {
 
         if (!worldNames.contains(worldName)) {
             sender.sendMessage(langHandler.getMessage(player, "map.not-found", worldName));
-            plugin.getLogger().info("Loaded maps:" + plugin.getServer().getWorlds().stream().map(World::getName).collect(Collectors.joining(", ")));
+
+            plugin.getLogger().info(() -> "Loaded maps: " + plugin.getServer().getWorlds().stream()
+                    .map(World::getName)
+                    .collect(Collectors.joining(", ")));
+
             return true;
         }
 
         World world = Bukkit.getWorld(worldName);
 
-        if (gameStarted.getOrDefault(world, false)) {
+        if (Boolean.TRUE.equals(gameStarted.getOrDefault(world, false))) {
             player.sendMessage(langHandler.getMessage(player, "startgame.started"));
             return true;
         }
 
-        if (gameStarting.getOrDefault(world, false)) {
+        if (Boolean.TRUE.equals(gameStarting.getOrDefault(world, false))) {
             player.sendMessage(langHandler.getMessage(player, "startgame.starting"));
             return true;
         }
