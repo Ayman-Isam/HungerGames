@@ -29,7 +29,9 @@ public class ConfigHandler {
         String worldName = world.getName();
         worldFile = new File(plugin.getDataFolder() + File.separator + worldName, "config.yml");
         if (!worldFile.exists()) {
-            worldFile.getParentFile().mkdirs();
+            if (!worldFile.getParentFile().mkdirs()) {
+                plugin.getLogger().log(Level.SEVERE, "Could not find parent directory for world: " + worldName);
+            }
             try {
                 plugin.saveResource("config.yml", true);
                 Files.copy(new File(plugin.getDataFolder(), "config.yml").toPath(), worldFile.toPath());
@@ -38,8 +40,8 @@ public class ConfigHandler {
             }
         }
 
-        YamlConfiguration.loadConfiguration(worldFile);
-        worldConfigs.put(world, YamlConfiguration.loadConfiguration(worldFile));
+        FileConfiguration config = YamlConfiguration.loadConfiguration(worldFile);
+        worldConfigs.put(world, config);
     }
 
     public FileConfiguration createPluginSettings() {
@@ -74,7 +76,9 @@ public class ConfigHandler {
         String worldName = world.getName();
         File itemsFile = new File(plugin.getDataFolder() + File.separator + worldName, "items.yml");
         if (!itemsFile.exists()) {
-            itemsFile.getParentFile().mkdirs();
+            if (!itemsFile.getParentFile().mkdirs()) {
+                plugin.getLogger().log(Level.SEVERE, "Could not find parent directory for world: " + worldName);
+            }
             plugin.saveResource("items.yml", true);
             try {
                 Files.copy(new File(plugin.getDataFolder(), "items.yml").toPath(), itemsFile.toPath());
@@ -88,7 +92,6 @@ public class ConfigHandler {
     public void loadSignLocations() {
         File signFile = new File(plugin.getDataFolder(), "signs.yml");
         if (!signFile.exists()) {
-            signFile.getParentFile().mkdirs();
             plugin.saveResource("signs.yml", true);
             try {
                 Files.copy(new File(plugin.getDataFolder(), "signs.yml").toPath(), signFile.toPath());
@@ -116,14 +119,13 @@ public class ConfigHandler {
         for (String key : keys) {
             if (!serverConfig.isSet(key)) {
                 serverConfig.set(key, pluginConfig.get(key));
-                plugin.getLogger().warning("&cMissing key: " + key);
             }
         }
 
         try {
             serverConfig.save(serverConfigFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Could not check config.yml keys" + e);
         }
     }
 }

@@ -133,6 +133,7 @@ public class GameSequenceHandler {
 
     public void mainGame(World world) {
         int initialTimeLeft = configHandler.getWorldConfig(world).getInt("game-time");
+        System.out.println(configHandler.getWorldConfig(world).saveToString());
         timeLeft.put(world, initialTimeLeft);
 
         int worldTimerTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {

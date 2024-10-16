@@ -76,8 +76,10 @@ public class SignClickListener implements Listener {
                                 return;
                             }
                             setSpawnHandler.teleportPlayerToSpawnpoint(player, createdWorld);
+                            setSpawnHandler.createSetSpawnConfig(createdWorld);
                         } else {
                             setSpawnHandler.teleportPlayerToSpawnpoint(player, world);
+                            setSpawnHandler.createSetSpawnConfig(world);
                         }
 
                         lastInteractTime.put(player, currentTime);

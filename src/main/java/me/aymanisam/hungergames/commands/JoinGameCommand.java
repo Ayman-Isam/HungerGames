@@ -48,7 +48,7 @@ public class JoinGameCommand implements CommandExecutor {
 
         if (!(args.length == 1)) {
             sender.sendMessage(langHandler.getMessage(player, "map.no-args"));
-            return false;
+            return true;
         }
 
         String worldName = args[0];
@@ -72,15 +72,9 @@ public class JoinGameCommand implements CommandExecutor {
         }
 
         Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world, k -> new HashMap<>());
-        List<String> worldSpawnPoints = setSpawnHandler.spawnPoints.computeIfAbsent(world, k -> new ArrayList<>());
 
         if (worldSpawnPointMap.containsValue(player)) {
             player.sendMessage(langHandler.getMessage(player, "game.already-joined"));
-            return true;
-        }
-
-        if (worldSpawnPoints.size() <= worldSpawnPointMap.size()) {
-            player.sendMessage(langHandler.getMessage(player, "game.join-fail"));
             return true;
         }
 

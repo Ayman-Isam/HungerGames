@@ -31,8 +31,10 @@ auto-start:
 min-players: 2
 # Enable voting for solo, duo, trio
 voting: false
-# Enable glowing of teammates for tracking
-glowing: false
+# Enables the use of an external library
+# Used to make players glow and change name colors
+# Disable if getting errors in plugin
+packetevents: false
 # Border settings
 border:
   # Border size in blocks, use size bigger than arena for no border, (default: 100)

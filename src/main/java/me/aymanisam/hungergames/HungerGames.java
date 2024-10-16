@@ -50,7 +50,7 @@ public final class HungerGames extends JavaPlugin {
         ArenaHandler arenaHandler = new ArenaHandler(this, langHandler);
         SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this, langHandler, arenaHandler);
         ScoreBoardHandler scoreBoardHandler = new ScoreBoardHandler(this, langHandler);
-        CompassHandler compassHandler = new CompassHandler(this, langHandler);
+        CompassHandler compassHandler = new CompassHandler(langHandler);
         CompassListener compassListener = new CompassListener(this, langHandler, compassHandler, scoreBoardHandler);
         ConfigHandler configHandler = new ConfigHandler(this, langHandler);
         TeamsHandler teamsHandler = new TeamsHandler(this, langHandler, scoreBoardHandler);

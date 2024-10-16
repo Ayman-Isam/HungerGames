@@ -166,7 +166,7 @@ public class TeamsHandler {
     }
 
     public void playerGlow(Player playerToGlow, Player playerToSeeGlow, Boolean glow) {
-        if (!configHandler.getWorldConfig(playerToGlow.getWorld()).getBoolean("glowing")) {
+        if (!configHandler.getWorldConfig(playerToGlow.getWorld()).getBoolean("packetevents")) {
             return;
         }
 

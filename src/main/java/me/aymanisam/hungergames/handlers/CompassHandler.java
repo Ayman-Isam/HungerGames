@@ -1,9 +1,7 @@
 package me.aymanisam.hungergames.handlers;
 
-import me.aymanisam.hungergames.HungerGames;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -20,7 +18,7 @@ public class CompassHandler {
 
     private final Map<World, Map<Player, Integer>> teammateIndexMap = new HashMap<>();
 
-    public CompassHandler(HungerGames plugin, LangHandler langHandler) {
+    public CompassHandler(LangHandler langHandler) {
         this.langHandler = langHandler;
     }
 
@@ -32,6 +30,7 @@ public class CompassHandler {
         for (List<Player> team : worldTeams) {
             if (team.contains(player)) {
                 playerTeam = new ArrayList<>(team);
+                // Tracking teammates except the player
                 playerTeam.remove(player);
                 break;
             }
@@ -44,15 +43,11 @@ public class CompassHandler {
 
         Integer index = worldTeammateIndexMap.getOrDefault(player, 0);
 
-        if (player.isSneaking()) {
-            index = (index + 1) % playerTeam.size();
-            worldTeammateIndexMap.put(player, index);
-        }
-
         int loopCount = 0;
         Player teammate = playerTeam.get(index);
 
         while (teammate != null && (!teammate.isOnline() || teammate.getGameMode() != GameMode.ADVENTURE || teammate.isDead())) {
+            // Putting teammates into worldTeammateIndexMap
             index = (index + 1) % playerTeam.size();
             if (loopCount++ >= playerTeam.size()) {
                 teammate = null;
@@ -63,6 +58,12 @@ public class CompassHandler {
         }
 
         worldTeammateIndexMap.put(player, index);
+
+        if (player.isSneaking()) {
+            index = (index + 1) % playerTeam.size();
+            // Iterating over the teammate to be tracked
+            worldTeammateIndexMap.put(player, index);
+        }
 
         if (message) {
             if (teammate != null) {

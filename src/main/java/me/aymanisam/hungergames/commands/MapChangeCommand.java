@@ -87,6 +87,14 @@ public class MapChangeCommand implements CommandExecutor {
             return true;
         }
 
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(player.getWorld(), k -> new HashMap<>());
+
+        for (Player p : player.getWorld().getPlayers()) {
+            if (worldSpawnPointMap.containsValue(p)) {
+                setSpawnHandler.removePlayerFromSpawnPoint(p, world);
+            }
+        }
+
         arenaHandler.createArenaConfig(world);
         configHandler.createWorldConfig(world);
         configHandler.loadItemsConfig(world);
@@ -94,14 +102,6 @@ public class MapChangeCommand implements CommandExecutor {
         for (Player p : plugin.getServer().getOnlinePlayers()) {
             p.teleport(world.getSpawnLocation());
             setSpawnHandler.teleportPlayerToSpawnpoint(p, world);
-        }
-
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(player.getWorld(), k -> new HashMap<>());
-
-        for (Player p : player.getWorld().getPlayers()) {
-            if (worldSpawnPointMap.containsValue(p)) {
-                setSpawnHandler.removePlayerFromSpawnPoint(p, world);
-            }
         }
 
         sender.sendMessage(langHandler.getMessage(player, "map.switched", mapName));
