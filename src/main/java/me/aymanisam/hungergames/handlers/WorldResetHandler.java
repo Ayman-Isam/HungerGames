@@ -25,10 +25,10 @@ public class WorldResetHandler {
     private final ConfigHandler configHandler;
     private final Map<World, BukkitTask> teleportTasks = new HashMap<>();
 
-    public WorldResetHandler(HungerGames plugin, LangHandler langHandler, ConfigHandler configHandler) {
+    public WorldResetHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
         this.arenaHandler = new ArenaHandler(plugin, langHandler);
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
     }
 
     public void saveWorldState(World world) {

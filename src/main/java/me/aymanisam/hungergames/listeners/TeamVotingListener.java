@@ -48,7 +48,7 @@ public class TeamVotingListener implements Listener {
         assert duoMeta != null;
         duoMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage(player, "team.duo-inv"));
         duoMeta.setLore(Collections.singletonList(langHandler.getMessage(player, "team.votes", getVoteCount("duo", player.getWorld()))));
-        soloMeta.setAttributeModifiers(Material.DIAMOND_SWORD.getDefaultAttributeModifiers(EquipmentSlot.CHEST));
+        duoMeta.setAttributeModifiers(Material.DIAMOND_SWORD.getDefaultAttributeModifiers(EquipmentSlot.CHEST));
         duoMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         duo.setItemMeta(duoMeta);
 
@@ -57,7 +57,7 @@ public class TeamVotingListener implements Listener {
         assert trioMeta != null;
         trioMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage(player, "team.trio-inv"));
         trioMeta.setLore(Collections.singletonList(langHandler.getMessage(player, "team.votes", getVoteCount("trio", player.getWorld()))));
-        soloMeta.setAttributeModifiers(Material.IRON_SWORD.getDefaultAttributeModifiers(EquipmentSlot.CHEST));
+        trioMeta.setAttributeModifiers(Material.IRON_SWORD.getDefaultAttributeModifiers(EquipmentSlot.CHEST));
         trioMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         trio.setItemMeta(trioMeta);
 
@@ -66,7 +66,7 @@ public class TeamVotingListener implements Listener {
         assert versusMeta != null;
         versusMeta.setDisplayName(ChatColor.GREEN + langHandler.getMessage(player, "team.versus-inv"));
         versusMeta.setLore(Collections.singletonList(langHandler.getMessage(player, "team.votes", getVoteCount("versus", player.getWorld()))));
-        soloMeta.setAttributeModifiers(Material.GOLDEN_SWORD.getDefaultAttributeModifiers(EquipmentSlot.CHEST));
+        versusMeta.setAttributeModifiers(Material.GOLDEN_SWORD.getDefaultAttributeModifiers(EquipmentSlot.CHEST));
         versusMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         versus.setItemMeta(versusMeta);
 

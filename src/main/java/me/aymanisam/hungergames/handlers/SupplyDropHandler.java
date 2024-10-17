@@ -25,7 +25,7 @@ public class SupplyDropHandler {
 
     public SupplyDropHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
         this.arenaHandler = new ArenaHandler(plugin, langHandler);
         this.chestRefillHandler = new ChestRefillHandler(plugin, langHandler);
         this.langHandler = langHandler;

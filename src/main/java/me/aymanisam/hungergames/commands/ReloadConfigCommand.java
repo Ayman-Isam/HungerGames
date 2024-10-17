@@ -17,7 +17,7 @@ public class ReloadConfigCommand implements CommandExecutor {
 
     public ReloadConfigCommand(HungerGames plugin, LangHandler langHandler) {
         this.langHandler = langHandler;
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
         this.arenaHandler = new ArenaHandler(plugin, langHandler);
     }
 

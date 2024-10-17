@@ -30,7 +30,7 @@ public class SignClickListener implements Listener {
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.arenaHandler = arenaHandler;
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
     }
 
     @EventHandler

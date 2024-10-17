@@ -20,7 +20,7 @@ public class BorderSetCommand implements CommandExecutor {
     public BorderSetCommand(HungerGames plugin, LangHandler langHandler) {
         this.langHandler = langHandler;
         this.arenaHandler = new ArenaHandler(plugin, langHandler);
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
     }
 
     @Override

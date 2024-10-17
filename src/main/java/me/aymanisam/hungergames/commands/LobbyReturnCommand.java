@@ -38,7 +38,7 @@ public class LobbyReturnCommand implements CommandExecutor {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
         this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
         this.signHandler = new SignHandler(plugin);
         this.countDownHandler = countDownHandler;

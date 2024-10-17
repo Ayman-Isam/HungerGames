@@ -35,7 +35,7 @@ public class MapChangeCommand implements CommandExecutor {
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.arenaHandler = new ArenaHandler(plugin, langHandler);
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
     }
 
     @Override

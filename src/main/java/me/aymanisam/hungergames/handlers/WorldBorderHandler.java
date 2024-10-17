@@ -22,7 +22,7 @@ public class WorldBorderHandler {
     public WorldBorderHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
     }
 
     public void startWorldBorder(World world) {

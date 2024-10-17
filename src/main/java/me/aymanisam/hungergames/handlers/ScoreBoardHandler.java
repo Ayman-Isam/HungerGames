@@ -28,7 +28,7 @@ public class ScoreBoardHandler {
     public ScoreBoardHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
     }
 
     private ChatColor getColor(int interval, int countdown) {

@@ -32,7 +32,7 @@ public class SetSpawnListener implements Listener {
     public SetSpawnListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
         this.arenaHandler = arenaHandler;
         this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
         this.signHandler = new SignHandler(plugin);

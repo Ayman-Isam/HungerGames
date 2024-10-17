@@ -56,8 +56,8 @@ public class GameSequenceHandler {
         this.worldBorderHandler = new WorldBorderHandler(plugin, langHandler);
         this.scoreBoardHandler = new ScoreBoardHandler(plugin, langHandler);
         this.resetPlayerHandler = new ResetPlayerHandler();
-        this.configHandler = new ConfigHandler(plugin, langHandler);
-        this.worldResetHandler = new WorldResetHandler(plugin, langHandler, configHandler);
+        this.configHandler = plugin.getConfigHandler();
+        this.worldResetHandler = new WorldResetHandler(plugin, langHandler);
         this.compassListener = compassListener;
         this.teamsHandler = teamsHandler;
         this.signHandler = new SignHandler(plugin);

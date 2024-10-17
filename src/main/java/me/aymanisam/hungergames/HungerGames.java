@@ -22,6 +22,7 @@ public final class HungerGames extends JavaPlugin {
     public static List<String> worldNames = new ArrayList<>();
 
     private GameSequenceHandler gameSequenceHandler;
+    private ConfigHandler configHandler;
 
     @Override
     public void onLoad() {
@@ -45,6 +46,7 @@ public final class HungerGames extends JavaPlugin {
         langHandler.loadLanguageConfigs();
 
         // Initializing shared classes
+        this.configHandler = new ConfigHandler(this, langHandler);
         TeamVotingListener teamVotingListener = new TeamVotingListener(this, langHandler);
         getServer().getPluginManager().registerEvents(teamVotingListener, this);
         ArenaHandler arenaHandler = new ArenaHandler(this, langHandler);
@@ -52,14 +54,13 @@ public final class HungerGames extends JavaPlugin {
         ScoreBoardHandler scoreBoardHandler = new ScoreBoardHandler(this, langHandler);
         CompassHandler compassHandler = new CompassHandler(langHandler);
         CompassListener compassListener = new CompassListener(this, langHandler, compassHandler, scoreBoardHandler);
-        ConfigHandler configHandler = new ConfigHandler(this, langHandler);
         TeamsHandler teamsHandler = new TeamsHandler(this, langHandler, scoreBoardHandler);
         this.gameSequenceHandler = new GameSequenceHandler(this, langHandler, setSpawnHandler, compassListener, teamsHandler);
         CountDownHandler countDownHandler = new CountDownHandler(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener, scoreBoardHandler);
         setSpawnHandler.setCountDownHandler(countDownHandler);
 
         // Registering command handler
-        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener, teamsHandler, scoreBoardHandler, countDownHandler, arenaHandler, configHandler));
+        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener, teamsHandler, scoreBoardHandler, countDownHandler, arenaHandler));
 
         // Registering Listeners
         ArenaSelectListener arenaSelectListener = new ArenaSelectListener(this, langHandler);
@@ -131,6 +132,9 @@ public final class HungerGames extends JavaPlugin {
         configHandler.loadSignLocations();
     }
 
+    public ConfigHandler getConfigHandler() {
+        return configHandler;
+    }
 
     @Override
     public void onDisable() {

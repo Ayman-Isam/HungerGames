@@ -23,7 +23,7 @@ public class ToggleChatCommand implements CommandExecutor {
 
     public ToggleChatCommand(HungerGames plugin, LangHandler langHandler, TeamsHandler teamsHandler) {
         this.langHandler = langHandler;
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
         this.teamsHandler = teamsHandler;
     }
 

@@ -30,7 +30,7 @@ public class CountDownHandler {
         this.teamsHandler = new TeamsHandler(plugin, langHandler, scoreBoardHandler);
         this.setSpawnHandler = setSpawnHandler;
         this.teamVotingListener = teamVotingListener;
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
     }
 
     public void startCountDown(World world) {

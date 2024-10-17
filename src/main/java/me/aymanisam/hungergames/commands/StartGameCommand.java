@@ -28,7 +28,7 @@ public class StartGameCommand implements CommandExecutor {
         this.setSpawnHandler = setSpawnHandler;
         this.arenaHandler = new ArenaHandler(plugin, langHandler);
         this.countDownHandler = countDownHandler;
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
     }
 
     @Override

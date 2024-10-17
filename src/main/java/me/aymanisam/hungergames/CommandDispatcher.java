@@ -29,7 +29,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
     private final ArenaHandler arenaHandler;
     private final ConfigHandler configHandler;
 
-    public CommandDispatcher(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener, TeamsHandler teamsHandler, ScoreBoardHandler scoreBoardHandler, CountDownHandler countDownHandler, ArenaHandler arenaHandler, ConfigHandler configHandler) {
+    public CommandDispatcher(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener, TeamsHandler teamsHandler, ScoreBoardHandler scoreBoardHandler, CountDownHandler countDownHandler, ArenaHandler arenaHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
@@ -39,7 +39,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
         this.scoreBoardHandler = scoreBoardHandler;
         this.countDownHandler = countDownHandler;
         this.arenaHandler = arenaHandler;
-        this.configHandler = configHandler;
+        this.configHandler = plugin.getConfigHandler();
     }
 
     @Override
@@ -93,7 +93,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     executor = new ReloadConfigCommand(plugin, langHandler);
                     break;
                 case "saveworld":
-                    executor = new SaveWorldCommand(plugin, langHandler, configHandler);
+                    executor = new SaveWorldCommand(plugin, langHandler);
                     break;
                 case "setsign":
                     executor = new SignSetCommand(plugin, langHandler, setSpawnHandler, arenaHandler);

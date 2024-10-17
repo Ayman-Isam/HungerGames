@@ -46,7 +46,7 @@ public class SetSpawnHandler {
         this.playersWaiting = new HashMap<>();
         this.resetPlayerHandler = new ResetPlayerHandler();
         this.teamVotingListener = new TeamVotingListener(plugin, langHandler);
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
         this.arenaHandler = arenaHandler;
         this.signHandler = new SignHandler(plugin);
         this.signClickListener = new SignClickListener(plugin, langHandler, this, arenaHandler);

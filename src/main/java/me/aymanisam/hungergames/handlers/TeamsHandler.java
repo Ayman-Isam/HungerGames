@@ -34,7 +34,7 @@ public class TeamsHandler {
     public TeamsHandler(HungerGames plugin, LangHandler langHandler, ScoreBoardHandler scoreBoardHandler) {
         this.langHandler = langHandler;
         this.scoreBoardHandler = scoreBoardHandler;
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
     }
 
     public void createTeam(World world) {

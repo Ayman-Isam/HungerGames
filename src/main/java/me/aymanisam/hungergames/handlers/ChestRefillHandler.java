@@ -32,7 +32,7 @@ public class ChestRefillHandler {
 
     public ChestRefillHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
         this.langHandler = langHandler;
     }
 
