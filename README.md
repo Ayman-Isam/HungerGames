@@ -2,7 +2,7 @@
 
 Welcome to the HungerGames Wiki! This is a contemporary Spigot plugin, drawing inspiration from the original 2012 Minecraft HungerGames. The HungerGames plugin is a thrilling survival game based on the renowned Hunger Games book/movie series. In this free-for-all battle, players must hunt for food and resources, and strive to outlast others in a high-stakes game of survival. The ultimate goal? Be the last one standing and claim victory.
 
-This plugin is perfect for group play, whether it’s a friendly gathering or a club event. It’s also ideally suited for small scale servers. Join us for an unforgettable adventure where only the strongest survive!
+This plugin is perfect for group play, whether it’s a friendly gathering or a club event. It's also suited for public and private servers with support for different maps and arenas.
 
 ## Hunger Games Plugin Features
 - Robust announcement system with customizable messages
