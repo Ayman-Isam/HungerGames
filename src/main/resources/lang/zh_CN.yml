@@ -33,7 +33,7 @@ chestrefill:
   no-chests: "&c在竞技场中没有找到箱子！"
   created-items: "&a已创建新的items.yml文件！"
   failed-items: "&c无法创建items.yml文件！"
-  failed-locations: "&c无法将箱子位置保存到文件！"
+  failed-locations: "&c无法保存箱子位置到文件！"
   refilled: "&a箱子已经被重新装填！"
 
 game:
@@ -47,13 +47,13 @@ game:
   killed-message: "&b{0} &c已经被&d{1}从游戏中消灭"
   death-message: "&b{0} &c已经从游戏中消灭了他们自己"
   start: "&a游戏已经开始！"
-  grace-start: "&6宽恕期已开始！PvP已禁用。"
-  grace-end: "&c宽恕期已结束！PvP已启用。"
+  grace-start: "&6和平期已开始！PvP已禁用。"
+  grace-end: "&c和平期已结束！PvP已启用。"
   not-started: "&c游戏尚未开始!"
   ended: "&6游戏已经被管理员结束。"
   already-joined: "&c您已经加入了游戏!"
   auto-join: "&b您已被自动加入游戏！"
-  join-fail: "&c没有足够的出生点来加入!"
+  join-fail: "&c没有足够的出生点来加入游戏!"
   not-lobby: "&c你仍在大厅中！"
   invalid-target: "&c目标方块不是告示牌"
   sign-set: "&b标志已设置"
@@ -166,7 +166,7 @@ team:
   chat-disabled: "&d队内聊天禁用！所有人将看到您的消息。"
 
 tips:
-  0: "&aTip: &7使用你的指南针来追踪敌人活队友。潜行点击来切换队友。"
+  0: "&aTip: &7使用你的指南针来追踪敌人或队友。潜行状态下点击来切换队友。"
   1: "&aTip: &7箱子会定期补充，盯好它们。"
   2: "&aTip: &7除掉玩家可以给您特殊效果。利用这个优势！"
   3: "&aTip: &7盯着掉落的补给品，他们包含有价值的物品。"
