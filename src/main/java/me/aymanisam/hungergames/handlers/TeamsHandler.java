@@ -187,6 +187,12 @@ public class TeamsHandler {
         PacketEvents.getAPI().getPlayerManager().sendPacket(playerToSeeGlow, entityMetadataPacket);
     }
 
+    public void playerNameColor(Player colorPlayer, Player colorSeePlayer, Boolean teammate) {
+        if (!configHandler.getWorldConfig(colorPlayer.getWorld()).getBoolean("packetevents")) {
+            return;
+        }
+    }
+
     public void removeGlowFromAllPlayers(World world) {
         for (Player player : world.getPlayers()) {
             for (Player viewer : world.getPlayers()) {
