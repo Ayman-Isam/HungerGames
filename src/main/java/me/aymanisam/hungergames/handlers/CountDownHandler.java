@@ -93,10 +93,17 @@ public class CountDownHandler {
 
         teamsHandler.createTeam(world);
 
+        for (Player currentPlayer : world.getPlayers()) {
+            for (Player targetPlayer : world.getPlayers()) {
+                boolean isTeammate = teamsHandler.getTeammates(currentPlayer, world).contains(targetPlayer);
+                teamsHandler.playerNameColor(targetPlayer, currentPlayer, isTeammate);
+            }
+        }
+
         worldCountDownTasks.add(plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             this.gameSequenceHandler.startGame(world);
-            for (Player player : world.getPlayers()) {
-                player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.0f);
+            for (Player p : world.getPlayers()) {
+                p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.0f);
             }
         }, 20L * 20));
 
