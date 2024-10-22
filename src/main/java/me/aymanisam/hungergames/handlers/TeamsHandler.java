@@ -71,22 +71,6 @@ public class TeamsHandler {
         }
     }
 
-    private void applyHeartEffect(Player playerToEffect, Player playerToSeeEffect) {
-        Particle<ParticleData> heartParticle = new Particle<>(ParticleTypes.HEART);
-        EntityData heartEffect = new EntityData(17, EntityDataTypes.PARTICLE, heartParticle);
-        List<EntityData> metadataList = Collections.singletonList(heartEffect);
-        WrapperPlayServerEntityMetadata entityMetadataPacket = new WrapperPlayServerEntityMetadata(playerToEffect.getEntityId(), metadataList);
-        PacketEvents.getAPI().getPlayerManager().sendPacket(playerToSeeEffect, entityMetadataPacket);
-    }
-
-    private void applyAngryEffect(Player playerToEffect, Player playerToSeeEffect) {
-        Particle<ParticleData> angryParticle = new Particle<>(ParticleTypes.ANGRY_VILLAGER);
-        EntityData heartEffect = new EntityData(17, EntityDataTypes.PARTICLE, angryParticle);
-        List<EntityData> metadataList = Collections.singletonList(heartEffect);
-        WrapperPlayServerEntityMetadata entityMetadataPacket = new WrapperPlayServerEntityMetadata(playerToEffect.getEntityId(), metadataList);
-        PacketEvents.getAPI().getPlayerManager().sendPacket(playerToSeeEffect, entityMetadataPacket);
-    }
-
     private void processTeam(List<Player> team, World world) {
         if (playersPerTeam != 1) {
             if (team.size() < playersPerTeam) {
