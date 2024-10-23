@@ -326,8 +326,6 @@ public class GameSequenceHandler {
     public void endGame(Boolean disable, World world) {
         gameStarted.put(world, false);
 
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world, k -> new HashMap<>());
-
         for (Player player : world.getPlayers()) {
             resetPlayerHandler.resetPlayer(player);
             removeBossBar(player);

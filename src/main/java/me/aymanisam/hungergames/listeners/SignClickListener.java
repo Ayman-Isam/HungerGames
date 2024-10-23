@@ -2,6 +2,7 @@ package me.aymanisam.hungergames.listeners;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.*;
+import net.kyori.adventure.util.Index;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -94,8 +95,18 @@ public class SignClickListener implements Listener {
         List<String> worlds = new ArrayList<>(worldNames);
         Collections.sort(worlds);
 
+        if (worlds.isEmpty() || locations.isEmpty()) {
+            return;
+        }
+
         for (Location location : locations) {
-            String worldName = worlds.get(0);
+            String worldName;
+            try {
+                worldName = worlds.get(0);
+            } catch (IndexOutOfBoundsException e) {
+                return;
+            }
+
             World world = Bukkit.getWorld(worldName);
 
             int worldPlayersWaitingSize = setSpawnHandler.playersWaiting.computeIfAbsent(world, k -> new ArrayList<>()).size();

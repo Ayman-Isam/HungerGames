@@ -38,6 +38,7 @@ public class ReloadConfigCommand implements CommandExecutor {
         configHandler.loadItemsConfig(player.getWorld());
         configHandler.loadSignLocations();
         configHandler.createWorldConfig(player.getWorld());
+        configHandler.createPluginSettings();
         langHandler.saveLanguageFiles();
         langHandler.updateLanguageKeys();
         arenaHandler.getArenaConfig(player.getWorld());

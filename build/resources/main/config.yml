@@ -37,7 +37,7 @@ voting: false
 packetevents: false
 # Border settings
 border:
-  # Border size in blocks, use size bigger than arena for no border, (default: 100)
+  # Border size in blocks, use size bigger than arena for no border, (default: 700)
   size: 700
   # Time in seconds after which border starts shrinking, use any time higher than game-time for no border, (default: 180)
   start-time: 180

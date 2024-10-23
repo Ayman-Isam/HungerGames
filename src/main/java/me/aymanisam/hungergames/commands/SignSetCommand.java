@@ -17,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -72,6 +73,13 @@ public class SignSetCommand implements CommandExecutor {
 
     private boolean checkNearbySigns(Player player, Location targetBlockLocation) {
         int numSigns = worldNames.size() - 2; // 1 lobbyworld and 1 because it's the target block
+
+        if (numSigns < 0) {
+            player.sendMessage(langHandler.getMessage(player, "game.no-worlds", numSigns));
+            signHandler.saveSignLocations(Collections.emptyList());
+            signLocations.clear();
+            return true;
+        }
 
         Location finalBlockLocation = targetBlockLocation.clone();
 
