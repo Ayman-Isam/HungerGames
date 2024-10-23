@@ -65,6 +65,8 @@ public class PlayerListener implements Listener {
         }
 
         removeFromTeam(player);
+
+        signClickListener.setSignContent(signHandler.loadSignLocations());
     }
 
     private void removeFromTeam(Player player) {
