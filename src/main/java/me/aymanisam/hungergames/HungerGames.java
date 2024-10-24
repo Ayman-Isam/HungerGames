@@ -4,10 +4,13 @@ import com.github.retrooper.packetevents.PacketEvents;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import me.aymanisam.hungergames.handlers.*;
 import me.aymanisam.hungergames.listeners.*;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.*;
@@ -16,13 +19,13 @@ import java.util.logging.Level;
 import static me.aymanisam.hungergames.handlers.VersionHandler.getLatestPluginVersion;
 
 public final class HungerGames extends JavaPlugin {
-
     public static Map<World, Boolean> gameStarted = new HashMap<>();
     public static Map<World, Boolean> gameStarting = new HashMap<>();
     public static List<String> worldNames = new ArrayList<>();
 
     private GameSequenceHandler gameSequenceHandler;
     private ConfigHandler configHandler;
+    private BukkitAudiences adventure;
 
     @Override
     public void onLoad() {
@@ -34,11 +37,21 @@ public final class HungerGames extends JavaPlugin {
         PacketEvents.getAPI().load();
     }
 
+    public @NonNull BukkitAudiences adventure() {
+        if(this.adventure == null) {
+            throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
+        }
+        return this.adventure;
+    }
+
     @Override
     public void onEnable() {
         // Bstats
         int bstatsPluginId = 21512;
         Metrics metrics = new Metrics(this, bstatsPluginId);
+
+        // Adventure
+        this.adventure = BukkitAudiences.create(this);
 
         LangHandler langHandler = new LangHandler(this);
         langHandler.saveLanguageFiles();
@@ -52,7 +65,7 @@ public final class HungerGames extends JavaPlugin {
         ArenaHandler arenaHandler = new ArenaHandler(this, langHandler);
         SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this, langHandler, arenaHandler);
         ScoreBoardHandler scoreBoardHandler = new ScoreBoardHandler(this, langHandler);
-        CompassHandler compassHandler = new CompassHandler(langHandler);
+        CompassHandler compassHandler = new CompassHandler(this, langHandler);
         CompassListener compassListener = new CompassListener(this, langHandler, compassHandler, scoreBoardHandler);
         TeamsHandler teamsHandler = new TeamsHandler(this, langHandler, scoreBoardHandler);
         this.gameSequenceHandler = new GameSequenceHandler(this, langHandler, setSpawnHandler, compassListener, teamsHandler);
@@ -141,7 +154,13 @@ public final class HungerGames extends JavaPlugin {
         for (World world: Bukkit.getWorlds()) {
             gameSequenceHandler.endGame(true, world);
         }
+
         PacketEvents.getAPI().terminate();
+
+        if (this.adventure != null) {
+            this.adventure.close();
+            this.adventure = null;
+        }
     }
 
     public File getPluginFile() {

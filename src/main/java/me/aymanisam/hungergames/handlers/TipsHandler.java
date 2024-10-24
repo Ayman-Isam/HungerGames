@@ -1,8 +1,7 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -43,7 +42,7 @@ public class TipsHandler {
                         return;
                     }
                     if (itemInHand.getItemMeta() == null || !(itemInHand.getItemMeta().getDisplayName().equals(langHandler.getMessage(player, "team.compass-teammate")))) {
-                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(langHandler.getMessage(player, "tips." + tipIndex)));
+                        plugin.adventure().player(player).sendActionBar(Component.text(langHandler.getMessage(player, "tips." + tipIndex)));
                     }
 
                     counter++;
