@@ -92,8 +92,6 @@ public class JoinGameCommand implements CommandExecutor {
             setSpawnHandler.createSetSpawnConfig(world);
         }
 
-        setSpawnHandler.teleportPlayerToSpawnpoint(player, world);
-
         return true;
     }
 }

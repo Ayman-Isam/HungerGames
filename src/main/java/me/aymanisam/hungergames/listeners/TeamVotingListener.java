@@ -111,6 +111,10 @@ public class TeamVotingListener implements Listener {
 
         event.setCancelled(true);
 
+        if (event.getClick().isKeyboardClick()) {
+            return;
+        }
+
         String displayName = Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName();
 
         World world = player.getWorld();
