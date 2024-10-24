@@ -20,7 +20,7 @@ This plugin is perfect for group play, whether it’s a friendly gathering or a 
 - Customizable language support for individual players
 
 ## Installation
-The latest releases of HungerGames are published to [SpigotMC](https://www.spigotmc.org/resources/hunger-games.111936/) and [Modrinth](https://modrinth.com/plugin/hungergames)
+The latest releases of HungerGames are published to [Modrinth](https://modrinth.com/plugin/hungergames)
 
 ## Join the Community
 There is an official server for this plugin on [Discord](https://discord.gg/qcRfPHnZtp). You can also use [Github Issues](https://github.com/Ayman-Isam/Hunger-Games/issues) to discuss the plugin.
