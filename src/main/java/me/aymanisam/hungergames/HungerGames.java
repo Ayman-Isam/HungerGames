@@ -10,7 +10,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.*;
@@ -55,7 +54,7 @@ public final class HungerGames extends JavaPlugin {
 
         LangHandler langHandler = new LangHandler(this);
         langHandler.saveLanguageFiles();
-        langHandler.updateLanguageKeys();
+        langHandler.validateLanguageKeys();
         langHandler.loadLanguageConfigs();
 
         // Initializing shared classes
@@ -115,6 +114,7 @@ public final class HungerGames extends JavaPlugin {
         }
 
         configHandler.createPluginSettings();
+        configHandler.validateSettingsKeys();
 
         PacketEvents.getAPI().init();
 

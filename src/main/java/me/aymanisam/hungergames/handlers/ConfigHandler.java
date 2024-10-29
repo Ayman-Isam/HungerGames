@@ -102,16 +102,10 @@ public class ConfigHandler {
         YamlConfiguration.loadConfiguration(signFile);
     }
 
-    public void checkConfigKeys(World world) {
+    public void validateConfigKeys(World world) {
         YamlConfiguration pluginConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(plugin.getResource("config.yml"))));
 
-        File serverConfigFile;
-
-        if (world == null) {
-            serverConfigFile = new File(plugin.getDataFolder(), "config.yml");
-        } else {
-            serverConfigFile = new File(plugin.getDataFolder() + File.separator + world.getName(), "config.yml");
-        }
+        File serverConfigFile = new File(plugin.getDataFolder() + File.separator + world.getName(), "config.yml");
 
         YamlConfiguration serverConfig = YamlConfiguration.loadConfiguration(serverConfigFile);
         Set<String> keys = pluginConfig.getKeys(true);
@@ -125,7 +119,28 @@ public class ConfigHandler {
         try {
             serverConfig.save(serverConfigFile);
         } catch (IOException e) {
-            plugin.getLogger().log(Level.SEVERE, "Could not check config.yml keys" + e);
+            plugin.getLogger().log(Level.SEVERE, "Could not validate config.yml keys" + e);
+        }
+    }
+
+    public void validateSettingsKeys() {
+        YamlConfiguration pluginSettings = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(plugin.getResource("settings.yml"))));
+
+        File serverSettingsFile = new File(plugin.getDataFolder(), "settings.yml");
+
+        YamlConfiguration serverSettings = YamlConfiguration.loadConfiguration(serverSettingsFile);
+        Set<String> keys = pluginSettings.getKeys(true);
+
+        for (String key : keys) {
+            if (!serverSettings.isSet(key)) {
+                serverSettings.set(key, serverSettings.get(key));
+            }
+        }
+
+        try {
+            serverSettings.save(serverSettingsFile);
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not validate settings.yml keys" + e);
         }
     }
 }

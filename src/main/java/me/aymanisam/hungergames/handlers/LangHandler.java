@@ -113,7 +113,7 @@ public class LangHandler {
         }
     }
 
-    public void updateLanguageKeys() {
+    public void validateLanguageKeys() {
         File langFolder = new File(plugin.getDataFolder(), "lang");
         File[] langFiles = langFolder.listFiles(((dir, name) -> name.endsWith(".yml")));
         if (langFiles == null) {

@@ -1,7 +1,6 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.listeners.ArenaSelectListener;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -142,10 +141,9 @@ public class ArenaHandler {
         createArenaConfig(world);
         configHandler.createWorldConfig(world);
         configHandler.loadItemsConfig(world);
-        configHandler.checkConfigKeys(world);
-        configHandler.checkConfigKeys(null);
+        configHandler.validateConfigKeys(world);
         langHandler.saveLanguageFiles();
-        langHandler.updateLanguageKeys();
+        langHandler.validateLanguageKeys();
         this.getArenaConfig(world);
     }
 }

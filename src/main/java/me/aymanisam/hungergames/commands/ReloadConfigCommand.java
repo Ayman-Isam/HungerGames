@@ -33,14 +33,14 @@ public class ReloadConfigCommand implements CommandExecutor {
             return true;
         }
 
-        configHandler.checkConfigKeys(player.getWorld());
-        configHandler.checkConfigKeys(null);
+        configHandler.validateConfigKeys(player.getWorld());
         configHandler.loadItemsConfig(player.getWorld());
         configHandler.loadSignLocations();
         configHandler.createWorldConfig(player.getWorld());
         configHandler.createPluginSettings();
+        configHandler.validateSettingsKeys();
         langHandler.saveLanguageFiles();
-        langHandler.updateLanguageKeys();
+        langHandler.validateLanguageKeys();
         arenaHandler.getArenaConfig(player.getWorld());
 
         sender.sendMessage(langHandler.getMessage(player, "config-reloaded"));
