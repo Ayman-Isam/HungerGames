@@ -26,7 +26,7 @@ public class SetSpawnCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage(null, "player-only"));
+            sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
 
