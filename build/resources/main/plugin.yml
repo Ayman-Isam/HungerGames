@@ -71,3 +71,6 @@ permissions:
   hungergames.saveworld:
     description: "Allows you to save the world for HungerGames"
     default: op
+  hungergames.team:
+    description: "Allows you to assign custom teams for HungerGames"
+    default: op

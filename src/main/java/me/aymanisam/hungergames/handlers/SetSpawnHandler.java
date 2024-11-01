@@ -18,8 +18,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.logging.Level;
 
-import static me.aymanisam.hungergames.HungerGames.gameStarted;
-import static me.aymanisam.hungergames.HungerGames.gameStarting;
+import static me.aymanisam.hungergames.HungerGames.*;
 
 public class SetSpawnHandler {
     private final HungerGames plugin;
@@ -29,7 +28,7 @@ public class SetSpawnHandler {
     private final ConfigHandler configHandler;
     private final SignHandler signHandler;
     private final SignClickListener signClickListener;
-    private CountDownHandler countDownHandler;
+	private CountDownHandler countDownHandler;
 
 	public FileConfiguration setSpawnConfig;
     public Map<String, List<String>> spawnPoints;
@@ -47,7 +46,7 @@ public class SetSpawnHandler {
         this.resetPlayerHandler = new ResetPlayerHandler();
         this.teamVotingListener = new TeamVotingListener(langHandler);
         this.configHandler = plugin.getConfigHandler();
-        this.signHandler = new SignHandler(plugin);
+	    this.signHandler = new SignHandler(plugin);
         this.signClickListener = new SignClickListener(plugin, langHandler, this, arenaHandler, scoreBoardHandler);
     }
 
@@ -106,9 +105,26 @@ public class SetSpawnHandler {
 
         Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k-> new HashMap<>());
 
-        for (String spawnPoint : shuffledSpawnPoints) {
-            if (!worldSpawnPointMap.containsKey(spawnPoint)) {
-                return spawnPoint;
+        if (configHandler.getPluginSettings().getBoolean("custom-teams")) {
+            int teamIndex = 0;
+            for (Map.Entry<String, List<Player>> entry : customTeams.entrySet()) {
+                List<Player> team = entry.getValue();
+                if (team.contains(player)) {
+                    int playerIndex = team.indexOf(player);
+                    int spawnPointIndex = teamIndex * (configHandler.getWorldConfig(world).getInt("players-per-team")) + playerIndex;
+                    if (spawnPointIndex < worldSpawnPoints.size()) {
+                        return worldSpawnPoints.get(spawnPointIndex);
+                    }
+                }
+                teamIndex++;
+            }
+        } else {
+            Collections.shuffle(shuffledSpawnPoints);
+
+            for (String spawnPoint : shuffledSpawnPoints) {
+                if (!worldSpawnPointMap.containsKey(spawnPoint)) {
+                    return spawnPoint;
+                }
             }
         }
 

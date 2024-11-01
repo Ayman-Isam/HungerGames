@@ -26,6 +26,7 @@ public final class HungerGames extends JavaPlugin {
     public static List<String> hgWorldNames = new ArrayList<>();
     public static List<String> worldNames = new ArrayList<>();
     public static Map<Player, Long> totalTimeSpent = new HashMap<>();
+    public static Map<String, List<Player>> customTeams = new HashMap<>();
 
     private GameSequenceHandler gameSequenceHandler;
     private ConfigHandler configHandler;

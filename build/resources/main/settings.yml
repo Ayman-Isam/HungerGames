@@ -13,6 +13,8 @@ ignored-worlds:
 reset-world: false
 # Enable or disable players spectating on death, default is true, set to false to disable
 spectating: true
+# Allows the creation of custom teams
+custom-teams: false
 # Database Settings, used for stats tracking
 # THIS FEATURE IS IN BETA! BUGS REGARDING THIS ARE TO BE EXPECTED
 database:

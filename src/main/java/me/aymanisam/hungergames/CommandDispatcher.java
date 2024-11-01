@@ -88,6 +88,9 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 case "scanarena":
                     executor = new ArenaScanCommand(plugin, langHandler);
                     break;
+                case "team":
+                    executor = new TeamSetCommand(langHandler);
+                    break;
                 case "border":
                     executor = new BorderSetCommand(plugin, langHandler);
                     break;
@@ -117,7 +120,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 List<String> completions = new ArrayList<>();
-                String[] commands = {"join", "lobby", "start", "spectate", "stats", "select", "end", "teamchat", "teleport", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig", "setsign"};
+                String[] commands = {"join", "lobby", "start", "spectate", "stats", "select", "end", "teamchat", "teleport", "saveworld", "team", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig", "setsign"};
 
                 for (String subcommand : commands) {
                     if (sender.hasPermission("hungergames." + subcommand)) {
@@ -155,9 +158,22 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     }
 
                     return allowedPlayers;
-                }
-                else if (args.length == 3) {
+                } else if (args.length == 3) {
                     return worldNames;
+                }
+            } else if (args[0].equalsIgnoreCase("team")) {
+                if (args.length == 2) {
+                    return List.of("list", "add", "remove", "reset");
+                }
+                if (args.length == 3) {
+                    return List.of("<team_name>");
+                }
+                if (args.length == 4) {
+                    List<String> onlinePlayers = new ArrayList<>();
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        onlinePlayers.add(p.getName());
+                    }
+                    return onlinePlayers;
                 }
             }
         }
