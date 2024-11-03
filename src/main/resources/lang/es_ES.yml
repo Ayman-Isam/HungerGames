@@ -54,7 +54,10 @@ game:
   already-joined: "&c¡Ya te has unido al juego!"
   auto-join: "&b¡Te has unido automáticamente al juego!"
   join-fail: "&c¡No hay suficientes puntos de aparición para unirte!"
-  not-joined: "&c¡No te has unido al juego!"
+  not-lobby: "&c¡Todavía estás en el vestíbulo!"
+  invalid-target: "&cEl bloque objetivo no es un cartel"
+  sign-set: "&bSigns have been set"
+  invalid-nearby: "&cLos {0} bloques a la derecha del bloque objetivo no son carteles"
   join-instruction: "&dÚnete al juego con &b/hg join &do haz clic en el cartel!"
   left: "&b{0} &dha salido &2[{1}/{2}]"
   worldsaved: "&aEl mundo &b{0} &ase ha guardado!"
@@ -127,6 +130,7 @@ startgame:
   3-s: "&c3 segundos restantes!"
   2-s: "&c2 segundos restantes!"
   1-s: "&c1 segundo restante!"
+  cancelled: "&cInicio del juego cancelado debido a la falta de jugadores suficientes"
 
 supplydrop:
   no-arena: "&c¡Crea una arena primero para ejecutar este comando!"

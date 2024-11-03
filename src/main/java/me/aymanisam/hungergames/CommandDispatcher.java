@@ -3,7 +3,6 @@ package me.aymanisam.hungergames;
 import me.aymanisam.hungergames.commands.*;
 import me.aymanisam.hungergames.handlers.*;
 import me.aymanisam.hungergames.listeners.TeamVotingListener;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,7 +14,8 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static me.aymanisam.hungergames.HungerGames.worldNames;
 
 public class CommandDispatcher implements CommandExecutor, TabCompleter {
     private final HungerGames plugin;
@@ -26,8 +26,10 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
     private final TeamsHandler teamsHandler;
     private final ScoreBoardHandler scoreBoardHandler;
     private final CountDownHandler countDownHandler;
+    private final ArenaHandler arenaHandler;
+    private final ConfigHandler configHandler;
 
-    public CommandDispatcher(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener, TeamsHandler teamsHandler, ScoreBoardHandler scoreBoardHandler, CountDownHandler countDownHandler) {
+    public CommandDispatcher(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener, TeamsHandler teamsHandler, ScoreBoardHandler scoreBoardHandler, CountDownHandler countDownHandler, ArenaHandler arenaHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
@@ -36,6 +38,8 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
         this.teamsHandler = teamsHandler;
         this.scoreBoardHandler = scoreBoardHandler;
         this.countDownHandler = countDownHandler;
+        this.arenaHandler = arenaHandler;
+        this.configHandler = plugin.getConfigHandler();
     }
 
     @Override
@@ -46,8 +50,8 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 case "join":
                     executor = new JoinGameCommand(plugin, langHandler, setSpawnHandler);
                     break;
-                case "leave":
-                    executor = new LeaveGameCommand(plugin, langHandler, setSpawnHandler);
+                case "lobby":
+                    executor = new LobbyReturnCommand(plugin, langHandler, setSpawnHandler, arenaHandler, countDownHandler, scoreBoardHandler);
                     break;
                 case "start":
                     executor = new StartGameCommand(plugin, langHandler, setSpawnHandler, countDownHandler);
@@ -59,16 +63,13 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     executor = new SpectatePlayerCommand(plugin, langHandler);
                     break;
                 case "select":
-                    executor = new ArenaSelectCommand(plugin, langHandler);
+                    executor = new ArenaSelectCommand(langHandler);
                     break;
                 case "end":
-                    executor = new EndGameCommand(plugin, langHandler, gameSequenceHandler, countDownHandler, setSpawnHandler);
+                    executor = new EndGameCommand(langHandler, gameSequenceHandler, countDownHandler, setSpawnHandler);
                     break;
                 case "map":
                     executor = new MapChangeCommand(plugin, langHandler, setSpawnHandler);
-                    break;
-                case "teamsize":
-                    executor = new TeamSizeCommand(plugin, langHandler);
                     break;
                 case "chestrefill":
                     executor = new ChestRefillCommand(plugin, langHandler);
@@ -77,7 +78,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     executor = new SupplyDropCommand(plugin, langHandler);
                     break;
                 case "setspawn":
-                    executor = new SetSpawnCommand(plugin, langHandler, setSpawnHandler);
+                    executor = new SetSpawnCommand(langHandler, setSpawnHandler);
                     break;
                 case "create":
                     executor = new ArenaCreateCommand(plugin, langHandler);
@@ -93,6 +94,9 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     break;
                 case "saveworld":
                     executor = new SaveWorldCommand(plugin, langHandler);
+                    break;
+                case "setsign":
+                    executor = new SignSetCommand(plugin, langHandler, setSpawnHandler, arenaHandler);
                     break;
                 default:
                     sender.sendMessage(langHandler.getMessage(sender instanceof Player ? (Player) sender : null, "unknown-subcommand", args[0]));
@@ -111,15 +115,18 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 List<String> completions = new ArrayList<>();
-                String[] commands = {"join", "leave", "start", "spectate", "select", "end", "teamchat", "map", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig"};
+                String[] commands = {"join", "lobby", "start", "spectate", "select", "end", "teamchat", "map", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig", "setsign"};
+
                 for (String subcommand : commands) {
                     if (sender.hasPermission("hungergames." + subcommand)) {
                         completions.add(subcommand);
                     }
                 }
+
                 return completions;
             } else if (args[0].equalsIgnoreCase("border")) {
                 List<String> completions = new ArrayList<>();
+
                 switch (args.length) {
                     case 2:
                         completions.add(langHandler.getMessage(player, "border.args-1"));
@@ -131,17 +138,13 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                         completions.add(langHandler.getMessage(player, "border.args-3"));
                         break;
                 }
+
                 return completions;
-            } else if (args[0].equalsIgnoreCase("teamsize")) {
+            } else if (args[0].equalsIgnoreCase("map") || (args[0].equalsIgnoreCase("join"))) {
                 if (args.length == 2) {
-                    List<String> completions = new ArrayList<>();
-                    langHandler.getLangConfig((Player) sender);
-                    completions.add(langHandler.getMessage(player, "border.args-1"));
-                    return completions;
-                }
-            } else if (args[0].equalsIgnoreCase("map")) {
-                if (args.length == 2) {
-                    return plugin.getServer().getWorlds().stream().map(World::getName).collect(Collectors.toList());
+                    String worldNameToRemove = (String) configHandler.createPluginSettings().get("lobby-world");
+                    worldNames.remove(worldNameToRemove);
+                    return worldNames;
                 }
             }
         }

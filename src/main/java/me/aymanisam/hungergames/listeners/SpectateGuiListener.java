@@ -23,7 +23,7 @@ public class SpectateGuiListener implements Listener {
     }
 
     @EventHandler
-    public void onGuiOpen(InventoryClickEvent event){
+    public void onGuiOpen(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         Inventory clickedInventory = event.getClickedInventory();
         Inventory openInventory = player.getOpenInventory().getTopInventory();

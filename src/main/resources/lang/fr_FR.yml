@@ -54,7 +54,10 @@ game:
   already-joined: "&cVous avez déjà rejoint le jeu !"
   auto-join: "&bVous avez été automatiquement rejoint au jeu !"
   join-fail: "&cPas assez de points d'apparition pour rejoindre !"
-  not-joined: "&cVous n'avez pas rejoint le jeu !"
+  not-lobby: "&cVous êtes toujours dans le hall !"
+  invalid-target: "&cLe bloc cible n'est pas un panneau"
+  sign-set: "&bLes panneaux ont été installés"
+  invalid-nearby: "&cLes {0} blocs à droite du bloc cible ne sont pas des panneaux"
   join-instruction: "&dRejoignez le jeu avec &b/hg join &dou cliquez sur le panneau !"
   left: "&b{0} &da quitté &2[{1}/{2}]"
   worldsaved: "&aLe monde &b{0} &aa été sauvegardé !"
@@ -127,6 +130,7 @@ startgame:
   3-s: "&c3 secondes restantes !"
   2-s: "&c2 secondes restantes !"
   1-s: "&c1 seconde restante !"
+  cancelled: "&cDémarrage du jeu annulé en raison d'un nombre insuffisant de joueurs"
 
 supplydrop:
   no-arena: "&cCréez d'abord une arène pour exécuter cette commande !"

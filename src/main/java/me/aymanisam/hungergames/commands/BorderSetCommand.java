@@ -13,16 +13,14 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class BorderSetCommand implements CommandExecutor {
-    private final HungerGames plugin;
     private final LangHandler langHandler;
     private final ArenaHandler arenaHandler;
     private final ConfigHandler configHandler;
 
     public BorderSetCommand(HungerGames plugin, LangHandler langHandler) {
-        this.plugin = plugin;
         this.langHandler = langHandler;
         this.arenaHandler = new ArenaHandler(plugin, langHandler);
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
     }
 
     @Override
@@ -31,8 +29,6 @@ public class BorderSetCommand implements CommandExecutor {
             sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
-
-        ;
 
         if (!player.hasPermission("hungergames.border")) {
             player.sendMessage(langHandler.getMessage(player, "no-permission"));
@@ -66,6 +62,7 @@ public class BorderSetCommand implements CommandExecutor {
         worldBorder.setSize(newSize);
         worldBorder.setCenter(centerX, centerZ);
         sender.sendMessage(langHandler.getMessage(player, "border.success-message", newSize, centerX, centerZ));
+
         configHandler.getWorldConfig(world).set("border.size", newSize);
         configHandler.getWorldConfig(world).set("border.center-x", centerX);
         configHandler.getWorldConfig(world).set("border.center-z", centerZ);

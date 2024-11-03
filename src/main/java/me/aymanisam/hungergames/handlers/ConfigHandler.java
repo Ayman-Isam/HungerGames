@@ -18,7 +18,6 @@ import java.util.logging.Level;
 public class ConfigHandler {
     private final HungerGames plugin;
 
-    private FileConfiguration worldConfig;
     private File worldFile;
     private final Map<World, FileConfiguration> worldConfigs = new HashMap<>();
 
@@ -30,7 +29,9 @@ public class ConfigHandler {
         String worldName = world.getName();
         worldFile = new File(plugin.getDataFolder() + File.separator + worldName, "config.yml");
         if (!worldFile.exists()) {
-            worldFile.getParentFile().mkdirs();
+            if (!worldFile.getParentFile().mkdirs()) {
+                plugin.getLogger().log(Level.SEVERE, "Could not find parent directory for world: " + worldName);
+            }
             try {
                 plugin.saveResource("config.yml", true);
                 Files.copy(new File(plugin.getDataFolder(), "config.yml").toPath(), worldFile.toPath());
@@ -39,8 +40,17 @@ public class ConfigHandler {
             }
         }
 
-        worldConfig = YamlConfiguration.loadConfiguration(worldFile);
-        worldConfigs.put(world, YamlConfiguration.loadConfiguration(worldFile));
+        FileConfiguration config = YamlConfiguration.loadConfiguration(worldFile);
+        worldConfigs.put(world, config);
+    }
+
+    public FileConfiguration createPluginSettings() {
+        File file = new File(plugin.getDataFolder(), "settings.yml");
+        if (!file.exists()) {
+            plugin.saveResource("settings.yml", true);
+        }
+
+        return YamlConfiguration.loadConfiguration(file);
     }
 
     public FileConfiguration getWorldConfig(World world) {
@@ -66,7 +76,9 @@ public class ConfigHandler {
         String worldName = world.getName();
         File itemsFile = new File(plugin.getDataFolder() + File.separator + worldName, "items.yml");
         if (!itemsFile.exists()) {
-            itemsFile.getParentFile().mkdirs();
+            if (!itemsFile.getParentFile().mkdirs()) {
+                plugin.getLogger().log(Level.SEVERE, "Could not find parent directory for world: " + worldName);
+            }
             plugin.saveResource("items.yml", true);
             try {
                 Files.copy(new File(plugin.getDataFolder(), "items.yml").toPath(), itemsFile.toPath());
@@ -77,23 +89,58 @@ public class ConfigHandler {
         return YamlConfiguration.loadConfiguration(itemsFile);
     }
 
-    public void checkConfigKeys() {
+    public void loadSignLocations() {
+        File signFile = new File(plugin.getDataFolder(), "signs.yml");
+        if (!signFile.exists()) {
+            plugin.saveResource("signs.yml", true);
+            try {
+                Files.copy(new File(plugin.getDataFolder(), "signs.yml").toPath(), signFile.toPath());
+            } catch (IOException e) {
+                plugin.getLogger().log(Level.SEVERE, "Could not create sign file for world " + e);
+            }
+        }
+        YamlConfiguration.loadConfiguration(signFile);
+    }
+
+    public void validateConfigKeys(World world) {
         YamlConfiguration pluginConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(plugin.getResource("config.yml"))));
-        File serverConfigFile = new File(plugin.getDataFolder(), "config.yml");
+
+        File serverConfigFile = new File(plugin.getDataFolder() + File.separator + world.getName(), "config.yml");
+
         YamlConfiguration serverConfig = YamlConfiguration.loadConfiguration(serverConfigFile);
         Set<String> keys = pluginConfig.getKeys(true);
 
         for (String key : keys) {
             if (!serverConfig.isSet(key)) {
                 serverConfig.set(key, pluginConfig.get(key));
-                plugin.getLogger().warning("&cMissing key: " + key);
             }
         }
 
         try {
             serverConfig.save(serverConfigFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Could not validate config.yml keys" + e);
+        }
+    }
+
+    public void validateSettingsKeys() {
+        YamlConfiguration pluginSettings = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(plugin.getResource("settings.yml"))));
+
+        File serverSettingsFile = new File(plugin.getDataFolder(), "settings.yml");
+
+        YamlConfiguration serverSettings = YamlConfiguration.loadConfiguration(serverSettingsFile);
+        Set<String> keys = pluginSettings.getKeys(true);
+
+        for (String key : keys) {
+            if (!serverSettings.isSet(key)) {
+                serverSettings.set(key, serverSettings.get(key));
+            }
+        }
+
+        try {
+            serverSettings.save(serverSettingsFile);
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not validate settings.yml keys" + e);
         }
     }
 }

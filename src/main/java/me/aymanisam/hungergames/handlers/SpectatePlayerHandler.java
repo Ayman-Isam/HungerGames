@@ -8,7 +8,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
@@ -16,19 +18,17 @@ import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive
 public class SpectatePlayerHandler {
     private final LangHandler langHandler;
 
-    private final Map<Integer, Player> slotPlayerMap = new HashMap<>();
-
     public SpectatePlayerHandler(HungerGames plugin, LangHandler langHandler) {
         this.langHandler = langHandler;
     }
 
     public void openSpectatorGUI(Player spectator) {
-        slotPlayerMap.clear();
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(spectator.getWorld(), k -> new ArrayList<>());
 
-        int size = (int) Math.ceil(playersAlive.size() / 9.0) * 9;
+        int size = (int) Math.ceil(worldPlayersAlive.size() / 9.0) * 9;
         Inventory gui = Bukkit.createInventory(null, size, langHandler.getMessage(spectator, "spectate.gui-message"));
-        for (int i = 0; i < playersAlive.size(); i++) {
-            Player player = playersAlive.get(i);
+        for (int i = 0; i < worldPlayersAlive.size(); i++) {
+            Player player = worldPlayersAlive.get(i);
             ItemStack playerItem = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) playerItem.getItemMeta();
             assert meta != null;
@@ -37,7 +37,6 @@ public class SpectatePlayerHandler {
             playerItem.setItemMeta(meta);
 
             gui.setItem(i, playerItem);
-            slotPlayerMap.put(i, player);
         }
 
         spectator.openInventory(gui);

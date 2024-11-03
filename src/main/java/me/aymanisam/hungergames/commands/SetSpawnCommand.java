@@ -1,6 +1,5 @@
 package me.aymanisam.hungergames.commands;
 
-import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.SetSpawnHandler;
 import org.bukkit.Material;
@@ -19,7 +18,7 @@ public class SetSpawnCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
 
-    public SetSpawnCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
+    public SetSpawnCommand(LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
     }
@@ -27,30 +26,31 @@ public class SetSpawnCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage(null, "player-only"));
+            sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
-
-        ;
 
         if (!(player.hasPermission("hungergames.setspawn"))) {
             sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
-        ItemStack stick = new ItemStack(Material.STICK);
-        ItemMeta meta = stick.getItemMeta();
+        ItemStack spawnPointStick = new ItemStack(Material.STICK);
+        ItemMeta meta = spawnPointStick.getItemMeta();
         assert meta != null;
         meta.setDisplayName(langHandler.getMessage(player, "setspawn.stick-name"));
-        stick.setItemMeta(meta);
+        spawnPointStick.setItemMeta(meta);
+
         List<String> lore = new ArrayList<>();
         lore.add(langHandler.getMessage(player, "setspawn.stick-left"));
         meta.setLore(lore);
-        player.getInventory().addItem(stick);
+        player.getInventory().addItem(spawnPointStick);
+
         setSpawnHandler.createSetSpawnConfig(player.getWorld());
         setSpawnHandler.setSpawnConfig.set("spawnpoints", new ArrayList<>());
-        setSpawnHandler.saveSetSpawnConfig();
+        setSpawnHandler.saveSetSpawnConfig(player.getWorld());
         sender.sendMessage(langHandler.getMessage(player, "setspawn.spawn-reset"));
+
         return true;
     }
 }

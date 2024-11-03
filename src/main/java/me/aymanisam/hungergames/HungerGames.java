@@ -4,30 +4,31 @@ import com.github.retrooper.packetevents.PacketEvents;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import me.aymanisam.hungergames.handlers.*;
 import me.aymanisam.hungergames.listeners.*;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
-import org.bukkit.WorldCreator;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.File;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.handlers.VersionHandler.getLatestPluginVersion;
 
 public final class HungerGames extends JavaPlugin {
-
-    public static boolean gameStarted = false;
-    public static boolean gameStarting = false;
-    public static World gameWorld;
+    public static Map<World, Boolean> gameStarted = new HashMap<>();
+    public static Map<World, Boolean> gameStarting = new HashMap<>();
+    public static List<String> worldNames = new ArrayList<>();
 
     private GameSequenceHandler gameSequenceHandler;
+    private ConfigHandler configHandler;
+    private BukkitAudiences adventure;
 
     @Override
     public void onLoad() {
+        // PacketEvents code
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
         PacketEvents.getAPI().getSettings()
                 .reEncodeByDefault(false)
@@ -35,47 +36,58 @@ public final class HungerGames extends JavaPlugin {
         PacketEvents.getAPI().load();
     }
 
+    public @NonNull BukkitAudiences adventure() {
+        if(this.adventure == null) {
+            throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
+        }
+        return this.adventure;
+    }
+
     @Override
     public void onEnable() {
+        // Bstats
         int bstatsPluginId = 21512;
         Metrics metrics = new Metrics(this, bstatsPluginId);
+
+        // Adventure
+        this.adventure = BukkitAudiences.create(this);
+
         LangHandler langHandler = new LangHandler(this);
         langHandler.saveLanguageFiles();
-        langHandler.updateLanguageKeys();
+        langHandler.validateLanguageKeys();
         langHandler.loadLanguageConfigs();
 
-        gameWorld = Bukkit.getWorlds().get(0);
-
         // Initializing shared classes
+        this.configHandler = new ConfigHandler(this, langHandler);
         TeamVotingListener teamVotingListener = new TeamVotingListener(this, langHandler);
         getServer().getPluginManager().registerEvents(teamVotingListener, this);
-        SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this, langHandler);
+        ArenaHandler arenaHandler = new ArenaHandler(this, langHandler);
+        SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this, langHandler, arenaHandler);
         ScoreBoardHandler scoreBoardHandler = new ScoreBoardHandler(this, langHandler);
         CompassHandler compassHandler = new CompassHandler(this, langHandler);
         CompassListener compassListener = new CompassListener(this, langHandler, compassHandler, scoreBoardHandler);
-        ArenaHandler arenaHandler = new ArenaHandler(this, langHandler);
-        ConfigHandler configHandler = new ConfigHandler(this, langHandler);
         TeamsHandler teamsHandler = new TeamsHandler(this, langHandler, scoreBoardHandler);
         this.gameSequenceHandler = new GameSequenceHandler(this, langHandler, setSpawnHandler, compassListener, teamsHandler);
-        CountDownHandler countDownHandler = new CountDownHandler(this, langHandler ,setSpawnHandler, gameSequenceHandler, teamVotingListener, scoreBoardHandler);
+        CountDownHandler countDownHandler = new CountDownHandler(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener, scoreBoardHandler);
+        setSpawnHandler.setCountDownHandler(countDownHandler);
 
         // Registering command handler
-        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener, teamsHandler, scoreBoardHandler, countDownHandler));
+        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener, teamsHandler, scoreBoardHandler, countDownHandler, arenaHandler));
 
         // Registering Listeners
         ArenaSelectListener arenaSelectListener = new ArenaSelectListener(this, langHandler);
         getServer().getPluginManager().registerEvents(arenaSelectListener, this);
 
-        SetSpawnListener setSpawnListener = new SetSpawnListener(this, langHandler, setSpawnHandler);
+        SetSpawnListener setSpawnListener = new SetSpawnListener(this, langHandler, setSpawnHandler, arenaHandler);
         getServer().getPluginManager().registerEvents(setSpawnListener, this);
 
-        SignClickListener signClickListener = new SignClickListener(this, langHandler, setSpawnHandler);
+        SignClickListener signClickListener = new SignClickListener(this, langHandler, setSpawnHandler, arenaHandler);
         getServer().getPluginManager().registerEvents(signClickListener, this);
 
-        PlayerListener playerListener = new PlayerListener(this, langHandler, setSpawnHandler);
+        PlayerListener playerListener = new PlayerListener(this, langHandler, setSpawnHandler, scoreBoardHandler);
         getServer().getPluginManager().registerEvents(playerListener, this);
 
-        SpectateGuiListener spectateGuiListener = new SpectateGuiListener(this,langHandler);
+        SpectateGuiListener spectateGuiListener = new SpectateGuiListener(this, langHandler);
         getServer().getPluginManager().registerEvents(spectateGuiListener, this);
 
         getServer().getPluginManager().registerEvents(compassListener, this);
@@ -86,36 +98,27 @@ public final class HungerGames extends JavaPlugin {
         File serverDirectory = new File(".");
         File[] files = serverDirectory.listFiles();
 
+        // Checking Files for World Files
         if (files != null) {
             for (File file : files) {
                 if (file.isDirectory()) {
                     File levelDat = new File(file, "level.dat");
                     if (levelDat.exists()) {
                         String worldName = file.getName();
-                        Bukkit.getServer().createWorld(new WorldCreator(worldName));
+                        if (!configHandler.createPluginSettings().getStringList("ignored-worlds").contains(worldName)) {
+                            worldNames.add(worldName);
+                        }
                     }
                 }
             }
         }
 
-        List<World> worlds = getServer().getWorlds();
-
-        for (World world : worlds) {
-            String worldName = world.getName();
-
-            if (!worldName.contains("the_end")) {
-                File worldFolder = new File(getDataFolder(), worldName);
-                if (!worldFolder.exists()) {
-                    worldFolder.mkdirs();
-                }
-                arenaHandler.createArenaConfig(world);
-                configHandler.createWorldConfig(world);
-                configHandler.loadItemsConfig(world);
-            }
-        }
+        configHandler.createPluginSettings();
+        configHandler.validateSettingsKeys();
 
         PacketEvents.getAPI().init();
 
+        // Checks if the current version is the latest version
         int spigotPluginId = 111936;
 
         String latestVersionString = getLatestPluginVersion(spigotPluginId);
@@ -124,7 +127,7 @@ public final class HungerGames extends JavaPlugin {
 
         String currentVersionString = this.getDescription().getVersion();
         int currentHyphenIndex = currentVersionString.indexOf('-');
-        String currentVersion = (currentHyphenIndex != -1) ? latestVersionString.substring(0, currentHyphenIndex) : latestVersionString;
+        String currentVersion = (currentHyphenIndex != -1) ? currentVersionString.substring(0, currentHyphenIndex) : currentVersionString;
 
         if (latestVersion.equals("Error: null")) {
             this.getLogger().log(Level.WARNING, "Failed to check for updates");
@@ -135,17 +138,37 @@ public final class HungerGames extends JavaPlugin {
         }
 
         TipsHandler tipsHandler = new TipsHandler(this, langHandler);
-        tipsHandler.startSendingTips(600);
+        if (configHandler.createPluginSettings().getBoolean("tips")) {
+            tipsHandler.startSendingTips(600);
+        }
+
+        configHandler.loadSignLocations();
     }
 
+    public ConfigHandler getConfigHandler() {
+        return configHandler;
+    }
 
     @Override
     public void onDisable() {
-        gameSequenceHandler.endGame();
+        for (World world: Bukkit.getWorlds()) {
+            gameSequenceHandler.endGame(true, world);
+        }
+
         PacketEvents.getAPI().terminate();
+
+        if (this.adventure != null) {
+            this.adventure.close();
+            this.adventure = null;
+        }
     }
 
     public File getPluginFile() {
         return this.getFile();
+    }
+
+    public static boolean isGameStartingOrStarted(World world) {
+        return gameStarted.getOrDefault(world, false) ||
+                gameStarting.getOrDefault(world, false);
     }
 }

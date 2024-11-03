@@ -1,6 +1,8 @@
 package me.aymanisam.hungergames.handlers;
 
+import com.google.common.collect.Sets;
 import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.listeners.SignClickListener;
 import me.aymanisam.hungergames.listeners.TeamVotingListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -17,6 +19,7 @@ import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.gameStarted;
 import static me.aymanisam.hungergames.HungerGames.gameStarting;
+import static me.aymanisam.hungergames.listeners.TeamVotingListener.giveVotingBook;
 
 public class SetSpawnHandler {
     private final HungerGames plugin;
@@ -24,22 +27,33 @@ public class SetSpawnHandler {
     private final LangHandler langHandler;
     private final TeamVotingListener teamVotingListener;
     private final ConfigHandler configHandler;
+    private final ArenaHandler arenaHandler;
+    private final SignHandler signHandler;
+    private final SignClickListener signClickListener;
+    private CountDownHandler countDownHandler;
 
     public FileConfiguration setSpawnConfig;
-    public List<String> spawnPoints;
-    public Map<String, Player> spawnPointMap;
-    public List<String> playersWaiting;
+    public Map<World, List<String>> spawnPoints;
+    public Map<World, Map<String, Player>> spawnPointMap;
+    public Map<World, List<Player>> playersWaiting;
     private File setSpawnFile;
 
-    public SetSpawnHandler(HungerGames plugin, LangHandler langHandler) {
+    public SetSpawnHandler(HungerGames plugin, LangHandler langHandler, ArenaHandler arenaHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
-        this.spawnPoints = new ArrayList<>();
+        this.spawnPoints = new HashMap<>();
         this.spawnPointMap = new HashMap<>();
-        this.playersWaiting = new ArrayList<>();
+        this.playersWaiting = new HashMap<>();
         this.resetPlayerHandler = new ResetPlayerHandler();
         this.teamVotingListener = new TeamVotingListener(plugin, langHandler);
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
+        this.arenaHandler = arenaHandler;
+        this.signHandler = new SignHandler(plugin);
+        this.signClickListener = new SignClickListener(plugin, langHandler, this, arenaHandler);
+    }
+
+    public void setCountDownHandler(CountDownHandler countDownHandler) {
+        this.countDownHandler = countDownHandler;
     }
 
     public void createSetSpawnConfig(World world) {
@@ -51,15 +65,18 @@ public class SetSpawnHandler {
         }
 
         setSpawnConfig = YamlConfiguration.loadConfiguration(setSpawnFile);
-        spawnPoints = setSpawnConfig.getStringList("spawnpoints");
+        List<String> worldSpawnPoints = setSpawnConfig.getStringList("spawnpoints");
+        spawnPoints.put(world, worldSpawnPoints);
     }
 
-    public void saveSetSpawnConfig() {
+    public void saveSetSpawnConfig(World world) {
         if (setSpawnConfig == null || setSpawnFile == null) {
             return;
         }
         try {
-            setSpawnConfig.set("spawnpoints", spawnPoints);
+            List<String> worldSpawnPoints = spawnPoints.computeIfAbsent(world, k -> new ArrayList<>());
+
+            setSpawnConfig.set("spawnpoints", worldSpawnPoints);
 
             setSpawnConfig.save(setSpawnFile);
         } catch (IOException ex) {
@@ -67,20 +84,26 @@ public class SetSpawnHandler {
         }
     }
 
-    public void resetSpawnPoints() {
-        spawnPoints.clear();
-        setSpawnConfig.set("spawnpoints", spawnPoints);
-        saveSetSpawnConfig();
+    public void resetSpawnPoints(World world) {
+        List<String> worldSpawnPoints = spawnPoints.computeIfAbsent(world, k -> new ArrayList<>());
+
+        worldSpawnPoints.clear();
+        setSpawnConfig.set("spawnpoints", worldSpawnPoints);
+        saveSetSpawnConfig(world);
     }
 
-    public String assignPlayerToSpawnPoint(Player player) {
-        createSetSpawnConfig(player.getWorld());
+    public String assignPlayerToSpawnPoint(Player player, World world) {
+        createSetSpawnConfig(world);
 
-        List<String> shuffledSpawnPoints = new ArrayList<>(spawnPoints);
+        List<String> worldSpawnPoints = spawnPoints.computeIfAbsent(world, k -> new ArrayList<>());
+
+        List<String> shuffledSpawnPoints = new ArrayList<>(worldSpawnPoints);
         Collections.shuffle(shuffledSpawnPoints);
 
+        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world, k-> new HashMap<>());
+
         for (String spawnPoint : shuffledSpawnPoints) {
-            if (!spawnPointMap.containsKey(spawnPoint)) {
+            if (!worldSpawnPointMap.containsKey(spawnPoint)) {
                 return spawnPoint;
             }
         }
@@ -89,8 +112,10 @@ public class SetSpawnHandler {
         return null;
     }
 
-    public void removePlayerFromSpawnPoint(Player player) {
-        Iterator<Map.Entry<String, Player>> iterator = spawnPointMap.entrySet().iterator();
+    public void removePlayerFromSpawnPoint(Player player, World world) {
+        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world, k-> new HashMap<>());
+
+        Iterator<Map.Entry<String, Player>> iterator = worldSpawnPointMap.entrySet().iterator();
 
         while (iterator.hasNext()) {
             Map.Entry<String, Player> entry = iterator.next();
@@ -101,18 +126,22 @@ public class SetSpawnHandler {
         }
     }
 
-    public void teleportPlayerToSpawnpoint(Player player) {
-        String spawnPoint = assignPlayerToSpawnPoint(player);
+    public void teleportPlayerToSpawnpoint(Player player, World world) {
+        String spawnPoint = assignPlayerToSpawnPoint(player, world);
 
         if (spawnPoint == null) {
             return;
         }
 
-        spawnPointMap.put(spawnPoint, player);
-        playersWaiting.add(player.getName());
+        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world, k-> new HashMap<>());
+        List<Player> worldPlayersWaiting = playersWaiting.computeIfAbsent(world, k -> new ArrayList<>());
+        List<String> worldSpawnPoints = spawnPoints.computeIfAbsent(world, k -> new ArrayList<>());
+
+        worldSpawnPointMap.put(spawnPoint, player);
+        worldPlayersWaiting.add(player);
+        signClickListener.setSignContent(signHandler.loadSignLocations());
 
         String[] coords = spawnPoint.split(",");
-        World world = plugin.getServer().getWorld(coords[0]);
         double x = Double.parseDouble(coords[1]) + 0.5;
         double y = Double.parseDouble(coords[2]) + 1.0;
         double z = Double.parseDouble(coords[3]) + 0.5;
@@ -130,18 +159,25 @@ public class SetSpawnHandler {
 
         player.teleport(teleportLocation);
 
-        for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
-            onlinePlayer.sendMessage(langHandler.getMessage(onlinePlayer, "setspawn.joined-message", player.getName(), spawnPointMap.size(),spawnPoints.size()));
+        for (Player onlinePlayer : world.getPlayers()) {
+            onlinePlayer.sendMessage(langHandler.getMessage(onlinePlayer, "setspawn.joined-message", player.getName(), worldSpawnPointMap.size(), worldSpawnPoints.size()));
         }
 
         resetPlayerHandler.resetPlayer(player);
 
         if (configHandler.getWorldConfig(world).getBoolean("voting")) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                if (spawnPointMap.containsValue(player) && !gameStarted && !gameStarting) {
+                if (worldSpawnPointMap.containsValue(player) && !gameStarted.getOrDefault(player.getWorld(), false) && !gameStarting.getOrDefault(player.getWorld(), false)) {
                     teamVotingListener.openVotingInventory(player);
                 }
             }, 100L);
+        }
+
+        if (configHandler.getWorldConfig(world).getBoolean("auto-start.enabled")) {
+            if (world.getPlayers().size() >= configHandler.getWorldConfig(world).getInt("auto-start.players")) {
+                gameStarting.put(player.getWorld(), true);
+                countDownHandler.startCountDown(world);
+            }
         }
     }
 }

@@ -71,7 +71,6 @@ public class LangHandler {
         if (langConfigs.containsKey(locale)) {
             return langConfigs.get(locale);
         } else {
-            plugin.getLogger().log(Level.WARNING, "Locale " + locale + " not found. Using default 'en_us' configuration.");
             return langConfigs.get("en_us");
         }
     }
@@ -83,7 +82,6 @@ public class LangHandler {
 
         YamlConfiguration config = langConfigs.get("en_us");
         if (config == null) {
-            plugin.getLogger().log(Level.WARNING, "Language configuration for 'en_us' is missing. Using default configuration.");
             config = new YamlConfiguration();
         }
 
@@ -115,7 +113,7 @@ public class LangHandler {
         }
     }
 
-    public void updateLanguageKeys() {
+    public void validateLanguageKeys() {
         File langFolder = new File(plugin.getDataFolder(), "lang");
         File[] langFiles = langFolder.listFiles(((dir, name) -> name.endsWith(".yml")));
         if (langFiles == null) {

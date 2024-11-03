@@ -1,10 +1,10 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.GameMode;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -15,75 +15,85 @@ import java.util.Map;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 
 public class CompassHandler {
+    private final HungerGames plugin;
     private final LangHandler langHandler;
 
-    private final Map<Player, Integer> teammateIndexMap = new HashMap<>();
+    private final Map<World, Map<Player, Integer>> teammateIndexMap = new HashMap<>();
 
-    public CompassHandler (HungerGames plugin, LangHandler langHandler) {
+    public CompassHandler(HungerGames plugin, LangHandler langHandler) {
+        this.plugin = plugin;
         this.langHandler = langHandler;
     }
 
-    public Player findNearestTeammate(Player player, Boolean message) {
+    public Player findNearestTeammate(Player player, Boolean message, World world) {
         List<Player> playerTeam = null;
-        for (List<Player> team : teams) {
+        List<List<Player>> worldTeams = teams.computeIfAbsent(world, k -> new ArrayList<>());
+        Map<Player, Integer> worldTeammateIndexMap = teammateIndexMap.computeIfAbsent(world, k -> new HashMap<>());
+
+        for (List<Player> team : worldTeams) {
             if (team.contains(player)) {
                 playerTeam = new ArrayList<>(team);
+                // Tracking teammates except the player
                 playerTeam.remove(player);
                 break;
             }
         }
 
         if (playerTeam == null || playerTeam.isEmpty()) {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(langHandler.getMessage(player, "arena.compass-nomates")));
+            TextComponent component = Component.text("");
             return null;
         }
 
-        Integer index = teammateIndexMap.getOrDefault(player, 0);
-
-        if (player.isSneaking()) {
-            index = (index + 1) % playerTeam.size();
-            teammateIndexMap.put(player, index);
-        }
+        Integer index = worldTeammateIndexMap.getOrDefault(player, 0);
 
         int loopCount = 0;
         Player teammate = playerTeam.get(index);
 
         while (teammate != null && (!teammate.isOnline() || teammate.getGameMode() != GameMode.ADVENTURE || teammate.isDead())) {
+            // Putting teammates into worldTeammateIndexMap
             index = (index + 1) % playerTeam.size();
             if (loopCount++ >= playerTeam.size()) {
                 teammate = null;
                 break;
             }
-            teammateIndexMap.put(player, index);
+            worldTeammateIndexMap.put(player, index);
             teammate = playerTeam.get(index);
         }
 
-        teammateIndexMap.put(player, index);
+        worldTeammateIndexMap.put(player, index);
+
+        if (player.isSneaking()) {
+            index = (index + 1) % playerTeam.size();
+            // Iterating over the teammate to be tracked
+            worldTeammateIndexMap.put(player, index);
+        }
 
         if (message) {
             if (teammate != null) {
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(langHandler.getMessage(player, "arena.compass-teammate", teammate.getName())));
+                plugin.adventure().player(player).sendActionBar(Component.text(langHandler.getMessage(player, "arena.compass-teammate", teammate.getName())));
             } else {
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(langHandler.getMessage(player, "arena.compass-nomates")));
+                plugin.adventure().player(player).sendActionBar(Component.text(langHandler.getMessage(player, "arena.compass-nomates")));
             }
         }
 
         return teammate;
     }
 
-    public Player findNearestEnemy(Player player, Boolean message){
+    public Player findNearestEnemy(Player player, Boolean message, World world) {
         double closestDistance = Double.MAX_VALUE;
         Player closestPlayer = null;
 
         List<Player> playerTeam = null;
-        for (List<Player> team : teams) {
+        List<List<Player>> worldTeams = teams.computeIfAbsent(world, k -> new ArrayList<>());
+
+        for (List<Player> team : worldTeams) {
             if (team.contains(player)) {
                 playerTeam = team;
                 break;
             }
         }
 
-        for (Player targetPlayer : Bukkit.getServer().getOnlinePlayers()) {
+        for (Player targetPlayer : player.getWorld().getPlayers()) {
             if (targetPlayer != player && targetPlayer.getGameMode() == GameMode.ADVENTURE && targetPlayer.isOnline() && !(playerTeam == null || playerTeam.contains(targetPlayer))) {
                 double distance = player.getLocation().distance(targetPlayer.getLocation());
                 if (player.getWorld() != targetPlayer.getWorld()) continue;
@@ -96,7 +106,7 @@ public class CompassHandler {
         }
 
         if (closestPlayer != null && message) {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(langHandler.getMessage(player, "arena.compass-enemy", closestPlayer.getName())));
+            plugin.adventure().player(player).sendActionBar(Component.text(langHandler.getMessage(player, "arena.compass-enemy", closestPlayer.getName())));
         }
 
         return closestPlayer;

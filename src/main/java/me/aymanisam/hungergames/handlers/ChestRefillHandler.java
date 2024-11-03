@@ -16,6 +16,8 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 
@@ -30,7 +32,7 @@ public class ChestRefillHandler {
 
     public ChestRefillHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
         this.langHandler = langHandler;
     }
 
@@ -45,19 +47,9 @@ public class ChestRefillHandler {
         File chestLocationsFile = new File(worldFolder, "chest-locations.yml");
         FileConfiguration chestLocationsConfig = YamlConfiguration.loadConfiguration(chestLocationsFile);
 
-        List<Map<?, ?>> serializedChestLocations = chestLocationsConfig.getMapList("chest-locations");
-        List<Map<?, ?>> serializedBarrelLocations = chestLocationsConfig.getMapList("barrel-locations");
-        List<Map<?, ?>> serializedTrappedChestLocations = chestLocationsConfig.getMapList("trapped-chests-locations");
-
-        List<Location> chestLocations = serializedChestLocations.stream()
-                .map(locationMap -> Location.deserialize((Map<String, Object>) locationMap))
-                .collect(Collectors.toList());
-        List<Location> barrelLocations = serializedBarrelLocations.stream()
-                .map(locationMap -> Location.deserialize((Map<String, Object>) locationMap))
-                .collect(Collectors.toList());
-        List<Location> trappedChestLocations = serializedTrappedChestLocations.stream()
-                .map(locationMap -> Location.deserialize((Map<String, Object>) locationMap))
-                .collect(Collectors.toList());
+        List<Location> chestLocations = deserializeLocations(chestLocationsConfig, "chest-locations");
+        List<Location> barrelLocations = deserializeLocations(chestLocationsConfig, "barrel-locations");
+        List<Location> trappedChestLocations = deserializeLocations(chestLocationsConfig, "trapped-chests-locations");
 
         int minChestContent = configHandler.getWorldConfig(world).getInt("min-chest-content");
         int maxChestContent = configHandler.getWorldConfig(world).getInt("max-chest-content");
@@ -72,12 +64,20 @@ public class ChestRefillHandler {
         refillInventory(barrelLocations, "barrel-items", itemsConfig, minBarrelContent, maxBarrelContent);
         refillInventory(trappedChestLocations, "trapped-chest-items", itemsConfig, minTrappedChestContent, maxTrappedChestContent);
 
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
-            ;
+        for (Player player : world.getPlayers()) {
             player.sendMessage(langHandler.getMessage(player, "chestrefill.refilled"));
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private List<Location> deserializeLocations(FileConfiguration config, String key) {
+        List<Map<?, ?>> serializedLocations = config.getMapList(key);
+        return serializedLocations.stream()
+                .map(locationMap -> Location.deserialize((Map<String, Object>) locationMap))
+                .collect(Collectors.toList());
+    }
+
+    @SuppressWarnings("unchecked")
     public void refillInventory(List<Location> locations, String itemKey, YamlConfiguration itemsConfig, int minContent, int maxContent) {
         for (Location location : locations) {
             Block block = location.getBlock();
@@ -113,7 +113,7 @@ public class ChestRefillHandler {
                         if (type.equals("POTION") || type.equals("SPLASH_POTION") || type.equals("LINGERING_POTION") || type.equals("TIPPED_ARROW")) {
                             item = new ItemStack(Objects.requireNonNull(Material.getMaterial(type)), amount);
                             ItemMeta itemMeta = item.getItemMeta();
-                            if (itemMeta != null && meta!= null) {
+                            if (itemMeta != null && meta != null) {
                                 itemMeta.setDisplayName(meta);
                             }
                             PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
@@ -130,7 +130,7 @@ public class ChestRefillHandler {
                             item = new ItemStack(material, amount);
                             Object enchantsObj = itemMap.get("enchantments");
                             ItemMeta itemMeta = item.getItemMeta();
-                            if (itemMeta != null && meta!= null) {
+                            if (itemMeta != null && meta != null) {
                                 itemMeta.setDisplayName(meta);
                             }
                             if (enchantsObj instanceof List<?> enchantList) {
@@ -157,7 +157,7 @@ public class ChestRefillHandler {
                             FireworkMeta fireworkMeta = (FireworkMeta) item.getItemMeta();
                             assert fireworkMeta != null;
                             ItemMeta itemMeta = item.getItemMeta();
-                            if (itemMeta != null && meta!= null) {
+                            if (itemMeta != null && meta != null) {
                                 itemMeta.setDisplayName(meta);
                             }
                             fireworkMeta.setPower((Integer) itemMap.get("power"));
@@ -184,12 +184,53 @@ public class ChestRefillHandler {
                             item.setItemMeta(fireworkMeta);
                         } else {
                             Material material = Material.getMaterial(type);
+                            assert material != null;
                             item = new ItemStack(material, amount);
                             ItemMeta itemMeta = item.getItemMeta();
-                            if (itemMeta != null && meta!= null) {
+                            if (itemMeta != null && meta != null) {
                                 itemMeta.setDisplayName(meta);
                             }
                         }
+
+                        if (itemMap.containsKey("nbt")) {
+                            Map<String, Object> nbtData = (Map<String, Object>) itemMap.get("nbt");
+                            ItemMeta itemMeta = item.getItemMeta();
+                            PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
+
+                            for (Map.Entry<String, Object> entry : nbtData.entrySet()) {
+                                String key = entry.getKey();
+                                Object value = entry.getValue();
+
+                                NamespacedKey namespacedKey = new NamespacedKey(plugin, key);
+
+                                if (value instanceof String) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.STRING, (String) value);
+                                } else if (value instanceof Integer) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.INTEGER, (Integer) value);
+                                } else if (value instanceof Double) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.DOUBLE, (Double) value);
+                                } else if (value instanceof Byte) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.BYTE, (Byte) value);
+                                } else if (value instanceof Long) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.LONG, (Long) value);
+                                } else if (value instanceof Float) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.FLOAT, (Float) value);
+                                } else if (value instanceof Short) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.SHORT, (Short) value);
+                                } else if (value instanceof byte[]) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.BYTE_ARRAY, (byte[]) value);
+                                } else if (value instanceof int[]) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.INTEGER_ARRAY, (int[]) value);
+                                } else if (value instanceof long[]) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.LONG_ARRAY, (long[]) value);
+                                } else if (value instanceof List) {
+                                    dataContainer.set(namespacedKey, PersistentDataType.STRING, value.toString());
+                                }
+                            }
+
+                            item.setItemMeta(itemMeta);
+                        }
+
                         return Collections.nCopies(weight, item).stream();
                     })
                     .collect(Collectors.toList());

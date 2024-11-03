@@ -11,15 +11,13 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class ReloadConfigCommand implements CommandExecutor {
-    private final HungerGames plugin;
     private final LangHandler langHandler;
     private final ConfigHandler configHandler;
     private final ArenaHandler arenaHandler;
 
     public ReloadConfigCommand(HungerGames plugin, LangHandler langHandler) {
-        this.plugin = plugin;
         this.langHandler = langHandler;
-        this.configHandler = new ConfigHandler(plugin, langHandler);
+        this.configHandler = plugin.getConfigHandler();
         this.arenaHandler = new ArenaHandler(plugin, langHandler);
     }
 
@@ -30,17 +28,19 @@ public class ReloadConfigCommand implements CommandExecutor {
             return true;
         }
 
-        ;
-
         if (!player.hasPermission("hungergames.reloadconfig")) {
             player.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
-        configHandler.checkConfigKeys();
+        configHandler.validateConfigKeys(player.getWorld());
         configHandler.loadItemsConfig(player.getWorld());
+        configHandler.loadSignLocations();
+        configHandler.createWorldConfig(player.getWorld());
+        configHandler.createPluginSettings();
+        configHandler.validateSettingsKeys();
         langHandler.saveLanguageFiles();
-        langHandler.updateLanguageKeys();
+        langHandler.validateLanguageKeys();
         arenaHandler.getArenaConfig(player.getWorld());
 
         sender.sendMessage(langHandler.getMessage(player, "config-reloaded"));

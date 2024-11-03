@@ -11,6 +11,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 
 public class SpectatePlayerCommand implements CommandExecutor {
@@ -39,7 +42,9 @@ public class SpectatePlayerCommand implements CommandExecutor {
             return true;
         }
 
-        if (playersAlive.isEmpty()) {
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
+
+        if (worldPlayersAlive.isEmpty()) {
             player.sendMessage(langHandler.getMessage(player, "spectate.no-player"));
             return true;
         }

@@ -29,13 +29,12 @@ public class ArenaCreateCommand implements CommandExecutor {
             return true;
         }
 
-        ;
-
         if (!(player.hasPermission("hungergames.create"))) {
             sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
+        // ArenaSelectListener sets metadata of players when they select a block
         if (!(player.hasMetadata("arena_pos1") && player.hasMetadata("arena_pos2"))) {
             sender.sendMessage(langHandler.getMessage(player, "arena.no-values"));
             return true;

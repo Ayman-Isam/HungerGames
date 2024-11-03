@@ -54,7 +54,11 @@ game:
   already-joined: "&cYou have already joined the game!"
   auto-join: "&bYou have been automatically joined to the game!"
   join-fail: "&cNot enough spawnpoints to join!"
-  not-joined: "&cYou have not joined the game!"
+  not-lobby: "&cYou are still in the lobby!"
+  invalid-target: "&cTarget block is not a sign"
+  sign-set: "&bSigns have been set"
+  invalid-nearby: "&cThe {0} blocks to the right of the Target block aren't signs"
+  no-worlds: "&cCould not find enough worlds to create signs"
   join-instruction: "&dJoin the game with &b/hg join &dor click the sign!"
   left: "&b{0} &dhas left &2[{1}/{2}]"
   worldsaved: "&aWorld &b{0} &ahas been saved!"
@@ -127,6 +131,7 @@ startgame:
   3-s: "&c3 seconds left!"
   2-s: "&c2 seconds left!"
   1-s: "&c1 second left!"
+  cancelled: "&cGame starting cancelled due to not enough players"
 
 supplydrop:
   no-arena: "&cCreate an arena first to run this command!"
