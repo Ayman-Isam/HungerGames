@@ -29,7 +29,7 @@ dependencies {
     compileOnly "org.spigotmc:spigot-api:1.20-R0.1-SNAPSHOT"
     implementation 'commons-io:commons-io:2.11.0'
     implementation("org.bstats:bstats-bukkit:2.2.1")
-    implementation 'com.github.retrooper:packetevents-spigot:2.5.0'
+    implementation 'com.github.retrooper:packetevents-spigot:2.6.0'
     implementation("net.kyori:adventure-platform-bukkit:4.3.4")
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
 }
