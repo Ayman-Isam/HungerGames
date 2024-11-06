@@ -133,7 +133,7 @@ public class ConfigHandler {
 
         for (String key : keys) {
             if (!serverSettings.isSet(key)) {
-                serverSettings.set(key, serverSettings.get(key));
+                serverSettings.set(key, pluginSettings.get(key));
             }
         }
 
