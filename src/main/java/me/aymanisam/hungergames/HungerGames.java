@@ -12,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -24,6 +25,7 @@ public final class HungerGames extends JavaPlugin {
 
     private GameSequenceHandler gameSequenceHandler;
     private ConfigHandler configHandler;
+    private DatabaseHandler database;
     private BukkitAudiences adventure;
 
     @Override
@@ -34,6 +36,10 @@ public final class HungerGames extends JavaPlugin {
                 .reEncodeByDefault(false)
                 .checkForUpdates(true);
         PacketEvents.getAPI().load();
+    }
+
+    public DatabaseHandler getDatabase() {
+        return database;
     }
 
     public @NonNull BukkitAudiences adventure() {
@@ -48,6 +54,15 @@ public final class HungerGames extends JavaPlugin {
         // Bstats
         int bstatsPluginId = 21512;
         Metrics metrics = new Metrics(this, bstatsPluginId);
+
+        // Database
+        try {
+            this.database = new DatabaseHandler(this);
+            database.initializeDatabase();
+        } catch (SQLException e) {
+            System.out.println("Unable to connect to database and create tables.");
+            e.printStackTrace();
+        }
 
         // Adventure
         this.adventure = BukkitAudiences.create(this);
@@ -156,6 +171,8 @@ public final class HungerGames extends JavaPlugin {
         }
 
         PacketEvents.getAPI().terminate();
+
+        this.database.closeConnection();
 
         if (this.adventure != null) {
             this.adventure.close();
