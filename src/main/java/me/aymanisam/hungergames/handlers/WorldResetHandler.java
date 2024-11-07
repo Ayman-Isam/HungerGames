@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class WorldResetHandler {
     private final HungerGames plugin;
@@ -46,7 +47,7 @@ public class WorldResetHandler {
                     return !name.equals("session.lock") && !name.equals("uid.dat") && !name.equals("session.dat");
                 });
             } catch (IOException e) {
-                e.printStackTrace();
+                plugin.getLogger().log(Level.SEVERE, e.toString());
             }
         });
     }

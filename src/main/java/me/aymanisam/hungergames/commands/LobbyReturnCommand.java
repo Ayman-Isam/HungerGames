@@ -18,10 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import static me.aymanisam.hungergames.HungerGames.gameStarting;
-import static me.aymanisam.hungergames.HungerGames.isGameStartingOrStarted;
-import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playerBossBars;
-import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
+import static me.aymanisam.hungergames.HungerGames.*;
+import static me.aymanisam.hungergames.HungerGames.totalTimeSpent;
+import static me.aymanisam.hungergames.handlers.GameSequenceHandler.*;
 
 public class LobbyReturnCommand implements CommandExecutor {
     private final HungerGames plugin;
@@ -99,6 +98,10 @@ public class LobbyReturnCommand implements CommandExecutor {
         } else {
             plugin.getLogger().log(Level.SEVERE, "Could not find lobbyWorld [ " + lobbyWorldName + "]");
         }
+
+        int timeAlive = configHandler.getWorldConfig(world).getInt("game-time") - timeLeft.get(world);
+        Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
+        totalTimeSpent.put(player, timeAlive + timeSpent);
 
         resetPlayerHandler.resetPlayer(player);
         Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(world, k -> new HashMap<>());

@@ -14,13 +14,11 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Level;
 
-import static me.aymanisam.hungergames.HungerGames.gameStarted;
-import static me.aymanisam.hungergames.HungerGames.gameStarting;
+import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
 import static me.aymanisam.hungergames.handlers.ScoreBoardHandler.startingPlayers;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
@@ -40,6 +38,7 @@ public class GameSequenceHandler {
     private final TeamsHandler teamsHandler;
     private final SignHandler signHandler;
     private final SignClickListener signClickListener;
+    private final DatabaseHandler databaseHandler;
 
     public Map<World, Integer> gracePeriodTaskId = new HashMap<>();
     public Map<World, Integer> timerTaskId = new HashMap<>();
@@ -62,6 +61,7 @@ public class GameSequenceHandler {
         this.teamsHandler = teamsHandler;
         this.signHandler = new SignHandler(plugin);
         this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, new ArenaHandler(plugin, langHandler));
+        this.databaseHandler = new DatabaseHandler(plugin);
     }
 
     public void startGame(World world) {
@@ -75,6 +75,11 @@ public class GameSequenceHandler {
         worldPlayersWaiting.clear();
         startingPlayers.put(world, worldSpawnPointMap.values().size());
         worldSpawnPointMap.clear();
+
+        for (Player player: world.getPlayers()) {
+            Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
+            totalTimeSpent.put(player, timeSpent);
+        }
 
         signClickListener.setSignContent(signHandler.loadSignLocations());
 
@@ -335,6 +340,11 @@ public class GameSequenceHandler {
             assert lobbyWorld != null;
             player.teleport(lobbyWorld.getSpawnLocation());
             scoreBoardHandler.removeScoreboard(player);
+
+            if (totalTimeSpent.containsKey(player)) {
+                Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
+                totalTimeSpent.put(player, timeSpent + configHandler.getWorldConfig(world).getInt("game-time"));
+            }
         }
 
         worldBorderHandler.resetWorldBorder(world);

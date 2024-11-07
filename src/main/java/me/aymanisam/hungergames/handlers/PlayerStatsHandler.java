@@ -1,6 +1,6 @@
 package me.aymanisam.hungergames.handlers;
 
-import java.sql.Date;
+import java.util.Date;
 
 public class PlayerStatsHandler {
     private String uuid;

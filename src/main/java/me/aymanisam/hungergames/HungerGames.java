@@ -8,6 +8,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -22,6 +23,7 @@ public final class HungerGames extends JavaPlugin {
     public static Map<World, Boolean> gameStarted = new HashMap<>();
     public static Map<World, Boolean> gameStarting = new HashMap<>();
     public static List<String> worldNames = new ArrayList<>();
+    public static Map<Player, Long> totalTimeSpent = new HashMap<>();
 
     private GameSequenceHandler gameSequenceHandler;
     private ConfigHandler configHandler;
@@ -61,7 +63,7 @@ public final class HungerGames extends JavaPlugin {
             database.initializeDatabase();
         } catch (SQLException e) {
             System.out.println("Unable to connect to database and create tables.");
-            e.printStackTrace();
+            this.getLogger().log(Level.SEVERE, e.toString());
         }
 
         // Adventure

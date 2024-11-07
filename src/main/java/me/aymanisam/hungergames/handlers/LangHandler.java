@@ -109,7 +109,7 @@ public class LangHandler {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, e.toString());
         }
     }
 
@@ -136,7 +136,7 @@ public class LangHandler {
                 try {
                     langConfig.save(langFile);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    plugin.getLogger().log(Level.SEVERE, e.toString());
                 }
             }
         }

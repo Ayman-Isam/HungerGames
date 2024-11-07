@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 public class SignHandler {
     private final File file;
@@ -24,7 +25,7 @@ public class SignHandler {
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                plugin.getLogger().log(Level.SEVERE, e.toString());
             }
         }
         config = YamlConfiguration.loadConfiguration(file);
@@ -58,7 +59,7 @@ public class SignHandler {
         try {
             config.save(file);
         } catch (IOException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, e.toString());
         }
     }
 }

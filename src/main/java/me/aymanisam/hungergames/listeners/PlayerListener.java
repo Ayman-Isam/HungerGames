@@ -13,15 +13,12 @@ import org.bukkit.event.player.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.*;
-import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
-import static me.aymanisam.hungergames.handlers.GameSequenceHandler.removeBossBar;
+import static me.aymanisam.hungergames.handlers.GameSequenceHandler.*;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
 
@@ -34,6 +31,7 @@ public class PlayerListener implements Listener {
     private final SignHandler signHandler;
     private final SignClickListener signClickListener;
     private final ScoreBoardHandler scoreBoardHandler;
+    private final DatabaseHandler databaseHandler;
 
     private final Map<Player, Location> deathLocations = new HashMap<>();
     public static final Map<Player, Integer> playerKills = new HashMap<>();
@@ -47,10 +45,11 @@ public class PlayerListener implements Listener {
         this.signHandler = new SignHandler(plugin);
         this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
         this.scoreBoardHandler = scoreBoardHandler;
+        this.databaseHandler = new DatabaseHandler(plugin);
     }
 
     @EventHandler
-    public void onPlayerLeave(PlayerQuitEvent event) {
+    public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         event.setQuitMessage(null);
 
@@ -62,6 +61,25 @@ public class PlayerListener implements Listener {
         } else {
             setSpawnHandler.removePlayerFromSpawnPoint(player, player.getWorld());
             worldPlayersWaiting.remove(player);
+        }
+
+        try {
+            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+            playerStats.setLastLogout(new Date());
+
+            if (totalTimeSpent.containsKey(player)) {
+                int timeAlive = 0;
+                if (!player.getWorld().getName().equals(configHandler.createPluginSettings().getString("lobby-world"))) {
+                    timeAlive = configHandler.getWorldConfig(player.getWorld()).getInt("game-time") - timeLeft.get(player.getWorld());
+                }
+                Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
+                playerStats.setSecondsPlayed(timeAlive + timeSpent);
+                totalTimeSpent.remove(player);
+            }
+
+            this.plugin.getDatabase().updatePlayerStats(playerStats);
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, e.toString());
         }
 
         removeFromTeam(player);

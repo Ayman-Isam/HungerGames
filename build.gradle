@@ -27,7 +27,7 @@ repositories {
 
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.20-R0.1-SNAPSHOT'
-    implementation 'org.mariadb.jdbc:mariadb-java-client:3.4.1'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.5.0'
     implementation 'commons-io:commons-io:2.14.0'
     implementation 'org.bstats:bstats-bukkit:2.2.1'
     implementation 'com.github.retrooper:packetevents-spigot:2.6.0'
@@ -59,7 +59,6 @@ shadowJar {
     relocate 'com.github.retrooper.packetevents', "${group}.packetevents.api"
     relocate 'io.github.retrooper.packetevents', "${group}.packetevents.impl"
     archiveClassifier.set('')
-    minimize()
 }
 
 processResources {
