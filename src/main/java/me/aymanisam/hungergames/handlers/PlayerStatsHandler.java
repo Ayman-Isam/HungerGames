@@ -15,12 +15,13 @@ public class PlayerStatsHandler {
     private int supplyDropsOpened;
     private int environmentDeaths;
     private int borderDeaths;
+    private int playerDeaths;
     private int arrowsShot;
     private int arrowsLanded;
     private int fireworksShot;
+    private int fireworksLanded;
     private int attacksBlocked;
-    private int healthRegenerated;
-    private int potionsConsumed;
+    private int potionsUsed;
     private int foodConsumed;
     private int totemsPopped;
     private double credits;
@@ -28,6 +29,7 @@ public class PlayerStatsHandler {
     private double projectileDamageDealt;
     private double damageTaken;
     private double projectileDamageTaken;
+    private double healthRegenerated;
     private double soloPercentile;
     private double teamPercentile;
     private Date lastLogin;
@@ -35,7 +37,7 @@ public class PlayerStatsHandler {
     private Long secondsPlayed;
     private Long secondsPlayedMonth;
 
-    public PlayerStatsHandler(String uuid, String username, int deaths, int kills, int killAssists, int gamesCreated, int gamesPlayed, int gamesWon, int chestsOpened, int supplyDropsOpened, int environmentDeaths, int borderDeaths, int arrowsShot, int arrowsLanded, int fireworksShot, int attacksBlocked, int healthRegenerated, int potionsConsumed, int foodConsumed, int totemsPopped, double credits, double damageDealt, double projectileDamageDealt, double damageTaken, double projectileDamageTaken, double soloPercentile, double teamPercentile, Date lastLogin, Date lastLogout, Long secondsPlayed, Long secondsPlayedMonth) {
+    public PlayerStatsHandler(String uuid, String username, int deaths, int kills, int killAssists, int gamesCreated, int gamesPlayed, int gamesWon, int chestsOpened, int supplyDropsOpened, int environmentDeaths, int borderDeaths, int playerDeaths, int arrowsShot, int arrowsLanded, int fireworksShot, int fireworksLanded, int attacksBlocked, int potionsUsed, int foodConsumed, int totemsPopped, double credits, double damageDealt, double projectileDamageDealt, double damageTaken, double projectileDamageTaken, double healthRegenerated, double soloPercentile, double teamPercentile, Date lastLogin, Date lastLogout, Long secondsPlayed, Long secondsPlayedMonth) {
         this.uuid = uuid;
         this.username = username;
         this.deaths = deaths;
@@ -48,12 +50,13 @@ public class PlayerStatsHandler {
         this.supplyDropsOpened = supplyDropsOpened;
         this.environmentDeaths = environmentDeaths;
         this.borderDeaths = borderDeaths;
+        this.playerDeaths = playerDeaths;
         this.arrowsShot = arrowsShot;
         this.arrowsLanded = arrowsLanded;
         this.fireworksShot = fireworksShot;
+        this.fireworksLanded = fireworksLanded;
         this.attacksBlocked = attacksBlocked;
-        this.healthRegenerated = healthRegenerated;
-        this.potionsConsumed = potionsConsumed;
+        this.potionsUsed = potionsUsed;
         this.foodConsumed = foodConsumed;
         this.totemsPopped = totemsPopped;
         this.credits = credits;
@@ -61,6 +64,7 @@ public class PlayerStatsHandler {
         this.projectileDamageDealt = projectileDamageDealt;
         this.damageTaken = damageTaken;
         this.projectileDamageTaken = projectileDamageTaken;
+        this.healthRegenerated = healthRegenerated;
         this.soloPercentile = soloPercentile;
         this.teamPercentile = teamPercentile;
         this.lastLogin = lastLogin;
@@ -165,6 +169,14 @@ public class PlayerStatsHandler {
         this.borderDeaths = borderDeaths;
     }
 
+    public int getPlayerDeaths() {
+        return playerDeaths;
+    }
+
+    public void setPlayerDeaths(int playerDeaths) {
+        this.playerDeaths = playerDeaths;
+    }
+
     public int getArrowsShot() {
         return arrowsShot;
     }
@@ -189,6 +201,14 @@ public class PlayerStatsHandler {
         this.fireworksShot = fireworksShot;
     }
 
+    public int getFireworksLanded() {
+        return fireworksLanded;
+    }
+
+    public void setFireworksLanded(int fireworksLanded) {
+        this.fireworksLanded = fireworksLanded;
+    }
+
     public int getAttacksBlocked() {
         return attacksBlocked;
     }
@@ -197,20 +217,12 @@ public class PlayerStatsHandler {
         this.attacksBlocked = attacksBlocked;
     }
 
-    public int getHealthRegenerated() {
-        return healthRegenerated;
+    public int getPotionsUsed() {
+        return potionsUsed;
     }
 
-    public void setHealthRegenerated(int healthRegenerated) {
-        this.healthRegenerated = healthRegenerated;
-    }
-
-    public int getPotionsConsumed() {
-        return potionsConsumed;
-    }
-
-    public void setPotionsConsumed(int potionsConsumed) {
-        this.potionsConsumed = potionsConsumed;
+    public void setPotionsUsed(int potionsUsed) {
+        this.potionsUsed = potionsUsed;
     }
 
     public int getFoodConsumed() {
@@ -267,6 +279,14 @@ public class PlayerStatsHandler {
 
     public void setProjectileDamageTaken(double projectileDamageTaken) {
         this.projectileDamageTaken = projectileDamageTaken;
+    }
+
+    public double getHealthRegenerated() {
+        return healthRegenerated;
+    }
+
+    public void setHealthRegenerated(double healthRegenerated) {
+        this.healthRegenerated = healthRegenerated;
     }
 
     public double getSoloPercentile() {

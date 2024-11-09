@@ -47,6 +47,7 @@ public class GameSequenceHandler {
     public Map<World, BukkitTask> supplyDropTask = new HashMap<>();
     public static Map<World, List<Player>> playersAlive = new HashMap<>();
     public static Map<World, Map<Player, BossBar>> playerBossBars = new HashMap<>();
+    public static Map<World, List<Player>> playerPlacements = new HashMap<>();
 
     public GameSequenceHandler(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, CompassListener compassListener, TeamsHandler teamsHandler) {
         this.plugin = plugin;
@@ -76,11 +77,6 @@ public class GameSequenceHandler {
         startingPlayers.put(world, worldSpawnPointMap.values().size());
         worldSpawnPointMap.clear();
 
-        for (Player player: world.getPlayers()) {
-            Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
-            totalTimeSpent.put(player, timeSpent);
-        }
-
         signClickListener.setSignContent(signHandler.loadSignLocations());
 
         worldBorderHandler.startWorldBorder(world);
@@ -88,6 +84,19 @@ public class GameSequenceHandler {
         for (Player player : world.getPlayers()) {
             player.sendTitle("", langHandler.getMessage(player, "game.start"), 5, 20, 10);
             player.sendMessage(langHandler.getMessage(player, "game.grace-start"));
+
+            Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
+            totalTimeSpent.put(player, timeSpent);
+
+            try {
+                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+
+                playerStats.setGamesPlayed(playerStats.getGamesPlayed() + 1);
+
+                this.plugin.getDatabase().updatePlayerStats(playerStats);
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, e.toString());
+            }
         }
 
         int gracePeriod = configHandler.getWorldConfig(world).getInt("grace-period");
@@ -244,6 +253,16 @@ public class GameSequenceHandler {
             if (winner != null) {
                 player.sendTitle("", langHandler.getMessage(player, "game.solo-kills", winner.getName()), 5, 20, 10);
                 player.sendMessage(langHandler.getMessage(player, "game.solo-kills", winner.getName()));
+
+                try {
+                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(winner);
+
+                    playerStats.setGamesWon(playerStats.getGamesWon() + 1);
+
+                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, e.toString());
+                }
             } else {
                 player.sendTitle("", langHandler.getMessage(player, "game.team-no-winner"), 5, 20, 10);
                 player.sendMessage(langHandler.getMessage(player, "game.team-no-winner"));
@@ -264,6 +283,18 @@ public class GameSequenceHandler {
                 player.sendTitle("", langHandler.getMessage(player, messageKey, allNames), 5, 20, 10);
                 player.sendMessage(langHandler.getMessage(player, titleKey, allNames));
                 player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+            }
+
+            for (Player player: winningTeam) {
+                try {
+                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+
+                    playerStats.setGamesWon(playerStats.getGamesWon() + 1);
+
+                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, e.toString());
+                }
             }
         }
     }
