@@ -346,21 +346,10 @@ public class GameSequenceHandler {
             worldResetHandler.resetWorldState(world);
         }
 
-        if (!world.getEntitiesByClass(Item.class).isEmpty()) {
-            plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "kill @e[type=item]");
-        }
-
-        if (!world.getEntitiesByClass(ExperienceOrb.class).isEmpty()) {
-            plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "kill @e[type=experience_orb]");
-        }
-
-        if (!world.getEntitiesByClass(Arrow.class).isEmpty()) {
-            plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "kill @e[type=arrow]");
-        }
-
-        if (!world.getEntitiesByClass(Trident.class).isEmpty()) {
-            plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "kill @e[type=trident]");
-        }
+        world.getEntitiesByClass(Item.class).forEach(Item::remove);
+        world.getEntitiesByClass(ExperienceOrb.class).forEach(ExperienceOrb::remove);
+        world.getEntitiesByClass(Arrow.class).forEach(Arrow::remove);
+        world.getEntitiesByClass(Trident.class).forEach(Trident::remove);
 
         world.setPVP(false);
 

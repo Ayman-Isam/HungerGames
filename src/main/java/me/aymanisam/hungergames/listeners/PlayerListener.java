@@ -220,6 +220,10 @@ public class PlayerListener implements Listener {
             if (spectralArrow.getShooter() instanceof Player) {
                 damager = (Player) spectralArrow.getShooter();
             }
+        } else if (damager instanceof Firework firework) {
+            if (firework.getShooter() instanceof Player) {
+                damager = (Player) firework.getShooter();
+            }
         }
 
         List<List<Player>> worldTeams = teams.computeIfAbsent(damager.getWorld(), k -> new ArrayList<>());
