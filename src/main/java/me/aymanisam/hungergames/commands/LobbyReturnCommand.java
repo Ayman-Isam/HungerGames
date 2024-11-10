@@ -74,7 +74,6 @@ public class LobbyReturnCommand implements CommandExecutor {
         List<String> worldSpawnPoints = setSpawnHandler.spawnPoints.computeIfAbsent(world, k -> new ArrayList<>());
         List<Player> worldPlayersPlacement = playerPlacements.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
 
-
         for (Player p : world.getPlayers()) {
             langHandler.getLangConfig(p);
             p.sendMessage(langHandler.getMessage(player, "game.left", player.getName(), worldSpawnPointMap.size(), worldSpawnPoints.size()));
@@ -101,8 +100,6 @@ public class LobbyReturnCommand implements CommandExecutor {
             plugin.getLogger().log(Level.SEVERE, "Could not find lobbyWorld [ " + lobbyWorldName + "]");
         }
 
-        System.out.println();
-
         int timeAlive = configHandler.getWorldConfig(world).getInt("game-time") - timeLeft.getOrDefault(world, 0);
         Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
         totalTimeSpent.put(player, timeAlive + timeSpent);
@@ -122,7 +119,9 @@ public class LobbyReturnCommand implements CommandExecutor {
 
         if (isGameStartingOrStarted(world)) {
             worldPlayersAlive.remove(player);
-            worldPlayersPlacement.add(player);
+            if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
+                worldPlayersPlacement.add(player);
+            }
         } else {
             setSpawnHandler.removePlayerFromSpawnPoint(player, world);
             worldPlayersWaiting.remove(player);

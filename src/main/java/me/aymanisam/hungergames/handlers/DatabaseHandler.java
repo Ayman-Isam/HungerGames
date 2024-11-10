@@ -37,7 +37,7 @@ public class DatabaseHandler {
         assert url != null;
         this.connection = DriverManager.getConnection(url, user, password);
 
-        System.out.println("Connected to HungerGames Database");
+        plugin.getLogger().log(Level.CONFIG, "Connected to HungerGames Database");
 
         return this.connection;
     }
@@ -48,7 +48,7 @@ public class DatabaseHandler {
         statement.execute(sql);
         statement.close();
 
-        System.out.println("Created the stats table in the database.");
+        plugin.getLogger().log(Level.CONFIG, "Created the stats table in the database.");
     }
 
     public PlayerStatsHandler getPlayerStatsFromDatabase(Player player) throws SQLException {

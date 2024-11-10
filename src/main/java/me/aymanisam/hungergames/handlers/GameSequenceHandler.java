@@ -48,6 +48,7 @@ public class GameSequenceHandler {
     public static Map<World, List<Player>> playersAlive = new HashMap<>();
     public static Map<World, Map<Player, BossBar>> playerBossBars = new HashMap<>();
     public static Map<World, List<Player>> playerPlacements = new HashMap<>();
+    public static Map<World, List<List<Player>>> teamPlacements = new HashMap<>();
 
     public GameSequenceHandler(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, CompassListener compassListener, TeamsHandler teamsHandler) {
         this.plugin = plugin;
@@ -170,7 +171,7 @@ public class GameSequenceHandler {
                 }
             }
 
-            if (currentTimeLeft < 0) {
+            if (currentTimeLeft <= 0) {
                 handleTimeUp(world);
             }
         }, 0L, 20L);
@@ -216,8 +217,24 @@ public class GameSequenceHandler {
         }
 
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+        List<Player> worldPlayerPlacements = playerPlacements.computeIfAbsent(world, k -> new ArrayList<>());
 
         Player winner = worldPlayersAlive.isEmpty() ? null : worldPlayersAlive.get(0);
+
+        if (winner != null) {
+            worldPlayerPlacements.add(winner);
+
+            try {
+                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(winner);
+
+                playerStats.setGamesWon(playerStats.getGamesWon() + 1);
+
+                this.plugin.getDatabase().updatePlayerStats(playerStats);
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, e.toString());
+            }
+        }
+
         for (Player player : world.getPlayers()) {
             if (winner != null) {
                 player.sendMessage(langHandler.getMessage(player, "game.winner", winner.getName()));
@@ -253,16 +270,6 @@ public class GameSequenceHandler {
             if (winner != null) {
                 player.sendTitle("", langHandler.getMessage(player, "game.solo-kills", winner.getName()), 5, 20, 10);
                 player.sendMessage(langHandler.getMessage(player, "game.solo-kills", winner.getName()));
-
-                try {
-                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(winner);
-
-                    playerStats.setGamesWon(playerStats.getGamesWon() + 1);
-
-                    this.plugin.getDatabase().updatePlayerStats(playerStats);
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, e.toString());
-                }
             } else {
                 player.sendTitle("", langHandler.getMessage(player, "game.team-no-winner"), 5, 20, 10);
                 player.sendMessage(langHandler.getMessage(player, "game.team-no-winner"));
@@ -362,6 +369,30 @@ public class GameSequenceHandler {
     public void endGame(Boolean disable, World world) {
         gameStarted.put(world, false);
 
+        List<Player> worldPlayerPlacements = playerPlacements.get(world);
+
+        if (worldPlayerPlacements != null && worldPlayerPlacements.size() == startingPlayers.get(world)) {
+            for (Player player: worldPlayerPlacements) {
+                int playerIndex = worldPlayerPlacements.indexOf(player);
+                double percentile = (1 - (playerIndex / (worldPlayerPlacements.size() - 1.0))) * 100.0;
+                System.out.println(percentile);
+
+                try {
+                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+
+                    double netPercentile = (percentile * playerStats.getGamesPlayed()) / (playerStats.getGamesPlayed() + 1);
+
+                    playerStats.setSoloPercentile(netPercentile);
+
+                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, e.toString());
+                }
+            }
+        }
+
+        playerPlacements.clear();
+
         for (Player player : world.getPlayers()) {
             resetPlayerHandler.resetPlayer(player);
             removeBossBar(player);
@@ -372,9 +403,10 @@ public class GameSequenceHandler {
             player.teleport(lobbyWorld.getSpawnLocation());
             scoreBoardHandler.removeScoreboard(player);
 
-            if (totalTimeSpent.containsKey(player)) {
+            if (!disable && totalTimeSpent.containsKey(player)) {
                 Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
-                totalTimeSpent.put(player, timeSpent + configHandler.getWorldConfig(world).getInt("game-time"));
+                int timeAlive = configHandler.getWorldConfig(world).getInt("game-time") - timeLeft.getOrDefault(world, 0);
+                totalTimeSpent.put(player, timeSpent + timeAlive);
             }
         }
 

@@ -62,7 +62,7 @@ public final class HungerGames extends JavaPlugin {
             this.database = new DatabaseHandler(this);
             database.initializeDatabase();
         } catch (SQLException e) {
-            System.out.println("Unable to connect to database and create tables.");
+            this.getLogger().log(Level.SEVERE ,"Unable to connect to database and create tables.");
             this.getLogger().log(Level.SEVERE, e.toString());
         }
 

@@ -37,7 +37,7 @@ public class PlayerListener implements Listener {
     private final DatabaseHandler databaseHandler;
 
     private final Map<Player, Location> deathLocations = new HashMap<>();
-    private final Map<Player, List<Player>> playerDamagers = new HashMap<>();
+    private final Map<Player, Set<Player>> playerDamagers = new HashMap<>();
     public static final Map<Player, Integer> playerKills = new HashMap<>();
 
     public PlayerListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ScoreBoardHandler scoreBoardHandler) {
@@ -63,7 +63,9 @@ public class PlayerListener implements Listener {
 
         if (gameStarted.getOrDefault(player.getWorld(), false) || gameStarting.getOrDefault(player.getWorld(), false)) {
             worldPlayersAlive.remove(player);
-            worldPlayersPlacement.add(player);
+            if (configHandler.getWorldConfig(player.getWorld()).getInt("players-per-team") == 1) {
+                worldPlayersPlacement.add(player);
+            }
         } else {
             setSpawnHandler.removePlayerFromSpawnPoint(player, player.getWorld());
             worldPlayersWaiting.remove(player);
@@ -79,7 +81,8 @@ public class PlayerListener implements Listener {
                     timeAlive = configHandler.getWorldConfig(player.getWorld()).getInt("game-time") - timeLeft.get(player.getWorld());
                 }
                 Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
-                playerStats.setSecondsPlayed(timeAlive + timeSpent);
+                playerStats.setSecondsPlayed(playerStats.getSecondsPlayed() + timeAlive + timeSpent);
+                playerStats.setSecondsPlayedMonth(playerStats.getSecondsPlayedMonth() + timeAlive + timeSpent);
                 totalTimeSpent.remove(player);
             }
 
@@ -95,12 +98,14 @@ public class PlayerListener implements Listener {
 
     private void removeFromTeam(Player player) {
         List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
+        List<List<Player>> worldTeamPlacements = teamPlacements.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
 
         for (List<Player> team : worldTeamsAlive) {
             if (team.contains(player)) {
                 team.remove(player);
                 if (team.isEmpty()) {
                     worldTeamsAlive.remove(team);
+                    worldTeamPlacements.add(team);
                 }
                 break;
             }
@@ -156,9 +161,14 @@ public class PlayerListener implements Listener {
 
         List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(world, k -> new ArrayList<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+        List<Player> worldPlayersPlacement = playerPlacements.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
+
 
         if (gameStarted.getOrDefault(world, false) || gameStarting.getOrDefault(world, false)) {
             worldPlayersAlive.remove(player);
+            if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
+                worldPlayersPlacement.add(player);
+            }
             event.setDeathMessage(null);
 
             try {
@@ -206,14 +216,16 @@ public class PlayerListener implements Listener {
         Player killer = event.getEntity().getKiller();
 
         for (Player damager: playerDamagers.get(player)) {
-            try {
-                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(damager);
+            if (damager != killer) {
+                try {
+                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(damager);
 
-                playerStats.setKillAssists(playerStats.getKillAssists() + 1);
+                    playerStats.setKillAssists(playerStats.getKillAssists() + 1);
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
-            } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, e.toString());
+                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, e.toString());
+                }
             }
         }
 
@@ -231,7 +243,7 @@ public class PlayerListener implements Listener {
             }
 
             try {
-                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(killer);
 
                 playerStats.setKills(playerStats.getKills() + 1);
 
@@ -286,6 +298,20 @@ public class PlayerListener implements Listener {
         Entity damager = event.getDamager();
         Entity damaged = event.getEntity();
 
+        if (damager instanceof Arrow arrow) {
+            if (arrow.getShooter() instanceof Player) {
+                damager = (Player) arrow.getShooter();
+            }
+        } else if (damager instanceof Trident trident) {
+            if (trident.getShooter() instanceof Player) {
+                damager = (Player) trident.getShooter();
+            }
+        } else if (damager instanceof SpectralArrow spectralArrow) {
+            if (spectralArrow.getShooter() instanceof Player) {
+                damager = (Player) spectralArrow.getShooter();
+            }
+        }
+
         if (damager instanceof Player && damaged instanceof LivingEntity) {
             try {
                 PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase((Player) damager);
@@ -333,20 +359,6 @@ public class PlayerListener implements Listener {
             }
         }
 
-        if (damager instanceof Arrow arrow) {
-            if (arrow.getShooter() instanceof Player) {
-                damager = (Player) arrow.getShooter();
-            }
-        } else if (damager instanceof Trident trident) {
-            if (trident.getShooter() instanceof Player) {
-                damager = (Player) trident.getShooter();
-            }
-        } else if (damager instanceof SpectralArrow spectralArrow) {
-            if (spectralArrow.getShooter() instanceof Player) {
-                damager = (Player) spectralArrow.getShooter();
-            }
-        }
-
         List<List<Player>> worldTeams = teams.computeIfAbsent(damager.getWorld(), k -> new ArrayList<>());
 
         if (damager instanceof Player damagerPlayer && damaged instanceof Player damagedPlayer) {
@@ -355,10 +367,9 @@ public class PlayerListener implements Listener {
                     if (team.contains(damagerPlayer) && team.contains(damagedPlayer)) {
                         event.setCancelled(true);
                         break;
-                    } else {
-                        playerDamagers.computeIfAbsent(damagedPlayer, k -> new ArrayList<>()).add(damagerPlayer);
                     }
                 }
+                playerDamagers.computeIfAbsent(damagedPlayer, k -> new HashSet<>()).add(damagerPlayer);
             }
         }
     }
@@ -442,7 +453,7 @@ public class PlayerListener implements Listener {
             if (projectile instanceof Arrow || projectile instanceof SpectralArrow) {
                 playerStats.setArrowsLanded(playerStats.getArrowsLanded() + 1);
             } else {
-                playerStats.setFireworksLanded(playerStats.getArrowsLanded() + 1);
+                playerStats.setFireworksLanded(playerStats.getFireworksLanded() + 1);
             }
 
             this.plugin.getDatabase().updatePlayerStats(playerStats);
@@ -492,7 +503,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPotionSplash(PotionSplashEvent event) {
-        if (!(event.getEntity() instanceof Player player)) {
+        if (!(event.getPotion().getShooter() instanceof Player player)) {
             return;
         }
 
@@ -509,7 +520,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onLingeringPotionSplash(LingeringPotionSplashEvent event) {
-        if (!(event.getEntity() instanceof Player player)) {
+        if (!(event.getEntity().getShooter() instanceof Player player)) {
             return;
         }
 
@@ -527,6 +538,10 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onTotemPopped(EntityResurrectEvent event) {
         if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+
+        if (event.isCancelled()) {
             return;
         }
 
