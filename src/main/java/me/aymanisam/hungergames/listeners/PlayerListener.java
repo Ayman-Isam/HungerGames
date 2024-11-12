@@ -310,6 +310,10 @@ public class PlayerListener implements Listener {
             if (spectralArrow.getShooter() instanceof Player) {
                 damager = (Player) spectralArrow.getShooter();
             }
+        } else if (damager instanceof Firework firework) {
+            if (firework.getShooter() instanceof Player) {
+                damager = (Player) firework.getShooter();
+            }
         }
 
         if (damager instanceof Player && damaged instanceof LivingEntity) {
