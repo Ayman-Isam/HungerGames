@@ -13,6 +13,7 @@ import org.bukkit.entity.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.Team;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -21,6 +22,7 @@ import java.util.logging.Level;
 import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
 import static me.aymanisam.hungergames.handlers.ScoreBoardHandler.startingPlayers;
+import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
 import static me.aymanisam.hungergames.listeners.PlayerListener.playerKills;
 import static me.aymanisam.hungergames.listeners.TeamVotingListener.playerVotes;
@@ -92,7 +94,11 @@ public class GameSequenceHandler {
             try {
                 PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-                playerStats.setGamesPlayed(playerStats.getGamesPlayed() + 1);
+                if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
+                    playerStats.setSoloGamesPlayed(playerStats.getSoloGamesPlayed() + 1);
+                } else {
+                    playerStats.setTeamGamesPlayed(playerStats.getTeamGamesPlayed() + 1);
+                }
 
                 this.plugin.getDatabase().updatePlayerStats(playerStats);
             } catch (SQLException e) {
@@ -200,9 +206,11 @@ public class GameSequenceHandler {
         }
 
         List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world, k -> new ArrayList<>());
+        List<List<Player>> worldTeamPlacements = teamPlacements.computeIfAbsent(world, k -> new ArrayList<>());
 
         if (worldTeamsAlive.size() == 1) {
             List<Player> winningTeam = worldTeamsAlive.get(0);
+            worldTeamPlacements.add(winningTeam);
             winningTeam(winningTeam, "winner", world);
         } else {
             determineWinningTeam(world);
@@ -227,7 +235,7 @@ public class GameSequenceHandler {
             try {
                 PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(winner);
 
-                playerStats.setGamesWon(playerStats.getGamesWon() + 1);
+                playerStats.setSoloGamesWon(playerStats.getSoloGamesWon() + 1);
 
                 this.plugin.getDatabase().updatePlayerStats(playerStats);
             } catch (SQLException e) {
@@ -296,7 +304,7 @@ public class GameSequenceHandler {
                 try {
                     PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-                    playerStats.setGamesWon(playerStats.getGamesWon() + 1);
+                    playerStats.setTeamGamesWon(playerStats.getTeamGamesWon() + 1);
 
                     this.plugin.getDatabase().updatePlayerStats(playerStats);
                 } catch (SQLException e) {
@@ -370,28 +378,58 @@ public class GameSequenceHandler {
         gameStarted.put(world, false);
 
         List<Player> worldPlayerPlacements = playerPlacements.get(world);
+        List<List<Player>> worldTeamPlacements = teamPlacements.get(world);
 
-        if (worldPlayerPlacements != null && worldPlayerPlacements.size() == startingPlayers.get(world)) {
-            for (Player player: worldPlayerPlacements) {
-                int playerIndex = worldPlayerPlacements.indexOf(player);
-                double percentile = (1 - (playerIndex / (worldPlayerPlacements.size() - 1.0))) * 100.0;
-                System.out.println(percentile);
+        if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
+            if (worldPlayerPlacements != null && worldPlayerPlacements.size() == startingPlayers.get(world)) {
+                for (Player player : worldPlayerPlacements) {
+                    int playerIndex = worldPlayerPlacements.indexOf(player);
+                    double percentile = (1 - (playerIndex / (worldPlayerPlacements.size() - 1.0))) * 100.0;
+                    System.out.println(percentile);
 
-                try {
-                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+                    try {
+                        PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-                    double netPercentile = (percentile * playerStats.getGamesPlayed()) / (playerStats.getGamesPlayed() + 1);
+                        double netPercentile = (playerStats.getSoloPercentile() * playerStats.getSoloGamesPlayed() + percentile) / (playerStats.getSoloGamesPlayed() + 1);
+                        playerStats.setSoloPercentile(netPercentile);
 
-                    playerStats.setSoloPercentile(netPercentile);
+                        this.plugin.getDatabase().updatePlayerStats(playerStats);
+                    } catch (SQLException e) {
+                        plugin.getLogger().log(Level.SEVERE, e.toString());
+                    }
+                }
+            }
+        } else {
+            System.out.println("TeamPlacements: " + teamPlacements);
+            System.out.println("Teams: " + teams);
+            if (worldTeamPlacements != null && worldTeamPlacements.size()  == teams.get(world).size()) {
+                System.out.println("YIPPEEEEEEEEEEE");
+                for (List<Player> team : worldTeamPlacements) {
+                    int teamIndex = worldTeamPlacements.indexOf(team);
+                    double percentile = (1 - (teamIndex / (worldTeamPlacements.size() - 1.0))) * 100.0;
+                    System.out.println(percentile);
 
-                    this.plugin.getDatabase().updatePlayerStats(playerStats);
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, e.toString());
+                    for (Player player : team) {
+                        try {
+                            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+
+                            double netPercentile = (playerStats.getTeamPercentile() * playerStats.getTeamGamesPlayed() + percentile) / (playerStats.getTeamGamesPlayed() + 1);
+
+                            playerStats.setTeamPercentile(netPercentile);
+                            System.out.println("Setting team percentile for player " + player.getName() + " to " + netPercentile);
+
+                            this.plugin.getDatabase().updatePlayerStats(playerStats);
+                            System.out.println("Updated player stats for player " + player.getName());
+                        } catch (SQLException e) {
+                            plugin.getLogger().log(Level.SEVERE, e.toString());
+                        }
+                    }
                 }
             }
         }
 
         playerPlacements.clear();
+        teamPlacements.clear();
 
         for (Player player : world.getPlayers()) {
             resetPlayerHandler.resetPlayer(player);

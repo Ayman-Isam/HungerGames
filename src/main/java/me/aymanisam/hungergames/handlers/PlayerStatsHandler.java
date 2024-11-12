@@ -8,9 +8,12 @@ public class PlayerStatsHandler {
     private int deaths;
     private int kills;
     private int killAssists;
-    private int gamesCreated;
-    private int gamesPlayed;
-    private int gamesWon;
+    private int soloGamesCreated;
+    private int soloGamesPlayed;
+    private int soloGamesWon;
+    private int teamGamesCreated;
+    private int teamGamesPlayed;
+    private int teamGamesWon;
     private int chestsOpened;
     private int supplyDropsOpened;
     private int environmentDeaths;
@@ -37,15 +40,18 @@ public class PlayerStatsHandler {
     private Long secondsPlayed;
     private Long secondsPlayedMonth;
 
-    public PlayerStatsHandler(String uuid, String username, int deaths, int kills, int killAssists, int gamesCreated, int gamesPlayed, int gamesWon, int chestsOpened, int supplyDropsOpened, int environmentDeaths, int borderDeaths, int playerDeaths, int arrowsShot, int arrowsLanded, int fireworksShot, int fireworksLanded, int attacksBlocked, int potionsUsed, int foodConsumed, int totemsPopped, double credits, double damageDealt, double projectileDamageDealt, double damageTaken, double projectileDamageTaken, double healthRegenerated, double soloPercentile, double teamPercentile, Date lastLogin, Date lastLogout, Long secondsPlayed, Long secondsPlayedMonth) {
+    public PlayerStatsHandler(String uuid, String username, int deaths, int kills, int killAssists, int soloGamesCreated, int soloGamesPlayed, int soloGamesWon, int teamGamesCreated, int teamGamesPlayed, int teamGamesWon, int chestsOpened, int supplyDropsOpened, int environmentDeaths, int borderDeaths, int playerDeaths, int arrowsShot, int arrowsLanded, int fireworksShot, int fireworksLanded, int attacksBlocked, int potionsUsed, int foodConsumed, int totemsPopped, double credits, double damageDealt, double projectileDamageDealt, double damageTaken, double projectileDamageTaken, double healthRegenerated, double soloPercentile, double teamPercentile, Date lastLogin, Date lastLogout, Long secondsPlayed, Long secondsPlayedMonth) {
         this.uuid = uuid;
         this.username = username;
         this.deaths = deaths;
         this.kills = kills;
         this.killAssists = killAssists;
-        this.gamesCreated = gamesCreated;
-        this.gamesPlayed = gamesPlayed;
-        this.gamesWon = gamesWon;
+        this.soloGamesCreated = soloGamesCreated;
+        this.soloGamesPlayed = soloGamesPlayed;
+        this.soloGamesWon = soloGamesWon;
+        this.teamGamesCreated = teamGamesCreated;
+        this.teamGamesPlayed = teamGamesPlayed;
+        this.teamGamesWon = teamGamesWon;
         this.chestsOpened = chestsOpened;
         this.supplyDropsOpened = supplyDropsOpened;
         this.environmentDeaths = environmentDeaths;
@@ -113,28 +119,52 @@ public class PlayerStatsHandler {
         this.killAssists = killAssists;
     }
 
-    public int getGamesCreated() {
-        return gamesCreated;
+    public int getSoloGamesCreated() {
+        return soloGamesCreated;
     }
 
-    public void setGamesCreated(int gamesCreated) {
-        this.gamesCreated = gamesCreated;
+    public void setSoloGamesCreated(int soloGamesCreated) {
+        this.soloGamesCreated = soloGamesCreated;
     }
 
-    public int getGamesPlayed() {
-        return gamesPlayed;
+    public int getSoloGamesPlayed() {
+        return soloGamesPlayed;
     }
 
-    public void setGamesPlayed(int gamesPlayed) {
-        this.gamesPlayed = gamesPlayed;
+    public void setSoloGamesPlayed(int soloGamesPlayed) {
+        this.soloGamesPlayed = soloGamesPlayed;
     }
 
-    public int getGamesWon() {
-        return gamesWon;
+    public int getSoloGamesWon() {
+        return soloGamesWon;
     }
 
-    public void setGamesWon(int gamesWon) {
-        this.gamesWon = gamesWon;
+    public void setSoloGamesWon(int soloGamesWon) {
+        this.soloGamesWon = soloGamesWon;
+    }
+
+    public int getTeamGamesCreated() {
+        return teamGamesCreated;
+    }
+
+    public void setTeamGamesCreated(int teamGamesCreated) {
+        this.teamGamesCreated = teamGamesCreated;
+    }
+
+    public int getTeamGamesPlayed() {
+        return teamGamesPlayed;
+    }
+
+    public void setTeamGamesPlayed(int teamGamesPlayed) {
+        this.teamGamesPlayed = teamGamesPlayed;
+    }
+
+    public int getTeamGamesWon() {
+        return teamGamesWon;
+    }
+
+    public void setTeamGamesWon(int teamGamesWon) {
+        this.teamGamesWon = teamGamesWon;
     }
 
     public int getChestsOpened() {

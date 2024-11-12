@@ -13,7 +13,6 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.checkerframework.checker.units.qual.C;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -97,15 +96,20 @@ public class PlayerListener implements Listener {
     }
 
     private void removeFromTeam(Player player) {
+        List<List<Player>> worldTeams = teams.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
         List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
         List<List<Player>> worldTeamPlacements = teamPlacements.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
 
-        for (List<Player> team : worldTeamsAlive) {
-            if (team.contains(player)) {
-                team.remove(player);
-                if (team.isEmpty()) {
-                    worldTeamsAlive.remove(team);
-                    worldTeamPlacements.add(team);
+        for (List<Player> aliveTeam : worldTeamsAlive) {
+            if (aliveTeam.contains(player)) {
+                aliveTeam.remove(player);
+                if (aliveTeam.isEmpty()) {
+                    worldTeamsAlive.remove(aliveTeam);
+                    for (List<Player> team: worldTeams) {
+                        if (team.contains(player)) {
+                            worldTeamPlacements.add(team);
+                        }
+                    }
                 }
                 break;
             }
@@ -332,48 +336,50 @@ public class PlayerListener implements Listener {
             }
         }
 
-        if (damaged instanceof Player player) {
+        if (!(damaged instanceof Player player)) {
+            return;
+        }
+
+        try {
+            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+
+            playerStats.setDamageTaken(playerStats.getDamageTaken() + event.getDamage());
+
+            if (event.getCause() == PROJECTILE) {
+                playerStats.setProjectileDamageTaken(playerStats.getProjectileDamageTaken() + event.getDamage());
+            }
+
+            this.plugin.getDatabase().updatePlayerStats(playerStats);
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, e.toString());
+        }
+
+        ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
+        ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
+
+        if ((itemInMainHand.getType() == Material.SHIELD || itemInOffHand.getType() == Material.SHIELD) && player.isBlocking()) {
             try {
                 PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-                playerStats.setDamageTaken(playerStats.getDamageTaken() + event.getDamage());
-
-                if (event.getCause() == PROJECTILE) {
-                    playerStats.setProjectileDamageTaken(playerStats.getProjectileDamageTaken() + event.getDamage());
-                }
+                playerStats.setAttacksBlocked(playerStats.getAttacksBlocked() + 1);
 
                 this.plugin.getDatabase().updatePlayerStats(playerStats);
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, e.toString());
             }
-
-            ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
-            ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
-
-            if ((itemInMainHand.getType() == Material.SHIELD || itemInOffHand.getType() == Material.SHIELD) && player.isBlocking()) {
-                try {
-                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
-
-                    playerStats.setAttacksBlocked(playerStats.getAttacksBlocked() + 1);
-
-                    this.plugin.getDatabase().updatePlayerStats(playerStats);
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, e.toString());
-                }
-            }
         }
 
-        List<List<Player>> worldTeams = teams.computeIfAbsent(damager.getWorld(), k -> new ArrayList<>());
+        if (damager instanceof Player damagerPlayer) {
+            List<List<Player>> worldTeams = teams.computeIfAbsent(damager.getWorld(), k -> new ArrayList<>());
 
-        if (damager instanceof Player damagerPlayer && damaged instanceof Player damagedPlayer) {
             if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
                 for (List<Player> team : worldTeams) {
-                    if (team.contains(damagerPlayer) && team.contains(damagedPlayer)) {
+                    if (team.contains(damagerPlayer) && team.contains(player)) {
                         event.setCancelled(true);
                         break;
                     }
                 }
-                playerDamagers.computeIfAbsent(damagedPlayer, k -> new HashSet<>()).add(damagerPlayer);
+                playerDamagers.computeIfAbsent(player, k -> new HashSet<>()).add(damagerPlayer);
             }
         }
     }
