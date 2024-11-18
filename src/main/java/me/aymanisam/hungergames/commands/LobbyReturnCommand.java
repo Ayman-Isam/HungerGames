@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.HungerGames.totalTimeSpent;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.*;
+import static me.aymanisam.hungergames.listeners.TeamVotingListener.playerVotes;
 
 public class LobbyReturnCommand implements CommandExecutor {
     private final HungerGames plugin;
@@ -114,6 +115,9 @@ public class LobbyReturnCommand implements CommandExecutor {
             worldPlayerBossBar.remove(player);
             bossBar.setVisible(false);
         }
+
+        Map<Player, String> worldPlayerVotes = playerVotes.computeIfAbsent(world, k -> new HashMap<>());
+        worldPlayerVotes.remove(player);
 
         scoreBoardHandler.removeScoreboard(player);
 

@@ -14,10 +14,12 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Team;
+import org.checkerframework.checker.units.qual.A;
 
-import java.sql.SQLException;
-import java.util.*;
-import java.util.logging.Level;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
@@ -489,10 +491,10 @@ public class GameSequenceHandler {
         teamsHandler.removeGlowFromAllPlayers(world);
 
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+        Map<Player, String> worldPlayerVotes = playerVotes.computeIfAbsent(world, k -> new HashMap<>());
 
         worldPlayersAlive.clear();
-
-        playerVotes.clear();
+        worldPlayerVotes.clear();
 
         signClickListener.setSignContent(signHandler.loadSignLocations());
 
