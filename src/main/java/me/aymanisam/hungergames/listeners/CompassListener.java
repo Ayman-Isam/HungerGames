@@ -69,7 +69,7 @@ public class CompassListener implements Listener {
                 Player nearestPlayer = compassHandler.findNearestTeammate(player, true, player.getWorld());
                 trackPlayer(player, nearestPlayer, true);
             }
-        } else if (itemInHand.getType() == Material.COMPASS && Objects.requireNonNull(itemInHand.getItemMeta()).getDisplayName().equals(langHandler.getMessage(player, "team.compass-enemy"))) {
+        } else if (itemInHand.getType() == Material.COMPASS) {
             if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 Player nearestPlayer = compassHandler.findNearestEnemy(player, true, player.getWorld());
                 if (nearestPlayer != null) {
