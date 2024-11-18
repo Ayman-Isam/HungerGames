@@ -157,7 +157,7 @@ public class GameSequenceHandler {
                 }
             }
 
-            if (currentTimeLeft < 0) {
+            if (currentTimeLeft <= 0) {
                 handleTimeUp(world);
             }
         }, 0L, 20L);
