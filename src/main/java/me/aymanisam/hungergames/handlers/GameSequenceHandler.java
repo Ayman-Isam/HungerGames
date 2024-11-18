@@ -13,6 +13,7 @@ import org.bukkit.entity.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -378,10 +379,10 @@ public class GameSequenceHandler {
         teamsHandler.removeGlowFromAllPlayers(world);
 
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+        Map<Player, String> worldPlayerVotes = playerVotes.computeIfAbsent(world, k -> new HashMap<>());
 
         worldPlayersAlive.clear();
-
-        playerVotes.clear();
+        worldPlayerVotes.clear();
 
         signClickListener.setSignContent(signHandler.loadSignLocations());
 
