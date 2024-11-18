@@ -92,9 +92,7 @@ public class CompassListener implements Listener {
                     worldGlowTasks.get(player).cancel();
                 }
 
-                BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                    teamsHandler.playerGlow(nearestPlayer, player, false);
-                }, 200L);
+                BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> teamsHandler.playerGlow(nearestPlayer, player, false), 200L);
                 worldGlowTasks.put(player, task);
             }
         }

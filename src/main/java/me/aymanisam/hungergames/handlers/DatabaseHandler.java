@@ -5,6 +5,9 @@ import org.bukkit.entity.Player;
 
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.TextStyle;
+import java.util.Locale;
 import java.util.logging.Level;
 
 public class DatabaseHandler {
@@ -42,10 +45,14 @@ public class DatabaseHandler {
         return this.connection;
     }
 
-    public void initializeDatabase() throws SQLException{
+    public void initializeDatabase() throws SQLException {
         Statement statement = getConnection().createStatement();
-        String sql = "CREATE TABLE IF NOT EXISTS player_stats(uuid char(36) primary key, username varchar(16), deaths int, kills int, killAssists int, soloGamesCreated int, soloGamesPlayed int, soloGamesWon int, teamGamesCreated int, teamGamesPlayed int, teamGamesWon int, chestsOpened int, supplyDropsOpened int, environmentDeaths int, borderDeaths int, playerDeaths int, arrowsShot int, arrowsLanded int, fireworksShot int, fireworksLanded int, attacksBlocked int, potionsUsed int, foodConsumed int, totemsPopped int, credits double, damageDealt double, projectileDamageDealt double, damageTaken double, projectileDamageTaken double, healthRegenerated double, soloPercentile double, teamPercentile double, lastLogin DATE, lastLogout DATE, secondsPlayed LONG, secondsPlayedMonth LONG)";
+        String sql = "CREATE TABLE IF NOT EXISTS player_stats(uuid char(36) primary key, username varchar(16), deaths int, kills int, killAssists int, soloGamesCreated int, soloGamesPlayed int, soloGamesWon int, teamGamesCreated int, teamGamesPlayed int, teamGamesWon int, chestsOpened int, supplyDropsOpened int, environmentDeaths int, borderDeaths int, playerDeaths int, arrowsShot int, arrowsLanded int, fireworksShot int, fireworksLanded int, attacksBlocked int, potionsUsed int, foodConsumed int, totemsPopped int, credits double, damageDealt double, projectileDamageDealt double, damageTaken double, projectileDamageTaken double, healthRegenerated double, soloPercentile double, teamPercentile double, lastLogin DATE, lastLogout DATE, secondsPlayed LONG)";
         statement.execute(sql);
+
+        sql = "CREATE TABLE IF NOT EXISTS player_monthly_playtime(uuid char(36) primary key, username varchar(16))";
+        statement.execute(sql);
+
         statement.close();
 
         plugin.getLogger().log(Level.CONFIG, "Created the stats table in the database.");
@@ -66,6 +73,21 @@ public class DatabaseHandler {
         PreparedStatement statement = getConnection().prepareStatement("SELECT * FROM player_stats WHERE uuid = ?");
         statement.setString(1, uuid);
         ResultSet results = statement.executeQuery();
+
+        String monthYear = LocalDate.now().getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH).toLowerCase() + "_" + LocalDate.now().getYear();
+        ResultSet monthResults;
+
+
+        try {
+            PreparedStatement monthStatement = getConnection().prepareStatement("SELECT " + monthYear + " FROM player_monthly_playtime WHERE uuid = ?");
+            monthStatement.setString(1, uuid);
+            monthResults = monthStatement.executeQuery();
+        } catch (SQLSyntaxErrorException e) {
+            addMonthColumn(monthYear);
+            PreparedStatement monthStatement = getConnection().prepareStatement("SELECT " + monthYear + " FROM player_monthly_playtime WHERE uuid = ?");
+            monthStatement.setString(1, uuid);
+            monthResults = monthStatement.executeQuery();
+        }
 
         if (results.next()) {
             String username = results.getString("username");
@@ -101,8 +123,11 @@ public class DatabaseHandler {
             double teamPercentile = results.getDouble("teamPercentile");
             Date lastLogin = results.getDate("lastLogin");
             Date lastLogout = results.getDate("lastLogout");
-            Long secondsPlayed = results.getLong("secondsPlayed");
-            Long secondsPlayedMonth = results.getLong("secondsPlayedMonth");
+            long secondsPlayed = results.getLong("secondsPlayed");
+            long secondsPlayedMonth = 0L;
+            if (monthResults.next()) {
+                secondsPlayedMonth = monthResults.getLong(monthYear);
+            }
 
             PlayerStatsHandler playerStats = new PlayerStatsHandler(uuid, username, deaths, kills, killAssists, soloGamesCreated, soloGamesPlayed, soloGamesWon, teamGamesCreated, teamGamesPlayed, teamGamesWon, chestsOpened, supplyDropsOpened, environmentDeaths, borderDeaths, playerDeaths, arrowsShot, arrowsLanded, fireworksShot, fireworksLanded, attacksBlocked, potionsUsed, foodConsumed, totemsPopped, credits, damageDealt, projectileDamageDealt, damageTaken, projectileDamageTaken, healthRegenerated, soloPercentile, teamPercentile, lastLogin, lastLogout, secondsPlayed, secondsPlayedMonth);
 
@@ -116,7 +141,7 @@ public class DatabaseHandler {
     }
 
     public void createPlayerStats(PlayerStatsHandler stats) throws SQLException {
-        PreparedStatement statement = getConnection().prepareStatement("INSERT INTO player_stats(uuid, username, deaths, kills, killAssists, soloGamesCreated, soloGamesPlayed, soloGamesWon, teamGamesCreated, teamGamesPlayed, teamGamesWon, chestsOpened, supplyDropsOpened, environmentDeaths, borderDeaths, playerDeaths, arrowsShot, arrowsLanded, fireworksShot, fireworksLanded, attacksBlocked, potionsUsed, foodConsumed, totemsPopped, credits, damageDealt, projectileDamageDealt, damageTaken, projectileDamageTaken, healthRegenerated, soloPercentile, teamPercentile, lastLogin, lastLogout, secondsPlayed, secondsPlayedMonth) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        PreparedStatement statement = getConnection().prepareStatement("INSERT INTO player_stats(uuid, username, deaths, kills, killAssists, soloGamesCreated, soloGamesPlayed, soloGamesWon, teamGamesCreated, teamGamesPlayed, teamGamesWon, chestsOpened, supplyDropsOpened, environmentDeaths, borderDeaths, playerDeaths, arrowsShot, arrowsLanded, fireworksShot, fireworksLanded, attacksBlocked, potionsUsed, foodConsumed, totemsPopped, credits, damageDealt, projectileDamageDealt, damageTaken, projectileDamageTaken, healthRegenerated, soloPercentile, teamPercentile, lastLogin, lastLogout, secondsPlayed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         statement.setString(1, stats.getUuid());
         statement.setString(2, stats.getUsername());
         statement.setInt(3, stats.getDeaths());
@@ -152,14 +177,22 @@ public class DatabaseHandler {
         statement.setDate(33, new Date(stats.getLastLogin().getTime()));
         statement.setDate(34, new Date(stats.getLastLogout().getTime()));
         statement.setLong(35, stats.getSecondsPlayed());
-        statement.setLong(36, stats.getSecondsPlayed());
 
         statement.executeUpdate();
         statement.close();
+
+        String monthYear = LocalDate.now().getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH).toLowerCase() + "_" + LocalDate.now().getYear();
+        PreparedStatement monthStatement = getConnection().prepareStatement("INSERT INTO player_monthly_playtime (uuid, username, " + monthYear + ") VALUES (?, ?, ?)");
+        monthStatement.setString(1, stats.getUuid());
+        monthStatement.setString(2, stats.getUsername());
+        monthStatement.setLong(3, stats.getSecondsPlayedMonth());
+
+        monthStatement.executeUpdate();
+        monthStatement.close();
     }
 
     public void updatePlayerStats(PlayerStatsHandler stats) throws SQLException {
-        PreparedStatement statement = getConnection().prepareStatement("UPDATE player_stats SET username = ?, deaths = ?, kills = ?, killAssists = ?, soloGamesCreated = ?, soloGamesPlayed = ?, soloGamesWon = ?, teamGamesCreated = ?, teamGamesPlayed = ?, teamGamesWon = ?, chestsOpened = ?, supplyDropsOpened = ?, environmentDeaths = ?, borderDeaths = ?, playerDeaths = ?, arrowsShot = ?, arrowsLanded = ?, fireworksShot = ?, fireworksLanded = ?, attacksBlocked = ?, potionsUsed = ?, foodConsumed = ?, totemsPopped = ?, credits = ?, damageDealt = ?, projectileDamageDealt = ?, damageTaken = ?, projectileDamageTaken = ?, healthRegenerated = ?, soloPercentile = ?, teamPercentile = ?, lastLogin = ?, lastLogout = ?, secondsPlayed = ?, secondsPlayedMonth = ? WHERE uuid = ?");
+        PreparedStatement statement = getConnection().prepareStatement("UPDATE player_stats SET username = ?, deaths = ?, kills = ?, killAssists = ?, soloGamesCreated = ?, soloGamesPlayed = ?, soloGamesWon = ?, teamGamesCreated = ?, teamGamesPlayed = ?, teamGamesWon = ?, chestsOpened = ?, supplyDropsOpened = ?, environmentDeaths = ?, borderDeaths = ?, playerDeaths = ?, arrowsShot = ?, arrowsLanded = ?, fireworksShot = ?, fireworksLanded = ?, attacksBlocked = ?, potionsUsed = ?, foodConsumed = ?, totemsPopped = ?, credits = ?, damageDealt = ?, projectileDamageDealt = ?, damageTaken = ?, projectileDamageTaken = ?, healthRegenerated = ?, soloPercentile = ?, teamPercentile = ?, lastLogin = ?, lastLogout = ?, secondsPlayed = ? WHERE uuid = ?");
         statement.setString(1, stats.getUsername());
         statement.setInt(2, stats.getDeaths());
         statement.setInt(3, stats.getKills());
@@ -194,17 +227,36 @@ public class DatabaseHandler {
         statement.setDate(32, new Date(stats.getLastLogin().getTime()));
         statement.setDate(33, new Date(stats.getLastLogout().getTime()));
         statement.setLong(34, stats.getSecondsPlayed());
-        statement.setLong(35, stats.getSecondsPlayedMonth());
-        statement.setString(36, stats.getUuid());
+        statement.setString(35, stats.getUuid());
 
         statement.executeUpdate();
         statement.close();
+
+        String monthYear = LocalDate.now().getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH).toLowerCase() + "_" + LocalDate.now().getYear();
+        PreparedStatement monthStatement = getConnection().prepareStatement("UPDATE player_monthly_playtime SET " + monthYear + " = ? WHERE uuid = ?");
+        monthStatement.setLong(1, stats.getSecondsPlayedMonth());
+        monthStatement.setString(2, stats.getUuid());
+
+        monthStatement.executeUpdate();
+        monthStatement.close();
     }
 
     public void deletePlayerStats(String uuid) throws SQLException {
         PreparedStatement statement = getConnection().prepareStatement("DELETE FROM player_stats WHERE uuid = ?");
         statement.setString(1, uuid);
         statement.executeUpdate();
+        statement.close();
+
+        statement = getConnection().prepareStatement("DELETE FROM player_monthly_playtime WHERE uuid = ?");
+        statement.setString(1, uuid);
+        statement.executeUpdate();
+        statement.close();
+    }
+
+    public void addMonthColumn(String monthYear) throws SQLException {
+        String sql = "ALTER TABLE player_monthly_playtime ADD COLUMN " + monthYear + " INT DEFAULT 0";
+        Statement statement = getConnection().createStatement();
+        statement.execute(sql);
         statement.close();
     }
 
