@@ -51,8 +51,8 @@ public class GameSequenceHandler {
     public Map<String, BukkitTask> supplyDropTask = new HashMap<>();
     public static Map<String, List<Player>> playersAlive = new HashMap<>();
     public static Map<String, Map<Player, BossBar>> playerBossBars = new HashMap<>();
-    public static Map<World, List<Player>> playerPlacements = new HashMap<>();
-    public static Map<World, List<List<Player>>> teamPlacements = new HashMap<>();
+    public static Map<String, List<Player>> playerPlacements = new HashMap<>();
+    public static Map<String, List<List<Player>>> teamPlacements = new HashMap<>();
 
     public GameSequenceHandler(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, CompassListener compassListener, TeamsHandler teamsHandler) {
         this.plugin = plugin;
@@ -67,7 +67,6 @@ public class GameSequenceHandler {
         this.teamsHandler = teamsHandler;
         this.signHandler = new SignHandler(plugin);
         this.signClickListener = new SignClickListener(langHandler, setSpawnHandler, new ArenaHandler(plugin, langHandler));
-        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, new ArenaHandler(plugin, langHandler));
         this.databaseHandler = new DatabaseHandler(plugin);
     }
 
@@ -209,7 +208,7 @@ public class GameSequenceHandler {
         }
 
         List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
-        List<List<Player>> worldTeamPlacements = teamPlacements.computeIfAbsent(world, k -> new ArrayList<>());
+        List<List<Player>> worldTeamPlacements = teamPlacements.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         if (worldTeamsAlive.size() == 1) {
             List<Player> winningTeam = worldTeamsAlive.get(0);
@@ -228,7 +227,7 @@ public class GameSequenceHandler {
         }
 
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
-        List<Player> worldPlayerPlacements = playerPlacements.computeIfAbsent(world, k -> new ArrayList<>());
+        List<Player> worldPlayerPlacements = playerPlacements.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         Player winner = worldPlayersAlive.isEmpty() ? null : worldPlayersAlive.get(0);
 
@@ -380,11 +379,11 @@ public class GameSequenceHandler {
     public void endGame(Boolean disable, World world) {
         gameStarted.put(world.getName(), false);
 
-        List<Player> worldPlayerPlacements = playerPlacements.get(world);
-        List<List<Player>> worldTeamPlacements = teamPlacements.get(world);
+        List<Player> worldPlayerPlacements = playerPlacements.get(world.getName());
+        List<List<Player>> worldTeamPlacements = teamPlacements.get(world.getName());
 
         if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
-            if (worldPlayerPlacements != null && startingPlayers != null && worldPlayerPlacements.size() == startingPlayers.get(world)) {
+            if (worldPlayerPlacements != null && startingPlayers != null && worldPlayerPlacements.size() == startingPlayers.get(world.getName())) {
                 for (Player player : worldPlayerPlacements) {
                     int playerIndex = worldPlayerPlacements.indexOf(player);
                     double percentile = (1 - (playerIndex / (worldPlayerPlacements.size() - 1.0))) * 100.0;
@@ -402,7 +401,7 @@ public class GameSequenceHandler {
                 }
             }
         } else {
-            if (worldTeamPlacements != null && worldTeamPlacements.size()  == teams.get(world).size()) {
+            if (worldTeamPlacements != null && worldTeamPlacements.size()  == teams.get(world.getName()).size()) {
                 for (List<Player> team : worldTeamPlacements) {
                     int teamIndex = worldTeamPlacements.indexOf(team);
                     double percentile = (1 - (teamIndex / (worldTeamPlacements.size() - 1.0))) * 100.0;
@@ -439,7 +438,7 @@ public class GameSequenceHandler {
 
             if (!disable && totalTimeSpent.containsKey(player)) {
                 Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
-                int timeAlive = configHandler.getWorldConfig(world).getInt("game-time") - timeLeft.getOrDefault(world, 0);
+                int timeAlive = configHandler.getWorldConfig(world).getInt("game-time") - timeLeft.getOrDefault(world.getName(), 0);
                 totalTimeSpent.put(player, timeSpent + timeAlive);
             }
         }

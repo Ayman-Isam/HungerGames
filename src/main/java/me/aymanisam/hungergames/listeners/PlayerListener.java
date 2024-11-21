@@ -3,27 +3,27 @@ package me.aymanisam.hungergames.listeners;
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.*;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.*;
-import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
-import static me.aymanisam.hungergames.handlers.GameSequenceHandler.removeBossBar;
+import static me.aymanisam.hungergames.handlers.GameSequenceHandler.*;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
+import static org.bukkit.event.entity.EntityDamageEvent.DamageCause.PROJECTILE;
+import static org.bukkit.event.entity.EntityDamageEvent.DamageCause.WORLD_BORDER;
 
 public class PlayerListener implements Listener {
     private final HungerGames plugin;
@@ -58,7 +58,7 @@ public class PlayerListener implements Listener {
 
         List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
-        List<Player> worldPlayersPlacement = playerPlacements.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
+        List<Player> worldPlayersPlacement = playerPlacements.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
 
         if (gameStarted.getOrDefault(player.getWorld().getName(), false) || gameStarting.getOrDefault(player.getWorld().getName(), false)) {
             worldPlayersAlive.remove(player);
@@ -77,7 +77,7 @@ public class PlayerListener implements Listener {
             if (totalTimeSpent.containsKey(player)) {
                 int timeAlive = 0;
                 if (!player.getWorld().getName().equals(configHandler.createPluginSettings().getString("lobby-world"))) {
-                    timeAlive = configHandler.getWorldConfig(player.getWorld()).getInt("game-time") - timeLeft.get(player.getWorld());
+                    timeAlive = configHandler.getWorldConfig(player.getWorld()).getInt("game-time") - timeLeft.get(player.getWorld().getName());
                 }
                 Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
                 playerStats.setSecondsPlayed(playerStats.getSecondsPlayed() + timeAlive + timeSpent);
@@ -96,9 +96,9 @@ public class PlayerListener implements Listener {
     }
 
     private void removeFromTeam(Player player) {
-        List<List<Player>> worldTeams = teams.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
+        List<List<Player>> worldTeams = teams.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
         List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
-        List<List<Player>> worldTeamPlacements = teamPlacements.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
+        List<List<Player>> worldTeamPlacements = teamPlacements.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
 
         for (List<Player> aliveTeam : worldTeamsAlive) {
             if (aliveTeam.contains(player)) {
@@ -165,7 +165,7 @@ public class PlayerListener implements Listener {
 
         List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
-        List<Player> worldPlayersPlacement = playerPlacements.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
+        List<Player> worldPlayersPlacement = playerPlacements.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
 
         if (gameStarted.getOrDefault(world.getName(), false) || gameStarting.getOrDefault(world.getName(), false)) {
             worldPlayersAlive.remove(player);
@@ -371,7 +371,7 @@ public class PlayerListener implements Listener {
         if (damager instanceof Player damagerPlayer) {
             List<List<Player>> worldTeams = teams.computeIfAbsent(damager.getWorld().getName(), k -> new ArrayList<>());
 
-            if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
+            if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || event.getCause() == PROJECTILE) {
                 for (List<Player> team : worldTeams) {
                     if (team.contains(damagerPlayer) && team.contains(player)) {
                         event.setCancelled(true);

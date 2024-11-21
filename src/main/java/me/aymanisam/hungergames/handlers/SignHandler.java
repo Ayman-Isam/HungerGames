@@ -13,13 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
-import java.util.logging.Level;
 
 public class SignHandler {
     private final HungerGames plugin;
     private final File file;
     private final FileConfiguration config;
-    private final HungerGames plugin;
 
     public SignHandler(HungerGames plugin) {
         this.plugin = plugin;
