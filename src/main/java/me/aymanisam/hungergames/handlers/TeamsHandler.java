@@ -3,12 +3,8 @@ package me.aymanisam.hungergames.handlers;
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
-import com.github.retrooper.packetevents.protocol.particle.Particle;
-import com.github.retrooper.packetevents.protocol.particle.data.ParticleData;
-import com.github.retrooper.packetevents.protocol.particle.type.ParticleTypes;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import me.aymanisam.hungergames.HungerGames;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
@@ -25,24 +21,22 @@ import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive
 
 public class TeamsHandler {
     private final LangHandler langHandler;
-    private final ScoreBoardHandler scoreBoardHandler;
     private final ConfigHandler configHandler;
 
-    public static final Map<World, List<List<Player>>> teams = new HashMap<>();
-    public static final Map<World, List<List<Player>>> teamsAlive = new HashMap<>();
+    public static final Map<String, List<List<Player>>> teams = new HashMap<>();
+    public static final Map<String, List<List<Player>>> teamsAlive = new HashMap<>();
 
-    public TeamsHandler(HungerGames plugin, LangHandler langHandler, ScoreBoardHandler scoreBoardHandler) {
+    public TeamsHandler(HungerGames plugin, LangHandler langHandler) {
         this.langHandler = langHandler;
-        this.scoreBoardHandler = scoreBoardHandler;
         this.configHandler = plugin.getConfigHandler();
     }
 
     public void createTeam(World world) {
-        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         Collections.shuffle(worldPlayersAlive);
 
-        List<List<Player>> worldTeams = teams.computeIfAbsent(world, k -> new ArrayList<>());
-        List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world, k -> new ArrayList<>());
+        List<List<Player>> worldTeams = teams.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         worldTeams.clear();
         worldTeamsAlive.clear();
@@ -95,7 +89,7 @@ public class TeamsHandler {
     }
 
     private void sendTeamMessagesAndSetupItems(Player player, List<Player> team, World world) {
-        List<List<Player>> worldTeams = teams.computeIfAbsent(world, k -> new ArrayList<>());
+        List<List<Player>> worldTeams = teams.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         int teamId = worldTeams.indexOf(team) + 1;
         player.sendMessage(langHandler.getMessage(player, "team.id", teamId));
@@ -124,7 +118,7 @@ public class TeamsHandler {
     }
 
     public List<Player> getTeammates(Player currentPlayer, World world) {
-        List<List<Player>> worldTeams = teams.computeIfAbsent(world, k -> new ArrayList<>());
+        List<List<Player>> worldTeams = teams.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         for (List<Player> team : worldTeams) {
             if (team.contains(currentPlayer)) {
@@ -180,7 +174,7 @@ public class TeamsHandler {
     }
 
     public boolean isPlayerInAnyTeam(Player player, World world) {
-        List<List<Player>> worldTeams = teams.computeIfAbsent(world, k -> new ArrayList<>());
+        List<List<Player>> worldTeams = teams.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         for (List<Player> team : worldTeams) {
             if (team.contains(player)) {

@@ -39,7 +39,7 @@ public class LobbyReturnCommand implements CommandExecutor {
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.configHandler = plugin.getConfigHandler();
-        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
+        this.signClickListener = new SignClickListener(langHandler, setSpawnHandler, arenaHandler);
         this.signHandler = new SignHandler(plugin);
         this.countDownHandler = countDownHandler;
         this.resetPlayerHandler = new ResetPlayerHandler();
@@ -69,10 +69,10 @@ public class LobbyReturnCommand implements CommandExecutor {
 
         setSpawnHandler.removePlayerFromSpawnPoint(player, world);
 
-        List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(world, k -> new ArrayList<>());
-        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world, k -> new HashMap<>());
-        List<String> worldSpawnPoints = setSpawnHandler.spawnPoints.computeIfAbsent(world, k -> new ArrayList<>());
+        List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
+        List<String> worldSpawnPoints = setSpawnHandler.spawnPoints.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         List<Player> worldPlayersPlacement = playerPlacements.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
 
         for (Player p : world.getPlayers()) {
@@ -83,13 +83,13 @@ public class LobbyReturnCommand implements CommandExecutor {
         int minPlayers = configHandler.getWorldConfig(world).getInt("min-players");
 
         if (worldSpawnPointMap.size() < minPlayers) {
-            if (gameStarting.getOrDefault(world, false)) {
+            if (gameStarting.getOrDefault(world.getName(), false)) {
                 countDownHandler.cancelCountDown(world);
                 for (Player p : world.getPlayers()) {
                     p.sendMessage(langHandler.getMessage(p, "startgame.cancelled"));
                 }
             }
-            gameStarting.put(world, false);
+            gameStarting.put(world.getName(), false);
         }
 
         assert lobbyWorldName != null;
@@ -106,7 +106,7 @@ public class LobbyReturnCommand implements CommandExecutor {
         totalTimeSpent.put(player, timeAlive + timeSpent);
 
         resetPlayerHandler.resetPlayer(player);
-        Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(world, k -> new HashMap<>());
+        Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
         BossBar bossBar = worldPlayerBossBar.get(player);
 
@@ -116,12 +116,12 @@ public class LobbyReturnCommand implements CommandExecutor {
             bossBar.setVisible(false);
         }
 
-        Map<Player, String> worldPlayerVotes = playerVotes.computeIfAbsent(world, k -> new HashMap<>());
+        Map<Player, String> worldPlayerVotes = playerVotes.computeIfAbsent(world.getName(), k -> new HashMap<>());
         worldPlayerVotes.remove(player);
 
         scoreBoardHandler.removeScoreboard(player);
 
-        if (isGameStartingOrStarted(world)) {
+        if (isGameStartingOrStarted(world.getName())) {
             worldPlayersAlive.remove(player);
             if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
                 worldPlayersPlacement.add(player);

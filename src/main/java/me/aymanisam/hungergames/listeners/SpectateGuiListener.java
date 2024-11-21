@@ -1,6 +1,5 @@
 package me.aymanisam.hungergames.listeners;
 
-import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -14,11 +13,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class SpectateGuiListener implements Listener {
-    private final HungerGames plugin;
     private final LangHandler langHandler;
 
-    public SpectateGuiListener(HungerGames plugin, LangHandler langHandler) {
-        this.plugin = plugin;
+    public SpectateGuiListener(LangHandler langHandler) {
         this.langHandler = langHandler;
     }
 

@@ -31,7 +31,7 @@ public class SignSetCommand implements CommandExecutor {
 
     public SignSetCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
         this.langHandler = langHandler;
-        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
+        this.signClickListener = new SignClickListener(langHandler, setSpawnHandler, arenaHandler);
         this.signHandler = new SignHandler(plugin);
     }
 

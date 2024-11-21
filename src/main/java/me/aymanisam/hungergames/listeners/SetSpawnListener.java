@@ -7,7 +7,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,18 +22,16 @@ public class SetSpawnListener implements Listener {
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
     private final ConfigHandler configHandler;
-    private final ArenaHandler arenaHandler;
     private final SignClickListener signClickListener;
     private final SignHandler signHandler;
 
-    private final Map<World, Map<Location, BlockData>> originalBlockDataMap = new HashMap<>();
+    private final Map<String, Map<Location, BlockData>> originalBlockDataMap = new HashMap<>();
 
     public SetSpawnListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.configHandler = plugin.getConfigHandler();
-        this.arenaHandler = arenaHandler;
-        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
+        this.signClickListener = new SignClickListener(langHandler, setSpawnHandler, arenaHandler);
         this.signHandler = new SignHandler(plugin);
     }
 
@@ -43,7 +40,7 @@ public class SetSpawnListener implements Listener {
         Player player = event.getPlayer();
         ItemStack item = event.getItem();
 
-        List<String> worldSpawnPoints = setSpawnHandler.spawnPoints.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
+        List<String> worldSpawnPoints = setSpawnHandler.spawnPoints.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
 
         if (item != null && item.getType() == Material.STICK && item.hasItemMeta() && Objects.requireNonNull(item.getItemMeta()).getDisplayName().equals(langHandler.getMessage(player, "setspawn.stick-name"))) {
             if (!(player.hasPermission("hungergames.setspawn"))) {
@@ -53,7 +50,7 @@ public class SetSpawnListener implements Listener {
 
             if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                 Location location = Objects.requireNonNull(event.getClickedBlock()).getLocation();
-                FileConfiguration config = configHandler.getWorldConfig(player.getWorld());
+                configHandler.getWorldConfig(player.getWorld());
                 String newSpawnPoint = Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
 
 
@@ -108,13 +105,13 @@ public class SetSpawnListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         Location brokenBlockLocation = event.getBlock().getLocation();
 
-        Map<Location, BlockData> worldOriginalBlockDataMap = originalBlockDataMap.computeIfAbsent(event.getPlayer().getWorld(), k -> new HashMap<>());
+        Map<Location, BlockData> worldOriginalBlockDataMap = originalBlockDataMap.computeIfAbsent(event.getPlayer().getWorld().getName(), k -> new HashMap<>());
 
         worldOriginalBlockDataMap.remove(brokenBlockLocation);
     }
 
     public void makePlayerSeeGoldBlocks(Player player) {
-        List<String> worldSpawnPoints = setSpawnHandler.spawnPoints.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
+        List<String> worldSpawnPoints = setSpawnHandler.spawnPoints.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
 
         for (String locationStr : worldSpawnPoints) {
             String[] parts = locationStr.split(",");
@@ -127,7 +124,7 @@ public class SetSpawnListener implements Listener {
                 if (world != null) {
                     Location location = new Location(world, x, y, z);
                     BlockData originalBlockData = world.getBlockAt(location).getBlockData();
-                    originalBlockDataMap.computeIfAbsent(world, k -> new HashMap<>()).put(location, originalBlockData);
+                    originalBlockDataMap.computeIfAbsent(world.getName(), k -> new HashMap<>()).put(location, originalBlockData);
 
                     BlockData goldBlockBlockData = Material.GOLD_BLOCK.createBlockData();
                     player.sendBlockChange(location, goldBlockBlockData);
@@ -138,7 +135,7 @@ public class SetSpawnListener implements Listener {
 
     public void revertPlayerSeeGoldBlocks(Player player) {
         World world = player.getWorld();
-        Map<Location, BlockData> worldBlockDataMap = originalBlockDataMap.computeIfAbsent(world, k -> new HashMap<>());
+        Map<Location, BlockData> worldBlockDataMap = originalBlockDataMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
         for (Map.Entry<Location, BlockData> entry : worldBlockDataMap.entrySet()) {
             player.sendBlockChange(entry.getKey(), entry.getValue());

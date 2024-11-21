@@ -1,7 +1,6 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -17,7 +16,7 @@ public class WorldBorderHandler {
     private final HungerGames plugin;
     private final LangHandler langHandler;
     private final ConfigHandler configHandler;
-    private final Map<World, BukkitTask> borderShrinkTask = new HashMap<>();
+    private final Map<String, BukkitTask> borderShrinkTask = new HashMap<>();
 
     public WorldBorderHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
@@ -39,7 +38,7 @@ public class WorldBorderHandler {
 
         int duration = endTime - startTime;
         BukkitTask worldBorderShrinkTask = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            if (gameStarted.getOrDefault(world, false)) {
+            if (gameStarted.getOrDefault(world.getName(), false)) {
                 border.setSize(finalSize, duration);
                 for (Player player : world.getPlayers()) {
                     langHandler.getMessage(player, "border.start-shrink");
@@ -49,11 +48,11 @@ public class WorldBorderHandler {
                 border.setSize(borderSize);
             }
         }, startTime * 20L);
-        borderShrinkTask.put(world, worldBorderShrinkTask);
+        borderShrinkTask.put(world.getName(), worldBorderShrinkTask);
     }
 
     public void resetWorldBorder(World world) {
-        BukkitTask worldBorderShrinkTask = borderShrinkTask.get(world);
+        BukkitTask worldBorderShrinkTask = borderShrinkTask.get(world.getName());
         if (worldBorderShrinkTask != null) {
             worldBorderShrinkTask.cancel();
         }

@@ -35,7 +35,6 @@ public class SupplyDropHandler {
         FileConfiguration config = configHandler.getWorldConfig(world);
         FileConfiguration arenaConfig = arenaHandler.getArenaConfig(world);
 
-        assert world != null;
         WorldBorder border = world.getWorldBorder();
 
         int numSupplyDrops = config.getInt("num-supply-drops");

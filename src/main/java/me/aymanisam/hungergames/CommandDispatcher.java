@@ -2,7 +2,6 @@ package me.aymanisam.hungergames;
 
 import me.aymanisam.hungergames.commands.*;
 import me.aymanisam.hungergames.handlers.*;
-import me.aymanisam.hungergames.listeners.TeamVotingListener;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,19 +21,17 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
     private final GameSequenceHandler gameSequenceHandler;
-    private final TeamVotingListener teamVotingListener;
     private final TeamsHandler teamsHandler;
     private final ScoreBoardHandler scoreBoardHandler;
     private final CountDownHandler countDownHandler;
     private final ArenaHandler arenaHandler;
     private final ConfigHandler configHandler;
 
-    public CommandDispatcher(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener, TeamsHandler teamsHandler, ScoreBoardHandler scoreBoardHandler, CountDownHandler countDownHandler, ArenaHandler arenaHandler) {
+    public CommandDispatcher(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamsHandler teamsHandler, ScoreBoardHandler scoreBoardHandler, CountDownHandler countDownHandler, ArenaHandler arenaHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.gameSequenceHandler = gameSequenceHandler;
-        this.teamVotingListener = teamVotingListener;
         this.teamsHandler = teamsHandler;
         this.scoreBoardHandler = scoreBoardHandler;
         this.countDownHandler = countDownHandler;
@@ -60,7 +57,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     executor = new ToggleChatCommand(plugin, langHandler, teamsHandler);
                     break;
                 case "spectate":
-                    executor = new SpectatePlayerCommand(plugin, langHandler);
+                    executor = new SpectatePlayerCommand(langHandler);
                     break;
                 case "select":
                     executor = new ArenaSelectCommand(langHandler);

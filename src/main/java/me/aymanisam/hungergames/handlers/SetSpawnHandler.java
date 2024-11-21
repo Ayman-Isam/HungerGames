@@ -1,6 +1,5 @@
 package me.aymanisam.hungergames.handlers;
 
-import com.google.common.collect.Sets;
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.listeners.SignClickListener;
 import me.aymanisam.hungergames.listeners.TeamVotingListener;
@@ -19,7 +18,6 @@ import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.gameStarted;
 import static me.aymanisam.hungergames.HungerGames.gameStarting;
-import static me.aymanisam.hungergames.listeners.TeamVotingListener.giveVotingBook;
 
 public class SetSpawnHandler {
     private final HungerGames plugin;
@@ -27,15 +25,14 @@ public class SetSpawnHandler {
     private final LangHandler langHandler;
     private final TeamVotingListener teamVotingListener;
     private final ConfigHandler configHandler;
-    private final ArenaHandler arenaHandler;
     private final SignHandler signHandler;
     private final SignClickListener signClickListener;
     private CountDownHandler countDownHandler;
 
     public FileConfiguration setSpawnConfig;
-    public Map<World, List<String>> spawnPoints;
-    public Map<World, Map<String, Player>> spawnPointMap;
-    public Map<World, List<Player>> playersWaiting;
+    public Map<String, List<String>> spawnPoints;
+    public Map<String, Map<String, Player>> spawnPointMap;
+    public Map<String, List<Player>> playersWaiting;
     private File setSpawnFile;
 
     public SetSpawnHandler(HungerGames plugin, LangHandler langHandler, ArenaHandler arenaHandler) {
@@ -45,11 +42,10 @@ public class SetSpawnHandler {
         this.spawnPointMap = new HashMap<>();
         this.playersWaiting = new HashMap<>();
         this.resetPlayerHandler = new ResetPlayerHandler();
-        this.teamVotingListener = new TeamVotingListener(plugin, langHandler);
+        this.teamVotingListener = new TeamVotingListener(langHandler);
         this.configHandler = plugin.getConfigHandler();
-        this.arenaHandler = arenaHandler;
         this.signHandler = new SignHandler(plugin);
-        this.signClickListener = new SignClickListener(plugin, langHandler, this, arenaHandler);
+        this.signClickListener = new SignClickListener(langHandler, this, arenaHandler);
     }
 
     public void setCountDownHandler(CountDownHandler countDownHandler) {
@@ -60,13 +56,15 @@ public class SetSpawnHandler {
         File worldFolder = new File(plugin.getDataFolder() + File.separator + world.getName());
         setSpawnFile = new File(worldFolder, "setspawn.yml");
         if (!setSpawnFile.exists()) {
-            setSpawnFile.getParentFile().mkdirs();
+            if (setSpawnFile.getParentFile().mkdirs()) {
+                plugin.getLogger().log(Level.SEVERE, "Could not find parent directory for world: " + world.getName());
+            }
             plugin.saveResource("setspawn.yml", false);
         }
 
         setSpawnConfig = YamlConfiguration.loadConfiguration(setSpawnFile);
         List<String> worldSpawnPoints = setSpawnConfig.getStringList("spawnpoints");
-        spawnPoints.put(world, worldSpawnPoints);
+        spawnPoints.put(world.getName(), worldSpawnPoints);
     }
 
     public void saveSetSpawnConfig(World world) {
@@ -74,7 +72,7 @@ public class SetSpawnHandler {
             return;
         }
         try {
-            List<String> worldSpawnPoints = spawnPoints.computeIfAbsent(world, k -> new ArrayList<>());
+            List<String> worldSpawnPoints = spawnPoints.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
             setSpawnConfig.set("spawnpoints", worldSpawnPoints);
 
@@ -84,23 +82,15 @@ public class SetSpawnHandler {
         }
     }
 
-    public void resetSpawnPoints(World world) {
-        List<String> worldSpawnPoints = spawnPoints.computeIfAbsent(world, k -> new ArrayList<>());
-
-        worldSpawnPoints.clear();
-        setSpawnConfig.set("spawnpoints", worldSpawnPoints);
-        saveSetSpawnConfig(world);
-    }
-
     public String assignPlayerToSpawnPoint(Player player, World world) {
         createSetSpawnConfig(world);
 
-        List<String> worldSpawnPoints = spawnPoints.computeIfAbsent(world, k -> new ArrayList<>());
+        List<String> worldSpawnPoints = spawnPoints.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         List<String> shuffledSpawnPoints = new ArrayList<>(worldSpawnPoints);
         Collections.shuffle(shuffledSpawnPoints);
 
-        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world, k-> new HashMap<>());
+        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k-> new HashMap<>());
 
         for (String spawnPoint : shuffledSpawnPoints) {
             if (!worldSpawnPointMap.containsKey(spawnPoint)) {
@@ -113,7 +103,7 @@ public class SetSpawnHandler {
     }
 
     public void removePlayerFromSpawnPoint(Player player, World world) {
-        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world, k-> new HashMap<>());
+        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k-> new HashMap<>());
 
         Iterator<Map.Entry<String, Player>> iterator = worldSpawnPointMap.entrySet().iterator();
 
@@ -133,9 +123,9 @@ public class SetSpawnHandler {
             return;
         }
 
-        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world, k-> new HashMap<>());
-        List<Player> worldPlayersWaiting = playersWaiting.computeIfAbsent(world, k -> new ArrayList<>());
-        List<String> worldSpawnPoints = spawnPoints.computeIfAbsent(world, k -> new ArrayList<>());
+        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k-> new HashMap<>());
+        List<Player> worldPlayersWaiting = playersWaiting.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        List<String> worldSpawnPoints = spawnPoints.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         worldSpawnPointMap.put(spawnPoint, player);
         worldPlayersWaiting.add(player);
@@ -148,7 +138,6 @@ public class SetSpawnHandler {
 
         Location teleportLocation = new Location(world, x, y, z);
 
-        assert world != null;
         Location spawnLocation = world.getSpawnLocation();
 
         Vector direction = spawnLocation.toVector().subtract(teleportLocation.toVector());
@@ -167,7 +156,7 @@ public class SetSpawnHandler {
 
         if (configHandler.getWorldConfig(world).getBoolean("voting")) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                if (worldSpawnPointMap.containsValue(player) && !gameStarted.getOrDefault(player.getWorld(), false) && !gameStarting.getOrDefault(player.getWorld(), false)) {
+                if (worldSpawnPointMap.containsValue(player) && !gameStarted.getOrDefault(player.getWorld().getName(), false) && !gameStarting.getOrDefault(player.getWorld().getName(), false)) {
                     teamVotingListener.openVotingInventory(player);
                 }
             }, 100L);
@@ -175,7 +164,7 @@ public class SetSpawnHandler {
 
         if (configHandler.getWorldConfig(world).getBoolean("auto-start.enabled")) {
             if (world.getPlayers().size() >= configHandler.getWorldConfig(world).getInt("auto-start.players")) {
-                gameStarting.put(player.getWorld(), true);
+                gameStarting.put(player.getWorld().getName(), true);
                 countDownHandler.startCountDown(world);
             }
         }

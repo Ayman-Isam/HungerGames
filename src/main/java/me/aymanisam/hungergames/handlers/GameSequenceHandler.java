@@ -44,13 +44,13 @@ public class GameSequenceHandler {
     private final SignClickListener signClickListener;
     private final DatabaseHandler databaseHandler;
 
-    public Map<World, Integer> gracePeriodTaskId = new HashMap<>();
-    public Map<World, Integer> timerTaskId = new HashMap<>();
-    public static Map<World, Integer> timeLeft = new HashMap<>();
-    public Map<World, BukkitTask> chestRefillTask = new HashMap<>();
-    public Map<World, BukkitTask> supplyDropTask = new HashMap<>();
-    public static Map<World, List<Player>> playersAlive = new HashMap<>();
-    public static Map<World, Map<Player, BossBar>> playerBossBars = new HashMap<>();
+    public Map<String, Integer> gracePeriodTaskId = new HashMap<>();
+    public Map<String, Integer> timerTaskId = new HashMap<>();
+    public static Map<String, Integer> timeLeft = new HashMap<>();
+    public Map<String, BukkitTask> chestRefillTask = new HashMap<>();
+    public Map<String, BukkitTask> supplyDropTask = new HashMap<>();
+    public static Map<String, List<Player>> playersAlive = new HashMap<>();
+    public static Map<String, Map<Player, BossBar>> playerBossBars = new HashMap<>();
     public static Map<World, List<Player>> playerPlacements = new HashMap<>();
     public static Map<World, List<List<Player>>> teamPlacements = new HashMap<>();
 
@@ -66,20 +66,21 @@ public class GameSequenceHandler {
         this.compassListener = compassListener;
         this.teamsHandler = teamsHandler;
         this.signHandler = new SignHandler(plugin);
+        this.signClickListener = new SignClickListener(langHandler, setSpawnHandler, new ArenaHandler(plugin, langHandler));
         this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, new ArenaHandler(plugin, langHandler));
         this.databaseHandler = new DatabaseHandler(plugin);
     }
 
     public void startGame(World world) {
-        gameStarted.put(world, true);
-        gameStarting.put(world, false);
+        gameStarted.put(world.getName(), true);
+        gameStarting.put(world.getName(), false);
 
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world, k -> new HashMap<>());
-        List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(world, k -> new ArrayList<>());
-        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
+        List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         worldPlayersWaiting.clear();
-        startingPlayers.put(world, worldSpawnPointMap.values().size());
+        startingPlayers.put(world.getName(), worldSpawnPointMap.values().size());
         worldSpawnPointMap.clear();
 
         signClickListener.setSignContent(signHandler.loadSignLocations());
@@ -118,13 +119,13 @@ public class GameSequenceHandler {
             }
         }, gracePeriod * 20L);
 
-        gracePeriodTaskId.put(world, worldGracePeriodTaskId);
+        gracePeriodTaskId.put(world.getName(), worldGracePeriodTaskId);
 
         for (Player player : worldPlayersAlive) {
             BossBar bossBar = plugin.getServer().createBossBar(langHandler.getMessage(player, "time-remaining"), BarColor.GREEN, BarStyle.SOLID);
             bossBar.addPlayer(player);
 
-            Map<Player, BossBar> worldPlayerBossBars = playerBossBars.computeIfAbsent(world, k -> new HashMap<>());
+            Map<Player, BossBar> worldPlayerBossBars = playerBossBars.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
             worldPlayerBossBars.put(player, bossBar);
 
@@ -143,31 +144,31 @@ public class GameSequenceHandler {
         SupplyDropHandler supplyDropHandler = new SupplyDropHandler(plugin, langHandler);
 
         BukkitTask worldSupplyDropTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> supplyDropHandler.setSupplyDrop(world), supplyDropInterval, supplyDropInterval);
-        supplyDropTask.put(world, worldSupplyDropTask);
+        supplyDropTask.put(world.getName(), worldSupplyDropTask);
 
         int chestRefillInterval = configHandler.getWorldConfig(world).getInt("chestrefill.interval") * 20;
         ChestRefillHandler chestRefillHandler = new ChestRefillHandler(plugin, langHandler);
 
         BukkitTask worldChestRefillTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> chestRefillHandler.refillChests(world), 0, chestRefillInterval);
-        chestRefillTask.put(world, worldChestRefillTask);
+        chestRefillTask.put(world.getName(), worldChestRefillTask);
 
         mainGame(world);
     }
 
     public void mainGame(World world) {
         int initialTimeLeft = configHandler.getWorldConfig(world).getInt("game-time");
-        timeLeft.put(world, initialTimeLeft);
+        timeLeft.put(world.getName(), initialTimeLeft);
 
         int worldTimerTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             updateBossBars(world);
-            int currentTimeLeft = timeLeft.get(world);
+            int currentTimeLeft = timeLeft.get(world.getName());
             currentTimeLeft--;
-            timeLeft.put(world, currentTimeLeft);
+            timeLeft.put(world.getName(), currentTimeLeft);
 
             scoreBoardHandler.getScoreBoard(world);
 
-            List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world, k -> new ArrayList<>());
-            List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+            List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+            List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
             if (playersPerTeam != 1) {
                 if (worldTeamsAlive.size() <= 1) {
@@ -183,13 +184,13 @@ public class GameSequenceHandler {
                 handleTimeUp(world);
             }
         }, 0L, 20L);
-        timerTaskId.put(world, worldTimerTaskId);
+        timerTaskId.put(world.getName(), worldTimerTaskId);
     }
 
     private void updateBossBars(World world) {
-        Map<Player, BossBar> worldPlayerBossBars = playerBossBars.computeIfAbsent(world, k -> new HashMap<>());
+        Map<Player, BossBar> worldPlayerBossBars = playerBossBars.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
-        int worldTimeLeft = timeLeft.get(world);
+        int worldTimeLeft = timeLeft.get(world.getName());
 
         for (Map.Entry<Player, BossBar> entry : worldPlayerBossBars.entrySet()) {
             Player player = entry.getKey();
@@ -207,7 +208,7 @@ public class GameSequenceHandler {
             player.sendMessage(langHandler.getMessage(player, "game.game-end"));
         }
 
-        List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world, k -> new ArrayList<>());
+        List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         List<List<Player>> worldTeamPlacements = teamPlacements.computeIfAbsent(world, k -> new ArrayList<>());
 
         if (worldTeamsAlive.size() == 1) {
@@ -226,7 +227,7 @@ public class GameSequenceHandler {
             player.sendMessage(langHandler.getMessage(player, "game.game-end"));
         }
 
-        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         List<Player> worldPlayerPlacements = playerPlacements.computeIfAbsent(world, k -> new ArrayList<>());
 
         Player winner = worldPlayersAlive.isEmpty() ? null : worldPlayersAlive.get(0);
@@ -349,7 +350,7 @@ public class GameSequenceHandler {
         int maxAlivePlayers = -1;
         int maxKills = -1;
 
-        List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world, k -> new ArrayList<>());
+        List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         for (List<Player> team : worldTeamsAlive) {
             int alivePlayers = team.size();
@@ -377,7 +378,7 @@ public class GameSequenceHandler {
     }
 
     public void endGame(Boolean disable, World world) {
-        gameStarted.put(world, false);
+        gameStarted.put(world.getName(), false);
 
         List<Player> worldPlayerPlacements = playerPlacements.get(world);
         List<List<Player>> worldTeamPlacements = teamPlacements.get(world);
@@ -459,18 +460,18 @@ public class GameSequenceHandler {
 
         world.setPVP(false);
 
-        if (gracePeriodTaskId.containsKey(world)) {
-            int worldGracePeriodTaskId = gracePeriodTaskId.get(world);
+        if (gracePeriodTaskId.containsKey(world.getName())) {
+            int worldGracePeriodTaskId = gracePeriodTaskId.get(world.getName());
             plugin.getServer().getScheduler().cancelTask(worldGracePeriodTaskId);
         }
 
-        if (timerTaskId.containsKey(world)) {
-            int worldTimerTaskId = timerTaskId.get(world);
+        if (timerTaskId.containsKey(world.getName())) {
+            int worldTimerTaskId = timerTaskId.get(world.getName());
             plugin.getServer().getScheduler().cancelTask(worldTimerTaskId);
         }
 
-        BukkitTask worldChestRefillTask = chestRefillTask.get(world);
-        BukkitTask worldSupplyDropTask = supplyDropTask.get(world);
+        BukkitTask worldChestRefillTask = chestRefillTask.get(world.getName());
+        BukkitTask worldSupplyDropTask = supplyDropTask.get(world.getName());
 
         if (worldChestRefillTask != null) {
             plugin.getServer().getScheduler().cancelTask(worldChestRefillTask.getTaskId());
@@ -483,8 +484,8 @@ public class GameSequenceHandler {
         compassListener.cancelGlowTask(world);
         teamsHandler.removeGlowFromAllPlayers(world);
 
-        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
-        Map<Player, String> worldPlayerVotes = playerVotes.computeIfAbsent(world, k -> new HashMap<>());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        Map<Player, String> worldPlayerVotes = playerVotes.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
         worldPlayersAlive.clear();
         worldPlayerVotes.clear();
@@ -504,7 +505,7 @@ public class GameSequenceHandler {
     }
 
     public static void removeBossBar(Player player) {
-        Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(player.getWorld(), k -> new HashMap<>());
+        Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(player.getWorld().getName(), k -> new HashMap<>());
 
         BossBar bossBar = worldPlayerBossBar.get(player);
         if (bossBar != null) {
