@@ -68,6 +68,9 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 case "end":
                     executor = new EndGameCommand(langHandler, gameSequenceHandler, countDownHandler, setSpawnHandler);
                     break;
+                case "initialize":
+                    executor = new ArenaInitializeCommand(plugin, langHandler);
+                    break;
                 case "map":
                     executor = new MapChangeCommand(plugin, langHandler, setSpawnHandler);
                     break;
@@ -115,7 +118,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 List<String> completions = new ArrayList<>();
-                String[] commands = {"join", "lobby", "start", "spectate", "select", "end", "teamchat", "map", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig", "setsign"};
+                String[] commands = {"join", "lobby", "start", "spectate", "select", "end", "teamchat", "initialize" ,"map", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig", "setsign"};
 
                 for (String subcommand : commands) {
                     if (sender.hasPermission("hungergames." + subcommand)) {
@@ -140,7 +143,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 }
 
                 return completions;
-            } else if (args[0].equalsIgnoreCase("map") || (args[0].equalsIgnoreCase("join"))) {
+            } else if (args[0].equalsIgnoreCase("map") || (args[0].equalsIgnoreCase("join")) || args[0].equalsIgnoreCase("initialize")) {
                 if (args.length == 2) {
                     String worldNameToRemove = (String) configHandler.createPluginSettings().get("lobby-world");
                     worldNames.remove(worldNameToRemove);

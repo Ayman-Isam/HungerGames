@@ -383,7 +383,7 @@ public class GameSequenceHandler {
         List<List<Player>> worldTeamPlacements = teamPlacements.get(world);
 
         if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
-            if (worldPlayerPlacements != null && worldPlayerPlacements.size() == startingPlayers.get(world)) {
+            if (worldPlayerPlacements != null && startingPlayers != null && worldPlayerPlacements.size() == startingPlayers.get(world)) {
                 for (Player player : worldPlayerPlacements) {
                     int playerIndex = worldPlayerPlacements.indexOf(player);
                     double percentile = (1 - (playerIndex / (worldPlayerPlacements.size() - 1.0))) * 100.0;
@@ -490,6 +490,8 @@ public class GameSequenceHandler {
         worldPlayerVotes.clear();
 
         signClickListener.setSignContent(signHandler.loadSignLocations());
+
+        Bukkit.unloadWorld(world, true);
 
         if (plugin.isEnabled()) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {

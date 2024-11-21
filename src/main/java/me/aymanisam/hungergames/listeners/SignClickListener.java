@@ -6,6 +6,8 @@ import net.kyori.adventure.util.Index;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.block.sign.Side;
+import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -46,7 +48,7 @@ public class SignClickListener implements Listener {
 
             if (block.getState() instanceof Sign sign) {
                 for (String worldName : worldNames) {
-                    if (sign.getLine(1).contains(worldName)) {
+                    if (sign.getSide(Side.FRONT).getLine(1).contains(worldName)) {
                         if (lastInteractTime.containsKey(player) && (currentTime - lastInteractTime.get(player)) < 5000) {
                             return; // Ignore the event if it's within the cooldown period
                         }
@@ -55,6 +57,14 @@ public class SignClickListener implements Listener {
 
                         if (lastMessageTime.containsKey(player) && (currentTime - lastMessageTime.get(player)) < 200) {
                             return; // Don't send another message if within cooldown
+                        }
+
+                        System.out.println(worldCreated);
+
+                        if (!worldCreated.getOrDefault(worldName, false)) {
+                            player.sendMessage(langHandler.getMessage(player, "game.not-initialized"));
+                            lastMessageTime.put(player, currentTime);
+                            return;
                         }
 
                         if (gameStarting.getOrDefault(world, false)) {
@@ -115,14 +125,22 @@ public class SignClickListener implements Listener {
 
             if (location.getBlock().getState() instanceof Sign sign) {
                 sign.setEditable(false);
-                sign.setLine(0, ChatColor.BOLD + "Join");
-                sign.setLine(1, ChatColor.BOLD + worldName);
+                SignSide frontSide = sign.getSide(Side.FRONT);
+                SignSide backSide = sign.getSide(Side.BACK);
+                frontSide.setLine(0, ChatColor.BOLD + "Join");
+                backSide.setLine(0, ChatColor.BOLD + "Join");
+                frontSide.setLine(1, ChatColor.BOLD + worldName);
+                backSide.setLine(1, ChatColor.BOLD + worldName);
                 if (isGameStartingOrStarted(world)) {
-                    sign.setLine(2, ChatColor.BOLD + "In Progress");
-                    sign.setLine(3, ChatColor.BOLD + "" + worldPlayersAlive.size() + " Alive");
+                    frontSide.setLine(2, ChatColor.BOLD + "In Progress");
+                    backSide.setLine(2, ChatColor.BOLD + "In Progress");
+                    frontSide.setLine(3, ChatColor.BOLD + "" + worldPlayersAlive.size() + " Alive");
+                    backSide.setLine(3, ChatColor.BOLD + "" + worldPlayersAlive.size() + " Alive");
                 } else {
-                    sign.setLine(2, ChatColor.BOLD + "Waiting");
-                    sign.setLine(3, ChatColor.BOLD + "[" + worldPlayersWaitingSize + "/" + worldSpawnPointSize + "]");
+                    frontSide.setLine(2, ChatColor.BOLD + "Waiting");
+                    backSide.setLine(2, ChatColor.BOLD + "Waiting");
+                    frontSide.setLine(3, ChatColor.BOLD + "[" + worldPlayersWaitingSize + "/" + worldSpawnPointSize + "]");
+                    backSide.setLine(3, ChatColor.BOLD + "[" + worldPlayersWaitingSize + "/" + worldSpawnPointSize + "]");
                 }
                 sign.update();
             }
