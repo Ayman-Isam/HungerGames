@@ -92,9 +92,8 @@ public class LangHandler {
         String resourceFolder = "lang";
         File langFolder = new File(plugin.getDataFolder(), resourceFolder);
 
-        try {
-            // Create a JarFile object from the plugin's file
-            JarFile jar = new JarFile(plugin.getPluginFile());
+        // Create a JarFile object from the plugin's file
+        try (JarFile jar = new JarFile(plugin.getPluginFile())){
             Enumeration<JarEntry> entries = jar.entries();
 
             // Iterate over each entry in the JAR file
@@ -108,8 +107,8 @@ public class LangHandler {
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException | SecurityException e) {
+            plugin.getLogger().log(Level.SEVERE, "No permission to create folders", e);
         }
     }
 
@@ -136,7 +135,7 @@ public class LangHandler {
                 try {
                     langConfig.save(langFile);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    plugin.getLogger().log(Level.SEVERE, "No permission to create folders", e);
                 }
             }
         }

@@ -11,20 +11,25 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.logging.Level;
 
 public class SignHandler {
+    private final HungerGames plugin;
     private final File file;
     private final FileConfiguration config;
-    private final HungerGames plugin;
 
     public SignHandler(HungerGames plugin) {
-        file = new File(plugin.getDataFolder(), "signs.yml");
         this.plugin = plugin;
+
+        file = new File(plugin.getDataFolder(), "signs.yml");
         if (!file.exists()) {
             try {
-                file.createNewFile();
+                if (!file.createNewFile()) {
+                    plugin.getLogger().log(Level.SEVERE, "Failed to create sign file");
+                }
             } catch (IOException e) {
-                e.printStackTrace();
+                plugin.getLogger().log(Level.SEVERE, "Could not create sign.yml", e);
             }
         }
         config = YamlConfiguration.loadConfiguration(file);
@@ -33,7 +38,7 @@ public class SignHandler {
     public void saveSignLocations(List<Location> signLocations) {
         List<String> locations = new ArrayList<>();
         for (Location location : signLocations) {
-            String locString = location.getWorld().getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
+            String locString = Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ();
             locations.add(locString);
         }
         config.set("signs", locations);
@@ -58,7 +63,7 @@ public class SignHandler {
         try {
             config.save(file);
         } catch (IOException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Could not save sign.yml", e);
         }
     }
 }

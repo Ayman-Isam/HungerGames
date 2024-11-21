@@ -2,7 +2,6 @@ package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -18,7 +17,7 @@ public class CompassHandler {
     private final HungerGames plugin;
     private final LangHandler langHandler;
 
-    private final Map<World, Map<Player, Integer>> teammateIndexMap = new HashMap<>();
+    private final Map<String, Map<Player, Integer>> teammateIndexMap = new HashMap<>();
 
     public CompassHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
@@ -27,8 +26,8 @@ public class CompassHandler {
 
     public Player findNearestTeammate(Player player, Boolean message, World world) {
         List<Player> playerTeam = null;
-        List<List<Player>> worldTeams = teams.computeIfAbsent(world, k -> new ArrayList<>());
-        Map<Player, Integer> worldTeammateIndexMap = teammateIndexMap.computeIfAbsent(world, k -> new HashMap<>());
+        List<List<Player>> worldTeams = teams.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        Map<Player, Integer> worldTeammateIndexMap = teammateIndexMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
         for (List<Player> team : worldTeams) {
             if (team.contains(player)) {
@@ -40,7 +39,6 @@ public class CompassHandler {
         }
 
         if (playerTeam == null || playerTeam.isEmpty()) {
-            TextComponent component = Component.text("");
             return null;
         }
 
@@ -84,7 +82,7 @@ public class CompassHandler {
         Player closestPlayer = null;
 
         List<Player> playerTeam = null;
-        List<List<Player>> worldTeams = teams.computeIfAbsent(world, k -> new ArrayList<>());
+        List<List<Player>> worldTeams = teams.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         for (List<Player> team : worldTeams) {
             if (team.contains(player)) {

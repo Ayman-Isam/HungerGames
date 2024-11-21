@@ -3,7 +3,6 @@ package me.aymanisam.hungergames.listeners;
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.CompassHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
-import me.aymanisam.hungergames.handlers.ScoreBoardHandler;
 import me.aymanisam.hungergames.handlers.TeamsHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -26,13 +25,13 @@ public class CompassListener implements Listener {
     private final LangHandler langHandler;
     private final CompassHandler compassHandler;
     private final TeamsHandler teamsHandler;
-    private final Map<World, Map<Player, BukkitTask>> glowTasks = new HashMap<>();
+    private final Map<String, Map<Player, BukkitTask>> glowTasks = new HashMap<>();
 
-    public CompassListener(HungerGames plugin, LangHandler langHandler, CompassHandler compassHandler, ScoreBoardHandler scoreBoardHandler) {
+    public CompassListener(HungerGames plugin, LangHandler langHandler, CompassHandler compassHandler) {
         this.plugin = plugin;
         this.compassHandler = compassHandler;
         this.langHandler = langHandler;
-        this.teamsHandler = new TeamsHandler(plugin, langHandler, scoreBoardHandler);
+        this.teamsHandler = new TeamsHandler(plugin, langHandler);
 
         new BukkitRunnable() {
             @Override
@@ -86,22 +85,20 @@ public class CompassListener implements Listener {
                 teamsHandler.playerGlow(nearestPlayer, player, true);
 
                 World world = player.getWorld();
-                Map<Player, BukkitTask> worldGlowTasks = glowTasks.computeIfAbsent(world, k -> new HashMap<>());
+                Map<Player, BukkitTask> worldGlowTasks = glowTasks.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
                 if (worldGlowTasks.containsKey(player)) {
                     worldGlowTasks.get(player).cancel();
                 }
 
-                BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                    teamsHandler.playerGlow(nearestPlayer, player, false);
-                }, 200L);
+                BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> teamsHandler.playerGlow(nearestPlayer, player, false), 200L);
                 worldGlowTasks.put(player, task);
             }
         }
     }
 
     public void cancelGlowTask(World world) {
-        Map<Player, BukkitTask> worldGlowTasks = glowTasks.get(world);
+        Map<Player, BukkitTask> worldGlowTasks = glowTasks.get(world.getName());
 
         if (worldGlowTasks == null) {
             return;

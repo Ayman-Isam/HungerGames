@@ -19,28 +19,28 @@ public class CountDownHandler {
     private final SetSpawnHandler setSpawnHandler;
     private final TeamVotingListener teamVotingListener;
     private final ConfigHandler configHandler;
-    private final Map<World, List<BukkitTask>> countDownTasks = new HashMap<>();
+    private final Map<String, List<BukkitTask>> countDownTasks = new HashMap<>();
 
     public static int playersPerTeam;
 
-    public CountDownHandler(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener, ScoreBoardHandler scoreBoardHandler) {
+    public CountDownHandler(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener) {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.gameSequenceHandler = gameSequenceHandler;
-        this.teamsHandler = new TeamsHandler(plugin, langHandler, scoreBoardHandler);
+        this.teamsHandler = new TeamsHandler(plugin, langHandler);
         this.setSpawnHandler = setSpawnHandler;
         this.teamVotingListener = teamVotingListener;
         this.configHandler = plugin.getConfigHandler();
     }
 
     public void startCountDown(World world) {
-        List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world, k -> new ArrayList<>());
+        List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         if (configHandler.getWorldConfig(world).getBoolean("voting")) {
             String highestVotedGameMode;
             int teamSize;
 
-            Map<Player, String> worldPlayerVotes = TeamVotingListener.playerVotes.computeIfAbsent(world, k -> new HashMap<>());
+            Map<Player, String> worldPlayerVotes = TeamVotingListener.playerVotes.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
             int votedSolo = (int) worldPlayerVotes.values().stream().filter("solo"::equals).count();
             int votedDuo = (int) worldPlayerVotes.values().stream().filter("duo"::equals).count();
@@ -82,14 +82,14 @@ public class CountDownHandler {
 
         playersPerTeam = configHandler.getWorldConfig(world).getInt("players-per-team");
 
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world, k -> new HashMap<>());
-        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         worldPlayersAlive.addAll(worldSpawnPointMap.values());
     }
 
     private void runAfterDelay(World world) {
-        List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world, k -> new ArrayList<>());
+        List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         teamsHandler.createTeam(world);
 
@@ -111,7 +111,7 @@ public class CountDownHandler {
     }
 
     private void countDown(String messageKey, long delayInTicks, World world) {
-        List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world, k -> new ArrayList<>());
+        List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             for (Player player : world.getPlayers()) {
@@ -124,7 +124,7 @@ public class CountDownHandler {
     }
 
     public void cancelCountDown(World world) {
-        List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world, k -> new ArrayList<>());
+        List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         for (BukkitTask task : worldCountDownTasks) {
             task.cancel();

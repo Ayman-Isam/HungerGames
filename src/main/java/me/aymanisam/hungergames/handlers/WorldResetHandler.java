@@ -18,12 +18,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class WorldResetHandler {
     private final HungerGames plugin;
     private final ArenaHandler arenaHandler;
     private final ConfigHandler configHandler;
-    private final Map<World, BukkitTask> teleportTasks = new HashMap<>();
+    private final Map<String, BukkitTask> teleportTasks = new HashMap<>();
 
     public WorldResetHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
@@ -36,7 +37,9 @@ public class WorldResetHandler {
         File templateDirectory = new File(plugin.getDataFolder(), "templates" + File.separator + world.getName());
 
         if (!templateDirectory.exists()) {
-            templateDirectory.mkdirs();
+            if (!templateDirectory.mkdirs()) {
+                plugin.getLogger().log(Level.SEVERE, "Could not create templates directory");
+            }
         }
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -46,7 +49,7 @@ public class WorldResetHandler {
                     return !name.equals("session.lock") && !name.equals("uid.dat") && !name.equals("session.dat");
                 });
             } catch (IOException e) {
-                e.printStackTrace();
+                plugin.getLogger().log(Level.SEVERE, "Could not copy world folders");
             }
         });
     }
@@ -102,10 +105,10 @@ public class WorldResetHandler {
                             player.setGameMode(GameMode.ADVENTURE);
                         }
 
-                        Bukkit.getScheduler().cancelTask(teleportTasks.get(world).getTaskId());
+                        Bukkit.getScheduler().cancelTask(teleportTasks.get(world.getName()).getTaskId());
                     }, 0L, 5L);
 
-                    teleportTasks.put(world, task);
+                    teleportTasks.put(world.getName(), task);
 
                 } catch (IOException e) {
                     Bukkit.getLogger().severe("An error occurred: " + e.getMessage());

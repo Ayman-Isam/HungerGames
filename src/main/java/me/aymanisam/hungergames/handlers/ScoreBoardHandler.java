@@ -19,14 +19,12 @@ import static me.aymanisam.hungergames.handlers.GameSequenceHandler.timeLeft;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 
 public class ScoreBoardHandler {
-    private final HungerGames plugin;
     private final LangHandler langHandler;
     private final ConfigHandler configHandler;
 
-    public static Map<World, Integer> startingPlayers = new HashMap<>();
+    public static Map<String, Integer> startingPlayers = new HashMap<>();
 
     public ScoreBoardHandler(HungerGames plugin, LangHandler langHandler) {
-        this.plugin = plugin;
         this.langHandler = langHandler;
         this.configHandler = plugin.getConfigHandler();
     }
@@ -61,9 +59,9 @@ public class ScoreBoardHandler {
         int supplyDropInterval = worldConfig.getInt("supplydrop.interval");
         int borderStartSize = worldConfig.getInt("border.size");
         int borderEndSize = worldConfig.getInt("border.final-size");
-        int worldTimeLeft = timeLeft.get(world);
+        int worldTimeLeft = timeLeft.get(world.getName());
 
-        int worldPlayersAliveSize = playersAlive.computeIfAbsent(world, k -> new ArrayList<>()).size();
+        int worldPlayersAliveSize = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>()).size();
         int worldBorderSize = (int) world.getWorldBorder().getSize();
         int borderShrinkTimeLeft = (worldTimeLeft - gameTimeConfig) + borderShrinkTimeConfig;
         int pvpTimeLeft = (worldTimeLeft - gameTimeConfig) + pvpTimeConfig;
@@ -80,16 +78,16 @@ public class ScoreBoardHandler {
             Objective objective;
 
             if (playersPerTeam != 1) {
-                objective = scoreboard.registerNewObjective(langHandler.getMessage(player, "score.name-team"), "dummy", langHandler.getMessage(player, "score.name-team"), RenderType.INTEGER);
+                objective = scoreboard.registerNewObjective("playerScoreBoard", Criteria.DUMMY, langHandler.getMessage(player, "score.name-team"), RenderType.INTEGER);
             } else {
-                objective = scoreboard.registerNewObjective(langHandler.getMessage(player, "score.name-solo"), "dummy", langHandler.getMessage(player, "score.name-solo"), RenderType.INTEGER);
+                objective = scoreboard.registerNewObjective("playerScoreBoard", Criteria.DUMMY, langHandler.getMessage(player, "score.name-solo"), RenderType.INTEGER);
             }
 
             objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
             objective.getScore("  ").setScore(15);
 
-            int worldStartingPlayers = startingPlayers.get(world);
+            int worldStartingPlayers = startingPlayers.get(world.getName());
 
             Score playersAliveScore = objective.getScore(langHandler.getMessage(player, "score.alive", getColor(worldStartingPlayers, worldPlayersAliveSize).toString() + worldPlayersAliveSize));
             playersAliveScore.setScore(14);
@@ -132,8 +130,8 @@ public class ScoreBoardHandler {
                 supplyDropScore.setScore(6);
             }
 
-            List<List<Player>> worldTeams = teams.computeIfAbsent(world, k -> new ArrayList<>());
-            List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+            List<List<Player>> worldTeams = teams.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+            List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
             if (playersPerTeam > 1) {
                 objective.getScore("").setScore(5);

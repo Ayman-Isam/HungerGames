@@ -40,7 +40,7 @@ public class EndGameCommand implements CommandExecutor {
             return true;
         }
 
-        if (!isGameStartingOrStarted(p.getWorld())) {
+        if (!isGameStartingOrStarted(p.getWorld().getName())) {
             sender.sendMessage(langHandler.getMessage((Player) sender, "game.not-started"));
             return true;
         }
@@ -49,13 +49,13 @@ public class EndGameCommand implements CommandExecutor {
             player.sendTitle("", langHandler.getMessage(player, "game.ended"), 5, 20, 10);
         }
 
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.get(p.getWorld());
-        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(p.getWorld(), k -> new ArrayList<>());
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.get(p.getWorld().getName());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(p.getWorld().getName(), k -> new ArrayList<>());
 
-        if (gameStarting.getOrDefault(p.getWorld(), false)) {
+        if (gameStarting.getOrDefault(p.getWorld().getName(), false)) {
             countDownHandler.cancelCountDown(p.getWorld());
             worldPlayersAlive.clear();
-            gameStarting.put(p.getWorld(), false);
+            gameStarting.put(p.getWorld().getName(), false);
             for (Player player : p.getWorld().getPlayers()) {
                 if (worldSpawnPointMap.containsValue(player)) {
                     Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20.0);

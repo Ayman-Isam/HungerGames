@@ -50,7 +50,7 @@ public class MapChangeCommand implements CommandExecutor {
             return true;
         }
 
-        if (isGameStartingOrStarted(player.getWorld())) {
+        if (isGameStartingOrStarted(player.getWorld().getName())) {
             player.sendMessage(langHandler.getMessage(player, "map.game-running"));
             return true;
         }
@@ -87,7 +87,7 @@ public class MapChangeCommand implements CommandExecutor {
             return true;
         }
 
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(player.getWorld(), k -> new HashMap<>());
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(player.getWorld().getName(), k -> new HashMap<>());
 
         for (Player p : player.getWorld().getPlayers()) {
             if (worldSpawnPointMap.containsValue(p)) {

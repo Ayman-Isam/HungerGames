@@ -39,7 +39,7 @@ public class ToggleChatCommand implements CommandExecutor {
             return true;
         }
 
-        if (!isGameStartingOrStarted(player.getWorld())) {
+        if (!isGameStartingOrStarted(player.getWorld().getName())) {
             player.sendMessage(langHandler.getMessage(player, "game.not-started"));
             return true;
         }

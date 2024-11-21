@@ -1,11 +1,13 @@
 package me.aymanisam.hungergames.listeners;
 
-import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.handlers.*;
-import net.kyori.adventure.util.Index;
+import me.aymanisam.hungergames.handlers.ArenaHandler;
+import me.aymanisam.hungergames.handlers.LangHandler;
+import me.aymanisam.hungergames.handlers.SetSpawnHandler;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.block.sign.Side;
+import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,20 +20,16 @@ import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 
 public class SignClickListener implements Listener {
-    private final HungerGames plugin;
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
     private final ArenaHandler arenaHandler;
-    private final ConfigHandler configHandler;
     private final Map<Player, Long> lastInteractTime = new HashMap<>();
     private final Map<Player, Long> lastMessageTime = new HashMap<>();
 
-    public SignClickListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
-        this.plugin = plugin;
+    public SignClickListener(LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.arenaHandler = arenaHandler;
-        this.configHandler = plugin.getConfigHandler();
     }
 
     @EventHandler
@@ -46,7 +44,7 @@ public class SignClickListener implements Listener {
 
             if (block.getState() instanceof Sign sign) {
                 for (String worldName : worldNames) {
-                    if (sign.getLine(1).contains(worldName)) {
+                    if (sign.getSide(Side.FRONT).getLine(1).contains(worldName)) {
                         if (lastInteractTime.containsKey(player) && (currentTime - lastInteractTime.get(player)) < 5000) {
                             return; // Ignore the event if it's within the cooldown period
                         }
@@ -57,13 +55,13 @@ public class SignClickListener implements Listener {
                             return; // Don't send another message if within cooldown
                         }
 
-                        if (gameStarting.getOrDefault(world, false)) {
+                        if (gameStarting.getOrDefault(worldName, false)) {
                             player.sendMessage(langHandler.getMessage(player, "startgame.starting"));
                             lastMessageTime.put(player, currentTime);
                             return;
                         }
 
-                        if (gameStarted.getOrDefault(world, false)) {
+                        if (gameStarted.getOrDefault(worldName, false)) {
                             player.sendMessage(langHandler.getMessage(player, "startgame.started"));
                             lastMessageTime.put(player, currentTime);
                             return;
@@ -73,7 +71,7 @@ public class SignClickListener implements Listener {
                             World createdWorld = Bukkit.createWorld(WorldCreator.name(worldName));
                             assert createdWorld != null;
                             arenaHandler.loadWorldFiles(createdWorld);
-                            if (setSpawnHandler.playersWaiting.get(createdWorld) != null && setSpawnHandler.playersWaiting.get(createdWorld).contains(player)) {
+                            if (setSpawnHandler.playersWaiting.get(createdWorld.getName()) != null && setSpawnHandler.playersWaiting.get(createdWorld.getName()).contains(player)) {
                                 return;
                             }
                             setSpawnHandler.teleportPlayerToSpawnpoint(player, createdWorld);
@@ -107,22 +105,28 @@ public class SignClickListener implements Listener {
                 return;
             }
 
-            World world = Bukkit.getWorld(worldName);
-
-            int worldPlayersWaitingSize = setSpawnHandler.playersWaiting.computeIfAbsent(world, k -> new ArrayList<>()).size();
-            int worldSpawnPointSize = setSpawnHandler.spawnPoints.computeIfAbsent(world, k -> new ArrayList<>()).size();
-            List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world, k -> new ArrayList<>());
+            int worldPlayersWaitingSize = setSpawnHandler.playersWaiting.computeIfAbsent(worldName, k -> new ArrayList<>()).size();
+            int worldSpawnPointSize = setSpawnHandler.spawnPoints.computeIfAbsent(worldName, k -> new ArrayList<>()).size();
+            List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(worldName, k -> new ArrayList<>());
 
             if (location.getBlock().getState() instanceof Sign sign) {
                 sign.setEditable(false);
-                sign.setLine(0, ChatColor.BOLD + "Join");
-                sign.setLine(1, ChatColor.BOLD + worldName);
-                if (isGameStartingOrStarted(world)) {
-                    sign.setLine(2, ChatColor.BOLD + "In Progress");
-                    sign.setLine(3, ChatColor.BOLD + "" + worldPlayersAlive.size() + " Alive");
+                SignSide frontSide = sign.getSide(Side.FRONT);
+                SignSide backSide = sign.getSide(Side.BACK);
+                frontSide.setLine(0, ChatColor.BOLD + "Join");
+                backSide.setLine(0, ChatColor.BOLD + "Join");
+                frontSide.setLine(1, ChatColor.BOLD + worldName);
+                backSide.setLine(1, ChatColor.BOLD + worldName);
+                if (isGameStartingOrStarted(worldName)) {
+                    frontSide.setLine(2, ChatColor.BOLD + "In Progress");
+                    backSide.setLine(2, ChatColor.BOLD + "In Progress");
+                    frontSide.setLine(3, ChatColor.BOLD + "" + worldPlayersAlive.size() + " Alive");
+                    backSide.setLine(3, ChatColor.BOLD + "" + worldPlayersAlive.size() + " Alive");
                 } else {
-                    sign.setLine(2, ChatColor.BOLD + "Waiting");
-                    sign.setLine(3, ChatColor.BOLD + "[" + worldPlayersWaitingSize + "/" + worldSpawnPointSize + "]");
+                    frontSide.setLine(2, ChatColor.BOLD + "Waiting");
+                    backSide.setLine(2, ChatColor.BOLD + "Waiting");
+                    frontSide.setLine(3, ChatColor.BOLD + "[" + worldPlayersWaitingSize + "/" + worldSpawnPointSize + "]");
+                    backSide.setLine(3, ChatColor.BOLD + "[" + worldPlayersWaitingSize + "/" + worldSpawnPointSize + "]");
                 }
                 sign.update();
             }

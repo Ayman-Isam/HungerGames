@@ -1,6 +1,5 @@
 package me.aymanisam.hungergames.commands;
 
-import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.SpectatePlayerHandler;
 import org.bukkit.GameMode;
@@ -20,9 +19,9 @@ public class SpectatePlayerCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final SpectatePlayerHandler spectatePlayerHandler;
 
-    public SpectatePlayerCommand(HungerGames plugin, LangHandler langHandler) {
+    public SpectatePlayerCommand(LangHandler langHandler) {
         this.langHandler = langHandler;
-        this.spectatePlayerHandler = new SpectatePlayerHandler(plugin, langHandler);
+        this.spectatePlayerHandler = new SpectatePlayerHandler(langHandler);
     }
 
     @Override
@@ -42,7 +41,7 @@ public class SpectatePlayerCommand implements CommandExecutor {
             return true;
         }
 
-        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
 
         if (worldPlayersAlive.isEmpty()) {
             player.sendMessage(langHandler.getMessage(player, "spectate.no-player"));

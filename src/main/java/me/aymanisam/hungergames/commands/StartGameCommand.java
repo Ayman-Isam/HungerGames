@@ -43,12 +43,12 @@ public class StartGameCommand implements CommandExecutor {
             return true;
         }
 
-        if (gameStarted.getOrDefault(player.getWorld(), false)) {
+        if (gameStarted.getOrDefault(player.getWorld().getName(), false)) {
             sender.sendMessage(langHandler.getMessage(player, "startgame.started"));
             return true;
         }
 
-        if (gameStarting.getOrDefault(player.getWorld(), false)) {
+        if (gameStarting.getOrDefault(player.getWorld().getName(), false)) {
             sender.sendMessage(langHandler.getMessage(player, "startgame.starting"));
             return true;
         }
@@ -60,7 +60,7 @@ public class StartGameCommand implements CommandExecutor {
             return true;
         }
 
-        List<String> worldSpawnPoints = setSpawnHandler.spawnPoints.computeIfAbsent(player.getWorld(), k -> new ArrayList<>());
+        List<String> worldSpawnPoints = setSpawnHandler.spawnPoints.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
 
         if (worldSpawnPoints.isEmpty()) {
             sender.sendMessage(langHandler.getMessage(player, "startgame.set-spawn"));
@@ -69,14 +69,14 @@ public class StartGameCommand implements CommandExecutor {
 
         int minPlayers = configHandler.getWorldConfig(player.getWorld()).getInt("min-players");
 
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(player.getWorld(), k -> new HashMap<>());
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(player.getWorld().getName(), k -> new HashMap<>());
 
         if (worldSpawnPointMap.size() < minPlayers) {
             sender.sendMessage(langHandler.getMessage(player, "startgame.min-players", minPlayers));
             return true;
         }
 
-        gameStarting.put(player.getWorld(), true);
+        gameStarting.put(player.getWorld().getName(), true);
 
         countDownHandler.startCountDown(player.getWorld());
 

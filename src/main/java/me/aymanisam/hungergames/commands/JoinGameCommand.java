@@ -13,9 +13,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -61,17 +59,17 @@ public class JoinGameCommand implements CommandExecutor {
 
         World world = Bukkit.getWorld(worldName);
 
-        if (gameStarted.getOrDefault(world, false)) {
+        if (gameStarted.getOrDefault(worldName, false)) {
             player.sendMessage(langHandler.getMessage(player, "startgame.started"));
             return true;
         }
 
-        if (gameStarting.getOrDefault(world, false)) {
+        if (gameStarting.getOrDefault(worldName, false)) {
             player.sendMessage(langHandler.getMessage(player, "startgame.starting"));
             return true;
         }
 
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world, k -> new HashMap<>());
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(worldName, k -> new HashMap<>());
 
         if (worldSpawnPointMap.containsValue(player)) {
             player.sendMessage(langHandler.getMessage(player, "game.already-joined"));
@@ -82,7 +80,7 @@ public class JoinGameCommand implements CommandExecutor {
             World createdWorld = Bukkit.createWorld(WorldCreator.name(worldName));
             assert createdWorld != null;
             arenaHandler.loadWorldFiles(createdWorld);
-            if (setSpawnHandler.playersWaiting.get(createdWorld) != null && setSpawnHandler.playersWaiting.get(createdWorld).contains(player)) {
+            if (setSpawnHandler.playersWaiting.get(worldName) != null && setSpawnHandler.playersWaiting.get(worldName).contains(player)) {
                 return true;
             }
             setSpawnHandler.teleportPlayerToSpawnpoint(player, createdWorld);

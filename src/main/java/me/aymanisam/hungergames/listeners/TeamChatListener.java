@@ -21,7 +21,7 @@ public class TeamChatListener implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player sender = event.getPlayer();
 
-        if ((isGameStartingOrStarted(sender.getWorld())) && teamsHandler.isPlayerInAnyTeam(sender, sender.getWorld()) && teamsHandler.isChatModeEnabled(sender)) {
+        if ((isGameStartingOrStarted(sender.getWorld().getName())) && teamsHandler.isPlayerInAnyTeam(sender, sender.getWorld()) && teamsHandler.isChatModeEnabled(sender)) {
             List<Player> teammates = teamsHandler.getTeammates(sender, sender.getWorld());
 
             teammates.add(sender);

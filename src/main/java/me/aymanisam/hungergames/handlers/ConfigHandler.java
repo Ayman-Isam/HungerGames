@@ -19,9 +19,9 @@ public class ConfigHandler {
     private final HungerGames plugin;
 
     private File worldFile;
-    private final Map<World, FileConfiguration> worldConfigs = new HashMap<>();
+    private final Map<String, FileConfiguration> worldConfigs = new HashMap<>();
 
-    public ConfigHandler(HungerGames plugin, LangHandler langHandler) {
+    public ConfigHandler(HungerGames plugin) {
         this.plugin = plugin;
     }
 
@@ -41,7 +41,7 @@ public class ConfigHandler {
         }
 
         FileConfiguration config = YamlConfiguration.loadConfiguration(worldFile);
-        worldConfigs.put(world, config);
+        worldConfigs.put(world.getName(), config);
     }
 
     public FileConfiguration createPluginSettings() {
@@ -54,10 +54,10 @@ public class ConfigHandler {
     }
 
     public FileConfiguration getWorldConfig(World world) {
-        if (!worldConfigs.containsKey(world)) {
+        if (!worldConfigs.containsKey(world.getName())) {
             createWorldConfig(world);
         }
-        return worldConfigs.get(world);
+        return worldConfigs.get(world.getName());
     }
 
     public void saveWorldConfig(World world) {

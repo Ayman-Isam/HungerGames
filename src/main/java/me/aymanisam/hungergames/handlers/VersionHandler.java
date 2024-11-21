@@ -11,7 +11,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class VersionHandler {
-
     private static final String SPIGET_API_URL = "https://api.spiget.org/v2/resources/%d/versions/latest";
 
     public static String getLatestPluginVersion(int pluginId) {
@@ -30,7 +29,6 @@ public class VersionHandler {
                 return "Failed to get version: " + response.statusCode();
             }
         } catch (IOException | InterruptedException | ParseException e) {
-            e.printStackTrace();
             return "Error: " + e.getMessage();
         }
     }

@@ -1,6 +1,5 @@
 package me.aymanisam.hungergames.listeners;
 
-import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -22,9 +21,9 @@ import java.util.Objects;
 public class TeamVotingListener implements Listener {
     private final LangHandler langHandler;
 
-    public static final Map<World,Map<Player, String>> playerVotes = new HashMap<>();
+    public static final Map<String,Map<Player, String>> playerVotes = new HashMap<>();
 
-    public TeamVotingListener(HungerGames plugin, LangHandler langHandler) {
+    public TeamVotingListener(LangHandler langHandler) {
         this.langHandler = langHandler;
     }
 
@@ -91,7 +90,7 @@ public class TeamVotingListener implements Listener {
     }
 
     private long getVoteCount(String vote, World world) {
-        Map<Player, String> worldPlayerVotes = playerVotes.computeIfAbsent(world, k -> new HashMap<>());
+        Map<Player, String> worldPlayerVotes = playerVotes.computeIfAbsent(world.getName(), k -> new HashMap<>());
         return worldPlayerVotes.values().stream().filter(vote::equals).count();
     }
 
@@ -120,25 +119,25 @@ public class TeamVotingListener implements Listener {
         World world = player.getWorld();
 
         if (displayName.equals(langHandler.getMessage(player, "team.solo-inv"))) {
-            Map<Player, String> votes = playerVotes.computeIfAbsent(world, k -> new HashMap<>());
+            Map<Player, String> votes = playerVotes.computeIfAbsent(world.getName(), k -> new HashMap<>());
             votes.put(player, "solo");
             player.sendMessage(langHandler.getMessage(player, "team.voted-solo"));
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
             player.closeInventory();
         } else if (displayName.equals(langHandler.getMessage(player, "team.duo-inv"))) {
-            Map<Player, String> votes = playerVotes.computeIfAbsent(world, k -> new HashMap<>());
+            Map<Player, String> votes = playerVotes.computeIfAbsent(world.getName(), k -> new HashMap<>());
             votes.put(player, "duo");
             player.sendMessage(langHandler.getMessage(player, "team.voted-duo"));
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
             player.closeInventory();
         } else if (displayName.equals(langHandler.getMessage(player, "team.trio-inv"))) {
-            Map<Player, String> votes = playerVotes.computeIfAbsent(world, k -> new HashMap<>());
+            Map<Player, String> votes = playerVotes.computeIfAbsent(world.getName(), k -> new HashMap<>());
             votes.put(player, "trio");
             player.sendMessage(langHandler.getMessage(player, "team.voted-trio"));
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
             player.closeInventory();
         } else if (displayName.equals(langHandler.getMessage(player, "team.versus-inv"))) {
-            Map<Player, String> votes = playerVotes.computeIfAbsent(world, k -> new HashMap<>());
+            Map<Player, String> votes = playerVotes.computeIfAbsent(world.getName(), k -> new HashMap<>());
             votes.put(player, "versus");
             player.sendMessage(langHandler.getMessage(player, "team.voted-versus"));
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
