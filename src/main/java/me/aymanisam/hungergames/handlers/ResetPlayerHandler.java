@@ -15,7 +15,7 @@ public class ResetPlayerHandler {
         player.setSaturation(20);
         player.getInventory().clear();
         player.setExp(0);
-        player.setLevel(100);
+        player.setLevel(0);
         Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20);
         for (PotionEffect effect : player.getActivePotionEffects()) {
             player.removePotionEffect(effect.getType());
