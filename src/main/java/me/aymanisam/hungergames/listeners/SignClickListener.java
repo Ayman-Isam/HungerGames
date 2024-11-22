@@ -14,12 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
@@ -145,18 +140,6 @@ public class SignClickListener implements Listener {
         } catch (NumberFormatException e) {
             return null;
         }
-    }
-
-    private void openAnvilGUI(Player player) {
-        Inventory anvilInventory = Bukkit.createInventory(null, InventoryType.ANVIL, "Enter Pin");
-        ItemStack paper = new ItemStack(Material.PAPER);
-        ItemMeta meta = paper.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName("Enter your pin here");
-            paper.setItemMeta(meta);
-        }
-        anvilInventory.setItem(0, paper);
-        player.openInventory(anvilInventory);
     }
 
     private void teleportPlayer(String worldName, World world, Player player) {
