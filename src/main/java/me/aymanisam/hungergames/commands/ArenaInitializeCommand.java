@@ -50,7 +50,7 @@ public class ArenaInitializeCommand implements CommandExecutor {
 
         worldCreated.put(worldName, true);
 
-        int pin = new SecureRandom().nextInt(100000);
+        int pin = new SecureRandom().nextInt(10000);
 
         player.sendMessage(langHandler.getMessage(player,"game.initialized", worldName, pin));
 

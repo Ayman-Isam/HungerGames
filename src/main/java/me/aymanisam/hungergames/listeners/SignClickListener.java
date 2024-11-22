@@ -1,8 +1,10 @@
 package me.aymanisam.hungergames.listeners;
 
+import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.ArenaHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.SetSpawnHandler;
+import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -12,7 +14,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
@@ -20,13 +27,15 @@ import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 
 public class SignClickListener implements Listener {
+    private final HungerGames plugin;
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
     private final ArenaHandler arenaHandler;
     private final Map<Player, Long> lastInteractTime = new HashMap<>();
     private final Map<Player, Long> lastMessageTime = new HashMap<>();
 
-    public SignClickListener(LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
+    public SignClickListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
+        this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.arenaHandler = arenaHandler;
@@ -51,11 +60,9 @@ public class SignClickListener implements Listener {
 
                         World world = Bukkit.getWorld(worldName);
 
-                        if (lastMessageTime.containsKey(player) && (currentTime - lastMessageTime.get(player)) < 200) {
+                        if (lastMessageTime.containsKey(player) && (currentTime - lastMessageTime.get(player)) < 500) {
                             return; // Don't send another message if within cooldown
                         }
-
-                        System.out.println(worldCreated);
 
                         if (!worldCreated.getOrDefault(worldName, false)) {
                             player.sendMessage(langHandler.getMessage(player, "game.not-initialized"));
@@ -75,25 +82,96 @@ public class SignClickListener implements Listener {
                             return;
                         }
 
-                        if (world == null) {
-                            World createdWorld = Bukkit.createWorld(WorldCreator.name(worldName));
-                            assert createdWorld != null;
-                            arenaHandler.loadWorldFiles(createdWorld);
-                            if (setSpawnHandler.playersWaiting.get(createdWorld.getName()) != null && setSpawnHandler.playersWaiting.get(createdWorld.getName()).contains(player)) {
-                                return;
-                            }
-                            setSpawnHandler.teleportPlayerToSpawnpoint(player, createdWorld);
-                            setSpawnHandler.createSetSpawnConfig(createdWorld);
-                        } else {
-                            setSpawnHandler.teleportPlayerToSpawnpoint(player, world);
-                            setSpawnHandler.createSetSpawnConfig(world);
-                        }
+                        new AnvilGUI.Builder()
+                                .onClick((slot, stateSnapshot) -> {
+                                    if(slot != AnvilGUI.Slot.OUTPUT) {
+                                        return Collections.emptyList();
+                                    }
+
+                                    String inputPin = stateSnapshot.getText();
+
+                                    if (stringToInt(inputPin) != null && Integer.parseInt(inputPin) == (worldPins.get(worldName))) {
+                                        teleportPlayer(worldName, world, player);
+                                    } else {
+                                        player.sendMessage((langHandler.getMessage(player, "arena.wrong-pin")));
+                                    }
+                                    return List.of(AnvilGUI.ResponseAction.close());
+                                })
+                                .text(langHandler.getMessage(player, "arena.pin-text"))
+                                .title(langHandler.getMessage(player, "arena.pin-title"))
+                                .plugin(plugin)
+                                .open(player);
 
                         lastInteractTime.put(player, currentTime);
                         break;
                     }
                 }
             }
+        }
+    }
+
+//    @EventHandler
+//    public void onInventoryClick(InventoryClickEvent event) {
+//        System.out.println("Inventory Clicked");
+//        if (event.getInventory().getType() == InventoryType.ANVIL) {
+//            System.out.println("Anvil Inventory");
+//            if (event.getRawSlot() == 2) { // Result slot
+//                System.out.println("Result Slot");
+//                ItemStack item = event.getCurrentItem();
+//                System.out.println(item);
+//                if (item != null && item.hasItemMeta()) {
+//                    System.out.println("Item has meta");
+//                    String inputPin = Objects.requireNonNull(item.getItemMeta()).getDisplayName();
+//                    Player player = (Player) event.getWhoClicked();
+//                    String worldName = worldTeleportPlayer.get(player);
+//                    World world = Bukkit.getWorld(worldName);
+//
+//                    if (stringToInt(inputPin) != null && Integer.parseInt(inputPin) == (worldPins.get(worldName))) {
+//                        teleportPlayer(worldName, world, player);
+//                    } else {
+//                        player.sendMessage(langHandler.getMessage(player, "arena.wrong-pin"));
+//                    }
+//
+//                    event.setCancelled(true);
+//                    player.closeInventory();
+//                }
+//            }
+//        }
+//    }
+
+    private Integer stringToInt(String string) {
+        try {
+            return Integer.parseInt(string);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private void openAnvilGUI(Player player) {
+        Inventory anvilInventory = Bukkit.createInventory(null, InventoryType.ANVIL, "Enter Pin");
+        ItemStack paper = new ItemStack(Material.PAPER);
+        ItemMeta meta = paper.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName("Enter your pin here");
+            paper.setItemMeta(meta);
+        }
+        anvilInventory.setItem(0, paper);
+        player.openInventory(anvilInventory);
+    }
+
+    private void teleportPlayer(String worldName, World world, Player player) {
+        if (world == null) {
+            World createdWorld = Bukkit.createWorld(WorldCreator.name(worldName));
+            assert createdWorld != null;
+            arenaHandler.loadWorldFiles(createdWorld);
+            if (setSpawnHandler.playersWaiting.get(createdWorld.getName()) != null && setSpawnHandler.playersWaiting.get(createdWorld.getName()).contains(player)) {
+                return;
+            }
+            setSpawnHandler.teleportPlayerToSpawnpoint(player, createdWorld);
+            setSpawnHandler.createSetSpawnConfig(createdWorld);
+        } else {
+            setSpawnHandler.teleportPlayerToSpawnpoint(player, world);
+            setSpawnHandler.createSetSpawnConfig(world);
         }
     }
 

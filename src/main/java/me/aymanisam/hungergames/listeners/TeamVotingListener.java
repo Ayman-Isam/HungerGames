@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
@@ -96,6 +97,10 @@ public class TeamVotingListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
+        if (event.getInventory().getType() == InventoryType.ANVIL && "Enter Pin".equals(event.getView().getTitle())) {
+            event.setCancelled(true);
+        }
+
         Player player = (Player) event.getWhoClicked();
 
         if (!event.getView().getTitle().equals(langHandler.getMessage(player, "team.voting-inv"))) {

@@ -45,7 +45,7 @@ public class SetSpawnHandler {
         this.teamVotingListener = new TeamVotingListener(langHandler);
         this.configHandler = plugin.getConfigHandler();
         this.signHandler = new SignHandler(plugin);
-        this.signClickListener = new SignClickListener(langHandler, this, arenaHandler);
+        this.signClickListener = new SignClickListener(plugin, langHandler, this, arenaHandler);
     }
 
     public void setCountDownHandler(CountDownHandler countDownHandler) {

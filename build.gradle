@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'com.gradleup.shadow' version '8.3.5'
 }
 
 group = 'me.aymanisam'
@@ -23,6 +23,10 @@ repositories {
     maven {
         url 'https://repo.codemc.io/repository/maven-releases/'
     }
+    maven {
+        name = "codemc-snapshot"
+        url = "https://repo.codemc.io/repository/maven-snapshots/"
+    }
 }
 
 dependencies {
@@ -33,6 +37,7 @@ dependencies {
     implementation 'com.github.retrooper:packetevents-spigot:2.6.0'
     implementation 'net.kyori:adventure-platform-bukkit:4.3.4'
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    implementation "net.wesjd:anvilgui:1.10.3-SNAPSHOT"
 }
 
 def targetJavaVersion = 17
@@ -58,6 +63,7 @@ shadowJar {
     relocate 'org.bstats', "${group}.bstats"
     relocate 'com.github.retrooper.packetevents', "${group}.packetevents.api"
     relocate 'io.github.retrooper.packetevents', "${group}.packetevents.impl"
+    relocate 'net.wesjd.anvilgui', "${group}.anvilgui"
     archiveClassifier.set('')
 }
 
