@@ -73,9 +73,9 @@ scanarena:
   region-undef: "&c配置中未定义区域。"
   saved-locations: "&a已保存箱子位置。"
   failed-locations: "&c无法将箱子位置保存到文件！"
-  found-chests: "&a扫描的&b箱子&a数量：&6"
-  found-barrels: "&a扫描的&b桶&a数量：&6"
-  found-trapped-chests: "&a扫描的&b陷阱箱&a数量：&6"
+  found-chests: "&a扫描的&b箱子&a数量：&6{0}"
+  found-barrels: "&a扫描的&b桶&a数量：&6{0}"
+  found-trapped-chests: "&a扫描的&b陷阱箱&a数量：&6{0}"
 
 score:
   name-solo: "&a饥饿游戏 单人战"
@@ -83,11 +83,11 @@ score:
   time: "剩余时间：{0}"
   alive: "存活玩家：{0}"
   border: "边界尺寸：{0}"
-  borderShrink: "边界收缩到：{0}"
-  pvp: "PvP在：{0}"
+  borderShrink: "边界收缩倒计时：{0}"
+  pvp: "PvP启用倒计时：{0}"
   teammate: "队友：{0}"
-  chestrefill: "箱子补给于：{0}"
-  supplydrop: "补给掉落于：{0}"
+  chestrefill: "箱子补给倒计时：{0}"
+  supplydrop: "补给掉落倒计时：{0}"
 
 setspawn:
   stick-name: "&b出生点选择器。"
@@ -136,7 +136,7 @@ supplydrop:
   no-arena: "&c执行此命令前请先创建一个竞技场！"
   created-items: "&a已创建新的items.yml文件！"
   failed-items: "&c无法创建items.yml文件！"
-  spawned: "&d在 &b 生成了补给箱"
+  spawned: "&d在 &b{0} 生成了补给箱"
   
 team:
   voting-inv: "&2为游戏模式投票"
