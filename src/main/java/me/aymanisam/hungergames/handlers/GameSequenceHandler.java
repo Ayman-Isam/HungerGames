@@ -57,7 +57,7 @@ public class GameSequenceHandler {
         this.scoreBoardHandler = new ScoreBoardHandler(plugin, langHandler);
         this.resetPlayerHandler = new ResetPlayerHandler();
         this.configHandler = plugin.getConfigHandler();
-        this.worldResetHandler = new WorldResetHandler(plugin, langHandler);
+        this.worldResetHandler = new WorldResetHandler(plugin);
         this.compassListener = compassListener;
         this.teamsHandler = teamsHandler;
         this.signHandler = new SignHandler(plugin);
@@ -187,6 +187,7 @@ public class GameSequenceHandler {
         List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         if (worldTeamsAlive.size() == 1) {
+            //noinspection SequencedCollectionMethodCanBeUsed
             List<Player> winningTeam = worldTeamsAlive.get(0);
             winningTeam(winningTeam, "winner", world);
         } else {
@@ -203,6 +204,7 @@ public class GameSequenceHandler {
 
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
+        //noinspection SequencedCollectionMethodCanBeUsed
         Player winner = worldPlayersAlive.isEmpty() ? null : worldPlayersAlive.get(0);
         for (Player player : world.getPlayers()) {
             if (winner != null) {
@@ -313,6 +315,7 @@ public class GameSequenceHandler {
         }
 
         if (potentialWinningTeams.size() == 1) {
+            //noinspection SequencedCollectionMethodCanBeUsed
             List<Player> winningTeam = potentialWinningTeams.get(0);
             String winReason = maxAlivePlayers > 0 ? "team-alive" : "team-kills";
             winningTeam(winningTeam, winReason, world);
@@ -326,7 +329,9 @@ public class GameSequenceHandler {
     public void endGame(Boolean disable, World world) {
         gameStarted.put(world.getName(), false);
 
-        for (Player player : world.getPlayers()) {
+        List<Player> players = new ArrayList<>(world.getPlayers());
+
+        for (Player player : players) {
             resetPlayerHandler.resetPlayer(player);
             removeBossBar(player);
             String lobbyWorldName = (String) configHandler.createPluginSettings().get("lobby-world");
@@ -337,19 +342,22 @@ public class GameSequenceHandler {
             scoreBoardHandler.removeScoreboard(player);
         }
 
-        worldBorderHandler.resetWorldBorder(world);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (!disable && configHandler.createPluginSettings().getBoolean("reset-world")) {
+                worldResetHandler.resetWorldState(world);
+            } else {
+                worldBorderHandler.resetWorldBorder(world);
 
-        worldResetHandler.removeShulkers(world);
+                worldResetHandler.removeShulkers(world);
 
-        if (!disable && configHandler.createPluginSettings().getBoolean("reset-world")) {
-            worldResetHandler.sendToWorld(world);
-            worldResetHandler.resetWorldState(world);
-        }
+                world.getEntitiesByClass(Item.class).forEach(Item::remove);
+                world.getEntitiesByClass(ExperienceOrb.class).forEach(ExperienceOrb::remove);
+                world.getEntitiesByClass(Arrow.class).forEach(Arrow::remove);
+                world.getEntitiesByClass(Trident.class).forEach(Trident::remove);
 
-        world.getEntitiesByClass(Item.class).forEach(Item::remove);
-        world.getEntitiesByClass(ExperienceOrb.class).forEach(ExperienceOrb::remove);
-        world.getEntitiesByClass(Arrow.class).forEach(Arrow::remove);
-        world.getEntitiesByClass(Trident.class).forEach(Trident::remove);
+                Bukkit.unloadWorld(world, true);
+            }
+        }, 20L);
 
         world.setPVP(false);
 
@@ -385,11 +393,9 @@ public class GameSequenceHandler {
 
         signClickListener.setSignContent(signHandler.loadSignLocations());
 
-        Bukkit.unloadWorld(world, true);
-
         if (plugin.isEnabled()) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                for (Player player : world.getPlayers()) {
+                for (Player player : players) {
                     player.sendMessage(langHandler.getMessage(player, "game.join-instruction"));
                     player.sendTitle("", langHandler.getMessage(player, "game.join-instruction"), 5, 20, 10);
                 }

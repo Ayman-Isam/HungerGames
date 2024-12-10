@@ -1,5 +1,5 @@
 name: HungerGames
-version: '1.7.4'
+version: '1.7.6'
 main: me.aymanisam.hungergames.HungerGames
 api-version: '1.20'
 authors: [ 'AymanIsam' ]
@@ -38,8 +38,8 @@ permissions:
   hungergames.end:
     description: "Allows you to forcefully end the game in HungerGames"
     default: op
-  hungergames.map:
-    description: "Allows you to switch maps in HungerGames"
+  hungergames.teleport:
+    description: "Allows you to teleport players to arenas in HungerGames"
     default: op
   hungergames.teamsize:
     description: "Allows you to set the team size in HungerGames"
