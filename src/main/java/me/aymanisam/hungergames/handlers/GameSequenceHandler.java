@@ -55,7 +55,7 @@ public class GameSequenceHandler {
         this.setSpawnHandler = setSpawnHandler;
         this.worldBorderHandler = new WorldBorderHandler(plugin, langHandler);
         this.scoreBoardHandler = new ScoreBoardHandler(plugin, langHandler);
-        this.resetPlayerHandler = new ResetPlayerHandler();
+        this.resetPlayerHandler = new ResetPlayerHandler(plugin);
         this.configHandler = plugin.getConfigHandler();
         this.worldResetHandler = new WorldResetHandler(plugin);
         this.compassListener = compassListener;
@@ -73,7 +73,7 @@ public class GameSequenceHandler {
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         worldPlayersWaiting.clear();
-        startingPlayers.put(world.getName(), worldSpawnPointMap.values().size());
+        startingPlayers.put(world.getName(), worldSpawnPointMap.size());
         worldSpawnPointMap.clear();
 
         signClickListener.setSignContent(signHandler.loadSignLocations());
@@ -332,7 +332,7 @@ public class GameSequenceHandler {
         List<Player> players = new ArrayList<>(world.getPlayers());
 
         for (Player player : players) {
-            resetPlayerHandler.resetPlayer(player);
+            resetPlayerHandler.resetPlayer(player, world);
             removeBossBar(player);
             String lobbyWorldName = (String) configHandler.createPluginSettings().get("lobby-world");
             assert lobbyWorldName != null;
@@ -342,22 +342,24 @@ public class GameSequenceHandler {
             scoreBoardHandler.removeScoreboard(player);
         }
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (!disable && configHandler.createPluginSettings().getBoolean("reset-world")) {
-                worldResetHandler.resetWorldState(world);
-            } else {
-                worldBorderHandler.resetWorldBorder(world);
+        if (!disable) {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (configHandler.createPluginSettings().getBoolean("reset-world")) {
+                    worldResetHandler.resetWorldState(world);
+                } else {
+                    worldBorderHandler.resetWorldBorder(world);
 
-                worldResetHandler.removeShulkers(world);
+                    worldResetHandler.removeShulkers(world);
 
-                world.getEntitiesByClass(Item.class).forEach(Item::remove);
-                world.getEntitiesByClass(ExperienceOrb.class).forEach(ExperienceOrb::remove);
-                world.getEntitiesByClass(Arrow.class).forEach(Arrow::remove);
-                world.getEntitiesByClass(Trident.class).forEach(Trident::remove);
+                    world.getEntitiesByClass(Item.class).forEach(Item::remove);
+                    world.getEntitiesByClass(ExperienceOrb.class).forEach(ExperienceOrb::remove);
+                    world.getEntitiesByClass(Arrow.class).forEach(Arrow::remove);
+                    world.getEntitiesByClass(Trident.class).forEach(Trident::remove);
 
-                Bukkit.unloadWorld(world, true);
-            }
-        }, 20L);
+                    Bukkit.unloadWorld(world, true);
+                }
+            }, 20L);
+        }
 
         world.setPVP(false);
 

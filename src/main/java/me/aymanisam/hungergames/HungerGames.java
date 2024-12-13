@@ -92,6 +92,9 @@ public final class HungerGames extends JavaPlugin {
         TeamChatListener teamChatListener = new TeamChatListener(teamsHandler);
         getServer().getPluginManager().registerEvents(teamChatListener, this);
 
+        BlockBreakListener blockBreakListener = new BlockBreakListener(this);
+        getServer().getPluginManager().registerEvents(blockBreakListener, this);
+
         File serverDirectory = new File(".");
         File[] files = serverDirectory.listFiles();
 

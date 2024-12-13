@@ -1,6 +1,8 @@
 package me.aymanisam.hungergames.handlers;
 
+import me.aymanisam.hungergames.HungerGames;
 import org.bukkit.GameMode;
+import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -8,8 +10,18 @@ import org.bukkit.potion.PotionEffect;
 import java.util.Objects;
 
 public class ResetPlayerHandler {
-    public void resetPlayer(Player player) {
-        player.setGameMode(GameMode.ADVENTURE);
+    private final ConfigHandler configHandler;
+
+    public ResetPlayerHandler(HungerGames plugin) {
+        this.configHandler = plugin.getConfigHandler();
+    }
+
+    public void resetPlayer(Player player, World world) {
+        if (configHandler.getWorldConfig(world).getBoolean("break-blocks.enabled")) {
+            player.setGameMode(GameMode.SURVIVAL);
+        } else {
+            player.setGameMode(GameMode.ADVENTURE);
+        }
         player.setHealth(20);
         player.setFoodLevel(20);
         player.setSaturation(20);

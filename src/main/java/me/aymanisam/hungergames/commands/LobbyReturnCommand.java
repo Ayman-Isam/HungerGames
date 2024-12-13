@@ -43,7 +43,7 @@ public class LobbyReturnCommand implements CommandExecutor {
         this.signClickListener = new SignClickListener(langHandler, setSpawnHandler, arenaHandler);
         this.signHandler = new SignHandler(plugin);
         this.countDownHandler = countDownHandler;
-        this.resetPlayerHandler = new ResetPlayerHandler();
+        this.resetPlayerHandler = new ResetPlayerHandler(plugin);
         this.scoreBoardHandler = scoreBoardHandler;
     }
 
@@ -101,7 +101,7 @@ public class LobbyReturnCommand implements CommandExecutor {
             plugin.getLogger().log(Level.SEVERE, "Could not find lobbyWorld [ " + lobbyWorldName + "]");
         }
 
-        resetPlayerHandler.resetPlayer(player);
+        resetPlayerHandler.resetPlayer(player, world);
         Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
         BossBar bossBar = worldPlayerBossBar.get(player);
