@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static me.aymanisam.hungergames.HungerGames.hgWorldNames;
 import static me.aymanisam.hungergames.HungerGames.worldNames;
 
 public class CommandDispatcher implements CommandExecutor, TabCompleter {
@@ -26,7 +27,6 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
     private final ScoreBoardHandler scoreBoardHandler;
     private final CountDownHandler countDownHandler;
     private final ArenaHandler arenaHandler;
-    private final ConfigHandler configHandler;
 
     public CommandDispatcher(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamsHandler teamsHandler, ScoreBoardHandler scoreBoardHandler, CountDownHandler countDownHandler, ArenaHandler arenaHandler) {
         this.plugin = plugin;
@@ -37,7 +37,6 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
         this.scoreBoardHandler = scoreBoardHandler;
         this.countDownHandler = countDownHandler;
         this.arenaHandler = arenaHandler;
-        this.configHandler = plugin.getConfigHandler();
     }
 
     @Override
@@ -67,7 +66,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     executor = new EndGameCommand(langHandler, gameSequenceHandler, countDownHandler, setSpawnHandler);
                     break;
                 case "teleport":
-                    executor = new ArenaTeleportCommand(plugin, langHandler);
+                    executor = new WorldTeleportCommand(plugin, langHandler);
                     break;
                 case "chestrefill":
                     executor = new ChestRefillCommand(plugin, langHandler);
@@ -140,9 +139,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 return completions;
             } else if (args[0].equalsIgnoreCase("join")) {
                 if (args.length == 2) {
-                    String worldNameToRemove = configHandler.createPluginSettings().getString("lobby-world");
-                    worldNames.remove(worldNameToRemove);
-                    return worldNames;
+                    return hgWorldNames;
                 }
             } else if (args[0].equalsIgnoreCase("teleport")) {
                 if (args.length == 2) {

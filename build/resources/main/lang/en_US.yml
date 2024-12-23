@@ -68,7 +68,7 @@ teleport:
   no-player: "&cPlease enter a player to teleport or all to teleport everyone!"
   invalid-player: "&cPlayer &b{0} &cnot found!"
   no-arena: "&cPlease enter an arena to teleport to!"
-  invalid-arena: "&cArena &b{0} &cnot found!"
+  invalid-world: "&World &b{0} &cnot found!"
   teleported: "&bYou have been teleported to &d{0}"
   sender: "&d{0} &bhas been teleported to &d{1}"
 

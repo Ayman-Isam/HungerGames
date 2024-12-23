@@ -17,11 +17,11 @@ import java.util.List;
 
 import static me.aymanisam.hungergames.HungerGames.worldNames;
 
-public class ArenaTeleportCommand implements CommandExecutor {
+public class WorldTeleportCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final ArenaHandler arenaHandler;
 
-    public ArenaTeleportCommand(HungerGames plugin, LangHandler langHandler) {
+    public WorldTeleportCommand(HungerGames plugin, LangHandler langHandler) {
         this.langHandler = langHandler;
         this.arenaHandler = new ArenaHandler(plugin, langHandler);
     }
@@ -61,17 +61,17 @@ public class ArenaTeleportCommand implements CommandExecutor {
             return true;
         }
 
-        String arenaName = args[1];
+        String worldName = args[1];
 
-        if (!worldNames.contains(arenaName)) {
-            sender.sendMessage(langHandler.getMessage((Player) sender, "teleport.invalid-arena", arenaName));
+        if (!worldNames.contains(worldName)) {
+            sender.sendMessage(langHandler.getMessage((Player) sender, "teleport.invalid-world", worldName));
             return false;
         }
 
-        World world = Bukkit.getWorld(arenaName);
+        World world = Bukkit.getWorld(worldName);
 
         if (world == null) {
-            world = Bukkit.createWorld(WorldCreator.name(arenaName));
+            world = Bukkit.createWorld(WorldCreator.name(worldName));
             assert world != null;
             arenaHandler.loadWorldFiles(world);
         }

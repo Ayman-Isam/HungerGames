@@ -44,7 +44,7 @@ public class PlayerListener implements Listener {
         this.configHandler = plugin.getConfigHandler();
         ArenaHandler arenaHandler = new ArenaHandler(plugin, langHandler);
         this.signHandler = new SignHandler(plugin);
-        this.signClickListener = new SignClickListener(langHandler, setSpawnHandler, arenaHandler);
+        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
         this.scoreBoardHandler = scoreBoardHandler;
     }
 

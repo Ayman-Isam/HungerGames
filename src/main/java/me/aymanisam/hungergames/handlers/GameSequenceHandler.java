@@ -61,7 +61,7 @@ public class GameSequenceHandler {
         this.compassListener = compassListener;
         this.teamsHandler = teamsHandler;
         this.signHandler = new SignHandler(plugin);
-        this.signClickListener = new SignClickListener(langHandler, setSpawnHandler, new ArenaHandler(plugin, langHandler));
+        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, new ArenaHandler(plugin, langHandler));
     }
 
     public void startGame(World world) {
@@ -187,7 +187,6 @@ public class GameSequenceHandler {
         List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         if (worldTeamsAlive.size() == 1) {
-            //noinspection SequencedCollectionMethodCanBeUsed
             List<Player> winningTeam = worldTeamsAlive.get(0);
             winningTeam(winningTeam, "winner", world);
         } else {
@@ -204,7 +203,6 @@ public class GameSequenceHandler {
 
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
-        //noinspection SequencedCollectionMethodCanBeUsed
         Player winner = worldPlayersAlive.isEmpty() ? null : worldPlayersAlive.get(0);
         for (Player player : world.getPlayers()) {
             if (winner != null) {
@@ -315,7 +313,6 @@ public class GameSequenceHandler {
         }
 
         if (potentialWinningTeams.size() == 1) {
-            //noinspection SequencedCollectionMethodCanBeUsed
             List<Player> winningTeam = potentialWinningTeams.get(0);
             String winReason = maxAlivePlayers > 0 ? "team-alive" : "team-kills";
             winningTeam(winningTeam, winReason, world);

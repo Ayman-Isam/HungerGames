@@ -45,14 +45,14 @@ public class JoinGameCommand implements CommandExecutor {
         }
 
         if (!(args.length == 1)) {
-            sender.sendMessage(langHandler.getMessage(player, "map.no-args"));
+            sender.sendMessage(langHandler.getMessage(player, "teleport.no-arena"));
             return true;
         }
 
         String worldName = args[0];
 
-        if (!worldNames.contains(worldName)) {
-            sender.sendMessage(langHandler.getMessage(player, "map.not-found", worldName));
+        if (!hgWorldNames.contains(worldName)) {
+            sender.sendMessage(langHandler.getMessage(player, "teleport.invalid-arena", worldName));
             plugin.getLogger().info("Loaded maps:" + plugin.getServer().getWorlds().stream().map(World::getName).collect(Collectors.joining(", ")));
             return true;
         }

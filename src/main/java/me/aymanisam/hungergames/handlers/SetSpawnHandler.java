@@ -13,6 +13,7 @@ import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -45,7 +46,7 @@ public class SetSpawnHandler {
         this.teamVotingListener = new TeamVotingListener(langHandler);
         this.configHandler = plugin.getConfigHandler();
         this.signHandler = new SignHandler(plugin);
-        this.signClickListener = new SignClickListener(langHandler, this, arenaHandler);
+        this.signClickListener = new SignClickListener(plugin, langHandler, this, arenaHandler);
     }
 
     public void setCountDownHandler(CountDownHandler countDownHandler) {
@@ -55,11 +56,22 @@ public class SetSpawnHandler {
     public void createSetSpawnConfig(World world) {
         File worldFolder = new File(plugin.getDataFolder() + File.separator + world.getName());
         setSpawnFile = new File(worldFolder, "setspawn.yml");
-        if (!setSpawnFile.exists()) {
-            if (setSpawnFile.getParentFile().mkdirs()) {
+
+        File parentDirectory = setSpawnFile.getParentFile();
+        if (!parentDirectory.exists()) {
+            if (!parentDirectory.mkdirs()) {
                 plugin.getLogger().log(Level.SEVERE, "Could not find parent directory for world: " + world.getName());
+                return;
             }
-            plugin.saveResource("setspawn.yml", false);
+        }
+
+        if (!setSpawnFile.exists()) {
+            try {
+                plugin.saveResource("setspawn.yml", true);
+                Files.copy(new File(plugin.getDataFolder(), "setspawn.yml").toPath(), setSpawnFile.toPath());
+            } catch (IOException e) {
+                plugin.getLogger().log(Level.SEVERE, "Could not create spawnpoint file for world " + setSpawnFile, e);
+            }
         }
 
         setSpawnConfig = YamlConfiguration.loadConfiguration(setSpawnFile);

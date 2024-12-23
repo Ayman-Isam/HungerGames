@@ -1,5 +1,6 @@
 package me.aymanisam.hungergames.listeners;
 
+import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.ArenaHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
 import me.aymanisam.hungergames.handlers.SetSpawnHandler;
@@ -15,18 +16,22 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.*;
+import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 
 public class SignClickListener implements Listener {
+    private final HungerGames plugin;
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
     private final ArenaHandler arenaHandler;
+
     private final Map<Player, Long> lastInteractTime = new HashMap<>();
     private final Map<Player, Long> lastMessageTime = new HashMap<>();
 
-    public SignClickListener(LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
+    public SignClickListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
+        this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.arenaHandler = arenaHandler;
@@ -43,7 +48,7 @@ public class SignClickListener implements Listener {
             long currentTime = System.currentTimeMillis();
 
             if (block.getState() instanceof Sign sign) {
-                for (String worldName : worldNames) {
+                for (String worldName : hgWorldNames) {
                     if (sign.getSide(Side.FRONT).getLine(1).contains(worldName)) {
                         if (lastInteractTime.containsKey(player) && (currentTime - lastInteractTime.get(player)) < 5000) {
                             return; // Ignore the event if it's within the cooldown period
@@ -90,7 +95,7 @@ public class SignClickListener implements Listener {
     }
 
     public void setSignContent(List<Location> locations) {
-        List<String> worlds = new ArrayList<>(worldNames);
+        List<String> worlds = new ArrayList<>(hgWorldNames);
         Collections.sort(worlds);
 
         if (worlds.isEmpty() || locations.isEmpty()) {
@@ -102,6 +107,7 @@ public class SignClickListener implements Listener {
             try {
                 worldName = worlds.get(0);
             } catch (IndexOutOfBoundsException e) {
+                plugin.getLogger().log(Level.WARNING, "Could not set sign content");
                 return;
             }
 
