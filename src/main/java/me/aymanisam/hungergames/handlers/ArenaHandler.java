@@ -8,6 +8,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -28,20 +29,20 @@ public class ArenaHandler {
     public void createArenaConfig(World world) {
         String worldName = world.getName();
         arenaFile = new File(plugin.getDataFolder() + File.separator + worldName, "arena.yml");
-        if (!arenaFile.exists()) {
-            if (!arenaFile.getParentFile().mkdirs()) {
-                plugin.getLogger().log(Level.SEVERE, "Could not find parent directory for world: " + worldName);
-            }
 
-            File tempFile = new File(plugin.getDataFolder(), "arena.yml");
+        File parentDirectory = arenaFile.getParentFile();
+        if (!parentDirectory.exists()) {
+            if (!parentDirectory.mkdirs()) {
+                plugin.getLogger().log(Level.SEVERE, "Could not find parent directory for world: " + worldName);
+                return;
+            }
+        }
+
+        if (!arenaFile.exists()) {
             try {
                 plugin.saveResource("arena.yml", true);
-                if (tempFile.exists()) {
-                    if (!tempFile.renameTo(arenaFile)) {
-                        plugin.getLogger().log(Level.SEVERE, "Could not rename arenaFile for world: " + worldName);
-                    }
-                }
-            } catch (Exception e) {
+                Files.copy(new File(plugin.getDataFolder(), "arena.yml").toPath(), arenaFile.toPath());
+            } catch (IOException e) {
                 plugin.getLogger().log(Level.SEVERE, "Could not create arena.yml from", e);
             }
         }
@@ -118,13 +119,6 @@ public class ArenaHandler {
                 chunk.load();
             }
             chunk.setForceLoaded(true);
-        }
-    }
-
-    public void unloadChunks(World world) {
-        List<Chunk> chunks = getChunksToLoadOrUnload(world);
-        for (Chunk chunk : chunks) {
-            chunk.setForceLoaded(false);
         }
     }
 

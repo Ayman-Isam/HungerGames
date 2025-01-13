@@ -8,6 +8,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -22,6 +23,7 @@ import static me.aymanisam.hungergames.handlers.VersionHandler.getLatestPluginVe
 public final class HungerGames extends JavaPlugin {
     public static Map<String, Boolean> gameStarted = new HashMap<>();
     public static Map<String, Boolean> gameStarting = new HashMap<>();
+    public static List<String> hgWorldNames = new ArrayList<>();
     public static List<String> worldNames = new ArrayList<>();
     public static Map<Player, Long> totalTimeSpent = new HashMap<>();
     public static Map<String, Boolean> worldCreated = new HashMap<>();
@@ -52,6 +54,21 @@ public final class HungerGames extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        getServer().getConsoleSender().sendMessage("""
+                \n
+                
+                 ██░ ██  █    ██  ███▄    █   ▄████ ▓█████  ██▀███    ▄████  ▄▄▄       ███▄ ▄███▓▓█████   ██████\s
+                ▓██░ ██▒ ██  ▓██▒ ██ ▀█   █  ██▒ ▀█▒▓█   ▀ ▓██ ▒ ██▒ ██▒ ▀█▒▒████▄    ▓██▒▀█▀ ██▒▓█   ▀ ▒██    ▒\s
+                ▒██▀▀██░▓██  ▒██░▓██  ▀█ ██▒▒██░▄▄▄░▒███   ▓██ ░▄█ ▒▒██░▄▄▄░▒██  ▀█▄  ▓██    ▓██░▒███   ░ ▓██▄  \s
+                ░▓█ ░██ ▓▓█  ░██░▓██▒  ▐▌██▒░▓█  ██▓▒▓█  ▄ ▒██▀▀█▄  ░▓█  ██▓░██▄▄▄▄██ ▒██    ▒██ ▒▓█  ▄   ▒   ██▒
+                ░▓█▒░██▓▒▒█████▓ ▒██░   ▓██░░▒▓███▀▒░▒████▒░██▓ ▒██▒░▒▓███▀▒ ▓█   ▓██▒▒██▒   ░██▒░▒████▒▒██████▒▒
+                 ▒ ░░▒░▒░▒▓▒ ▒ ▒ ░ ▒░   ▒ ▒  ░▒   ▒ ░░ ▒░ ░░ ▒▓ ░▒▓░ ░▒   ▒  ▒▒   ▓▒█░░ ▒░   ░  ░░░ ▒░ ░▒ ▒▓▒ ▒ ░
+                 ▒ ░▒░ ░░░▒░ ░ ░ ░ ░░   ░ ▒░  ░   ░  ░ ░  ░  ░▒ ░ ▒░  ░   ░   ▒   ▒▒ ░░  ░      ░ ░ ░  ░░ ░▒  ░ ░
+                 ░  ░░ ░ ░░░ ░ ░    ░   ░ ░ ░ ░   ░    ░     ░░   ░ ░ ░   ░   ░   ▒   ░      ░      ░   ░  ░  ░ \s
+                 ░  ░  ░   ░              ░       ░    ░  ░   ░           ░       ░  ░       ░      ░  ░      ░ \s
+                                                                                                                \s
+                """);
+
         // Bstats
         int bstatsPluginId = 21512;
         new Metrics(this, bstatsPluginId);
@@ -111,6 +128,9 @@ public final class HungerGames extends JavaPlugin {
         TeamChatListener teamChatListener = new TeamChatListener(teamsHandler);
         getServer().getPluginManager().registerEvents(teamChatListener, this);
 
+        BlockBreakListener blockBreakListener = new BlockBreakListener(this);
+        getServer().getPluginManager().registerEvents(blockBreakListener, this);
+
         File serverDirectory = new File(".");
         File[] files = serverDirectory.listFiles();
 
@@ -121,15 +141,24 @@ public final class HungerGames extends JavaPlugin {
                     File levelDat = new File(file, "level.dat");
                     if (levelDat.exists()) {
                         String worldName = file.getName();
-                        if (!configHandler.createPluginSettings().getStringList("ignored-worlds").contains(worldName)) {
-                            worldNames.add(worldName);
+                        worldNames.add(worldName);
+                        FileConfiguration settings = configHandler.createPluginSettings();
+                        if (!settings.getBoolean("whitelist-worlds")) {
+                            if (!settings.getStringList("ignored-worlds").contains(worldName)) {
+                                hgWorldNames.add(worldName);
+                            }
+                        } else {
+                            if (settings.getStringList("ignored-worlds").contains(worldName)) {
+                                hgWorldNames.add(worldName);
+                            }
                         }
                     }
                 }
             }
         }
 
-        configHandler.createPluginSettings();
+        hgWorldNames.remove(configHandler.createPluginSettings().getString("lobby-world"));
+
         configHandler.validateSettingsKeys();
 
         PacketEvents.getAPI().init();

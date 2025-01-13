@@ -60,9 +60,9 @@ public class GameSequenceHandler {
         this.setSpawnHandler = setSpawnHandler;
         this.worldBorderHandler = new WorldBorderHandler(plugin, langHandler);
         this.scoreBoardHandler = new ScoreBoardHandler(plugin, langHandler);
-        this.resetPlayerHandler = new ResetPlayerHandler();
+        this.resetPlayerHandler = new ResetPlayerHandler(plugin);
         this.configHandler = plugin.getConfigHandler();
-        this.worldResetHandler = new WorldResetHandler(plugin, langHandler);
+        this.worldResetHandler = new WorldResetHandler(plugin);
         this.compassListener = compassListener;
         this.teamsHandler = teamsHandler;
         this.signHandler = new SignHandler(plugin);
@@ -79,7 +79,7 @@ public class GameSequenceHandler {
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         worldPlayersWaiting.clear();
-        startingPlayers.put(world.getName(), worldSpawnPointMap.values().size());
+        startingPlayers.put(world.getName(), worldSpawnPointMap.size());
         worldSpawnPointMap.clear();
 
         signClickListener.setSignContent(signHandler.loadSignLocations());
@@ -379,52 +379,52 @@ public class GameSequenceHandler {
     public void endGame(Boolean disable, World world) {
         gameStarted.put(world.getName(), false);
 
-        List<Player> worldPlayerPlacements = playerPlacements.get(world.getName());
-        List<List<Player>> worldTeamPlacements = teamPlacements.get(world.getName());
+	    List<Player> worldPlayerPlacements = playerPlacements.get(world.getName());
+	    List<List<Player>> worldTeamPlacements = teamPlacements.get(world.getName());
 
-        if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
-            if (worldPlayerPlacements != null && startingPlayers != null && worldPlayerPlacements.size() == startingPlayers.get(world.getName())) {
-                for (Player player : worldPlayerPlacements) {
-                    int playerIndex = worldPlayerPlacements.indexOf(player);
-                    double percentile = (1 - (playerIndex / (worldPlayerPlacements.size() - 1.0))) * 100.0;
+	    if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
+		    if (worldPlayerPlacements != null && startingPlayers != null && worldPlayerPlacements.size() == startingPlayers.get(world.getName())) {
+			    for (Player player : worldPlayerPlacements) {
+				    int playerIndex = worldPlayerPlacements.indexOf(player);
+				    double percentile = (1 - (playerIndex / (worldPlayerPlacements.size() - 1.0))) * 100.0;
 
-                    try {
-                        PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+				    try {
+					    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-                        double netPercentile = (playerStats.getSoloPercentile() * playerStats.getSoloGamesPlayed() + percentile) / (playerStats.getSoloGamesPlayed() + 1);
-                        playerStats.setSoloPercentile(netPercentile);
+					    double netPercentile = (playerStats.getSoloPercentile() * playerStats.getSoloGamesPlayed() + percentile) / (playerStats.getSoloGamesPlayed() + 1);
+					    playerStats.setSoloPercentile(netPercentile);
 
-                        this.plugin.getDatabase().updatePlayerStats(playerStats);
-                    } catch (SQLException e) {
-                        plugin.getLogger().log(Level.SEVERE, e.toString());
-                    }
-                }
-            }
-        } else {
-            if (worldTeamPlacements != null && worldTeamPlacements.size()  == teams.get(world.getName()).size()) {
-                for (List<Player> team : worldTeamPlacements) {
-                    int teamIndex = worldTeamPlacements.indexOf(team);
-                    double percentile = (1 - (teamIndex / (worldTeamPlacements.size() - 1.0))) * 100.0;
+					    this.plugin.getDatabase().updatePlayerStats(playerStats);
+				    } catch (SQLException e) {
+					    plugin.getLogger().log(Level.SEVERE, e.toString());
+				    }
+			    }
+		    }
+	    } else {
+		    if (worldTeamPlacements != null && worldTeamPlacements.size()  == teams.get(world.getName()).size()) {
+			    for (List<Player> team : worldTeamPlacements) {
+				    int teamIndex = worldTeamPlacements.indexOf(team);
+				    double percentile = (1 - (teamIndex / (worldTeamPlacements.size() - 1.0))) * 100.0;
 
-                    for (Player player : team) {
-                        try {
-                            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+				    for (Player player : team) {
+					    try {
+						    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-                            double netPercentile = (playerStats.getTeamPercentile() * playerStats.getTeamGamesPlayed() + percentile) / (playerStats.getTeamGamesPlayed() + 1);
+						    double netPercentile = (playerStats.getTeamPercentile() * playerStats.getTeamGamesPlayed() + percentile) / (playerStats.getTeamGamesPlayed() + 1);
 
-                            playerStats.setTeamPercentile(netPercentile);
+						    playerStats.setTeamPercentile(netPercentile);
 
-                            this.plugin.getDatabase().updatePlayerStats(playerStats);
-                        } catch (SQLException e) {
-                            plugin.getLogger().log(Level.SEVERE, e.toString());
-                        }
-                    }
-                }
-            }
-        }
+						    this.plugin.getDatabase().updatePlayerStats(playerStats);
+					    } catch (SQLException e) {
+						    plugin.getLogger().log(Level.SEVERE, e.toString());
+					    }
+				    }
+			    }
+		    }
+	    }
 
-        playerPlacements.clear();
-        teamPlacements.clear();
+	    playerPlacements.clear();
+	    teamPlacements.clear();
 
         for (Player player : world.getPlayers()) {
             resetPlayerHandler.resetPlayer(player);
@@ -443,19 +443,24 @@ public class GameSequenceHandler {
             }
         }
 
-        worldBorderHandler.resetWorldBorder(world);
+        if (!disable) {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (configHandler.createPluginSettings().getBoolean("reset-world")) {
+                    worldResetHandler.resetWorldState(world);
+                } else {
+                    worldBorderHandler.resetWorldBorder(world);
 
-        worldResetHandler.removeShulkers(world);
+                    worldResetHandler.removeShulkers(world);
 
-        if (!disable && configHandler.createPluginSettings().getBoolean("reset-world")) {
-            worldResetHandler.sendToWorld(world);
-            worldResetHandler.resetWorldState(world);
+                    world.getEntitiesByClass(Item.class).forEach(Item::remove);
+                    world.getEntitiesByClass(ExperienceOrb.class).forEach(ExperienceOrb::remove);
+                    world.getEntitiesByClass(Arrow.class).forEach(Arrow::remove);
+                    world.getEntitiesByClass(Trident.class).forEach(Trident::remove);
+
+                    Bukkit.unloadWorld(world, true);
+                }
+            }, 20L);
         }
-
-        world.getEntitiesByClass(Item.class).forEach(Item::remove);
-        world.getEntitiesByClass(ExperienceOrb.class).forEach(ExperienceOrb::remove);
-        world.getEntitiesByClass(Arrow.class).forEach(Arrow::remove);
-        world.getEntitiesByClass(Trident.class).forEach(Trident::remove);
 
         world.setPVP(false);
 
@@ -491,11 +496,9 @@ public class GameSequenceHandler {
 
         signClickListener.setSignContent(signHandler.loadSignLocations());
 
-        Bukkit.unloadWorld(world, true);
-
         if (plugin.isEnabled()) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                for (Player player : world.getPlayers()) {
+                for (Player player : players) {
                     player.sendMessage(langHandler.getMessage(player, "game.join-instruction"));
                     player.sendTitle("", langHandler.getMessage(player, "game.join-instruction"), 5, 20, 10);
                 }

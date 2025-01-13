@@ -42,7 +42,7 @@ public class LobbyReturnCommand implements CommandExecutor {
         this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
         this.signHandler = new SignHandler(plugin);
         this.countDownHandler = countDownHandler;
-        this.resetPlayerHandler = new ResetPlayerHandler();
+        this.resetPlayerHandler = new ResetPlayerHandler(plugin);
         this.scoreBoardHandler = scoreBoardHandler;
     }
 
@@ -105,7 +105,7 @@ public class LobbyReturnCommand implements CommandExecutor {
         Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
         totalTimeSpent.put(player, timeAlive + timeSpent);
 
-        resetPlayerHandler.resetPlayer(player);
+        resetPlayerHandler.resetPlayer(player, world);
         Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
         BossBar bossBar = worldPlayerBossBar.get(player);

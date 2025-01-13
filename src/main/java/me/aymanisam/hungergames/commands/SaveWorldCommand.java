@@ -16,7 +16,7 @@ public class SaveWorldCommand implements CommandExecutor {
 
     public SaveWorldCommand(HungerGames plugin, LangHandler langHandler) {
         this.langHandler = langHandler;
-        this.worldResetHandler = new WorldResetHandler(plugin, langHandler);
+        this.worldResetHandler = new WorldResetHandler(plugin);
     }
 
     @Override

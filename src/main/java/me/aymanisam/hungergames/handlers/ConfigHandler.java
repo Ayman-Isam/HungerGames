@@ -28,10 +28,16 @@ public class ConfigHandler {
     public void createWorldConfig(World world) {
         String worldName = world.getName();
         worldFile = new File(plugin.getDataFolder() + File.separator + worldName, "config.yml");
-        if (!worldFile.exists()) {
-            if (!worldFile.getParentFile().mkdirs()) {
+
+        File parentDirectory = worldFile.getParentFile();
+        if (!parentDirectory.exists()) {
+            if (!parentDirectory.mkdirs()) {
                 plugin.getLogger().log(Level.SEVERE, "Could not find parent directory for world: " + worldName);
+                return;
             }
+        }
+
+        if (!worldFile.exists()) {
             try {
                 plugin.saveResource("config.yml", true);
                 Files.copy(new File(plugin.getDataFolder(), "config.yml").toPath(), worldFile.toPath());
@@ -75,17 +81,24 @@ public class ConfigHandler {
     public YamlConfiguration loadItemsConfig(World world) {
         String worldName = world.getName();
         File itemsFile = new File(plugin.getDataFolder() + File.separator + worldName, "items.yml");
-        if (!itemsFile.exists()) {
-            if (!itemsFile.getParentFile().mkdirs()) {
+
+        File parentDirectory = itemsFile.getParentFile();
+        if (!parentDirectory.exists()) {
+            if (!parentDirectory.mkdirs()) {
                 plugin.getLogger().log(Level.SEVERE, "Could not find parent directory for world: " + worldName);
+                return null;
             }
-            plugin.saveResource("items.yml", true);
+        }
+
+        if (!itemsFile.exists()) {
             try {
+                plugin.saveResource("items.yml", true);
                 Files.copy(new File(plugin.getDataFolder(), "items.yml").toPath(), itemsFile.toPath());
             } catch (IOException e) {
                 plugin.getLogger().log(Level.SEVERE, "Could not create items file for world " + worldName, e);
             }
         }
+
         return YamlConfiguration.loadConfiguration(itemsFile);
     }
 

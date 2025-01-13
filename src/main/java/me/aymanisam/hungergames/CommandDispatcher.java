@@ -2,6 +2,7 @@ package me.aymanisam.hungergames;
 
 import me.aymanisam.hungergames.commands.*;
 import me.aymanisam.hungergames.handlers.*;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static me.aymanisam.hungergames.HungerGames.hgWorldNames;
 import static me.aymanisam.hungergames.HungerGames.worldNames;
 
 public class CommandDispatcher implements CommandExecutor, TabCompleter {
@@ -25,7 +27,6 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
     private final ScoreBoardHandler scoreBoardHandler;
     private final CountDownHandler countDownHandler;
     private final ArenaHandler arenaHandler;
-    private final ConfigHandler configHandler;
 
     public CommandDispatcher(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamsHandler teamsHandler, ScoreBoardHandler scoreBoardHandler, CountDownHandler countDownHandler, ArenaHandler arenaHandler) {
         this.plugin = plugin;
@@ -36,7 +37,6 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
         this.scoreBoardHandler = scoreBoardHandler;
         this.countDownHandler = countDownHandler;
         this.arenaHandler = arenaHandler;
-        this.configHandler = plugin.getConfigHandler();
     }
 
     @Override
@@ -68,8 +68,8 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 case "initialize":
                     executor = new ArenaInitializeCommand(plugin, langHandler);
                     break;
-                case "map":
-                    executor = new MapChangeCommand(plugin, langHandler, setSpawnHandler);
+                case "teleport":
+                    executor = new WorldTeleportCommand(plugin, langHandler);
                     break;
                 case "chestrefill":
                     executor = new ChestRefillCommand(plugin, langHandler);
@@ -115,7 +115,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 List<String> completions = new ArrayList<>();
-                String[] commands = {"join", "lobby", "start", "spectate", "select", "end", "teamchat", "initialize" ,"map", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig", "setsign"};
+                String[] commands = {"join", "lobby", "start", "spectate", "select", "end", "teamchat", "teleport", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig", "setsign"};
 
                 for (String subcommand : commands) {
                     if (sender.hasPermission("hungergames." + subcommand)) {
@@ -140,10 +140,21 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 }
 
                 return completions;
-            } else if (args[0].equalsIgnoreCase("map") || (args[0].equalsIgnoreCase("join")) || args[0].equalsIgnoreCase("initialize")) {
+            } else if (args[0].equalsIgnoreCase("join")) {
                 if (args.length == 2) {
-                    String worldNameToRemove = (String) configHandler.createPluginSettings().get("lobby-world");
-                    worldNames.remove(worldNameToRemove);
+                    return hgWorldNames;
+                }
+            } else if (args[0].equalsIgnoreCase("teleport")) {
+                if (args.length == 2) {
+                    List<String> allowedPlayers = new ArrayList<>(List.of("all"));
+
+                    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                        allowedPlayers.add(onlinePlayer.getName());
+                    }
+
+                    return allowedPlayers;
+                }
+                else if (args.length == 3) {
                     return worldNames;
                 }
             }

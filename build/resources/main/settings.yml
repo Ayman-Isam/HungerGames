@@ -2,11 +2,13 @@
 lobby-world: "world"
 # Enable tips to let players get displayed tips periodically
 tips: true
-# Worlds that will be ignored by HungerGames
+# If enabled, only worlds listed here will be included in HungerGames
+whitelist-worlds: false
+# Worlds that will be excluded from list
 ignored-worlds:
   - "world_nether"
   - "world_the_end"
-  # More worlds
+  # Add more worlds to exclude
 # Reset world, this restores the world to a previous state
 reset-world: false
 # Enable or disable players spectating on death, default is false, set to true to enable

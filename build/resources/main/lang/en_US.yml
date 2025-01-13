@@ -70,11 +70,13 @@ game:
   worldsaved: "&aWorld &b{0} &ahas been saved!"
   not-team: "&cThis command cannot be run in a solo game"
 
-map:
-  no-args: "&cPlease enter a map name!"
-  not-found: "&cMap &b{0} &cnot found!"
-  switched: "&aSwitched to map: &b{0}"
-  game-running: "&cThe game is currently running!"
+teleport:
+  no-player: "&cPlease enter a player to teleport or all to teleport everyone!"
+  invalid-player: "&cPlayer &b{0} &cnot found!"
+  no-arena: "&cPlease enter an arena to teleport to!"
+  invalid-world: "&World &b{0} &cnot found!"
+  teleported: "&bYou have been teleported to &d{0}"
+  sender: "&d{0} &bhas been teleported to &d{1}"
 
 scanarena:
   region-undef: "&cThe area region is not defined in the config."
@@ -115,7 +117,7 @@ setspawn:
 
 spectate:
   spectating-player: "&dYou are now spectating"
-  no-player: "&cNo players to teleport to!"
+  no-player: "&cNo players to telep1ort to!"
   null-player: "&cPlayer not found!"
   teleported: "&bTeleported to &b{0}"
   not-spectator: "&cYou are not a spectator!"

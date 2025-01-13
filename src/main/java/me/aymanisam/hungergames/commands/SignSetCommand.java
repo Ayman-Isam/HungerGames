@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
-import static me.aymanisam.hungergames.HungerGames.worldNames;
+import static me.aymanisam.hungergames.HungerGames.hgWorldNames;
 
 public class SignSetCommand implements CommandExecutor {
     private final LangHandler langHandler;
@@ -72,7 +72,7 @@ public class SignSetCommand implements CommandExecutor {
     }
 
     private boolean checkNearbySigns(Player player, Location targetBlockLocation) {
-        int numSigns = worldNames.size() - 2; // 1 lobbyworld and 1 because it's the target block
+        int numSigns = hgWorldNames.size() - 1; // because it's the target block
 
         if (numSigns < 0) {
             player.sendMessage(langHandler.getMessage(player, "game.no-worlds", numSigns));

@@ -157,7 +157,6 @@ trapped-chest-items:
     amount: 1
 
   - type: COMPASS
-    meta: "Enemy Tracker"
     amount: 1
     weight: 1
 
