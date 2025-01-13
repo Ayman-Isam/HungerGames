@@ -40,6 +40,11 @@ public class EndGameCommand implements CommandExecutor {
             return true;
         }
 
+        if (!p.hasPermission("hungergames.end")) {
+            p.sendMessage(langHandler.getMessage(p, "no-permission"));
+            return true;
+        }
+
         if (!isGameStartingOrStarted(p.getWorld().getName())) {
             sender.sendMessage(langHandler.getMessage((Player) sender, "game.not-started"));
             return true;

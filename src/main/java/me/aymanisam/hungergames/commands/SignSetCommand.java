@@ -74,10 +74,6 @@ public class SignSetCommand implements CommandExecutor {
     private boolean checkNearbySigns(Player player, Location targetBlockLocation) {
         int numSigns = hgWorldNames.size() - 1; // because it's the target block
 
-        System.out.println(hgWorldNames);
-
-        System.out.println(numSigns);
-
         if (numSigns < 0) {
             player.sendMessage(langHandler.getMessage(player, "game.no-worlds", numSigns));
             signHandler.saveSignLocations(Collections.emptyList());

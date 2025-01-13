@@ -100,8 +100,6 @@ public class ChestRefillHandler {
                     .flatMap(itemMap -> {
                         String type = (String) itemMap.get("type");
 
-                        String meta = (itemMap.get("meta") != null) ? (String) itemMap.get("meta") : null;
-
                         Integer amountObj = (Integer) itemMap.get("amount");
                         int amount = (amountObj != null) ? amountObj : 1;
 
@@ -112,10 +110,6 @@ public class ChestRefillHandler {
 
                         if (type.equals("POTION") || type.equals("SPLASH_POTION") || type.equals("LINGERING_POTION") || type.equals("TIPPED_ARROW")) {
                             item = new ItemStack(Objects.requireNonNull(Material.getMaterial(type)), amount);
-                            ItemMeta itemMeta = item.getItemMeta();
-                            if (itemMeta != null && meta != null) {
-                                itemMeta.setDisplayName(meta);
-                            }
                             PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
                             String potionType = (String) itemMap.get("potion-type");
                             Integer levelObj = (Integer) itemMap.get("level");
@@ -129,10 +123,6 @@ public class ChestRefillHandler {
                             assert material != null;
                             item = new ItemStack(material, amount);
                             Object enchantsObj = itemMap.get("enchantments");
-                            ItemMeta itemMeta = item.getItemMeta();
-                            if (itemMeta != null && meta != null) {
-                                itemMeta.setDisplayName(meta);
-                            }
                             if (enchantsObj instanceof List<?> enchantList) {
                                 for (Object enchantObj : enchantList) {
                                     if (enchantObj instanceof Map<?, ?> enchantMap) {
@@ -156,10 +146,6 @@ public class ChestRefillHandler {
                             item = new ItemStack(Material.FIREWORK_ROCKET, amount);
                             FireworkMeta fireworkMeta = (FireworkMeta) item.getItemMeta();
                             assert fireworkMeta != null;
-                            ItemMeta itemMeta = item.getItemMeta();
-                            if (itemMeta != null && meta != null) {
-                                itemMeta.setDisplayName(meta);
-                            }
                             fireworkMeta.setPower((Integer) itemMap.get("power"));
 
                             List<Map<?, ?>> effectsList = (List<Map<?, ?>>) itemMap.get("effects");
@@ -186,15 +172,12 @@ public class ChestRefillHandler {
                             Material material = Material.getMaterial(type);
                             assert material != null;
                             item = new ItemStack(material, amount);
-                            ItemMeta itemMeta = item.getItemMeta();
-                            if (itemMeta != null && meta != null) {
-                                itemMeta.setDisplayName(meta);
-                            }
                         }
 
                         if (itemMap.containsKey("nbt")) {
                             Map<String, Object> nbtData = (Map<String, Object>) itemMap.get("nbt");
                             ItemMeta itemMeta = item.getItemMeta();
+                            assert itemMeta != null;
                             PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
 
                             for (Map.Entry<String, Object> entry : nbtData.entrySet()) {
