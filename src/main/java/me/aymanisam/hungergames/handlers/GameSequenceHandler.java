@@ -426,8 +426,10 @@ public class GameSequenceHandler {
 	    playerPlacements.clear();
 	    teamPlacements.clear();
 
-        for (Player player : world.getPlayers()) {
-            resetPlayerHandler.resetPlayer(player);
+        List<Player> players = world.getPlayers();
+
+        for (Player player : players) {
+            resetPlayerHandler.resetPlayer(player, world);
             removeBossBar(player);
             String lobbyWorldName = (String) configHandler.createPluginSettings().get("lobby-world");
             assert lobbyWorldName != null;
