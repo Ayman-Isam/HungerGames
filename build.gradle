@@ -54,7 +54,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 shadowJar {
-    archiveFileName = "Hungergames-${version}-${spigotAPIVersion}.jar"
+    archiveFileName = "Hungergames-${version}.jar"
     relocate 'org.bstats', "${group}.bstats"
     relocate 'com.github.retrooper.packetevents', "${group}.packetevents.api"
     relocate 'io.github.retrooper.packetevents', "${group}.packetevents.impl"

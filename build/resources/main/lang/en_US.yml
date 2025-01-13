@@ -40,9 +40,6 @@ chestrefill:
   refilled: "&aChests have been refilled!"
 
 game:
-  not-initialized: "&cThe arena has not been initialized. Run /hg initialize <world_name> to initialize the arena for 1 HG Coin"
-  no-coins: "&cNot enough coins to initialize game, you have &b{0}"
-  initialized: "&bArena &d{0} &bhas been initialized. Your pin is &d{1}."
   game-end: "&6The game has ended!"
   winner: "&b{0} &dis the winner!"
   solo-kills: "&dTime's up! &b{0} &dwon with most kills!"

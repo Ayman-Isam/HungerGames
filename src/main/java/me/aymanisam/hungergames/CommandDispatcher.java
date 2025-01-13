@@ -65,9 +65,6 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 case "end":
                     executor = new EndGameCommand(plugin, langHandler, gameSequenceHandler, countDownHandler, setSpawnHandler);
                     break;
-                case "initialize":
-                    executor = new ArenaInitializeCommand(plugin, langHandler);
-                    break;
                 case "teleport":
                     executor = new WorldTeleportCommand(plugin, langHandler);
                     break;

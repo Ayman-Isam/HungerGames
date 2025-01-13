@@ -60,12 +60,6 @@ public class SignClickListener implements Listener {
                             return; // Don't send another message if within cooldown
                         }
 
-                        if (!worldCreated.getOrDefault(worldName, false)) {
-                            player.sendMessage(langHandler.getMessage(player, "game.not-initialized"));
-                            lastMessageTime.put(player, currentTime);
-                            return;
-                        }
-
                         if (gameStarting.getOrDefault(worldName, false)) {
                             player.sendMessage(langHandler.getMessage(player, "startgame.starting"));
                             lastMessageTime.put(player, currentTime);
