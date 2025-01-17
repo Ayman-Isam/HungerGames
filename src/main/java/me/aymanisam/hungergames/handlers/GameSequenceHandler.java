@@ -93,18 +93,20 @@ public class GameSequenceHandler {
             Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
             totalTimeSpent.put(player, timeSpent);
 
-            try {
-                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+            if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+                try {
+                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-                if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
-                    playerStats.setSoloGamesPlayed(playerStats.getSoloGamesPlayed() + 1);
-                } else {
-                    playerStats.setTeamGamesPlayed(playerStats.getTeamGamesPlayed() + 1);
+                    if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
+                        playerStats.setSoloGamesPlayed(playerStats.getSoloGamesPlayed() + 1);
+                    } else {
+                        playerStats.setTeamGamesPlayed(playerStats.getTeamGamesPlayed() + 1);
+                    }
+
+                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, e.toString());
                 }
-
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
-            } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, e.toString());
             }
         }
 
@@ -234,14 +236,16 @@ public class GameSequenceHandler {
         if (winner != null) {
             worldPlayerPlacements.add(winner);
 
-            try {
-                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(winner);
+            if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+                try {
+                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(winner);
 
-                playerStats.setSoloGamesWon(playerStats.getSoloGamesWon() + 1);
+                    playerStats.setSoloGamesWon(playerStats.getSoloGamesWon() + 1);
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
-            } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, e.toString());
+                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, e.toString());
+                }
             }
         }
 
@@ -302,15 +306,17 @@ public class GameSequenceHandler {
                 player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
             }
 
-            for (Player player: winningTeam) {
-                try {
-                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+            if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+                for (Player player : winningTeam) {
+                    try {
+                        PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-                    playerStats.setTeamGamesWon(playerStats.getTeamGamesWon() + 1);
+                        playerStats.setTeamGamesWon(playerStats.getTeamGamesWon() + 1);
 
-                    this.plugin.getDatabase().updatePlayerStats(playerStats);
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, e.toString());
+                        this.plugin.getDatabase().updatePlayerStats(playerStats);
+                    } catch (SQLException e) {
+                        plugin.getLogger().log(Level.SEVERE, e.toString());
+                    }
                 }
             }
         }
@@ -388,16 +394,18 @@ public class GameSequenceHandler {
 				    int playerIndex = worldPlayerPlacements.indexOf(player);
 				    double percentile = (1 - (playerIndex / (worldPlayerPlacements.size() - 1.0))) * 100.0;
 
-				    try {
-					    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+                    if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+                        try {
+                            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-					    double netPercentile = (playerStats.getSoloPercentile() * playerStats.getSoloGamesPlayed() + percentile) / (playerStats.getSoloGamesPlayed() + 1);
-					    playerStats.setSoloPercentile(netPercentile);
+                            double netPercentile = (playerStats.getSoloPercentile() * playerStats.getSoloGamesPlayed() + percentile) / (playerStats.getSoloGamesPlayed() + 1);
+                            playerStats.setSoloPercentile(netPercentile);
 
-					    this.plugin.getDatabase().updatePlayerStats(playerStats);
-				    } catch (SQLException e) {
-					    plugin.getLogger().log(Level.SEVERE, e.toString());
-				    }
+                            this.plugin.getDatabase().updatePlayerStats(playerStats);
+                        } catch (SQLException e) {
+                            plugin.getLogger().log(Level.SEVERE, e.toString());
+                        }
+                    }
 			    }
 		    }
 	    } else {
@@ -406,19 +414,21 @@ public class GameSequenceHandler {
 				    int teamIndex = worldTeamPlacements.indexOf(team);
 				    double percentile = (1 - (teamIndex / (worldTeamPlacements.size() - 1.0))) * 100.0;
 
-				    for (Player player : team) {
-					    try {
-						    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+                    if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+                        for (Player player : team) {
+                            try {
+                                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-						    double netPercentile = (playerStats.getTeamPercentile() * playerStats.getTeamGamesPlayed() + percentile) / (playerStats.getTeamGamesPlayed() + 1);
+                                double netPercentile = (playerStats.getTeamPercentile() * playerStats.getTeamGamesPlayed() + percentile) / (playerStats.getTeamGamesPlayed() + 1);
 
-						    playerStats.setTeamPercentile(netPercentile);
+                                playerStats.setTeamPercentile(netPercentile);
 
-						    this.plugin.getDatabase().updatePlayerStats(playerStats);
-					    } catch (SQLException e) {
-						    plugin.getLogger().log(Level.SEVERE, e.toString());
-					    }
-				    }
+                                this.plugin.getDatabase().updatePlayerStats(playerStats);
+                            } catch (SQLException e) {
+                                plugin.getLogger().log(Level.SEVERE, e.toString());
+                            }
+                        }
+                    }
 			    }
 		    }
 	    }
@@ -431,7 +441,7 @@ public class GameSequenceHandler {
         for (Player player : players) {
             resetPlayerHandler.resetPlayer(player, world);
             removeBossBar(player);
-            String lobbyWorldName = (String) configHandler.createPluginSettings().get("lobby-world");
+            String lobbyWorldName = (String) configHandler.getPluginSettings().get("lobby-world");
             assert lobbyWorldName != null;
             World lobbyWorld = Bukkit.getWorld(lobbyWorldName);
             assert lobbyWorld != null;
@@ -447,7 +457,7 @@ public class GameSequenceHandler {
 
         if (!disable) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (configHandler.createPluginSettings().getBoolean("reset-world")) {
+                if (configHandler.getPluginSettings().getBoolean("reset-world")) {
                     worldResetHandler.resetWorldState(world);
                 } else {
                     worldBorderHandler.resetWorldBorder(world);

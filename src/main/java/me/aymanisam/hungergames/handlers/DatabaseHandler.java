@@ -26,9 +26,9 @@ public class DatabaseHandler {
             return connection;
         }
 
-        String url = configHandler.createPluginSettings().getString("database-url");
-        String user = configHandler.createPluginSettings().getString("database-user");
-        String password = configHandler.createPluginSettings().getString("database-password");
+        String url = configHandler.getPluginSettings().getString("database.url");
+        String user = configHandler.getPluginSettings().getString("database.user");
+        String password = configHandler.getPluginSettings().getString("database.password");
 
         try {
             Class.forName("org.mariadb.jdbc.Driver");

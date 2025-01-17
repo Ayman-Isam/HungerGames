@@ -85,14 +85,16 @@ public class StartGameCommand implements CommandExecutor {
 
         countDownHandler.startCountDown(player.getWorld());
 
-        try {
-            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+        if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+            try {
+                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-            playerStats.setCredits(playerStats.getCredits() - 1);
+                playerStats.setCredits(playerStats.getCredits() - 1);
 
-            this.plugin.getDatabase().updatePlayerStats(playerStats);
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, e.toString());
+                this.plugin.getDatabase().updatePlayerStats(playerStats);
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, e.toString());
+            }
         }
 
         return true;

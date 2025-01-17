@@ -34,6 +34,7 @@ public class PlayerListener implements Listener {
     private final SignClickListener signClickListener;
     private final ScoreBoardHandler scoreBoardHandler;
     private final DatabaseHandler databaseHandler;
+    private final ResetPlayerHandler resetPlayerHandler;
 
     private final Map<Player, Location> deathLocations = new HashMap<>();
     private final Map<Player, Set<Player>> playerDamagers = new HashMap<>();
@@ -49,12 +50,15 @@ public class PlayerListener implements Listener {
         this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
         this.scoreBoardHandler = scoreBoardHandler;
         this.databaseHandler = new DatabaseHandler(plugin);
+        this.resetPlayerHandler = new ResetPlayerHandler(plugin);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         event.setQuitMessage(null);
+
+        resetPlayerHandler.resetPlayer(player, player.getWorld());
 
         List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
@@ -70,24 +74,26 @@ public class PlayerListener implements Listener {
             worldPlayersWaiting.remove(player);
         }
 
-        try {
-            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
-            playerStats.setLastLogout(new Date());
+        if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+            try {
+                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+                playerStats.setLastLogout(new Date());
 
-            if (totalTimeSpent.containsKey(player)) {
-                int timeAlive = 0;
-                if (!player.getWorld().getName().equals(configHandler.createPluginSettings().getString("lobby-world"))) {
-                    timeAlive = configHandler.getWorldConfig(player.getWorld()).getInt("game-time") - timeLeft.get(player.getWorld().getName());
+                if (totalTimeSpent.containsKey(player)) {
+                    int timeAlive = 0;
+                    if (!player.getWorld().getName().equals(configHandler.getPluginSettings().getString("lobby-world"))) {
+                        timeAlive = configHandler.getWorldConfig(player.getWorld()).getInt("game-time") - timeLeft.get(player.getWorld().getName());
+                    }
+                    Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
+                    playerStats.setSecondsPlayed(playerStats.getSecondsPlayed() + timeAlive + timeSpent);
+                    playerStats.setSecondsPlayedMonth(playerStats.getSecondsPlayedMonth() + timeAlive + timeSpent);
+                    totalTimeSpent.remove(player);
                 }
-                Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
-                playerStats.setSecondsPlayed(playerStats.getSecondsPlayed() + timeAlive + timeSpent);
-                playerStats.setSecondsPlayedMonth(playerStats.getSecondsPlayedMonth() + timeAlive + timeSpent);
-                totalTimeSpent.remove(player);
-            }
 
-            this.plugin.getDatabase().updatePlayerStats(playerStats);
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, e.toString());
+                this.plugin.getDatabase().updatePlayerStats(playerStats);
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, e.toString());
+            }
         }
 
         removeFromTeam(player);
@@ -137,7 +143,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        String lobbyWorldName = (String) configHandler.createPluginSettings().get("lobby-world");
+        String lobbyWorldName = (String) configHandler.getPluginSettings().get("lobby-world");
         assert lobbyWorldName != null;
         World lobbyWorld = Bukkit.getWorld(lobbyWorldName);
         if (lobbyWorld != null) {
@@ -147,14 +153,16 @@ public class PlayerListener implements Listener {
         }
         event.setJoinMessage(null);
 
-        try {
-            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+        if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+            try {
+                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-            playerStats.setLastLogin(new Date());
+                playerStats.setLastLogin(new Date());
 
-            this.plugin.getDatabase().updatePlayerStats(playerStats);
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, e.toString());
+                this.plugin.getDatabase().updatePlayerStats(playerStats);
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, e.toString());
+            }
         }
     }
 
@@ -174,24 +182,26 @@ public class PlayerListener implements Listener {
             }
             event.setDeathMessage(null);
 
-            try {
-                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+            if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+                try {
+                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-                playerStats.setDeaths(playerStats.getDeaths() + 1);
+                    playerStats.setDeaths(playerStats.getDeaths() + 1);
 
-                EntityDamageEvent.DamageCause lastDamageCause = Objects.requireNonNull(player.getLastDamageCause()).getCause();
+                    EntityDamageEvent.DamageCause lastDamageCause = Objects.requireNonNull(player.getLastDamageCause()).getCause();
 
-                if (player.getKiller() != null) {
-                    playerStats.setPlayerDeaths(playerStats.getPlayerDeaths() + 1);
-                } else if (lastDamageCause == WORLD_BORDER) {
-                    playerStats.setBorderDeaths(playerStats.getBorderDeaths() + 1);
-                } else {
-                    playerStats.setEnvironmentDeaths(playerStats.getEnvironmentDeaths() + 1);
+                    if (player.getKiller() != null) {
+                        playerStats.setPlayerDeaths(playerStats.getPlayerDeaths() + 1);
+                    } else if (lastDamageCause == WORLD_BORDER) {
+                        playerStats.setBorderDeaths(playerStats.getBorderDeaths() + 1);
+                    } else {
+                        playerStats.setEnvironmentDeaths(playerStats.getEnvironmentDeaths() + 1);
+                    }
+
+                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, e.toString());
                 }
-
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
-            } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, e.toString());
             }
 
         } else {
@@ -206,7 +216,7 @@ public class PlayerListener implements Listener {
 
         signClickListener.setSignContent(signHandler.loadSignLocations());
 
-        boolean spectating = configHandler.createPluginSettings().getBoolean("spectating");
+        boolean spectating = configHandler.getPluginSettings().getBoolean("spectating");
         if (spectating) {
             if (gameStarted.getOrDefault(world.getName(), false)) {
                 player.setGameMode(GameMode.SPECTATOR);
@@ -220,14 +230,16 @@ public class PlayerListener implements Listener {
 
         for (Player damager: playerDamagers.get(player)) {
             if (damager != killer) {
-                try {
-                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(damager);
+                if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+                    try {
+                        PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(damager);
 
-                    playerStats.setKillAssists(playerStats.getKillAssists() + 1);
+                        playerStats.setKillAssists(playerStats.getKillAssists() + 1);
 
-                    this.plugin.getDatabase().updatePlayerStats(playerStats);
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, e.toString());
+                        this.plugin.getDatabase().updatePlayerStats(playerStats);
+                    } catch (SQLException e) {
+                        plugin.getLogger().log(Level.SEVERE, e.toString());
+                    }
                 }
             }
         }
@@ -245,14 +257,16 @@ public class PlayerListener implements Listener {
                 }
             }
 
-            try {
-                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(killer);
+            if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+                try {
+                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(killer);
 
-                playerStats.setKills(playerStats.getKills() + 1);
+                    playerStats.setKills(playerStats.getKills() + 1);
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
-            } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, e.toString());
+                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, e.toString());
+                }
             }
         }
 
@@ -320,13 +334,35 @@ public class PlayerListener implements Listener {
         }
 
         if (damager instanceof Player && damaged instanceof LivingEntity) {
-            try {
-                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase((Player) damager);
+            if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+                try {
+                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase((Player) damager);
 
-                playerStats.setDamageDealt(playerStats.getDamageDealt() + event.getDamage());
+                    playerStats.setDamageDealt(playerStats.getDamageDealt() + event.getDamage());
+
+                    if (event.getCause() == PROJECTILE) {
+                        playerStats.setProjectileDamageDealt(playerStats.getProjectileDamageDealt() + event.getDamage());
+                    }
+
+                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, e.toString());
+                }
+            }
+        }
+
+        if (!(damaged instanceof Player player)) {
+            return;
+        }
+
+        if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+            try {
+                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+
+                playerStats.setDamageTaken(playerStats.getDamageTaken() + event.getDamage());
 
                 if (event.getCause() == PROJECTILE) {
-                    playerStats.setProjectileDamageDealt(playerStats.getProjectileDamageDealt() + event.getDamage());
+                    playerStats.setProjectileDamageTaken(playerStats.getProjectileDamageTaken() + event.getDamage());
                 }
 
                 this.plugin.getDatabase().updatePlayerStats(playerStats);
@@ -335,36 +371,20 @@ public class PlayerListener implements Listener {
             }
         }
 
-        if (!(damaged instanceof Player player)) {
-            return;
-        }
-
-        try {
-            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
-
-            playerStats.setDamageTaken(playerStats.getDamageTaken() + event.getDamage());
-
-            if (event.getCause() == PROJECTILE) {
-                playerStats.setProjectileDamageTaken(playerStats.getProjectileDamageTaken() + event.getDamage());
-            }
-
-            this.plugin.getDatabase().updatePlayerStats(playerStats);
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, e.toString());
-        }
-
         ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
         ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
 
         if ((itemInMainHand.getType() == Material.SHIELD || itemInOffHand.getType() == Material.SHIELD) && player.isBlocking()) {
-            try {
-                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+            if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+                try {
+                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-                playerStats.setAttacksBlocked(playerStats.getAttacksBlocked() + 1);
+                    playerStats.setAttacksBlocked(playerStats.getAttacksBlocked() + 1);
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
-            } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, e.toString());
+                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, e.toString());
+                }
             }
         }
 
@@ -390,24 +410,28 @@ public class PlayerListener implements Listener {
 
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (block != null && (block.getType() == Material.CHEST || block.getType() == Material.TRAPPED_CHEST || block.getType() == Material.BARREL)) {
-                try {
-                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+                if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+                    try {
+                        PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-                    playerStats.setChestsOpened(playerStats.getChestsOpened() + 1);
+                        playerStats.setChestsOpened(playerStats.getChestsOpened() + 1);
 
-                    this.plugin.getDatabase().updatePlayerStats(playerStats);
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, e.toString());
+                        this.plugin.getDatabase().updatePlayerStats(playerStats);
+                    } catch (SQLException e) {
+                        plugin.getLogger().log(Level.SEVERE, e.toString());
+                    }
                 }
             } else if (block != null && (block.getType() == Material.RED_SHULKER_BOX)) {
-                try {
-                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+                if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+                    try {
+                        PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-                    playerStats.setSupplyDropsOpened(playerStats.getSupplyDropsOpened() + 1);
+                        playerStats.setSupplyDropsOpened(playerStats.getSupplyDropsOpened() + 1);
 
-                    this.plugin.getDatabase().updatePlayerStats(playerStats);
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, e.toString());
+                        this.plugin.getDatabase().updatePlayerStats(playerStats);
+                    } catch (SQLException e) {
+                        plugin.getLogger().log(Level.SEVERE, e.toString());
+                    }
                 }
             }
         }
@@ -425,18 +449,21 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        try {
-            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-            if (projectile instanceof Arrow) {
-                playerStats.setArrowsShot(playerStats.getArrowsShot() + 1);
-            } else {
-                playerStats.setFireworksShot(playerStats.getFireworksShot() + 1);
+        if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+            try {
+                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+
+                if (projectile instanceof Arrow) {
+                    playerStats.setArrowsShot(playerStats.getArrowsShot() + 1);
+                } else {
+                    playerStats.setFireworksShot(playerStats.getFireworksShot() + 1);
+                }
+
+                this.plugin.getDatabase().updatePlayerStats(playerStats);
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, e.toString());
             }
-
-            this.plugin.getDatabase().updatePlayerStats(playerStats);
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, e.toString());
         }
     }
 
@@ -456,18 +483,20 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        try {
-            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+        if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+            try {
+                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-            if (projectile instanceof Arrow || projectile instanceof SpectralArrow) {
-                playerStats.setArrowsLanded(playerStats.getArrowsLanded() + 1);
-            } else {
-                playerStats.setFireworksLanded(playerStats.getFireworksLanded() + 1);
+                if (projectile instanceof Arrow || projectile instanceof SpectralArrow) {
+                    playerStats.setArrowsLanded(playerStats.getArrowsLanded() + 1);
+                } else {
+                    playerStats.setFireworksLanded(playerStats.getFireworksLanded() + 1);
+                }
+
+                this.plugin.getDatabase().updatePlayerStats(playerStats);
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, e.toString());
             }
-
-            this.plugin.getDatabase().updatePlayerStats(playerStats);
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, e.toString());
         }
     }
 
@@ -479,14 +508,16 @@ public class PlayerListener implements Listener {
 
         double healthRegenerated = event.getAmount();
 
-        try {
-            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+        if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+            try {
+                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-            playerStats.setHealthRegenerated(playerStats.getHealthRegenerated() + healthRegenerated);
+                playerStats.setHealthRegenerated(playerStats.getHealthRegenerated() + healthRegenerated);
 
-            this.plugin.getDatabase().updatePlayerStats(playerStats);
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, e.toString());
+                this.plugin.getDatabase().updatePlayerStats(playerStats);
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, e.toString());
+            }
         }
     }
 
@@ -495,18 +526,20 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         ItemStack consumedItem = event.getItem();
 
-        try {
-            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+        if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+            try {
+                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-            if (consumedItem.getType() == Material.POTION) {
-                playerStats.setPotionsUsed(playerStats.getPotionsUsed() + 1);
-            } else {
-                playerStats.setFoodConsumed(playerStats.getFoodConsumed() + 1);
+                if (consumedItem.getType() == Material.POTION) {
+                    playerStats.setPotionsUsed(playerStats.getPotionsUsed() + 1);
+                } else {
+                    playerStats.setFoodConsumed(playerStats.getFoodConsumed() + 1);
+                }
+
+                this.plugin.getDatabase().updatePlayerStats(playerStats);
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, e.toString());
             }
-
-            this.plugin.getDatabase().updatePlayerStats(playerStats);
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, e.toString());
         }
     }
 
@@ -516,14 +549,16 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        try {
-            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+        if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+            try {
+                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-            playerStats.setPotionsUsed(playerStats.getPotionsUsed() + 1);
+                playerStats.setPotionsUsed(playerStats.getPotionsUsed() + 1);
 
-            this.plugin.getDatabase().updatePlayerStats(playerStats);
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, e.toString());
+                this.plugin.getDatabase().updatePlayerStats(playerStats);
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, e.toString());
+            }
         }
     }
 
@@ -533,14 +568,16 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        try {
-            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+        if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+            try {
+                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-            playerStats.setPotionsUsed(playerStats.getPotionsUsed() + 1);
+                playerStats.setPotionsUsed(playerStats.getPotionsUsed() + 1);
 
-            this.plugin.getDatabase().updatePlayerStats(playerStats);
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, e.toString());
+                this.plugin.getDatabase().updatePlayerStats(playerStats);
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, e.toString());
+            }
         }
     }
 
@@ -554,14 +591,17 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        try {
-            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-            playerStats.setTotemsPopped(playerStats.getTotemsPopped() + 1);
+        if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+            try {
+                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-            this.plugin.getDatabase().updatePlayerStats(playerStats);
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, e.toString());
+                playerStats.setTotemsPopped(playerStats.getTotemsPopped() + 1);
+
+                this.plugin.getDatabase().updatePlayerStats(playerStats);
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, e.toString());
+            }
         }
     }
 }

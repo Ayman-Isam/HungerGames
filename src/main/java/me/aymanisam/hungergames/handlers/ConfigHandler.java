@@ -20,6 +20,7 @@ public class ConfigHandler {
 
     private File worldFile;
     private final Map<String, FileConfiguration> worldConfigs = new HashMap<>();
+    private FileConfiguration pluginSettings;
 
     public ConfigHandler(HungerGames plugin) {
         this.plugin = plugin;
@@ -50,13 +51,20 @@ public class ConfigHandler {
         worldConfigs.put(world.getName(), config);
     }
 
-    public FileConfiguration createPluginSettings() {
+    public void createPluginSettings() {
         File file = new File(plugin.getDataFolder(), "settings.yml");
         if (!file.exists()) {
             plugin.saveResource("settings.yml", true);
         }
 
-        return YamlConfiguration.loadConfiguration(file);
+        pluginSettings = YamlConfiguration.loadConfiguration(file);
+    }
+
+    public FileConfiguration getPluginSettings() {
+        if (pluginSettings == null) {
+            createPluginSettings();
+        }
+        return pluginSettings;
     }
 
     public FileConfiguration getWorldConfig(World world) {

@@ -58,7 +58,7 @@ public class LobbyReturnCommand implements CommandExecutor {
             return true;
         }
 
-        String lobbyWorldName = (String) configHandler.createPluginSettings().get("lobby-world");
+        String lobbyWorldName = (String) configHandler.getPluginSettings().get("lobby-world");
 
         World world = player.getWorld();
 

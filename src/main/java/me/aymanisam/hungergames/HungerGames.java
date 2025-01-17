@@ -71,15 +71,6 @@ public final class HungerGames extends JavaPlugin {
         int bstatsPluginId = 21512;
         new Metrics(this, bstatsPluginId);
 
-        // Database
-        try {
-            this.database = new DatabaseHandler(this);
-            database.initializeDatabase();
-        } catch (SQLException e) {
-            this.getLogger().log(Level.SEVERE ,"Unable to connect to database and create tables.");
-            this.getLogger().log(Level.SEVERE, e.toString());
-        }
-
         // Adventure
         this.adventure = BukkitAudiences.create(this);
 
@@ -101,6 +92,17 @@ public final class HungerGames extends JavaPlugin {
         this.gameSequenceHandler = new GameSequenceHandler(this, langHandler, setSpawnHandler, compassListener, teamsHandler);
         CountDownHandler countDownHandler = new CountDownHandler(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener);
         setSpawnHandler.setCountDownHandler(countDownHandler);
+
+        if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+            // Database
+            try {
+                this.database = new DatabaseHandler(this);
+                database.initializeDatabase();
+            } catch (SQLException e) {
+                this.getLogger().log(Level.SEVERE ,"Unable to connect to database and create tables.");
+                this.getLogger().log(Level.SEVERE, e.toString());
+            }
+        }
 
         // Registering command handler
         Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamsHandler, scoreBoardHandler, countDownHandler, arenaHandler));
@@ -140,7 +142,7 @@ public final class HungerGames extends JavaPlugin {
                     if (levelDat.exists()) {
                         String worldName = file.getName();
                         worldNames.add(worldName);
-                        FileConfiguration settings = configHandler.createPluginSettings();
+                        FileConfiguration settings = configHandler.getPluginSettings();
                         if (!settings.getBoolean("whitelist-worlds")) {
                             if (!settings.getStringList("ignored-worlds").contains(worldName)) {
                                 hgWorldNames.add(worldName);
@@ -155,7 +157,7 @@ public final class HungerGames extends JavaPlugin {
             }
         }
 
-        hgWorldNames.remove(configHandler.createPluginSettings().getString("lobby-world"));
+        hgWorldNames.remove(configHandler.getPluginSettings().getString("lobby-world"));
 
         configHandler.validateSettingsKeys();
 
@@ -181,7 +183,7 @@ public final class HungerGames extends JavaPlugin {
         }
 
         TipsHandler tipsHandler = new TipsHandler(this, langHandler);
-        if (configHandler.createPluginSettings().getBoolean("tips")) {
+        if (configHandler.getPluginSettings().getBoolean("tips")) {
             tipsHandler.startSendingTips(600);
         }
 

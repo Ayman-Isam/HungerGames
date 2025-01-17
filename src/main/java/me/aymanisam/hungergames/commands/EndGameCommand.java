@@ -24,6 +24,7 @@ public class EndGameCommand implements CommandExecutor {
     private final CountDownHandler countDownHandler;
     private final SetSpawnHandler setSpawnHandler;
     private final DatabaseHandler databaseHandler;
+    private final ConfigHandler configHandler;
 
     public EndGameCommand(HungerGames plugin, LangHandler langHandler, GameSequenceHandler gameSequenceHandler, CountDownHandler countDownHandler, SetSpawnHandler setSpawnHandler) {
         this.plugin = plugin;
@@ -32,6 +33,7 @@ public class EndGameCommand implements CommandExecutor {
         this.countDownHandler = countDownHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.databaseHandler = new DatabaseHandler(plugin);
+	    this.configHandler = new ConfigHandler(plugin);
     }
 
     @Override
@@ -63,22 +65,24 @@ public class EndGameCommand implements CommandExecutor {
             worldPlayersAlive.clear();
             gameStarting.put(p.getWorld().getName(), false);
 
-            try {
-                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(p);
+            if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
+                try {
+                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(p);
 
-                playerStats.setCredits(playerStats.getCredits() + 1);
+                    playerStats.setCredits(playerStats.getCredits() + 1);
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
-            } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, e.toString());
-            }
-
-            for (Player player : p.getWorld().getPlayers()) {
-                if (worldSpawnPointMap.containsValue(player)) {
-                    Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20.0);
+                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+                } catch (SQLException e) {
+                    plugin.getLogger().log(Level.SEVERE, e.toString());
                 }
+
+                for (Player player : p.getWorld().getPlayers()) {
+                    if (worldSpawnPointMap.containsValue(player)) {
+                        Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20.0);
+                    }
+                }
+                return true;
             }
-            return true;
         }
 
         gameSequenceHandler.endGame(false, p.getWorld());

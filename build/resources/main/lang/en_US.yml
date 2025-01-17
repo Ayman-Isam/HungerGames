@@ -16,9 +16,6 @@ arena:
   compass-enemy: "&bYou're tracking enemy:&c {0}"
   compass-teammate: "&bYou're tracking teammate:&a {0}"
   compass-nomates: "&cNo teammates to track"
-  pin-text: "&bEnter Game Pin"
-  pin-title: "&dPin Validation"
-  wrong-pin: "&Wrong Pin Entered! Please try again!"
 
 border:
   usage: "&eUsage: border <size> <center-x> <center-z>"
