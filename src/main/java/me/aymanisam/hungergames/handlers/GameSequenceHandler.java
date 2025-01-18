@@ -23,6 +23,7 @@ import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
+import static me.aymanisam.hungergames.handlers.ScoreBoardHandler.boards;
 import static me.aymanisam.hungergames.handlers.ScoreBoardHandler.startingPlayers;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
@@ -160,13 +161,19 @@ public class GameSequenceHandler {
         int initialTimeLeft = configHandler.getWorldConfig(world).getInt("game-time");
         timeLeft.put(world.getName(), initialTimeLeft);
 
+        for (Player player: world.getPlayers()) {
+            scoreBoardHandler.createBoard(player);
+        }
+
         int worldTimerTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             updateBossBars(world);
             int currentTimeLeft = timeLeft.get(world.getName());
             currentTimeLeft--;
             timeLeft.put(world.getName(), currentTimeLeft);
 
-            scoreBoardHandler.getScoreBoard(world);
+            for (Player player: world.getPlayers()) {
+                scoreBoardHandler.updateBoard(boards.get(player.getUniqueId()), world);
+            }
 
             List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
             List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
@@ -389,7 +396,7 @@ public class GameSequenceHandler {
 	    List<List<Player>> worldTeamPlacements = teamPlacements.get(world.getName());
 
 	    if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
-		    if (worldPlayerPlacements != null && startingPlayers != null && worldPlayerPlacements.size() == startingPlayers.get(world.getName())) {
+		    if (worldPlayerPlacements != null && startingPlayers != null && worldPlayerPlacements.size() == startingPlayers.getOrDefault(world.getName(), -1)) {
 			    for (Player player : worldPlayerPlacements) {
 				    int playerIndex = worldPlayerPlacements.indexOf(player);
 				    double percentile = (1 - (playerIndex / (worldPlayerPlacements.size() - 1.0))) * 100.0;

@@ -1,17 +1,13 @@
 package me.aymanisam.hungergames.handlers;
 
+import fr.mrmicky.fastboard.FastBoard;
 import me.aymanisam.hungergames.HungerGames;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
@@ -23,6 +19,7 @@ public class ScoreBoardHandler {
     private final ConfigHandler configHandler;
 
     public static Map<String, Integer> startingPlayers = new HashMap<>();
+    public static final Map<UUID, FastBoard> boards = new HashMap<>();
 
     public ScoreBoardHandler(HungerGames plugin, LangHandler langHandler) {
         this.langHandler = langHandler;
@@ -42,15 +39,26 @@ public class ScoreBoardHandler {
         return color;
     }
 
-    private Score createScore(Player player, Objective objective, String messageKey, int countdown, int interval) {
+    private String formatScore(Player player, String messageKey, int countdown, int interval) {
         int minutes = countdown / 60;
         int seconds = countdown % 60;
         String timeFormatted = String.format("%02d:%02d", minutes, seconds);
 
-        return objective.getScore(langHandler.getMessage(player, messageKey, getColor(interval, countdown) + timeFormatted));
+        return langHandler.getMessage(player, messageKey, getColor(interval, countdown) + timeFormatted);
     }
 
-    public void getScoreBoard(World world) {
+    public void createBoard(Player player) {
+        FastBoard board = new FastBoard(player);
+        if (playersPerTeam == 1) {
+            board.updateTitle(langHandler.getMessage(player, "score.name-solo"));
+        } else {
+            board.updateTitle(langHandler.getMessage(player, "score.name-team"));
+        }
+
+        boards.put(player.getUniqueId(), board);
+    }
+
+    public void updateBoard(FastBoard board, World world) {
         FileConfiguration worldConfig = configHandler.getWorldConfig(world);
         int gameTimeConfig = worldConfig.getInt("game-time");
         int borderShrinkTimeConfig = worldConfig.getInt("border.start-time");
@@ -59,106 +67,81 @@ public class ScoreBoardHandler {
         int supplyDropInterval = worldConfig.getInt("supplydrop.interval");
         int borderStartSize = worldConfig.getInt("border.size");
         int borderEndSize = worldConfig.getInt("border.final-size");
-        int worldTimeLeft = timeLeft.get(world.getName());
 
+        int worldTimeLeft = timeLeft.get(world.getName());
         int worldPlayersAliveSize = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>()).size();
+        int worldStartingPlayers = startingPlayers.get(world.getName());
         int worldBorderSize = (int) world.getWorldBorder().getSize();
         int borderShrinkTimeLeft = (worldTimeLeft - gameTimeConfig) + borderShrinkTimeConfig;
         int pvpTimeLeft = (worldTimeLeft - gameTimeConfig) + pvpTimeConfig;
         int chestRefillTimeLeft = worldTimeLeft % chestRefillInterval;
         int supplyDropTimeLeft = worldTimeLeft % supplyDropInterval;
-
         ChatColor borderColor;
 
-        for (Player player : world.getPlayers()) {
-            ScoreboardManager manager = Bukkit.getScoreboardManager();
-            assert manager != null;
-            Scoreboard scoreboard = manager.getNewScoreboard();
+        if (borderStartSize == worldBorderSize) {
+            borderColor = ChatColor.GREEN;
+        } else if (borderEndSize == worldBorderSize) {
+            borderColor = ChatColor.RED;
+        } else {
+            borderColor = ChatColor.YELLOW;
+        }
 
-            Objective objective;
+        List<String> lines = new ArrayList<>();
 
-            if (playersPerTeam != 1) {
-                objective = scoreboard.registerNewObjective("playerScoreBoard", Criteria.DUMMY, langHandler.getMessage(player, "score.name-team"), RenderType.INTEGER);
-            } else {
-                objective = scoreboard.registerNewObjective("playerScoreBoard", Criteria.DUMMY, langHandler.getMessage(player, "score.name-solo"), RenderType.INTEGER);
-            }
+        lines.add("");
+        lines.add(langHandler.getMessage(board.getPlayer(), "score.alive", getColor(worldStartingPlayers, worldPlayersAliveSize).toString() + worldPlayersAliveSize));
+        lines.add(langHandler.getMessage(board.getPlayer(), "score.border", borderColor.toString() + worldBorderSize));
+        lines.add("");
+        lines.add(formatScore(board.getPlayer(), "score.time", worldTimeLeft, gameTimeConfig));
 
-            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        if (borderShrinkTimeLeft >= 0) {
+            lines.add(formatScore(board.getPlayer(), "score.borderShrink", borderShrinkTimeLeft, borderShrinkTimeConfig));
+        }
 
-            objective.getScore("  ").setScore(15);
+        if (pvpTimeLeft >= 0) {
+            lines.add(formatScore(board.getPlayer(), "score.pvp", pvpTimeLeft, pvpTimeConfig));
+        }
 
-            int worldStartingPlayers = startingPlayers.get(world.getName());
+        lines.add("");
+        lines.add(formatScore(board.getPlayer(), "score.chestrefill", chestRefillTimeLeft, chestRefillInterval));
+        lines.add(formatScore(board.getPlayer(), "score.supplydrop", supplyDropTimeLeft, supplyDropInterval));
 
-            Score playersAliveScore = objective.getScore(langHandler.getMessage(player, "score.alive", getColor(worldStartingPlayers, worldPlayersAliveSize).toString() + worldPlayersAliveSize));
-            playersAliveScore.setScore(14);
+        String teamScoreBoard = getScoreBoardTeam(board.getPlayer(), world);
 
-            if (borderStartSize == worldBorderSize) {
-                borderColor = ChatColor.GREEN;
-            } else if (borderEndSize == worldBorderSize) {
-                borderColor = ChatColor.RED;
-            } else {
-                borderColor = ChatColor.YELLOW;
-            }
+        if (teamScoreBoard != null) {
+            lines.add("");
+            lines.add(teamScoreBoard);
+        }
 
-            Score worldBorderSizeScore = objective.getScore(langHandler.getMessage(player, "score.border", borderColor.toString() + worldBorderSize));
-            worldBorderSizeScore.setScore(13);
+        board.updateLines(lines);
+    }
 
-            objective.getScore("  ").setScore(12);
+    private String getScoreBoardTeam(Player player, World world) {
+        List<List<Player>> worldTeams = teams.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
-            Score timeScore = createScore(player, objective, "score.time", worldTimeLeft, gameTimeConfig);
-            timeScore.setScore(11);
-
-            Score borderShrinkScore = createScore(player, objective, "score.borderShrink", borderShrinkTimeLeft, borderShrinkTimeConfig);
-            if (borderShrinkTimeLeft >= 0) {
-                borderShrinkScore.setScore(10);
-            }
-
-            Score pvpScore = createScore(player, objective, "score.pvp", pvpTimeLeft, pvpTimeConfig);
-            if (pvpTimeLeft >= 0) {
-                pvpScore.setScore(9);
-            }
-
-            objective.getScore("").setScore(8);
-
-            Score chestRefillScore = createScore(player, objective, "score.chestrefill", chestRefillTimeLeft, chestRefillInterval);
-            if (chestRefillTimeLeft >= 0) {
-                chestRefillScore.setScore(7);
-            }
-
-            Score supplyDropScore = createScore(player, objective, "score.supplydrop", supplyDropTimeLeft, supplyDropInterval);
-            if (supplyDropTimeLeft >= 0) {
-                supplyDropScore.setScore(6);
-            }
-
-            List<List<Player>> worldTeams = teams.computeIfAbsent(world.getName(), k -> new ArrayList<>());
-            List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
-
-            if (playersPerTeam > 1) {
-                objective.getScore("").setScore(5);
-                for (List<Player> team : worldTeams) {
-                    if (team.contains(player)) {
-                        for (Player teamMember : team) {
-                            if (!teamMember.equals(player)) {
-                                String teammateName = teamMember.getName();
-                                ChatColor color = worldPlayersAlive.contains(teamMember) ? ChatColor.GREEN : ChatColor.RED;
-                                String scoreName = langHandler.getMessage(player, "score.teammate", color + teammateName);
-                                Score teammateScore = objective.getScore(scoreName);
-                                teammateScore.setScore(4);
-                            }
+        if (playersPerTeam > 1) {
+            for (List<Player> team : worldTeams) {
+                if (team.contains(player)) {
+                    for (Player teamMember : team) {
+                        if (!teamMember.equals(player)) {
+                            String teammateName = teamMember.getName();
+                            ChatColor color = worldPlayersAlive.contains(teamMember) ? ChatColor.GREEN : ChatColor.RED;
+                            return langHandler.getMessage(player, "score.teammate", color + teammateName);
                         }
-                        break;
                     }
+                    break;
                 }
             }
-
-            player.setScoreboard(scoreboard);
         }
+        return null;
     }
 
     public void removeScoreboard(Player player) {
-        ScoreboardManager manager = Bukkit.getScoreboardManager();
-        assert manager != null;
-        Scoreboard mainScoreboard = manager.getMainScoreboard();
-        player.setScoreboard(mainScoreboard);
+        FastBoard board = boards.remove(player.getUniqueId());
+
+        if (board != null) {
+            board.delete();
+        }
     }
 }

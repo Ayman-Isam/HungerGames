@@ -202,7 +202,9 @@ public final class HungerGames extends JavaPlugin {
 
         PacketEvents.getAPI().terminate();
 
-        this.database.closeConnection();
+        if (this.database != null) {
+            this.database.closeConnection();
+        }
 
         if (this.adventure != null) {
             this.adventure.close();
