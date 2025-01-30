@@ -30,12 +30,6 @@ public class DatabaseHandler {
         String user = configHandler.getPluginSettings().getString("database.user");
         String password = configHandler.getPluginSettings().getString("database.password");
 
-        try {
-            Class.forName("org.mariadb.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            plugin.getLogger().log(Level.SEVERE, e.toString());
-        }
-
         assert url != null;
         this.connection = DriverManager.getConnection(url, user, password);
 
@@ -46,7 +40,7 @@ public class DatabaseHandler {
 
     public void initializeDatabase() throws SQLException {
         Statement statement = getConnection().createStatement();
-        String sql = "CREATE TABLE IF NOT EXISTS player_stats(uuid char(36) primary key, username varchar(16), deaths int, kills int, killAssists int, soloGamesCreated int, soloGamesPlayed int, soloGamesWon int, teamGamesCreated int, teamGamesPlayed int, teamGamesWon int, chestsOpened int, supplyDropsOpened int, environmentDeaths int, borderDeaths int, playerDeaths int, arrowsShot int, arrowsLanded int, fireworksShot int, fireworksLanded int, attacksBlocked int, potionsUsed int, foodConsumed int, totemsPopped int, credits double, damageDealt double, projectileDamageDealt double, damageTaken double, projectileDamageTaken double, healthRegenerated double, soloPercentile double, teamPercentile double, lastLogin DATE, lastLogout DATE, secondsPlayed LONG)";
+        String sql = "CREATE TABLE IF NOT EXISTS player_stats(uuid char(36) primary key, username varchar(16), deaths int, kills int, killAssists int, soloGamesStarted int, soloGamesPlayed int, soloGamesWon int, teamGamesStarted int, teamGamesPlayed int, teamGamesWon int, chestsOpened int, supplyDropsOpened int, environmentDeaths int, borderDeaths int, playerDeaths int, arrowsShot int, arrowsLanded int, fireworksShot int, fireworksLanded int, attacksBlocked int, potionsUsed int, foodConsumed int, totemsPopped int, damageDealt double, projectileDamageDealt double, damageTaken double, projectileDamageTaken double, healthRegenerated double, soloPercentile double, teamPercentile double, lastLogin DATE, lastLogout DATE, secondsPlayed LONG)";
         statement.execute(sql);
 
         sql = "CREATE TABLE IF NOT EXISTS player_monthly_playtime(uuid char(36) primary key, username varchar(16))";
@@ -61,7 +55,7 @@ public class DatabaseHandler {
         PlayerStatsHandler stats = this.plugin.getDatabase().findPlayerStatsByUUID(player.getUniqueId().toString());
 
         if (stats == null) {
-            stats = new PlayerStatsHandler(player.getUniqueId().toString(), player.getName(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0.0, 0.0, 0.0, 0.0, 0.0, 50.0, 50.0, new java.util.Date(), new java.util.Date(), 0L, 0L);
+            stats = new PlayerStatsHandler(player.getUniqueId().toString(), player.getName(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0, 0.0, 0.0, 0.0, 0.0, 50.0, 50.0, new java.util.Date(), new java.util.Date(), 0L, 0L);
             this.plugin.getDatabase().createPlayerStats(stats);
         }
 
@@ -93,10 +87,10 @@ public class DatabaseHandler {
             int deaths = results.getInt("deaths");
             int kills = results.getInt("kills");
             int killAssists = results.getInt("killAssists");
-            int soloGamesCreated = results.getInt("soloGamesCreated");
+            int soloGamesStarted = results.getInt("soloGamesStarted");
             int soloGamesPlayed = results.getInt("soloGamesPlayed");
             int soloGamesWon = results.getInt("soloGamesWon");
-            int teamGamesCreated = results.getInt("teamGamesCreated");
+            int teamGamesStarted = results.getInt("teamGamesStarted");
             int teamGamesPlayed = results.getInt("teamGamesPlayed");
             int teamGamesWon = results.getInt("teamGamesWon");
             int chestsOpened = results.getInt("chestsOpened");
@@ -112,7 +106,6 @@ public class DatabaseHandler {
             int potionsUsed = results.getInt("potionsUsed");
             int foodConsumed = results.getInt("foodConsumed");
             int totemsPopped = results.getInt("totemsPopped");
-            double credits = results.getLong("credits");
             double damageDealt = results.getDouble("damageDealt");
             double projectileDamageDealt = results.getDouble("projectileDamageDealt");
             double damageTaken = results.getDouble("damageTaken");
@@ -128,7 +121,7 @@ public class DatabaseHandler {
                 secondsPlayedMonth = monthResults.getLong(monthYear);
             }
 
-            PlayerStatsHandler playerStats = new PlayerStatsHandler(uuid, username, deaths, kills, killAssists, soloGamesCreated, soloGamesPlayed, soloGamesWon, teamGamesCreated, teamGamesPlayed, teamGamesWon, chestsOpened, supplyDropsOpened, environmentDeaths, borderDeaths, playerDeaths, arrowsShot, arrowsLanded, fireworksShot, fireworksLanded, attacksBlocked, potionsUsed, foodConsumed, totemsPopped, credits, damageDealt, projectileDamageDealt, damageTaken, projectileDamageTaken, healthRegenerated, soloPercentile, teamPercentile, lastLogin, lastLogout, secondsPlayed, secondsPlayedMonth);
+            PlayerStatsHandler playerStats = new PlayerStatsHandler(uuid, username, deaths, kills, killAssists, soloGamesStarted, soloGamesPlayed, soloGamesWon, teamGamesStarted, teamGamesPlayed, teamGamesWon, chestsOpened, supplyDropsOpened, environmentDeaths, borderDeaths, playerDeaths, arrowsShot, arrowsLanded, fireworksShot, fireworksLanded, attacksBlocked, potionsUsed, foodConsumed, totemsPopped, damageDealt, projectileDamageDealt, damageTaken, projectileDamageTaken, healthRegenerated, soloPercentile, teamPercentile, lastLogin, lastLogout, secondsPlayed, secondsPlayedMonth);
 
             statement.close();
 
@@ -140,16 +133,16 @@ public class DatabaseHandler {
     }
 
     public void createPlayerStats(PlayerStatsHandler stats) throws SQLException {
-        PreparedStatement statement = getConnection().prepareStatement("INSERT INTO player_stats(uuid, username, deaths, kills, killAssists, soloGamesCreated, soloGamesPlayed, soloGamesWon, teamGamesCreated, teamGamesPlayed, teamGamesWon, chestsOpened, supplyDropsOpened, environmentDeaths, borderDeaths, playerDeaths, arrowsShot, arrowsLanded, fireworksShot, fireworksLanded, attacksBlocked, potionsUsed, foodConsumed, totemsPopped, credits, damageDealt, projectileDamageDealt, damageTaken, projectileDamageTaken, healthRegenerated, soloPercentile, teamPercentile, lastLogin, lastLogout, secondsPlayed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        PreparedStatement statement = getConnection().prepareStatement("INSERT INTO player_stats(uuid, username, deaths, kills, killAssists, soloGamesStarted, soloGamesPlayed, soloGamesWon, teamGamesStarted, teamGamesPlayed, teamGamesWon, chestsOpened, supplyDropsOpened, environmentDeaths, borderDeaths, playerDeaths, arrowsShot, arrowsLanded, fireworksShot, fireworksLanded, attacksBlocked, potionsUsed, foodConsumed, totemsPopped, damageDealt, projectileDamageDealt, damageTaken, projectileDamageTaken, healthRegenerated, soloPercentile, teamPercentile, lastLogin, lastLogout, secondsPlayed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         statement.setString(1, stats.getUuid());
         statement.setString(2, stats.getUsername());
         statement.setInt(3, stats.getDeaths());
         statement.setInt(4, stats.getKills());
         statement.setInt(5, stats.getKillAssists());
-        statement.setInt(6, stats.getSoloGamesCreated());
+        statement.setInt(6, stats.getSoloGamesStarted());
         statement.setInt(7, stats.getSoloGamesPlayed());
         statement.setInt(8, stats.getSoloGamesWon());
-        statement.setInt(9, stats.getTeamGamesCreated());
+        statement.setInt(9, stats.getTeamGamesStarted());
         statement.setInt(10, stats.getTeamGamesPlayed());
         statement.setInt(11, stats.getTeamGamesWon());
         statement.setInt(12, stats.getChestsOpened());
@@ -165,17 +158,16 @@ public class DatabaseHandler {
         statement.setInt(22, stats.getPotionsUsed());
         statement.setInt(23, stats.getFoodConsumed());
         statement.setInt(24, stats.getTotemsPopped());
-        statement.setDouble(25, stats.getCredits());
-        statement.setDouble(26, stats.getDamageDealt());
-        statement.setDouble(27, stats.getProjectileDamageDealt());
-        statement.setDouble(28, stats.getDamageTaken());
-        statement.setDouble(29, stats.getProjectileDamageTaken());
-        statement.setDouble(30, stats.getHealthRegenerated());
-        statement.setDouble(31, stats.getSoloPercentile());
-        statement.setDouble(32, stats.getTeamPercentile());
-        statement.setDate(33, new Date(stats.getLastLogin().getTime()));
-        statement.setDate(34, new Date(stats.getLastLogout().getTime()));
-        statement.setLong(35, stats.getSecondsPlayed());
+        statement.setDouble(25, stats.getDamageDealt());
+        statement.setDouble(26, stats.getProjectileDamageDealt());
+        statement.setDouble(27, stats.getDamageTaken());
+        statement.setDouble(28, stats.getProjectileDamageTaken());
+        statement.setDouble(29, stats.getHealthRegenerated());
+        statement.setDouble(30, stats.getSoloPercentile());
+        statement.setDouble(31, stats.getTeamPercentile());
+        statement.setDate(32, new Date(stats.getLastLogin().getTime()));
+        statement.setDate(33, new Date(stats.getLastLogout().getTime()));
+        statement.setLong(34, stats.getSecondsPlayed());
 
         statement.executeUpdate();
         statement.close();
@@ -191,15 +183,15 @@ public class DatabaseHandler {
     }
 
     public void updatePlayerStats(PlayerStatsHandler stats) throws SQLException {
-        PreparedStatement statement = getConnection().prepareStatement("UPDATE player_stats SET username = ?, deaths = ?, kills = ?, killAssists = ?, soloGamesCreated = ?, soloGamesPlayed = ?, soloGamesWon = ?, teamGamesCreated = ?, teamGamesPlayed = ?, teamGamesWon = ?, chestsOpened = ?, supplyDropsOpened = ?, environmentDeaths = ?, borderDeaths = ?, playerDeaths = ?, arrowsShot = ?, arrowsLanded = ?, fireworksShot = ?, fireworksLanded = ?, attacksBlocked = ?, potionsUsed = ?, foodConsumed = ?, totemsPopped = ?, credits = ?, damageDealt = ?, projectileDamageDealt = ?, damageTaken = ?, projectileDamageTaken = ?, healthRegenerated = ?, soloPercentile = ?, teamPercentile = ?, lastLogin = ?, lastLogout = ?, secondsPlayed = ? WHERE uuid = ?");
+        PreparedStatement statement = getConnection().prepareStatement("UPDATE player_stats SET username = ?, deaths = ?, kills = ?, killAssists = ?, soloGamesStarted = ?, soloGamesPlayed = ?, soloGamesWon = ?, teamGamesStarted = ?, teamGamesPlayed = ?, teamGamesWon = ?, chestsOpened = ?, supplyDropsOpened = ?, environmentDeaths = ?, borderDeaths = ?, playerDeaths = ?, arrowsShot = ?, arrowsLanded = ?, fireworksShot = ?, fireworksLanded = ?, attacksBlocked = ?, potionsUsed = ?, foodConsumed = ?, totemsPopped = ?, credits = ?, damageDealt = ?, projectileDamageDealt = ?, damageTaken = ?, projectileDamageTaken = ?, healthRegenerated = ?, soloPercentile = ?, teamPercentile = ?, lastLogin = ?, lastLogout = ?, secondsPlayed = ? WHERE uuid = ?");
         statement.setString(1, stats.getUsername());
         statement.setInt(2, stats.getDeaths());
         statement.setInt(3, stats.getKills());
         statement.setInt(4, stats.getKillAssists());
-        statement.setInt(5, stats.getSoloGamesCreated());
+        statement.setInt(5, stats.getSoloGamesStarted());
         statement.setInt(6, stats.getSoloGamesPlayed());
         statement.setInt(7, stats.getSoloGamesWon());
-        statement.setInt(8, stats.getTeamGamesCreated());
+        statement.setInt(8, stats.getTeamGamesStarted());
         statement.setInt(9, stats.getTeamGamesPlayed());
         statement.setInt(10, stats.getTeamGamesWon());
         statement.setInt(11, stats.getChestsOpened());
@@ -215,18 +207,17 @@ public class DatabaseHandler {
         statement.setInt(21, stats.getPotionsUsed());
         statement.setInt(22, stats.getFoodConsumed());
         statement.setInt(23, stats.getTotemsPopped());
-        statement.setDouble(24, stats.getCredits());
-        statement.setDouble(25, stats.getDamageDealt());
-        statement.setDouble(26, stats.getProjectileDamageDealt());
-        statement.setDouble(27, stats.getDamageTaken());
-        statement.setDouble(28, stats.getProjectileDamageTaken());
-        statement.setDouble(29, stats.getHealthRegenerated());
-        statement.setDouble(30, stats.getSoloPercentile());
-        statement.setDouble(31, stats.getTeamPercentile());
-        statement.setDate(32, new Date(stats.getLastLogin().getTime()));
-        statement.setDate(33, new Date(stats.getLastLogout().getTime()));
-        statement.setLong(34, stats.getSecondsPlayed());
-        statement.setString(35, stats.getUuid());
+        statement.setDouble(24, stats.getDamageDealt());
+        statement.setDouble(25, stats.getProjectileDamageDealt());
+        statement.setDouble(26, stats.getDamageTaken());
+        statement.setDouble(27, stats.getProjectileDamageTaken());
+        statement.setDouble(28, stats.getHealthRegenerated());
+        statement.setDouble(29, stats.getSoloPercentile());
+        statement.setDouble(30, stats.getTeamPercentile());
+        statement.setDate(31, new Date(stats.getLastLogin().getTime()));
+        statement.setDate(32, new Date(stats.getLastLogout().getTime()));
+        statement.setLong(33, stats.getSecondsPlayed());
+        statement.setString(34, stats.getUuid());
 
         statement.executeUpdate();
         statement.close();

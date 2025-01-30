@@ -1,7 +1,9 @@
 package me.aymanisam.hungergames.commands;
 
-import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.handlers.*;
+import me.aymanisam.hungergames.handlers.CountDownHandler;
+import me.aymanisam.hungergames.handlers.GameSequenceHandler;
+import me.aymanisam.hungergames.handlers.LangHandler;
+import me.aymanisam.hungergames.handlers.SetSpawnHandler;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,31 +11,26 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.SQLException;
-import java.util.*;
-import java.util.logging.Level;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static me.aymanisam.hungergames.HungerGames.gameStarting;
 import static me.aymanisam.hungergames.HungerGames.isGameStartingOrStarted;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 
 public class EndGameCommand implements CommandExecutor {
-    private final HungerGames plugin;
-    private final LangHandler langHandler;
+	private final LangHandler langHandler;
     private final GameSequenceHandler gameSequenceHandler;
     private final CountDownHandler countDownHandler;
     private final SetSpawnHandler setSpawnHandler;
-    private final DatabaseHandler databaseHandler;
-    private final ConfigHandler configHandler;
 
-    public EndGameCommand(HungerGames plugin, LangHandler langHandler, GameSequenceHandler gameSequenceHandler, CountDownHandler countDownHandler, SetSpawnHandler setSpawnHandler) {
-        this.plugin = plugin;
-        this.langHandler = langHandler;
+	public EndGameCommand(LangHandler langHandler, GameSequenceHandler gameSequenceHandler, CountDownHandler countDownHandler, SetSpawnHandler setSpawnHandler) {
+	    this.langHandler = langHandler;
         this.gameSequenceHandler = gameSequenceHandler;
         this.countDownHandler = countDownHandler;
         this.setSpawnHandler = setSpawnHandler;
-        this.databaseHandler = new DatabaseHandler(plugin);
-	    this.configHandler = new ConfigHandler(plugin);
     }
 
     @Override
@@ -65,24 +62,12 @@ public class EndGameCommand implements CommandExecutor {
             worldPlayersAlive.clear();
             gameStarting.put(p.getWorld().getName(), false);
 
-            if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
-                try {
-                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(p);
-
-                    playerStats.setCredits(playerStats.getCredits() + 1);
-
-                    this.plugin.getDatabase().updatePlayerStats(playerStats);
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, e.toString());
+            for (Player player : p.getWorld().getPlayers()) {
+                if (worldSpawnPointMap.containsValue(player)) {
+                    Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20.0);
                 }
-
-                for (Player player : p.getWorld().getPlayers()) {
-                    if (worldSpawnPointMap.containsValue(player)) {
-                        Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20.0);
-                    }
-                }
-                return true;
             }
+            return true;
         }
 
         gameSequenceHandler.endGame(false, p.getWorld());

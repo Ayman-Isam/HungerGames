@@ -91,17 +91,14 @@ public class GameSequenceHandler {
             player.sendTitle("", langHandler.getMessage(player, "game.start"), 5, 20, 10);
             player.sendMessage(langHandler.getMessage(player, "game.grace-start"));
 
-            Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
-            totalTimeSpent.put(player, timeSpent);
-
             if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
                 try {
                     PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-                    if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
-                        playerStats.setSoloGamesPlayed(playerStats.getSoloGamesPlayed() + 1);
-                    } else {
+                    if (playersPerTeam != 1) {
                         playerStats.setTeamGamesPlayed(playerStats.getTeamGamesPlayed() + 1);
+                    } else {
+                        playerStats.setSoloGamesPlayed(playerStats.getSoloGamesPlayed() + 1);
                     }
 
                     this.plugin.getDatabase().updatePlayerStats(playerStats);
@@ -109,6 +106,9 @@ public class GameSequenceHandler {
                     plugin.getLogger().log(Level.SEVERE, e.toString());
                 }
             }
+
+            Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
+            totalTimeSpent.put(player, timeSpent);
         }
 
         int gracePeriod = configHandler.getWorldConfig(world).getInt("grace-period");

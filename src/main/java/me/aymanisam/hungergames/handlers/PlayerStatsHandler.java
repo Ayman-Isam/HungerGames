@@ -3,15 +3,15 @@ package me.aymanisam.hungergames.handlers;
 import java.util.Date;
 
 public class PlayerStatsHandler {
-    private String uuid;
+    private final String uuid;
     private String username;
     private int deaths;
     private int kills;
     private int killAssists;
-    private int soloGamesCreated;
+    private int soloGamesStarted;
     private int soloGamesPlayed;
     private int soloGamesWon;
-    private int teamGamesCreated;
+    private int teamGamesStarted;
     private int teamGamesPlayed;
     private int teamGamesWon;
     private int chestsOpened;
@@ -27,7 +27,6 @@ public class PlayerStatsHandler {
     private int potionsUsed;
     private int foodConsumed;
     private int totemsPopped;
-    private double credits;
     private double damageDealt;
     private double projectileDamageDealt;
     private double damageTaken;
@@ -40,16 +39,16 @@ public class PlayerStatsHandler {
     private Long secondsPlayed;
     private Long secondsPlayedMonth;
 
-    public PlayerStatsHandler(String uuid, String username, int deaths, int kills, int killAssists, int soloGamesCreated, int soloGamesPlayed, int soloGamesWon, int teamGamesCreated, int teamGamesPlayed, int teamGamesWon, int chestsOpened, int supplyDropsOpened, int environmentDeaths, int borderDeaths, int playerDeaths, int arrowsShot, int arrowsLanded, int fireworksShot, int fireworksLanded, int attacksBlocked, int potionsUsed, int foodConsumed, int totemsPopped, double credits, double damageDealt, double projectileDamageDealt, double damageTaken, double projectileDamageTaken, double healthRegenerated, double soloPercentile, double teamPercentile, Date lastLogin, Date lastLogout, Long secondsPlayed, Long secondsPlayedMonth) {
+    public PlayerStatsHandler(String uuid, String username, int deaths, int kills, int killAssists, int soloGamesStarted, int soloGamesPlayed, int soloGamesWon, int teamGamesStarted, int teamGamesPlayed, int teamGamesWon, int chestsOpened, int supplyDropsOpened, int environmentDeaths, int borderDeaths, int playerDeaths, int arrowsShot, int arrowsLanded, int fireworksShot, int fireworksLanded, int attacksBlocked, int potionsUsed, int foodConsumed, int totemsPopped, double damageDealt, double projectileDamageDealt, double damageTaken, double projectileDamageTaken, double healthRegenerated, double soloPercentile, double teamPercentile, Date lastLogin, Date lastLogout, Long secondsPlayed, Long secondsPlayedMonth) {
         this.uuid = uuid;
         this.username = username;
         this.deaths = deaths;
         this.kills = kills;
         this.killAssists = killAssists;
-        this.soloGamesCreated = soloGamesCreated;
+        this.soloGamesStarted = soloGamesStarted;
         this.soloGamesPlayed = soloGamesPlayed;
         this.soloGamesWon = soloGamesWon;
-        this.teamGamesCreated = teamGamesCreated;
+        this.teamGamesStarted = teamGamesStarted;
         this.teamGamesPlayed = teamGamesPlayed;
         this.teamGamesWon = teamGamesWon;
         this.chestsOpened = chestsOpened;
@@ -65,7 +64,6 @@ public class PlayerStatsHandler {
         this.potionsUsed = potionsUsed;
         this.foodConsumed = foodConsumed;
         this.totemsPopped = totemsPopped;
-        this.credits = credits;
         this.damageDealt = damageDealt;
         this.projectileDamageDealt = projectileDamageDealt;
         this.damageTaken = damageTaken;
@@ -81,10 +79,6 @@ public class PlayerStatsHandler {
 
     public String getUuid() {
         return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
     }
 
     public String getUsername() {
@@ -119,12 +113,12 @@ public class PlayerStatsHandler {
         this.killAssists = killAssists;
     }
 
-    public int getSoloGamesCreated() {
-        return soloGamesCreated;
+    public int getSoloGamesStarted() {
+        return soloGamesStarted;
     }
 
-    public void setSoloGamesCreated(int soloGamesCreated) {
-        this.soloGamesCreated = soloGamesCreated;
+    public void setSoloGamesStarted(int soloGamesStarted) {
+        this.soloGamesStarted = soloGamesStarted;
     }
 
     public int getSoloGamesPlayed() {
@@ -143,12 +137,12 @@ public class PlayerStatsHandler {
         this.soloGamesWon = soloGamesWon;
     }
 
-    public int getTeamGamesCreated() {
-        return teamGamesCreated;
+    public int getTeamGamesStarted() {
+        return teamGamesStarted;
     }
 
-    public void setTeamGamesCreated(int teamGamesCreated) {
-        this.teamGamesCreated = teamGamesCreated;
+    public void setTeamGamesStarted(int teamGamesStarted) {
+        this.teamGamesStarted = teamGamesStarted;
     }
 
     public int getTeamGamesPlayed() {
@@ -269,14 +263,6 @@ public class PlayerStatsHandler {
 
     public void setTotemsPopped(int totemsPopped) {
         this.totemsPopped = totemsPopped;
-    }
-
-    public double getCredits() {
-        return credits;
-    }
-
-    public void setCredits(double credits) {
-        this.credits = credits;
     }
 
     public double getDamageDealt() {

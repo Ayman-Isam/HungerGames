@@ -63,7 +63,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     executor = new ArenaSelectCommand(langHandler);
                     break;
                 case "end":
-                    executor = new EndGameCommand(plugin, langHandler, gameSequenceHandler, countDownHandler, setSpawnHandler);
+                    executor = new EndGameCommand(langHandler, gameSequenceHandler, countDownHandler, setSpawnHandler);
                     break;
                 case "teleport":
                     executor = new WorldTeleportCommand(plugin, langHandler);

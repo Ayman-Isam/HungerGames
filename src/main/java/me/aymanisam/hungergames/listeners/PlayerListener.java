@@ -157,6 +157,8 @@ public class PlayerListener implements Listener {
             try {
                 PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
+                playerStats.setUsername(player.getName());
+
                 playerStats.setLastLogin(new Date());
 
                 this.plugin.getDatabase().updatePlayerStats(playerStats);

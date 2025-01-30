@@ -6,7 +6,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -15,7 +14,7 @@ import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.gameStarted;
 import static me.aymanisam.hungergames.HungerGames.gameStarting;
-import static org.bukkit.event.entity.EntityDamageEvent.DamageCause.WORLD_BORDER;
+import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
 
 public class StartGameCommand implements CommandExecutor {
     private final HungerGames plugin;
@@ -89,7 +88,11 @@ public class StartGameCommand implements CommandExecutor {
             try {
                 PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
 
-                playerStats.setCredits(playerStats.getCredits() - 1);
+                if (playersPerTeam != 1) {
+                    playerStats.setTeamGamesStarted(playerStats.getTeamGamesStarted() + 1);
+                } else {
+                    playerStats.setSoloGamesStarted(playerStats.getSoloGamesStarted() + 1);
+                }
 
                 this.plugin.getDatabase().updatePlayerStats(playerStats);
             } catch (SQLException e) {
