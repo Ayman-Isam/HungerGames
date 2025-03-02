@@ -59,6 +59,9 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 case "spectate":
                     executor = new SpectatePlayerCommand(langHandler);
                     break;
+                case "stats":
+                    executor = new DisplayStatsCommand(plugin, langHandler);
+                    break;
                 case "select":
                     executor = new ArenaSelectCommand(langHandler);
                     break;
@@ -112,7 +115,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 List<String> completions = new ArrayList<>();
-                String[] commands = {"join", "lobby", "start", "spectate", "select", "end", "teamchat", "teleport", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig", "setsign"};
+                String[] commands = {"join", "lobby", "start", "spectate", "stats", "select", "end", "teamchat", "teleport", "modifiers", "saveworld", "teamsize", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig", "setsign"};
 
                 for (String subcommand : commands) {
                     if (sender.hasPermission("hungergames." + subcommand)) {

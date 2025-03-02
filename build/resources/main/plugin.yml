@@ -29,6 +29,9 @@ permissions:
   hungergames.spectate:
     description: "Allows you to spectate players in HungerGames"
     default: true
+  hungergames.stats:
+    description: "Allows you to view stats in HungerGames"
+    default: true
   hungergames.teamchat:
     description: "Allows you to toggle teamchat in HungerGames"
     default: true

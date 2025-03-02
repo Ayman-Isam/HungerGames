@@ -33,6 +33,13 @@ public class BlockBreakListener implements Listener {
         FileConfiguration worldConfig = configHandler.getWorldConfig(player.getWorld());
 
         List<String> allowedStrings = worldConfig.getStringList("break-blocks.allowed-blocks");
+
+        for (String string: allowedStrings) {
+            if (string.equalsIgnoreCase("ALL")) {
+                return;
+            }
+        }
+
         List<Material> allowedMaterials = new ArrayList<>();
 
         for (String string: allowedStrings) {

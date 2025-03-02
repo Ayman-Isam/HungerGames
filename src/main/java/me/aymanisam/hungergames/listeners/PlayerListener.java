@@ -32,15 +32,14 @@ public class PlayerListener implements Listener {
     private final ConfigHandler configHandler;
     private final SignHandler signHandler;
     private final SignClickListener signClickListener;
-    private final ScoreBoardHandler scoreBoardHandler;
-    private final DatabaseHandler databaseHandler;
+	private final DatabaseHandler databaseHandler;
     private final ResetPlayerHandler resetPlayerHandler;
 
     private final Map<Player, Location> deathLocations = new HashMap<>();
     private final Map<Player, Set<Player>> playerDamagers = new HashMap<>();
     public static final Map<Player, Integer> playerKills = new HashMap<>();
 
-    public PlayerListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ScoreBoardHandler scoreBoardHandler) {
+    public PlayerListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
         this.setSpawnHandler = setSpawnHandler;
         this.plugin = plugin;
         this.langHandler = langHandler;
@@ -48,8 +47,7 @@ public class PlayerListener implements Listener {
         ArenaHandler arenaHandler = new ArenaHandler(plugin, langHandler);
         this.signHandler = new SignHandler(plugin);
         this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
-        this.scoreBoardHandler = scoreBoardHandler;
-        this.databaseHandler = new DatabaseHandler(plugin);
+	    this.databaseHandler = new DatabaseHandler(plugin);
         this.resetPlayerHandler = new ResetPlayerHandler(plugin);
     }
 
@@ -214,8 +212,6 @@ public class PlayerListener implements Listener {
         removeFromTeam(player);
         removeBossBar(player);
 
-        scoreBoardHandler.removeScoreboard(player);
-
         signClickListener.setSignContent(signHandler.loadSignLocations());
 
         boolean spectating = configHandler.getPluginSettings().getBoolean("spectating");
@@ -230,7 +226,7 @@ public class PlayerListener implements Listener {
 
         Player killer = event.getEntity().getKiller();
 
-        for (Player damager: playerDamagers.get(player)) {
+        for (Player damager: playerDamagers.computeIfAbsent(player, k -> new HashSet<>())) {
             if (damager != killer) {
                 if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
                     try {

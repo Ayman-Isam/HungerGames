@@ -35,42 +35,42 @@ public class EndGameCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (!(sender instanceof Player p)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage(langHandler.getMessage(null, "no-server"));
             return true;
         }
 
-        if (!p.hasPermission("hungergames.end")) {
-            p.sendMessage(langHandler.getMessage(p, "no-permission"));
+        if (!player.hasPermission("hungergames.end")) {
+            player.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
-        if (!isGameStartingOrStarted(p.getWorld().getName())) {
+        if (!isGameStartingOrStarted(player.getWorld().getName())) {
             sender.sendMessage(langHandler.getMessage((Player) sender, "game.not-started"));
             return true;
         }
 
-        for (Player player : (p.getWorld().getPlayers())) {
-            player.sendTitle("", langHandler.getMessage(player, "game.ended"), 5, 20, 10);
+        for (Player onlinePlayer : (player.getWorld().getPlayers())) {
+            onlinePlayer.sendTitle("", langHandler.getMessage(onlinePlayer, "game.ended"), 5, 20, 10);
         }
 
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.get(p.getWorld().getName());
-        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(p.getWorld().getName(), k -> new ArrayList<>());
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.get(player.getWorld().getName());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
 
-        if (gameStarting.getOrDefault(p.getWorld().getName(), false)) {
-            countDownHandler.cancelCountDown(p.getWorld());
+        if (gameStarting.getOrDefault(player.getWorld().getName(), false)) {
+            countDownHandler.cancelCountDown(player.getWorld());
             worldPlayersAlive.clear();
-            gameStarting.put(p.getWorld().getName(), false);
+            gameStarting.put(player.getWorld().getName(), false);
 
-            for (Player player : p.getWorld().getPlayers()) {
-                if (worldSpawnPointMap.containsValue(player)) {
-                    Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20.0);
+            for (Player p : player.getWorld().getPlayers()) {
+                if (worldSpawnPointMap.containsValue(p)) {
+                    Objects.requireNonNull(p.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20.0);
                 }
             }
             return true;
         }
 
-        gameSequenceHandler.endGame(false, p.getWorld());
+        gameSequenceHandler.endGame(false, player.getWorld());
 
         return true;
     }

@@ -13,7 +13,8 @@ ignored-worlds:
 reset-world: false
 # Enable or disable players spectating on death, default is false, set to true to enable
 spectating: true
-# Database Settings
+# Database Settings, used for stats tracking
+# THIS FEATURE IS IN BETA! BUGS REGARDING THIS ARE TO BE EXPECTED
 database:
   enabled: false
   url: ""

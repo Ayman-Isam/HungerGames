@@ -92,7 +92,7 @@ public class CompassHandler {
         }
 
         for (Player targetPlayer : player.getWorld().getPlayers()) {
-            if (targetPlayer != player && targetPlayer.getGameMode() == GameMode.ADVENTURE && targetPlayer.isOnline() && !(playerTeam == null || playerTeam.contains(targetPlayer))) {
+            if (targetPlayer != player && (targetPlayer.getGameMode() == GameMode.ADVENTURE || targetPlayer.getGameMode() == GameMode.SURVIVAL) && targetPlayer.isOnline() && !(playerTeam == null || playerTeam.contains(targetPlayer))) {
                 double distance = player.getLocation().distance(targetPlayer.getLocation());
                 if (player.getWorld() != targetPlayer.getWorld()) continue;
 
