@@ -117,7 +117,7 @@ public final class HungerGames extends JavaPlugin {
         SignClickListener signClickListener = new SignClickListener(this, langHandler, setSpawnHandler, arenaHandler);
         getServer().getPluginManager().registerEvents(signClickListener, this);
 
-        PlayerListener playerListener = new PlayerListener(this, langHandler, setSpawnHandler, scoreBoardHandler);
+        PlayerListener playerListener = new PlayerListener(this, langHandler, setSpawnHandler);
         getServer().getPluginManager().registerEvents(playerListener, this);
 
         SpectateGuiListener spectateGuiListener = new SpectateGuiListener(langHandler);

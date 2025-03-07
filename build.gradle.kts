@@ -54,6 +54,7 @@ tasks.shadowJar {
     relocate("io.github.retrooper.packetevents", "$group.packetevents.impl")
     relocate("fr.mrmicky.fastboard", "$group.fastboard")
     archiveClassifier.set("")
+    destinationDirectory.set(file(System.getenv("OUTPUT_DIR")))
 }
 
 tasks.processResources {

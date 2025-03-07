@@ -48,6 +48,7 @@ game:
   killed-message: "&b{0} &chas been eliminated from the game by &d{1}"
   death-message: "&b{0} &chas eliminated themselves from the game"
   start: "&aThe game has started!"
+  auto-start: "&aMinimum players to automatically start game has been reached, starting game in &b{0} seconds"
   grace-start: "&6The grace period has started! PvP is disabled."
   grace-end: "&cThe grace period has ended! PvP is enabled."
   not-started: "&cThe game has not started yet!"
@@ -92,6 +93,7 @@ score:
   teammate: "Teammate: {0}"
   chestrefill: "Chestrefill in: {0}"
   supplydrop: "Supplydrop in: {0}"
+  kills: "Kills: {0}"
 
 setspawn:
   stick-name: "&bSpawn Point Selector."
