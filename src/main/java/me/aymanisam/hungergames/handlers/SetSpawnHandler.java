@@ -177,7 +177,6 @@ public class SetSpawnHandler {
         if (configHandler.getWorldConfig(world).getBoolean("auto-start.enabled")) {
             if (world.getPlayers().size() >= configHandler.getWorldConfig(world).getInt("auto-start.players")) {
                 int autoStartDelay = configHandler.getWorldConfig(world).getInt("auto-start.delay");
-                System.out.println(autoStartDelay);
                 for (Player currentPlayer : world.getPlayers()) {
                     currentPlayer.sendMessage(langHandler.getMessage(currentPlayer, "game.auto-start", autoStartDelay));
                 }

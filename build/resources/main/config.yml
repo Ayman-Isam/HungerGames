@@ -24,9 +24,11 @@ supplydrop:
 # Interval of chests being refilled in seconds, use any time higher than game-time for no chestrefills, (default: 600)
 chestrefill:
   interval: 180
+# Automatically starts the game when there are a certain number of players
 auto-start:
   enabled: false
   players: 8
+  delay: 10
 # Minimum number of players in a game, default is 2
 min-players: 2
 # Enable voting for solo, duo, trio
