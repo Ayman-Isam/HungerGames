@@ -182,6 +182,8 @@ public class PlayerListener implements Listener {
             }
             event.setDeathMessage(null);
 
+            player.sendMessage(langHandler.getMessage(player, "game.placed", worldPlayersAlive.size() + 1));
+
             if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
                 try {
                     PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);

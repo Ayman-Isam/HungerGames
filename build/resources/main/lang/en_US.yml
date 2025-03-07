@@ -48,7 +48,7 @@ game:
   killed-message: "&b{0} &chas been eliminated from the game by &d{1}"
   death-message: "&b{0} &chas eliminated themselves from the game"
   start: "&aThe game has started!"
-  auto-start: "&aMinimum players to automatically start game has been reached, starting game in &b{0} seconds"
+  auto-start: "&aMinimum players to automatically start game has been reached, starting game in &b{0} &aseconds"
   grace-start: "&6The grace period has started! PvP is disabled."
   grace-end: "&cThe grace period has ended! PvP is enabled."
   not-started: "&cThe game has not started yet!"
@@ -65,6 +65,7 @@ game:
   left: "&b{0} &dhas left &2[{1}/{2}]"
   worldsaved: "&aWorld &b{0} &ahas been saved!"
   not-team: "&cThis command cannot be run in a solo game"
+  placed: "&bYou placed {0}th"
 
 teleport:
   no-player: "&cPlease enter a player to teleport or all to teleport everyone!"

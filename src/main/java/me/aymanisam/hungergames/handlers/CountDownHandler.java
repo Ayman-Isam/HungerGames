@@ -10,6 +10,9 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.*;
 
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
+import static me.aymanisam.hungergames.handlers.GameSequenceHandler.removeBossBar;
+import static me.aymanisam.hungergames.handlers.SetSpawnHandler.autoStartTasks;
+import static me.aymanisam.hungergames.listeners.TeamVotingListener.playerVotes;
 
 public class CountDownHandler {
     private final HungerGames plugin;
@@ -125,10 +128,26 @@ public class CountDownHandler {
 
     public void cancelCountDown(World world) {
         List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        List<BukkitTask> worldAutoStartTasks = autoStartTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         for (BukkitTask task : worldCountDownTasks) {
             task.cancel();
         }
         worldCountDownTasks.clear();
+
+        for (BukkitTask task : worldAutoStartTasks) {
+            task.cancel();
+        }
+        worldAutoStartTasks.clear();
+
+        for (Player player: world.getPlayers()) {
+            removeBossBar(player);
+        }
+
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        Map<Player, String> worldPlayerVotes = playerVotes.computeIfAbsent(world.getName(), k -> new HashMap<>());
+
+        worldPlayersAlive.clear();
+        worldPlayerVotes.clear();
     }
 }

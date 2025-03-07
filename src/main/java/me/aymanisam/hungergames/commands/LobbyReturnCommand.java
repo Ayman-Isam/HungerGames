@@ -125,6 +125,7 @@ public class LobbyReturnCommand implements CommandExecutor {
 
         if (isGameStartingOrStarted(world.getName())) {
             worldPlayersAlive.remove(player);
+            player.sendMessage(langHandler.getMessage(player, "game.placed", worldPlayersAlive.size() + 1));
             if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
                 worldPlayersPlacement.add(player);
             }

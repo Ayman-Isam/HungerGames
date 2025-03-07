@@ -9,6 +9,7 @@ import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -35,6 +36,7 @@ public class SetSpawnHandler {
     public Map<String, Map<String, Player>> spawnPointMap;
     public Map<String, List<Player>> playersWaiting;
     private File setSpawnFile;
+    public static final Map<String, List<BukkitTask>> autoStartTasks = new HashMap<>();
 
     public SetSpawnHandler(HungerGames plugin, LangHandler langHandler, ArenaHandler arenaHandler) {
         this.plugin = plugin;
@@ -180,10 +182,13 @@ public class SetSpawnHandler {
                 for (Player currentPlayer : world.getPlayers()) {
                     currentPlayer.sendMessage(langHandler.getMessage(currentPlayer, "game.auto-start", autoStartDelay));
                 }
-                plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+
+                List<BukkitTask> worldAutoStartTasks = autoStartTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+                BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                     gameStarting.put(player.getWorld().getName(), true);
                     countDownHandler.startCountDown(world);
                 }, autoStartDelay * 20L);
+                worldAutoStartTasks.add(task);
             }
         }
     }

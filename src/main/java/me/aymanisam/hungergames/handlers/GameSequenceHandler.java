@@ -440,8 +440,13 @@ public class GameSequenceHandler {
 		    }
 	    }
 
-	    playerPlacements.clear();
-	    teamPlacements.clear();
+        if (worldPlayerPlacements != null) {
+            worldPlayerPlacements.clear();
+        }
+
+        if (worldTeamPlacements != null) {
+            worldTeamPlacements.clear();
+        }
 
         List<Player> players = world.getPlayers();
 
