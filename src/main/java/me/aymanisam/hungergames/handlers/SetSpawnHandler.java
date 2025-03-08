@@ -31,24 +31,24 @@ public class SetSpawnHandler {
     private final SignClickListener signClickListener;
     private CountDownHandler countDownHandler;
 
-    public FileConfiguration setSpawnConfig;
+	public FileConfiguration setSpawnConfig;
     public Map<String, List<String>> spawnPoints;
     public Map<String, Map<String, Player>> spawnPointMap;
     public Map<String, List<Player>> playersWaiting;
     private File setSpawnFile;
     public static final Map<String, List<BukkitTask>> autoStartTasks = new HashMap<>();
 
-    public SetSpawnHandler(HungerGames plugin, LangHandler langHandler, ArenaHandler arenaHandler) {
+    public SetSpawnHandler(HungerGames plugin, LangHandler langHandler, ArenaHandler arenaHandler, ScoreBoardHandler scoreBoardHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
-        this.spawnPoints = new HashMap<>();
+	    this.spawnPoints = new HashMap<>();
         this.spawnPointMap = new HashMap<>();
         this.playersWaiting = new HashMap<>();
         this.resetPlayerHandler = new ResetPlayerHandler(plugin);
         this.teamVotingListener = new TeamVotingListener(langHandler);
         this.configHandler = plugin.getConfigHandler();
         this.signHandler = new SignHandler(plugin);
-        this.signClickListener = new SignClickListener(plugin, langHandler, this, arenaHandler);
+        this.signClickListener = new SignClickListener(plugin, langHandler, this, arenaHandler, scoreBoardHandler);
     }
 
     public void setCountDownHandler(CountDownHandler countDownHandler) {

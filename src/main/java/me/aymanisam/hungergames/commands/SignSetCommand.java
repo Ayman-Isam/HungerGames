@@ -1,10 +1,7 @@
 package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.handlers.ArenaHandler;
-import me.aymanisam.hungergames.handlers.LangHandler;
-import me.aymanisam.hungergames.handlers.SetSpawnHandler;
-import me.aymanisam.hungergames.handlers.SignHandler;
+import me.aymanisam.hungergames.handlers.*;
 import me.aymanisam.hungergames.listeners.SignClickListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -29,9 +26,9 @@ public class SignSetCommand implements CommandExecutor {
     private final SignClickListener signClickListener;
     private final SignHandler signHandler;
 
-    public SignSetCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
+	public SignSetCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler, ScoreBoardHandler scoreBoardHandler) {
         this.langHandler = langHandler;
-        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
+		this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler, scoreBoardHandler);
         this.signHandler = new SignHandler(plugin);
     }
 

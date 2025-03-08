@@ -1,10 +1,9 @@
 package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.handlers.ArenaHandler;
-import me.aymanisam.hungergames.handlers.LangHandler;
-import me.aymanisam.hungergames.handlers.SetSpawnHandler;
+import me.aymanisam.hungergames.handlers.*;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.command.Command;
@@ -24,12 +23,16 @@ public class JoinGameCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
     private final ArenaHandler arenaHandler;
+    private final ConfigHandler configHandler;
+    private final ScoreBoardHandler scoreBoardHandler;
 
-    public JoinGameCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
+    public JoinGameCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ScoreBoardHandler scoreBoardHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
-        this.arenaHandler = new ArenaHandler(plugin, langHandler);
+	    this.configHandler = new ConfigHandler(plugin);
+	    this.scoreBoardHandler = scoreBoardHandler;
+	    this.arenaHandler = new ArenaHandler(plugin, langHandler);
     }
 
     @Override
@@ -61,11 +64,25 @@ public class JoinGameCommand implements CommandExecutor {
 
         if (gameStarted.getOrDefault(worldName, false)) {
             player.sendMessage(langHandler.getMessage(player, "startgame.started"));
+            if (configHandler.getPluginSettings().getBoolean("spectating")) {
+                assert world != null;
+                player.teleport(world.getSpawnLocation());
+                scoreBoardHandler.createBoard(player);
+                player.setGameMode(GameMode.SPECTATOR);
+                player.sendMessage(langHandler.getMessage(player, "spectate.spectating-player"));
+            }
             return true;
         }
 
         if (gameStarting.getOrDefault(worldName, false)) {
             player.sendMessage(langHandler.getMessage(player, "startgame.starting"));
+            if (configHandler.getPluginSettings().getBoolean("spectating")) {
+                assert world != null;
+                player.teleport(world.getSpawnLocation());
+                scoreBoardHandler.createBoard(player);
+                player.setGameMode(GameMode.SPECTATOR);
+                player.sendMessage(langHandler.getMessage(player, "spectate.spectating-player"));
+            }
             return true;
         }
 

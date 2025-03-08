@@ -40,7 +40,7 @@ public class LobbyReturnCommand implements CommandExecutor {
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.configHandler = plugin.getConfigHandler();
-        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
+        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler, scoreBoardHandler);
         this.signHandler = new SignHandler(plugin);
         this.countDownHandler = countDownHandler;
         this.resetPlayerHandler = new ResetPlayerHandler(plugin);
@@ -124,10 +124,11 @@ public class LobbyReturnCommand implements CommandExecutor {
         scoreBoardHandler.removeScoreboard(player);
 
         if (isGameStartingOrStarted(world.getName())) {
-            worldPlayersAlive.remove(player);
-            player.sendMessage(langHandler.getMessage(player, "game.placed", worldPlayersAlive.size() + 1));
-            if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
-                worldPlayersPlacement.add(player);
+            if (worldPlayersAlive.remove(player)) {
+                player.sendMessage(langHandler.getMessage(player, "game.placed", worldPlayersAlive.size() + 1));
+                if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
+                    worldPlayersPlacement.add(player);
+                }
             }
         } else {
             setSpawnHandler.removePlayerFromSpawnPoint(player, world);

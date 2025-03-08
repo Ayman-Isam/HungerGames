@@ -67,7 +67,7 @@ public class GameSequenceHandler {
         this.compassListener = compassListener;
         this.teamsHandler = teamsHandler;
         this.signHandler = new SignHandler(plugin);
-        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, new ArenaHandler(plugin, langHandler));
+        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, new ArenaHandler(plugin, langHandler), scoreBoardHandler);
         this.databaseHandler = new DatabaseHandler(plugin);
     }
 

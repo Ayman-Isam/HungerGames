@@ -84,8 +84,8 @@ public final class HungerGames extends JavaPlugin {
         TeamVotingListener teamVotingListener = new TeamVotingListener(langHandler);
         getServer().getPluginManager().registerEvents(teamVotingListener, this);
         ArenaHandler arenaHandler = new ArenaHandler(this, langHandler);
-        SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this, langHandler, arenaHandler);
         ScoreBoardHandler scoreBoardHandler = new ScoreBoardHandler(this, langHandler);
+        SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this, langHandler, arenaHandler, scoreBoardHandler);
         CompassHandler compassHandler = new CompassHandler(this, langHandler);
         CompassListener compassListener = new CompassListener(this, langHandler, compassHandler);
         TeamsHandler teamsHandler = new TeamsHandler(this, langHandler);
@@ -111,13 +111,13 @@ public final class HungerGames extends JavaPlugin {
         ArenaSelectListener arenaSelectListener = new ArenaSelectListener(this, langHandler);
         getServer().getPluginManager().registerEvents(arenaSelectListener, this);
 
-        SetSpawnListener setSpawnListener = new SetSpawnListener(this, langHandler, setSpawnHandler, arenaHandler);
+        SetSpawnListener setSpawnListener = new SetSpawnListener(this, langHandler, setSpawnHandler, arenaHandler, scoreBoardHandler);
         getServer().getPluginManager().registerEvents(setSpawnListener, this);
 
-        SignClickListener signClickListener = new SignClickListener(this, langHandler, setSpawnHandler, arenaHandler);
+        SignClickListener signClickListener = new SignClickListener(this, langHandler, setSpawnHandler, arenaHandler, scoreBoardHandler);
         getServer().getPluginManager().registerEvents(signClickListener, this);
 
-        PlayerListener playerListener = new PlayerListener(this, langHandler, setSpawnHandler);
+        PlayerListener playerListener = new PlayerListener(this, langHandler, setSpawnHandler, scoreBoardHandler);
         getServer().getPluginManager().registerEvents(playerListener, this);
 
         SpectateGuiListener spectateGuiListener = new SpectateGuiListener(langHandler);

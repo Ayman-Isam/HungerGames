@@ -45,7 +45,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
             CommandExecutor executor;
             switch (args[0].toLowerCase()) {
                 case "join":
-                    executor = new JoinGameCommand(plugin, langHandler, setSpawnHandler);
+                    executor = new JoinGameCommand(plugin, langHandler, setSpawnHandler, scoreBoardHandler);
                     break;
                 case "lobby":
                     executor = new LobbyReturnCommand(plugin, langHandler, setSpawnHandler, arenaHandler, countDownHandler, scoreBoardHandler);
@@ -96,7 +96,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     executor = new SaveWorldCommand(plugin, langHandler);
                     break;
                 case "setsign":
-                    executor = new SignSetCommand(plugin, langHandler, setSpawnHandler, arenaHandler);
+                    executor = new SignSetCommand(plugin, langHandler, setSpawnHandler, arenaHandler, scoreBoardHandler);
                     break;
                 default:
                     sender.sendMessage(langHandler.getMessage(sender instanceof Player ? (Player) sender : null, "unknown-subcommand", args[0]));

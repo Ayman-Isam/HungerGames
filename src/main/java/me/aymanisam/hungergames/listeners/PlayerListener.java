@@ -35,18 +35,18 @@ public class PlayerListener implements Listener {
 	private final DatabaseHandler databaseHandler;
     private final ResetPlayerHandler resetPlayerHandler;
 
-    private final Map<Player, Location> deathLocations = new HashMap<>();
+	private final Map<Player, Location> deathLocations = new HashMap<>();
     private final Map<Player, Set<Player>> playerDamagers = new HashMap<>();
     public static final Map<Player, Integer> playerKills = new HashMap<>();
 
-    public PlayerListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
+    public PlayerListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ScoreBoardHandler scoreBoardHandler) {
         this.setSpawnHandler = setSpawnHandler;
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.configHandler = plugin.getConfigHandler();
-        ArenaHandler arenaHandler = new ArenaHandler(plugin, langHandler);
+	    ArenaHandler arenaHandler = new ArenaHandler(plugin, langHandler);
         this.signHandler = new SignHandler(plugin);
-        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
+        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler, scoreBoardHandler);
 	    this.databaseHandler = new DatabaseHandler(plugin);
         this.resetPlayerHandler = new ResetPlayerHandler(plugin);
     }

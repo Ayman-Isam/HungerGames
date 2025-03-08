@@ -25,13 +25,13 @@ public class SetSpawnListener implements Listener {
     private final SignClickListener signClickListener;
     private final SignHandler signHandler;
 
-    private final Map<String, Map<Location, BlockData>> originalBlockDataMap = new HashMap<>();
+	private final Map<String, Map<Location, BlockData>> originalBlockDataMap = new HashMap<>();
 
-    public SetSpawnListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
+    public SetSpawnListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler, ScoreBoardHandler scoreBoardHandler) {
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.configHandler = plugin.getConfigHandler();
-        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler);
+	    this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler, scoreBoardHandler);
         this.signHandler = new SignHandler(plugin);
     }
 

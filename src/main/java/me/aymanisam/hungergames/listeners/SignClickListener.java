@@ -1,9 +1,7 @@
 package me.aymanisam.hungergames.listeners;
 
 import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.handlers.ArenaHandler;
-import me.aymanisam.hungergames.handlers.LangHandler;
-import me.aymanisam.hungergames.handlers.SetSpawnHandler;
+import me.aymanisam.hungergames.handlers.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -26,15 +24,19 @@ public class SignClickListener implements Listener {
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
     private final ArenaHandler arenaHandler;
+    private final ConfigHandler configHandler;
+    private final ScoreBoardHandler scoreBoardHandler;
 
     private final Map<Player, Long> lastInteractTime = new HashMap<>();
     private final Map<Player, Long> lastMessageTime = new HashMap<>();
 
-    public SignClickListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler) {
+    public SignClickListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler, ScoreBoardHandler scoreBoardHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.arenaHandler = arenaHandler;
+	    this.configHandler = new ConfigHandler(plugin);
+	    this.scoreBoardHandler = scoreBoardHandler;
     }
 
     @EventHandler
@@ -63,12 +65,26 @@ public class SignClickListener implements Listener {
                         if (gameStarting.getOrDefault(worldName, false)) {
                             player.sendMessage(langHandler.getMessage(player, "startgame.starting"));
                             lastMessageTime.put(player, currentTime);
+                            if (configHandler.getPluginSettings().getBoolean("spectating")) {
+                                assert world != null;
+                                player.teleport(world.getSpawnLocation());
+                                scoreBoardHandler.createBoard(player);
+                                player.setGameMode(GameMode.SPECTATOR);
+                                player.sendMessage(langHandler.getMessage(player, "spectate.spectating-player"));
+                            }
                             return;
                         }
 
                         if (gameStarted.getOrDefault(worldName, false)) {
                             player.sendMessage(langHandler.getMessage(player, "startgame.started"));
                             lastMessageTime.put(player, currentTime);
+                            if (configHandler.getPluginSettings().getBoolean("spectating")) {
+                                assert world != null;
+                                player.teleport(world.getSpawnLocation());
+                                scoreBoardHandler.createBoard(player);
+                                player.setGameMode(GameMode.SPECTATOR);
+                                player.sendMessage(langHandler.getMessage(player, "spectate.spectating-player"));
+                            }
                             return;
                         }
 

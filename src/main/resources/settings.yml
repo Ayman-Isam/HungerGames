@@ -11,7 +11,7 @@ ignored-worlds:
   # Add more worlds to exclude
 # Reset world, this restores the world to a previous state
 reset-world: false
-# Enable or disable players spectating on death, default is false, set to true to enable
+# Enable or disable players spectating on death, default is true, set to false to disable
 spectating: true
 # Database Settings, used for stats tracking
 # THIS FEATURE IS IN BETA! BUGS REGARDING THIS ARE TO BE EXPECTED
