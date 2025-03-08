@@ -178,12 +178,17 @@ public class SetSpawnHandler {
 
         if (configHandler.getWorldConfig(world).getBoolean("auto-start.enabled")) {
             if (world.getPlayers().size() >= configHandler.getWorldConfig(world).getInt("auto-start.players")) {
+                List<BukkitTask> worldAutoStartTasks = autoStartTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+
+                if (!worldAutoStartTasks.isEmpty()) {
+                    return;
+                }
+
                 int autoStartDelay = configHandler.getWorldConfig(world).getInt("auto-start.delay");
                 for (Player currentPlayer : world.getPlayers()) {
                     currentPlayer.sendMessage(langHandler.getMessage(currentPlayer, "game.auto-start", autoStartDelay));
                 }
 
-                List<BukkitTask> worldAutoStartTasks = autoStartTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
                 BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                     gameStarting.put(player.getWorld().getName(), true);
                     countDownHandler.startCountDown(world);
