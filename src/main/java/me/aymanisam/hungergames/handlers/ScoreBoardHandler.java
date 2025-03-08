@@ -91,7 +91,8 @@ public class ScoreBoardHandler {
 
         lines.add("");
         lines.add(langHandler.getMessage(board.getPlayer(), "score.alive", getColor(worldStartingPlayers, worldPlayersAliveSize).toString() + worldPlayersAliveSize));
-        lines.add(langHandler.getMessage(board.getPlayer(), "score.kills", ChatColor.RED + playerKills.computeIfAbsent(board.getPlayer(), k -> 0).toString()));
+        Map<Player, Integer> worldPlayerKills = playerKills.computeIfAbsent(world.getName(), k -> new HashMap<>());
+        lines.add(langHandler.getMessage(board.getPlayer(), "score.kills", ChatColor.RED + worldPlayerKills.computeIfAbsent(board.getPlayer(), k -> 0).toString()));
         lines.add(langHandler.getMessage(board.getPlayer(), "score.border", borderColor.toString() + worldBorderSize));
         lines.add("");
         lines.add(formatScore(board.getPlayer(), "score.time", worldTimeLeft, gameTimeConfig));

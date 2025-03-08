@@ -283,7 +283,8 @@ public class GameSequenceHandler {
     private void determineSoloWinner(World world) {
         Player winner = null;
         int maxKills = -1;
-        for (Map.Entry<Player, Integer> entry : playerKills.entrySet()) {
+        Map<Player, Integer> worldPlayerKills = playerKills.computeIfAbsent(world.getName(), k -> new HashMap<>());
+        for (Map.Entry<Player, Integer> entry : worldPlayerKills.entrySet()) {
             if (entry.getValue() > maxKills) {
                 maxKills = entry.getValue();
                 winner = entry.getKey();
@@ -369,7 +370,9 @@ public class GameSequenceHandler {
 
         for (List<Player> team : worldTeamsAlive) {
             int alivePlayers = team.size();
-            int teamKills = team.stream().mapToInt(player -> playerKills.getOrDefault(player, 0)).sum();
+
+            Map<Player, Integer> worldPlayerKills = playerKills.computeIfAbsent(world.getName(), k -> new HashMap<>());
+            int teamKills = team.stream().mapToInt(player -> worldPlayerKills.getOrDefault(player, 0)).sum();
 
             if (alivePlayers > maxAlivePlayers || (alivePlayers == maxAlivePlayers && teamKills > maxKills)) {
                 maxAlivePlayers = alivePlayers;

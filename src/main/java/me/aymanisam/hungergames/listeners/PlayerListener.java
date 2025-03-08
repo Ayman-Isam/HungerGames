@@ -37,7 +37,7 @@ public class PlayerListener implements Listener {
 
 	private final Map<Player, Location> deathLocations = new HashMap<>();
     private final Map<Player, Set<Player>> playerDamagers = new HashMap<>();
-    public static final Map<Player, Integer> playerKills = new HashMap<>();
+    public static final Map<String, Map<Player, Integer>> playerKills = new HashMap<>();
 
     public PlayerListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ScoreBoardHandler scoreBoardHandler) {
         this.setSpawnHandler = setSpawnHandler;
@@ -245,7 +245,8 @@ public class PlayerListener implements Listener {
         }
 
         if (killer != null) {
-            playerKills.put(killer, playerKills.getOrDefault(killer, 0) + 1);
+            Map<Player, Integer> worldPlayerKills = playerKills.computeIfAbsent(world.getName(), k -> new HashMap<>());
+            worldPlayerKills.put(killer, worldPlayerKills.getOrDefault(killer, 0) + 1);
             List<Map<?, ?>> effectMaps = configHandler.getWorldConfig(world).getMapList("killer-effects");
             for (Map<?, ?> effectMap : effectMaps) {
                 String effectName = (String) effectMap.get("effect");
