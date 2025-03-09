@@ -24,7 +24,6 @@ import java.util.logging.Level;
 import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
 import static me.aymanisam.hungergames.handlers.ScoreBoardHandler.boards;
-import static me.aymanisam.hungergames.handlers.ScoreBoardHandler.startingPlayers;
 import static me.aymanisam.hungergames.handlers.SetSpawnHandler.autoStartTasks;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
@@ -52,6 +51,7 @@ public class GameSequenceHandler {
     public Map<String, BukkitTask> chestRefillTask = new HashMap<>();
     public Map<String, BukkitTask> supplyDropTask = new HashMap<>();
     public static Map<String, List<Player>> playersAlive = new HashMap<>();
+    public static Map<String, List<Player>> startingPlayers = new HashMap<>();
     public static Map<String, Map<Player, BossBar>> playerBossBars = new HashMap<>();
     public static Map<String, List<Player>> playerPlacements = new HashMap<>();
     public static Map<String, List<List<Player>>> teamPlacements = new HashMap<>();
@@ -79,11 +79,9 @@ public class GameSequenceHandler {
         Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
         List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
-        List<BukkitTask> worldAutoStartTasks = autoStartTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        List<Player> worldStartingPlayers = startingPlayers.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         worldPlayersWaiting.clear();
-        worldAutoStartTasks.clear();
-        startingPlayers.put(world.getName(), worldSpawnPointMap.size());
         worldSpawnPointMap.clear();
 
         signClickListener.setSignContent(signHandler.loadSignLocations());
@@ -91,6 +89,8 @@ public class GameSequenceHandler {
         worldBorderHandler.startWorldBorder(world);
 
         for (Player player : world.getPlayers()) {
+            worldStartingPlayers.add(player);
+
             player.sendTitle("", langHandler.getMessage(player, "game.start"), 5, 20, 10);
             player.sendMessage(langHandler.getMessage(player, "game.grace-start"));
 
@@ -398,11 +398,12 @@ public class GameSequenceHandler {
     public void endGame(Boolean disable, World world) {
         gameStarted.put(world.getName(), false);
 
-	    List<Player> worldPlayerPlacements = playerPlacements.get(world.getName());
-	    List<List<Player>> worldTeamPlacements = teamPlacements.get(world.getName());
+	    List<Player> worldPlayerPlacements = playerPlacements.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        List<Player> worldStartingPlayers = startingPlayers.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+	    List<List<Player>> worldTeamPlacements = teamPlacements.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
 	    if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
-		    if (worldPlayerPlacements != null && startingPlayers != null && worldPlayerPlacements.size() == startingPlayers.getOrDefault(world.getName(), -1)) {
+		    if (startingPlayers != null && worldPlayerPlacements.size() == worldStartingPlayers.size()) {
 			    for (Player player : worldPlayerPlacements) {
 				    int playerIndex = worldPlayerPlacements.indexOf(player);
 				    double percentile = (1 - (playerIndex / (worldPlayerPlacements.size() - 1.0))) * 100.0;
@@ -422,7 +423,7 @@ public class GameSequenceHandler {
 			    }
 		    }
 	    } else {
-		    if (worldTeamPlacements != null && worldTeamPlacements.size()  == teams.get(world.getName()).size()) {
+		    if (worldTeamPlacements.size() == teams.computeIfAbsent(world.getName(), k -> new ArrayList<>()).size()) {
 			    for (List<Player> team : worldTeamPlacements) {
 				    int teamIndex = worldTeamPlacements.indexOf(team);
 				    double percentile = (1 - (teamIndex / (worldTeamPlacements.size() - 1.0))) * 100.0;
@@ -446,15 +447,11 @@ public class GameSequenceHandler {
 		    }
 	    }
 
-        if (worldPlayerPlacements != null) {
-            worldPlayerPlacements.clear();
-        }
+	    worldPlayerPlacements.clear();
 
-        if (worldTeamPlacements != null) {
-            worldTeamPlacements.clear();
-        }
+	    worldTeamPlacements.clear();
 
-        List<Player> players = world.getPlayers();
+	    List<Player> players = world.getPlayers();
 
         for (Player player : players) {
             resetPlayerHandler.resetPlayer(player, world);
@@ -520,8 +517,10 @@ public class GameSequenceHandler {
 
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         Map<Player, String> worldPlayerVotes = playerVotes.computeIfAbsent(world.getName(), k -> new HashMap<>());
+        worldStartingPlayers = startingPlayers.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         worldPlayersAlive.clear();
+        worldStartingPlayers.clear();
         worldPlayerVotes.clear();
 
         signClickListener.setSignContent(signHandler.loadSignLocations());

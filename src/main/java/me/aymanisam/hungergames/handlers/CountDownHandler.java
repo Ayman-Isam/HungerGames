@@ -9,8 +9,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 
-import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
-import static me.aymanisam.hungergames.handlers.GameSequenceHandler.removeBossBar;
+import static me.aymanisam.hungergames.handlers.GameSequenceHandler.*;
 import static me.aymanisam.hungergames.handlers.SetSpawnHandler.autoStartTasks;
 import static me.aymanisam.hungergames.listeners.TeamVotingListener.playerVotes;
 
@@ -38,6 +37,12 @@ public class CountDownHandler {
 
     public void startCountDown(World world) {
         List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        List<BukkitTask> worldAutoStartTasks = autoStartTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+
+        for (BukkitTask task : worldAutoStartTasks) {
+            task.cancel();
+        }
+        worldAutoStartTasks.clear();
 
         if (configHandler.getWorldConfig(world).getBoolean("voting")) {
             String highestVotedGameMode;
@@ -74,7 +79,6 @@ public class CountDownHandler {
             configHandler.createWorldConfig(world);
             configHandler.getWorldConfig(world).set("players-per-team", teamSize);
             configHandler.saveWorldConfig(world);
-
 
             BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> runAfterDelay(world), 20L * 5);
             worldCountDownTasks.add(task);
@@ -145,9 +149,11 @@ public class CountDownHandler {
         }
 
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        List<Player> worldStartingPlayers = startingPlayers.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         Map<Player, String> worldPlayerVotes = playerVotes.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
         worldPlayersAlive.clear();
+        worldStartingPlayers.clear();
         worldPlayerVotes.clear();
     }
 }

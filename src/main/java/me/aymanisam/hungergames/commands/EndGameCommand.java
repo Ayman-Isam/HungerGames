@@ -11,14 +11,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static me.aymanisam.hungergames.HungerGames.gameStarting;
 import static me.aymanisam.hungergames.HungerGames.isGameStartingOrStarted;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
+import static me.aymanisam.hungergames.handlers.GameSequenceHandler.startingPlayers;
 
 public class EndGameCommand implements CommandExecutor {
 	private final LangHandler langHandler;
@@ -54,13 +52,15 @@ public class EndGameCommand implements CommandExecutor {
             onlinePlayer.sendTitle("", langHandler.getMessage(onlinePlayer, "game.ended"), 5, 20, 10);
         }
 
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.get(player.getWorld().getName());
+        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(player.getWorld().getName(), k -> new HashMap<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
+        List<Player> worldStartingPlayers = startingPlayers.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
+        gameStarting.put(player.getWorld().getName(), false);
 
         if (gameStarting.getOrDefault(player.getWorld().getName(), false)) {
             countDownHandler.cancelCountDown(player.getWorld());
             worldPlayersAlive.clear();
-            gameStarting.put(player.getWorld().getName(), false);
+            worldStartingPlayers.clear();
 
             for (Player p : player.getWorld().getPlayers()) {
                 if (worldSpawnPointMap.containsValue(p)) {

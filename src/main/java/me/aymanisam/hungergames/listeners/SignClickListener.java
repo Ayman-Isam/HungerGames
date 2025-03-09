@@ -17,7 +17,9 @@ import java.util.*;
 import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.*;
+import static me.aymanisam.hungergames.commands.JoinGameCommand.teleportPlayerForSpectating;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
+import static me.aymanisam.hungergames.handlers.GameSequenceHandler.startingPlayers;
 
 public class SignClickListener implements Listener {
     private final HungerGames plugin;
@@ -62,29 +64,25 @@ public class SignClickListener implements Listener {
                             return; // Don't send another message if within cooldown
                         }
 
+                        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(worldName, k -> new HashMap<>());
+                        List<Player> worldStartingPlayers = startingPlayers.computeIfAbsent(worldName, k -> new ArrayList<>());
+
+                        if (worldSpawnPointMap.containsValue(player) || worldStartingPlayers.contains(player)) {
+                            player.sendMessage(langHandler.getMessage(player, "game.already-joined"));
+                            return;
+                        }
+
                         if (gameStarting.getOrDefault(worldName, false)) {
                             player.sendMessage(langHandler.getMessage(player, "startgame.starting"));
                             lastMessageTime.put(player, currentTime);
-                            if (configHandler.getPluginSettings().getBoolean("spectating")) {
-                                assert world != null;
-                                player.teleport(world.getSpawnLocation());
-                                scoreBoardHandler.createBoard(player);
-                                player.setGameMode(GameMode.SPECTATOR);
-                                player.sendMessage(langHandler.getMessage(player, "spectate.spectating-player"));
-                            }
+                            teleportPlayerForSpectating(player, worldName, world, configHandler, scoreBoardHandler, langHandler);
                             return;
                         }
 
                         if (gameStarted.getOrDefault(worldName, false)) {
                             player.sendMessage(langHandler.getMessage(player, "startgame.started"));
                             lastMessageTime.put(player, currentTime);
-                            if (configHandler.getPluginSettings().getBoolean("spectating")) {
-                                assert world != null;
-                                player.teleport(world.getSpawnLocation());
-                                scoreBoardHandler.createBoard(player);
-                                player.setGameMode(GameMode.SPECTATOR);
-                                player.sendMessage(langHandler.getMessage(player, "spectate.spectating-player"));
-                            }
+                            teleportPlayerForSpectating(player, worldName, world, configHandler, scoreBoardHandler, langHandler);
                             return;
                         }
 

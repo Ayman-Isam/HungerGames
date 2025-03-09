@@ -10,8 +10,7 @@ import org.bukkit.entity.Player;
 import java.util.*;
 
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
-import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
-import static me.aymanisam.hungergames.handlers.GameSequenceHandler.timeLeft;
+import static me.aymanisam.hungergames.handlers.GameSequenceHandler.*;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.listeners.PlayerListener.playerKills;
 
@@ -19,7 +18,6 @@ public class ScoreBoardHandler {
     private final LangHandler langHandler;
     private final ConfigHandler configHandler;
 
-    public static Map<String, Integer> startingPlayers = new HashMap<>();
     public static final Map<UUID, FastBoard> boards = new HashMap<>();
 
     public ScoreBoardHandler(HungerGames plugin, LangHandler langHandler) {
@@ -71,7 +69,7 @@ public class ScoreBoardHandler {
 
         int worldTimeLeft = timeLeft.get(world.getName());
         int worldPlayersAliveSize = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>()).size();
-        int worldStartingPlayers = startingPlayers.get(world.getName());
+        int worldStartingPlayers = startingPlayers.get(world.getName()).size();
         int worldBorderSize = (int) world.getWorldBorder().getSize();
         int borderShrinkTimeLeft = (worldTimeLeft - gameTimeConfig) + borderShrinkTimeConfig;
         int pvpTimeLeft = (worldTimeLeft - gameTimeConfig) + pvpTimeConfig;

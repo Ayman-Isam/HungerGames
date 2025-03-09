@@ -35,7 +35,7 @@ public class PlayerListener implements Listener {
 	private final DatabaseHandler databaseHandler;
     private final ResetPlayerHandler resetPlayerHandler;
 
-	private final Map<Player, Location> deathLocations = new HashMap<>();
+	private final Map<String, Map<Player, Location>> deathLocations = new HashMap<>();
     private final Map<Player, Set<Player>> playerDamagers = new HashMap<>();
     public static final Map<String, Map<Player, Integer>> playerKills = new HashMap<>();
 
@@ -216,13 +216,13 @@ public class PlayerListener implements Listener {
 
         signClickListener.setSignContent(signHandler.loadSignLocations());
 
-        boolean spectating = configHandler.getPluginSettings().getBoolean("spectating");
-        if (spectating) {
+        if (configHandler.getPluginSettings().getBoolean("spectating")) {
             if (gameStarted.getOrDefault(world.getName(), false)) {
                 player.setGameMode(GameMode.SPECTATOR);
                 player.sendTitle("", langHandler.getMessage(player, "spectate.spectating-player"), 5, 20, 10);
                 player.sendMessage(langHandler.getMessage(player, "spectate.message"));
-                deathLocations.put(player, player.getLocation());
+                Map<Player, Location> worldDeathLocations = deathLocations.computeIfAbsent(world.getName(), k -> new HashMap<>());
+                worldDeathLocations.put(player, player.getLocation());
             }
         }
 
@@ -291,10 +291,11 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
+        Map<Player, Location> worldDeathLocations = deathLocations.computeIfAbsent(player.getWorld().getName(), k -> new HashMap<>());
 
-        if (deathLocations.containsKey(player)) {
-            event.setRespawnLocation(deathLocations.get(player));
-            deathLocations.remove(player);
+        if (worldDeathLocations.containsKey(player)) {
+            event.setRespawnLocation(worldDeathLocations.get(player));
+            worldDeathLocations.remove(player);
         }
     }
 
