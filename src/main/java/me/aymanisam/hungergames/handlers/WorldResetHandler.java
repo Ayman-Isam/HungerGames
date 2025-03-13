@@ -18,9 +18,11 @@ import java.util.logging.Level;
 
 public class WorldResetHandler {
     private final HungerGames plugin;
+    private final WorldBorderHandler worldBorderHandler;
 
-    public WorldResetHandler(HungerGames plugin) {
+    public WorldResetHandler(HungerGames plugin, WorldBorderHandler worldBorderHandler) {
         this.plugin = plugin;
+	    this.worldBorderHandler = worldBorderHandler;
     }
 
     public void saveWorldState(World world) {
@@ -70,6 +72,7 @@ public class WorldResetHandler {
 
             WorldCreator worldCreator = new WorldCreator(world.getName());
             Bukkit.createWorld(worldCreator);
+            worldBorderHandler.resetWorldBorder(world);
         });
     }
 

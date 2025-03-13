@@ -24,7 +24,6 @@ import java.util.logging.Level;
 import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
 import static me.aymanisam.hungergames.handlers.ScoreBoardHandler.boards;
-import static me.aymanisam.hungergames.handlers.SetSpawnHandler.autoStartTasks;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
 import static me.aymanisam.hungergames.listeners.PlayerListener.playerKills;
@@ -62,9 +61,9 @@ public class GameSequenceHandler {
         this.setSpawnHandler = setSpawnHandler;
         this.worldBorderHandler = new WorldBorderHandler(plugin, langHandler);
         this.scoreBoardHandler = new ScoreBoardHandler(plugin, langHandler);
-        this.resetPlayerHandler = new ResetPlayerHandler(plugin);
+        this.resetPlayerHandler = new ResetPlayerHandler();
         this.configHandler = plugin.getConfigHandler();
-        this.worldResetHandler = new WorldResetHandler(plugin);
+        this.worldResetHandler = new WorldResetHandler(plugin, worldBorderHandler);
         this.compassListener = compassListener;
         this.teamsHandler = teamsHandler;
         this.signHandler = new SignHandler(plugin);
@@ -516,10 +515,12 @@ public class GameSequenceHandler {
         teamsHandler.removeGlowFromAllPlayers(world);
 
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        Map<Player, Integer> worldPlayerKills = playerKills.computeIfAbsent(world.getName(), k -> new HashMap<>());
         Map<Player, String> worldPlayerVotes = playerVotes.computeIfAbsent(world.getName(), k -> new HashMap<>());
         worldStartingPlayers = startingPlayers.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         worldPlayersAlive.clear();
+        worldPlayerKills.clear();
         worldStartingPlayers.clear();
         worldPlayerVotes.clear();
 

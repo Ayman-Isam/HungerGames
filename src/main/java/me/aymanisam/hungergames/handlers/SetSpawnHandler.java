@@ -44,7 +44,7 @@ public class SetSpawnHandler {
 	    this.spawnPoints = new HashMap<>();
         this.spawnPointMap = new HashMap<>();
         this.playersWaiting = new HashMap<>();
-        this.resetPlayerHandler = new ResetPlayerHandler(plugin);
+        this.resetPlayerHandler = new ResetPlayerHandler();
         this.teamVotingListener = new TeamVotingListener(langHandler);
         this.configHandler = plugin.getConfigHandler();
         this.signHandler = new SignHandler(plugin);

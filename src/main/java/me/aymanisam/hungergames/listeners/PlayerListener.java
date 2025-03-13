@@ -48,7 +48,7 @@ public class PlayerListener implements Listener {
         this.signHandler = new SignHandler(plugin);
         this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler, scoreBoardHandler);
 	    this.databaseHandler = new DatabaseHandler(plugin);
-        this.resetPlayerHandler = new ResetPlayerHandler(plugin);
+        this.resetPlayerHandler = new ResetPlayerHandler();
     }
 
     @EventHandler

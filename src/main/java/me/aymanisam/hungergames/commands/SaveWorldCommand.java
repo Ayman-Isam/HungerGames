@@ -2,6 +2,7 @@ package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.LangHandler;
+import me.aymanisam.hungergames.handlers.WorldBorderHandler;
 import me.aymanisam.hungergames.handlers.WorldResetHandler;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -13,10 +14,12 @@ import org.jetbrains.annotations.NotNull;
 public class SaveWorldCommand implements CommandExecutor {
     private final LangHandler langHandler;
     private final WorldResetHandler worldResetHandler;
+    private final WorldBorderHandler worldBorderHandler;
 
-    public SaveWorldCommand(HungerGames plugin, LangHandler langHandler) {
+    public SaveWorldCommand(HungerGames plugin, LangHandler langHandler, WorldBorderHandler worldBorderHandler) {
         this.langHandler = langHandler;
-        this.worldResetHandler = new WorldResetHandler(plugin);
+        this.worldBorderHandler = worldBorderHandler;
+        this.worldResetHandler = new WorldResetHandler(plugin, worldBorderHandler);
     }
 
     @Override

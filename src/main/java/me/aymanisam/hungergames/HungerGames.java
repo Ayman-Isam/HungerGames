@@ -92,6 +92,7 @@ public final class HungerGames extends JavaPlugin {
         this.gameSequenceHandler = new GameSequenceHandler(this, langHandler, setSpawnHandler, compassListener, teamsHandler);
         CountDownHandler countDownHandler = new CountDownHandler(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener);
         setSpawnHandler.setCountDownHandler(countDownHandler);
+        WorldBorderHandler worldBorderHandler = new WorldBorderHandler(this, langHandler);
 
         if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
             // Database
@@ -105,7 +106,7 @@ public final class HungerGames extends JavaPlugin {
         }
 
         // Registering command handler
-        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamsHandler, scoreBoardHandler, countDownHandler, arenaHandler));
+        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamsHandler, scoreBoardHandler, countDownHandler, arenaHandler, worldBorderHandler));
 
         // Registering Listeners
         ArenaSelectListener arenaSelectListener = new ArenaSelectListener(this, langHandler);

@@ -25,13 +25,14 @@ public class WorldBorderHandler {
     }
 
     public void startWorldBorder(World world) {
+        resetWorldBorder(world);
+
         FileConfiguration config = configHandler.getWorldConfig(world);
         int startTime = config.getInt("border.start-time");
         int endTime = config.getInt("border.end-time");
         int finalSize = config.getInt("border.final-size");
 
         WorldBorder border = world.getWorldBorder();
-
         int centerX = config.getInt("border.center-x");
         int centerZ = config.getInt("border.center-z");
         border.setCenter(centerX, centerZ);
