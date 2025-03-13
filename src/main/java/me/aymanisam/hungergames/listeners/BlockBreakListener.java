@@ -54,7 +54,7 @@ public class BlockBreakListener implements Listener {
             event.setCancelled(true);
         }
 
-        if (worldConfig.getBoolean("break-blocks.drop")) {
+        if (!worldConfig.getBoolean("break-blocks.drop")) {
             event.setDropItems(false);
         }
     }

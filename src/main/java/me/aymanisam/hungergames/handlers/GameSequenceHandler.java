@@ -4,6 +4,7 @@ import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.listeners.CompassListener;
 import me.aymanisam.hungergames.listeners.SignClickListener;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.boss.BarColor;
@@ -89,6 +90,10 @@ public class GameSequenceHandler {
 
         for (Player player : world.getPlayers()) {
             worldStartingPlayers.add(player);
+
+            if (configHandler.getWorldConfig(world).getBoolean("break-blocks.enabled")) {
+                player.setGameMode(GameMode.SURVIVAL);
+            }
 
             player.sendTitle("", langHandler.getMessage(player, "game.start"), 5, 20, 10);
             player.sendMessage(langHandler.getMessage(player, "game.grace-start"));

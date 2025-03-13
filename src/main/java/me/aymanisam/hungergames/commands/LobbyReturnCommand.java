@@ -4,7 +4,6 @@ import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.*;
 import me.aymanisam.hungergames.listeners.SignClickListener;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
@@ -20,7 +19,6 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.*;
-import static me.aymanisam.hungergames.HungerGames.totalTimeSpent;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.*;
 import static me.aymanisam.hungergames.listeners.TeamVotingListener.playerVotes;
 
@@ -107,7 +105,6 @@ public class LobbyReturnCommand implements CommandExecutor {
         totalTimeSpent.put(player, timeAlive + timeSpent);
 
         resetPlayerHandler.resetPlayer(player, world);
-        player.setGameMode(GameMode.ADVENTURE);
         Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
         BossBar bossBar = worldPlayerBossBar.get(player);

@@ -37,7 +37,7 @@ voting: false
 # Used to make players glow and change name colors
 # Disable if getting errors in plugin
 packetevents: false
-# Changes game from adventure to survival mode allowing players to break blocks
+  # Changes game from adventure to survival mode allowing players to break blocks
 break-blocks:
   enabled: false
   drop: true # Drop block when broken
@@ -48,7 +48,7 @@ break-blocks:
     - GRAVEL
     - OAK_LOG
     - OAK_LEAVES
-    # Add more as required
+    # Add more as required, use "ALL" for all blocks
     # For more information on blocks, see https://github.com/cantankerous-ally/Hunger-Games/wiki/Cheat-Sheets/
 # Border settings
 border:
