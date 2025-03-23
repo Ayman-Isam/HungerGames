@@ -144,7 +144,7 @@ public class TeamsHandler {
     }
 
     public void playerGlow(Player playerToGlow, Player playerToSeeGlow, Boolean glow) {
-        if (!configHandler.getWorldConfig(playerToGlow.getWorld()).getBoolean("packetevents")) {
+        if (!configHandler.getPluginSettings().getBoolean("packetevents")) {
             return;
         }
 
@@ -171,17 +171,6 @@ public class TeamsHandler {
                 playerGlow(player, viewer, false);
             }
         }
-    }
-
-    public boolean isPlayerInAnyTeam(Player player, World world) {
-        List<List<Player>> worldTeams = teams.computeIfAbsent(world.getName(), k -> new ArrayList<>());
-
-        for (List<Player> team : worldTeams) {
-            if (team.contains(player)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public boolean isChatModeEnabled(Player player) {

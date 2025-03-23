@@ -58,7 +58,7 @@ public class JoinGameCommand implements CommandExecutor {
         String worldName = args[0];
 
         if (!hgWorldNames.contains(worldName)) {
-            sender.sendMessage(langHandler.getMessage(player, "teleport.invalid-arena", worldName));
+            sender.sendMessage(langHandler.getMessage(player, "teleport.invalid-world", worldName));
             plugin.getLogger().info("Loaded maps:" + plugin.getServer().getWorlds().stream().map(World::getName).collect(Collectors.joining(", ")));
             return true;
         }
@@ -67,6 +67,17 @@ public class JoinGameCommand implements CommandExecutor {
 
         Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(worldName, k -> new HashMap<>());
         List<Player> worldStartingPlayers = startingPlayers.computeIfAbsent(worldName, k -> new ArrayList<>());
+
+        if (configHandler.getPluginSettings().getBoolean("custom-teams")) {
+            if (!teamsFinalized) {
+                player.sendMessage(langHandler.getMessage(player, "team.no-finalize"));
+                return true;
+            }
+            if (!isPlayerInAnyCustomTeam(player)) {
+                player.sendMessage(langHandler.getMessage(player, "team.no-team"));
+                return true;
+            }
+        }
 
         if (worldSpawnPointMap.containsValue(player) || worldStartingPlayers.contains(player)) {
             player.sendMessage(langHandler.getMessage(player, "game.already-joined"));
@@ -113,5 +124,14 @@ public class JoinGameCommand implements CommandExecutor {
             player.setGameMode(GameMode.SPECTATOR);
             player.sendMessage(langHandler.getMessage(player, "spectate.spectating-player"));
         }
+    }
+
+    public static boolean isPlayerInAnyCustomTeam(Player player) {
+        for (List<Player> team : customTeams.values()) {
+            if (team.contains(player)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

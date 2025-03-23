@@ -163,7 +163,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 }
             } else if (args[0].equalsIgnoreCase("team")) {
                 if (args.length == 2) {
-                    return List.of("list", "add", "remove", "reset");
+                    return List.of("list", "add", "remove", "finalize", "reset");
                 }
                 if (args.length == 3) {
                     return List.of("<team_name>");

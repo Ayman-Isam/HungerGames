@@ -106,17 +106,17 @@ public class SetSpawnHandler {
         Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k-> new HashMap<>());
 
         if (configHandler.getPluginSettings().getBoolean("custom-teams")) {
-            int teamIndex = 0;
+            System.out.println(customTeams);
+            int playerIndex = 0;
             for (Map.Entry<String, List<Player>> entry : customTeams.entrySet()) {
                 List<Player> team = entry.getValue();
                 if (team.contains(player)) {
-                    int playerIndex = team.indexOf(player);
-                    int spawnPointIndex = teamIndex * (configHandler.getWorldConfig(world).getInt("players-per-team")) + playerIndex;
-                    if (spawnPointIndex < worldSpawnPoints.size()) {
-                        return worldSpawnPoints.get(spawnPointIndex);
+                    playerIndex += team.indexOf(player);
+                    if (playerIndex < worldSpawnPoints.size()) {
+                        return worldSpawnPoints.get(playerIndex);
                     }
                 }
-                teamIndex++;
+                playerIndex += team.size();
             }
         } else {
             Collections.shuffle(shuffledSpawnPoints);

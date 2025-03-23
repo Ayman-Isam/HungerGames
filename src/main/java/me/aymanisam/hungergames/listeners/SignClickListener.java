@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.*;
+import static me.aymanisam.hungergames.commands.JoinGameCommand.isPlayerInAnyCustomTeam;
 import static me.aymanisam.hungergames.commands.JoinGameCommand.teleportPlayerForSpectating;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.startingPlayers;
@@ -67,8 +68,22 @@ public class SignClickListener implements Listener {
                         Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(worldName, k -> new HashMap<>());
                         List<Player> worldStartingPlayers = startingPlayers.computeIfAbsent(worldName, k -> new ArrayList<>());
 
+                        if (configHandler.getPluginSettings().getBoolean("custom-teams")) {
+                            if (!teamsFinalized) {
+                                player.sendMessage(langHandler.getMessage(player, "team.no-finalize"));
+                                lastMessageTime.put(player, currentTime);
+                                return;
+                            }
+                            if (!isPlayerInAnyCustomTeam(player)) {
+                                player.sendMessage(langHandler.getMessage(player, "team.no-team"));
+                                lastMessageTime.put(player, currentTime);
+                                return;
+                            }
+                        }
+
                         if (worldSpawnPointMap.containsValue(player) || worldStartingPlayers.contains(player)) {
                             player.sendMessage(langHandler.getMessage(player, "game.already-joined"));
+                            lastMessageTime.put(player, currentTime);
                             return;
                         }
 

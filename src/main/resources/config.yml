@@ -33,10 +33,6 @@ auto-start:
 min-players: 2
 # Enable voting for solo, duo, trio
 voting: false
-# Enables the use of an external library
-# Used to make players glow and change name colors
-# Disable if getting errors in plugin
-packetevents: false
   # Changes game from adventure to survival mode allowing players to break blocks
 break-blocks:
   enabled: false

@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static me.aymanisam.hungergames.HungerGames.customTeams;
+import static me.aymanisam.hungergames.HungerGames.teamsFinalized;
 
 public class TeamSetCommand implements CommandExecutor {
     private final LangHandler langHandler;
@@ -54,7 +55,12 @@ public class TeamSetCommand implements CommandExecutor {
             return true;
         } else if (action.equalsIgnoreCase("reset")) {
             customTeams.clear();
+            teamsFinalized = false;
             sender.sendMessage(langHandler.getMessage((Player) sender, "team.reset"));
+            return true;
+        } else if (action.equalsIgnoreCase("finalize")) {
+            teamsFinalized = true;
+            sender.sendMessage(langHandler.getMessage((Player) sender, "team.finalize"));
             return true;
         }
 
@@ -73,6 +79,10 @@ public class TeamSetCommand implements CommandExecutor {
         }
 
         if (action.equalsIgnoreCase("add")) {
+            if (teamsFinalized) {
+                sender.sendMessage(langHandler.getMessage((Player) sender, "team.already-finalize"));
+                return true;
+            }
             for (List<Player> team: customTeams.values()) {
                 if (team.contains(targetPlayer)) {
                     sender.sendMessage(langHandler.getMessage((Player) sender, "team.no-player"));
@@ -82,6 +92,10 @@ public class TeamSetCommand implements CommandExecutor {
             customTeams.computeIfAbsent(teamName, k -> new ArrayList<>()).add(targetPlayer);
             sender.sendMessage(langHandler.getMessage((Player) sender, "team.added", targetPlayer.getName(), teamName));
         } else if (action.equalsIgnoreCase("remove")) {
+            if (teamsFinalized) {
+                sender.sendMessage(langHandler.getMessage((Player) sender, "team.already-finalize"));
+                return true;
+            }
             List<Player> team = customTeams.get(teamName);
             if (team != null && team.contains(targetPlayer)) {
                 team.remove(targetPlayer);
