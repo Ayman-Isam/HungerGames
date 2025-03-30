@@ -16,6 +16,8 @@ max-supply-drop-content: 6
 players-per-team: 1
 # Length of the game in seconds (default: 900)
 game-time: 900
+# Length of the countdown before game in seconds, use less than 5 for no countdown
+countdown: 20
 # Length of the grace period (time after which PvP is enabled) in seconds, use 0 for no grace period,(default: 30)
 grace-period: 30
 # Interval of supplydrops landing inside the map in seconds, use any time higher than game-time for no supplydrops, (default: 30)
@@ -33,10 +35,6 @@ auto-start:
 min-players: 2
 # Enable voting for solo, duo, trio
 voting: false
-# Enables the use of an external library
-# Used to make players glow and change name colors
-# Disable if getting errors in plugin
-packetevents: false
   # Changes game from adventure to survival mode allowing players to break blocks
 break-blocks:
   enabled: false

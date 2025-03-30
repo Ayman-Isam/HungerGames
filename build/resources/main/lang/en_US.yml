@@ -129,14 +129,9 @@ startgame:
   set-arena: "&cSet up the arena first!"
   started: "&cThe game has already started!"
   starting: "&cThe game is currently starting."
-  20-s: "&eThe game will start in 20 seconds!"
-  15-s: "&615 seconds left!"
-  10-s: "&610 seconds left!"
-  5-s: "&c5 seconds left!"
-  4-s: "&c4 seconds left!"
-  3-s: "&c3 seconds left!"
-  2-s: "&c2 seconds left!"
-  1-s: "&c1 second left!"
+  start-s: "&eThe game will start in {0} seconds!"
+  mid-s: "&e{0} seconds left!"
+  end-s: "&c1 second left!"
   cancelled: "&cGame starting cancelled due to not enough players"
 
 stats:

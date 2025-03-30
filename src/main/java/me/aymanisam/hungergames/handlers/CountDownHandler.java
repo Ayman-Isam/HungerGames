@@ -107,18 +107,26 @@ public class CountDownHandler {
             }
         }, 20L * 20));
 
-        countDown("startgame.20-s", 0L, world);
-        countDown("startgame.15-s", 20L * 5, world);
-        countDown("startgame.10-s", 20L * 10, world);
-        countDown("startgame.5-s", 20L * 15, world);
-        countDown("startgame.4-s", 20L * 16, world);
-        countDown("startgame.3-s", 20L * 17, world);
-        countDown("startgame.2-s", 20L * 18, world);
-        countDown("startgame.1-s", 20L * 19, world);
+        int countDownDuration = configHandler.getWorldConfig(world).getInt("countdown");
+        int intervals = (countDownDuration - 5) / 5;
+
+        countDown("startgame.start-s", countDownDuration, world);
+
+        for (int i = 0; i < intervals; i++) {
+            countDown("startgame.mid-s", countDownDuration - i * 5, world);
+        }
+
+        countDown("startgame.mid-s", 5, world);
+        countDown("startgame.mid-s", 4, world);
+        countDown("startgame.mid-s", 3, world);
+        countDown("startgame.mid-s", 2, world);
+        countDown("startgame.end-s", 1, world);
     }
 
-    private void countDown(String messageKey, long delayInTicks, World world) {
+    private void countDown(String messageKey, long timeLeftSeconds, World world) {
         List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        int countDownDuration = configHandler.getWorldConfig(world).getInt("countdown");
+        long delayInTicks = (countDownDuration - timeLeftSeconds) * 20L;
 
         BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             for (Player player : world.getPlayers()) {
