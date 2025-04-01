@@ -106,7 +106,6 @@ public class SetSpawnHandler {
         Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k-> new HashMap<>());
 
         if (configHandler.getPluginSettings().getBoolean("custom-teams")) {
-            System.out.println(customTeams);
             int playerIndex = 0;
             for (Map.Entry<String, List<Player>> entry : customTeams.entrySet()) {
                 List<Player> team = entry.getValue();

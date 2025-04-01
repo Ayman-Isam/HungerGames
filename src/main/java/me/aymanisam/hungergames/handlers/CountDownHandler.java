@@ -100,14 +100,15 @@ public class CountDownHandler {
 
         teamsHandler.createTeam(world);
 
+        int countDownDuration = configHandler.getWorldConfig(world).getInt("countdown");
+
         worldCountDownTasks.add(plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             this.gameSequenceHandler.startGame(world);
             for (Player player : world.getPlayers()) {
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.0f);
             }
-        }, 20L * 20));
+        }, countDownDuration * 20L));
 
-        int countDownDuration = configHandler.getWorldConfig(world).getInt("countdown");
         int intervals = (countDownDuration - 5) / 5;
 
         countDown("startgame.start-s", countDownDuration, world);
@@ -126,11 +127,16 @@ public class CountDownHandler {
     private void countDown(String messageKey, long timeLeftSeconds, World world) {
         List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         int countDownDuration = configHandler.getWorldConfig(world).getInt("countdown");
+
+        if (countDownDuration < 5) {
+            return;
+        }
+
         long delayInTicks = (countDownDuration - timeLeftSeconds) * 20L;
 
         BukkitTask task = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             for (Player player : world.getPlayers()) {
-                String message = langHandler.getMessage(player, messageKey);
+                String message = langHandler.getMessage(player, messageKey, timeLeftSeconds);
                 player.sendTitle("", message, 5, 20, 10);
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
             }
