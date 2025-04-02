@@ -12,12 +12,18 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.stream.Collectors;
+
+import static me.aymanisam.hungergames.HungerGames.hgWorldNames;
+
 public class BorderSetCommand implements CommandExecutor {
+    private final HungerGames plugin;
     private final LangHandler langHandler;
     private final ArenaHandler arenaHandler;
     private final ConfigHandler configHandler;
 
     public BorderSetCommand(HungerGames plugin, LangHandler langHandler) {
+        this.plugin = plugin;
         this.langHandler = langHandler;
         this.arenaHandler = new ArenaHandler(plugin, langHandler);
         this.configHandler = plugin.getConfigHandler();
@@ -25,22 +31,39 @@ public class BorderSetCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage(null, "no-server"));
-            return true;
+        Player player = null;
+
+        if (sender instanceof Player) {
+            player = ((Player) sender);
         }
 
-        if (!player.hasPermission("hungergames.border")) {
+        if (player != null && !player.hasPermission("hungergames.border")) {
             player.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
-        if (args.length != 3) {
+        if (player != null && args.length != 3) {
             sender.sendMessage(langHandler.getMessage(player, "border.usage"));
             return true;
         }
 
-        World world = player.getWorld();
+        World world;
+
+        if (player == null) {
+            if (args.length != 1) {
+                sender.sendMessage(langHandler.getMessage(null, "no-world"));
+                return true;
+            }
+            String worldName = args[0];
+            if (!hgWorldNames.contains(worldName)) {
+                sender.sendMessage(langHandler.getMessage(null, "teleport.invalid-world", args[0]));
+                plugin.getLogger().info("Loaded maps:" + plugin.getServer().getWorlds().stream().map(World::getName).collect(Collectors.joining(", ")));
+                return true;
+            }
+            world = plugin.getServer().getWorld(worldName);
+        } else {
+            world = player.getWorld();
+        }
 
         if (arenaHandler.getArenaConfig(world).get("region") == null) {
             sender.sendMessage(langHandler.getMessage(player, "supplydrop.no-arena"));

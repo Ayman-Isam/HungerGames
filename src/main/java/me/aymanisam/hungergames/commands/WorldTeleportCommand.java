@@ -28,12 +28,13 @@ public class WorldTeleportCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(langHandler.getMessage(null, "no-server"));
-            return true;
+        Player player = null;
+
+        if (sender instanceof Player) {
+            player = ((Player) sender);
         }
 
-        if (!(sender.hasPermission("hungergames.teleport"))) {
+        if (player != null && !(sender.hasPermission("hungergames.teleport"))) {
             sender.sendMessage(langHandler.getMessage((Player) sender, "no-permission"));
             return true;
         }
@@ -45,26 +46,26 @@ public class WorldTeleportCommand implements CommandExecutor {
         }
 
         if (args.length < 1) {
-            sender.sendMessage(langHandler.getMessage((Player) sender, "teleport.no-player"));
+            sender.sendMessage(langHandler.getMessage(player, "teleport.no-player"));
             return true;
         }
 
         String playerToTeleport = args[0];
 
         if (!allowedPlayers.contains(playerToTeleport)) {
-            sender.sendMessage(langHandler.getMessage((Player) sender, "teleport.invalid-player", playerToTeleport));
+            sender.sendMessage(langHandler.getMessage(player, "teleport.invalid-player", playerToTeleport));
             return true;
         }
 
         if (args.length < 2) {
-            sender.sendMessage(langHandler.getMessage((Player) sender, "teleport.no-arena"));
+            sender.sendMessage(langHandler.getMessage(player, "teleport.no-arena"));
             return true;
         }
 
         String worldName = args[1];
 
         if (!worldNames.contains(worldName)) {
-            sender.sendMessage(langHandler.getMessage((Player) sender, "teleport.invalid-world", worldName));
+            sender.sendMessage(langHandler.getMessage(player, "teleport.invalid-world", worldName));
             return false;
         }
 
@@ -82,14 +83,14 @@ public class WorldTeleportCommand implements CommandExecutor {
                 onlinePlayer.sendMessage(langHandler.getMessage(onlinePlayer, "teleport.teleported", world.getName()));
             }
 
-            sender.sendMessage(langHandler.getMessage((Player) sender, "teleport.sender", "Everyone" , world.getName()));
+            sender.sendMessage(langHandler.getMessage(player, "teleport.sender", "Everyone" , world.getName()));
             return true;
         }
 
-        Player player = Bukkit.getPlayer(playerToTeleport);
-        assert player != null;
-        player.teleport(world.getSpawnLocation());
-        player.sendMessage(langHandler.getMessage(player, "teleport.teleported", world.getName()));
+        Player p = Bukkit.getPlayer(playerToTeleport);
+        assert p != null;
+        p.teleport(world.getSpawnLocation());
+        p.sendMessage(langHandler.getMessage(p, "teleport.teleported", world.getName()));
 
         return true;
     }

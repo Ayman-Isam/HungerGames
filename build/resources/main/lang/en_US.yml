@@ -1,4 +1,5 @@
 time-remaining: "Time remaining"
+no-world: "&cPlease enter the name of the world to perform action!"
 no-permission: "&cYou do not have permission to run this command"
 no-server: "&cThis command can only be executed by players"
 no-database: "&cThe plugin does not have a database enabled for stats tracking"

@@ -25,18 +25,19 @@ public class TeamSetCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage(null, "no-server"));
-            return true;
+        Player player = null;
+
+        if (sender instanceof Player) {
+            player = ((Player) sender);
         }
 
-        if (!(player.hasPermission("hungergames.team"))) {
-            sender.sendMessage(langHandler.getMessage(player, "no-permission"));
+        if (player != null && !player.hasPermission("hungergames.team")) {
+            player.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
         if (args.length < 1) {
-            sender.sendMessage(langHandler.getMessage((Player) sender, "team.no-args"));
+            sender.sendMessage(langHandler.getMessage(player, "team.no-args"));
             return true;
         }
 
@@ -50,22 +51,22 @@ public class TeamSetCommand implements CommandExecutor {
                 sender.sendMessage(team + ": " + String.join(", ", memberNames));
             }
             if (customTeams.isEmpty()) {
-                sender.sendMessage(langHandler.getMessage((Player) sender, "team.no-list"));
+                sender.sendMessage(langHandler.getMessage(player, "team.no-list"));
             }
             return true;
         } else if (action.equalsIgnoreCase("reset")) {
             customTeams.clear();
             teamsFinalized = false;
-            sender.sendMessage(langHandler.getMessage((Player) sender, "team.reset"));
+            sender.sendMessage(langHandler.getMessage(player, "team.reset"));
             return true;
         } else if (action.equalsIgnoreCase("finalize")) {
             teamsFinalized = true;
-            sender.sendMessage(langHandler.getMessage((Player) sender, "team.finalize"));
+            sender.sendMessage(langHandler.getMessage(player, "team.finalize"));
             return true;
         }
 
         if (args.length < 3) {
-            sender.sendMessage(langHandler.getMessage((Player) sender, "team.no-args"));
+            sender.sendMessage(langHandler.getMessage(player, "team.no-args"));
             return true;
         }
 
@@ -73,35 +74,35 @@ public class TeamSetCommand implements CommandExecutor {
         String playerName = args[2];
 
         Player targetPlayer = Bukkit.getPlayer(playerName);
-        if (targetPlayer == null || targetPlayer.getWorld() != player.getWorld()) {
-            sender.sendMessage(langHandler.getMessage((Player) sender, "spectate.null-player"));
+        if (targetPlayer == null) {
+            sender.sendMessage(langHandler.getMessage(player, "spectate.null-player"));
             return true;
         }
 
         if (action.equalsIgnoreCase("add")) {
             if (teamsFinalized) {
-                sender.sendMessage(langHandler.getMessage((Player) sender, "team.already-finalize"));
+                sender.sendMessage(langHandler.getMessage(player, "team.already-finalize"));
                 return true;
             }
             for (List<Player> team: customTeams.values()) {
                 if (team.contains(targetPlayer)) {
-                    sender.sendMessage(langHandler.getMessage((Player) sender, "team.no-player"));
+                    sender.sendMessage(langHandler.getMessage(player, "team.no-player"));
                     return true;
                 }
             }
             customTeams.computeIfAbsent(teamName, k -> new ArrayList<>()).add(targetPlayer);
-            sender.sendMessage(langHandler.getMessage((Player) sender, "team.added", targetPlayer.getName(), teamName));
+            sender.sendMessage(langHandler.getMessage(player, "team.added", targetPlayer.getName(), teamName));
         } else if (action.equalsIgnoreCase("remove")) {
             if (teamsFinalized) {
-                sender.sendMessage(langHandler.getMessage((Player) sender, "team.already-finalize"));
+                sender.sendMessage(langHandler.getMessage(player, "team.already-finalize"));
                 return true;
             }
             List<Player> team = customTeams.get(teamName);
             if (team != null && team.contains(targetPlayer)) {
                 team.remove(targetPlayer);
-                sender.sendMessage(langHandler.getMessage((Player) sender, "team.removed", targetPlayer.getName(), teamName));
+                sender.sendMessage(langHandler.getMessage(player, "team.removed", targetPlayer.getName(), teamName));
             } else {
-                sender.sendMessage(langHandler.getMessage((Player) sender, "team.no-removed", targetPlayer.getName(), teamName));
+                sender.sendMessage(langHandler.getMessage(player, "team.no-removed", targetPlayer.getName(), teamName));
             }
         }
 

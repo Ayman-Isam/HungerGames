@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static me.aymanisam.hungergames.HungerGames.hgWorldNames;
+
 public class ArenaScanCommand implements CommandExecutor {
     private final HungerGames plugin;
     private final LangHandler langHandler;
@@ -37,24 +39,46 @@ public class ArenaScanCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage(null, "no-server"));
+        Player player = null;
+
+        if (sender instanceof Player) {
+            player = ((Player) sender);
+        }
+
+        if (player != null && !sender.hasPermission("hungergames.scanarena")) {
+            sender.sendMessage(langHandler.getMessage((Player) sender, "no-permission"));
             return true;
         }
 
-        if (!(player.hasPermission("hungergames.scanarena"))) {
-            sender.sendMessage(langHandler.getMessage(player, "no-permission"));
-            return true;
-        }
+        FileConfiguration config;
 
-        FileConfiguration config = arenaHandler.getArenaConfig(player.getWorld());
+        if (player == null) {
+            if (args.length != 1) {
+                sender.sendMessage(langHandler.getMessage(null, "no-world"));
+                return true;
+            }
+            String worldName = args[0];
+            if (!hgWorldNames.contains(worldName)) {
+                sender.sendMessage(langHandler.getMessage(null, "teleport.invalid-world", args[0]));
+                plugin.getLogger().info("Loaded maps:" + plugin.getServer().getWorlds().stream().map(World::getName).collect(Collectors.joining(", ")));
+                return true;
+            }
+            config = arenaHandler.getArenaConfig(plugin.getServer().getWorld(worldName));
+        } else {
+            config = arenaHandler.getArenaConfig(player.getWorld());
+        }
 
         if (!config.isSet("region.pos1.x") || !config.isSet("region.pos1.y") || !config.isSet("region.pos1.z") || !config.isSet("region.pos2.x") || !config.isSet("region.pos2.y") || !config.isSet("region.pos2.z")) {
             sender.sendMessage(langHandler.getMessage(player, "scanarena.region-undef"));
             return true;
         }
 
-        World world = player.getWorld();
+        World world;
+        if (player == null) {
+            world = plugin.getServer().getWorld(args[0]);
+        } else {
+            world = player.getWorld();
+        }
 
         arenaHandler.loadChunks(world);
 
@@ -62,7 +86,8 @@ public class ArenaScanCommand implements CommandExecutor {
         List<Location> barrelLocations = new ArrayList<>();
         List<Location> trappedChestLocations = new ArrayList<>();
 
-        File worldFolder = new File(plugin.getDataFolder() + File.separator + world.getName());
+	    assert world != null;
+	    File worldFolder = new File(plugin.getDataFolder() + File.separator + world.getName());
         File chestLocationsFile = new File(worldFolder, "chest-locations.yml");
 
         for (Chunk chunk : world.getLoadedChunks()) {
@@ -93,9 +118,9 @@ public class ArenaScanCommand implements CommandExecutor {
             sender.sendMessage(langHandler.getMessage(player, "scanarena.failed-locations"));
         }
 
-        player.sendMessage(langHandler.getMessage(player, "scanarena.found-chests", chestLocations.size()));
-        player.sendMessage(langHandler.getMessage(player, "scanarena.found-barrels", barrelLocations.size()));
-        player.sendMessage(langHandler.getMessage(player, "scanarena.found-trapped-chests", trappedChestLocations.size()));
+        sender.sendMessage(langHandler.getMessage(player, "scanarena.found-chests", chestLocations.size()));
+        sender.sendMessage(langHandler.getMessage(player, "scanarena.found-barrels", barrelLocations.size()));
+        sender.sendMessage(langHandler.getMessage(player, "scanarena.found-trapped-chests", trappedChestLocations.size()));
 
         return true;
     }

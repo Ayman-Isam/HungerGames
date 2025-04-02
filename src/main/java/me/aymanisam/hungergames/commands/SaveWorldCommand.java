@@ -11,34 +11,57 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.stream.Collectors;
+
+import static me.aymanisam.hungergames.HungerGames.hgWorldNames;
+
 public class SaveWorldCommand implements CommandExecutor {
+    private final HungerGames plugin;
     private final LangHandler langHandler;
     private final WorldResetHandler worldResetHandler;
-    private final WorldBorderHandler worldBorderHandler;
 
-    public SaveWorldCommand(HungerGames plugin, LangHandler langHandler, WorldBorderHandler worldBorderHandler) {
+	public SaveWorldCommand(HungerGames plugin, LangHandler langHandler, WorldBorderHandler worldBorderHandler) {
+        this.plugin = plugin;
         this.langHandler = langHandler;
-        this.worldBorderHandler = worldBorderHandler;
-        this.worldResetHandler = new WorldResetHandler(plugin, worldBorderHandler);
+		this.worldResetHandler = new WorldResetHandler(plugin, worldBorderHandler);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage(langHandler.getMessage(null, "no-server"));
-            return true;
+        Player player = null;
+
+        if (sender instanceof Player) {
+            player = ((Player) sender);
         }
 
-        if (!player.hasPermission("hungergames.saveworld")) {
+        if (player != null && !player.hasPermission("hungergames.saveworld")) {
             player.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
 
-        World world = player.getWorld();
+        World world;
+
+        if (player == null) {
+            if (args.length != 1) {
+                sender.sendMessage(langHandler.getMessage(null, "no-world"));
+                return true;
+            }
+            String worldName = args[0];
+            if (!hgWorldNames.contains(worldName)) {
+                sender.sendMessage(langHandler.getMessage(null, "teleport.invalid-world", args[0]));
+                plugin.getLogger().info("Loaded maps:" + plugin.getServer().getWorlds().stream().map(World::getName).collect(Collectors.joining(", ")));
+                return true;
+            }
+            world = plugin.getServer().getWorld(worldName);
+        } else {
+            world = player.getWorld();
+        }
+
+        assert world != null;
 
         worldResetHandler.saveWorldState(world);
 
-        player.sendMessage(langHandler.getMessage(player, "game.worldsaved", world.getName()));
+        sender.sendMessage(langHandler.getMessage(player, "game.worldsaved", world.getName()));
 
         return true;
     }
