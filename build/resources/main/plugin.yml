@@ -1,16 +1,11 @@
 name: HungerGames
-version: '1.8.1'
+version: '1.8.2'
 main: me.aymanisam.hungergames.HungerGames
 api-version: '1.20'
 authors: [ 'AymanIsam' ]
 website: 'github.com/AymanIsam/Hunger-Games'
 softdepend:
-  - ProtocolLib
-  - ProtocolSupport
-  - ViaVersion
-  - ViaBackwards
-  - ViaRewind
-  - Geyser-Spigot
+  - packetevents
 
 commands:
   hg:

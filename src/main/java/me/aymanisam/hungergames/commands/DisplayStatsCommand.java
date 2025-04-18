@@ -22,7 +22,7 @@ public class DisplayStatsCommand implements CommandExecutor {
 	public DisplayStatsCommand(HungerGames plugin, LangHandler langHandler) {
 		this.plugin = plugin;
 		this.langHandler = langHandler;
-		this.configHandler = new ConfigHandler(plugin);
+		this.configHandler = plugin.getConfigHandler();
 		this.displayStatsHandler = new DisplayStatsHandler(plugin, langHandler);
 		this.databaseHandler = new DatabaseHandler(plugin);
 	}

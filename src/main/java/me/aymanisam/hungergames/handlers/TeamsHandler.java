@@ -1,9 +1,5 @@
 package me.aymanisam.hungergames.handlers;
 
-import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
-import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import me.aymanisam.hungergames.HungerGames;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -15,6 +11,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
+import static me.aymanisam.hungergames.HungerGames.customTeams;
 import static me.aymanisam.hungergames.commands.ToggleChatCommand.playerChatModes;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
@@ -32,18 +29,19 @@ public class TeamsHandler {
         this.configHandler = plugin.getConfigHandler();
 
         PacketAdapter adapter;
-        try {
-            Class.forName("com.github.retrooper.packetevents.PacketEvents");
+        if (plugin.getServer().getPluginManager().getPlugin("PacketEvents") != null) {
             adapter = new PacketEventsAdapter();
-        } catch (ClassNotFoundException e) {
+        } else {
             adapter = new DummyPacketAdapter();
         }
         this.packetAdapter = adapter;
     }
 
-    public void createTeam(World world) {
+    public void createTeam(World world, Boolean custom) {
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
-        Collections.shuffle(worldPlayersAlive);
+        if (!custom) {
+            Collections.shuffle(worldPlayersAlive);
+        }
 
         List<List<Player>> worldTeams = teams.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
@@ -51,21 +49,27 @@ public class TeamsHandler {
         worldTeams.clear();
         worldTeamsAlive.clear();
 
-        int numTeams;
-        if (playersPerTeam < 1) {
-            numTeams = 2;
+        if (!custom) {
+            int numTeams;
+            if (playersPerTeam < 1) {
+                numTeams = 2;
+            } else {
+                numTeams = (worldPlayersAlive.size() + playersPerTeam - 1) / playersPerTeam;
+            }
+
+            for (int i = 0; i < numTeams; i++) {
+                worldTeams.add(new ArrayList<>());
+            }
+
+            for (int i = 0; i < worldPlayersAlive.size(); i++) {
+                Player player = worldPlayersAlive.get(i);
+                List<Player> team = worldTeams.get(i % numTeams);
+                team.add(player);
+            }
         } else {
-            numTeams = (worldPlayersAlive.size() + playersPerTeam - 1) / playersPerTeam;
-        }
-
-        for (int i = 0; i < numTeams; i++) {
-            worldTeams.add(new ArrayList<>());
-        }
-
-        for (int i = 0; i < worldPlayersAlive.size(); i++) {
-            Player player = worldPlayersAlive.get(i);
-            List<Player> team = worldTeams.get(i % numTeams);
-            team.add(player);
+            for (Map.Entry<String, List<Player>> customTeam: customTeams.entrySet()) {
+                worldTeams.add(customTeam.getValue());
+            }
         }
 
         for (List<Player> team : worldTeams) {

@@ -172,6 +172,9 @@ public class GameSequenceHandler {
             scoreBoardHandler.createBoard(player);
         }
 
+        List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+
         int worldTimerTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             updateBossBars(world);
             int currentTimeLeft = timeLeft.get(world.getName());
@@ -181,9 +184,6 @@ public class GameSequenceHandler {
             for (Player player: world.getPlayers()) {
                 scoreBoardHandler.updateBoard(boards.get(player.getUniqueId()), world);
             }
-
-            List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
-            List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
             if (playersPerTeam != 1) {
                 if (worldTeamsAlive.size() <= 1) {

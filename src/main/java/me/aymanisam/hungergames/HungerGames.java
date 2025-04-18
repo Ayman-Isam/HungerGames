@@ -46,7 +46,17 @@ public final class HungerGames extends JavaPlugin {
     }
 
     @Override
+    public void onLoad() {
+        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+        PacketEvents.getAPI().load();
+    }
+
+    @Override
     public void onEnable() {
+        if (getServer().getPluginManager().getPlugin("PacketEvents") != null) {
+            PacketEvents.getAPI().init();
+        }
+
         getServer().getConsoleSender().sendMessage("""
                 \n
                 
@@ -190,6 +200,8 @@ public final class HungerGames extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        PacketEvents.getAPI().terminate();
+
         for (World world: Bukkit.getWorlds()) {
             gameSequenceHandler.endGame(true, world);
         }

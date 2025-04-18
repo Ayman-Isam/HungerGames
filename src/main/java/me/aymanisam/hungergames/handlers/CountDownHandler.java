@@ -89,6 +89,13 @@ public class CountDownHandler {
             worldCountDownTasks.add(task);
         }
 
+        int maxTeamSize = customTeams.values().stream()
+                .mapToInt(List::size)
+                .max()
+                .orElse(0);
+        plugin.getConfigHandler().getWorldConfig(world).set("players-per-team", maxTeamSize);
+        plugin.getConfigHandler().saveWorldConfig(world);
+
         playersPerTeam = configHandler.getWorldConfig(world).getInt("players-per-team");
 
         Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
@@ -100,16 +107,7 @@ public class CountDownHandler {
     private void runAfterDelay(World world) {
         List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
-        if (!configHandler.getPluginSettings().getBoolean("custom-teams")) {
-            teamsHandler.createTeam(world);
-        } else {
-            List<List<Player>> worldTeams = teams.computeIfAbsent(world.getName(), k -> new ArrayList<>());
-            worldTeams.clear();
-
-            for (Map.Entry<String, List<Player>> customTeam: customTeams.entrySet()) {
-                worldTeams.add(customTeam.getValue());
-            }
-        }
+	    teamsHandler.createTeam(world, configHandler.getPluginSettings().getBoolean("custom-teams"));
 
         int countDownDuration = configHandler.getWorldConfig(world).getInt("countdown");
 

@@ -33,7 +33,7 @@ public class JoinGameCommand implements CommandExecutor {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
-	    this.configHandler = new ConfigHandler(plugin);
+	    this.configHandler = plugin.getConfigHandler();
 	    this.scoreBoardHandler = scoreBoardHandler;
 	    this.arenaHandler = new ArenaHandler(plugin, langHandler);
     }

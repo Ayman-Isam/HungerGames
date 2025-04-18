@@ -18,7 +18,7 @@ public class DatabaseHandler {
 
     public DatabaseHandler (HungerGames plugin) {
         this.plugin = plugin;
-        this.configHandler = new ConfigHandler(plugin);
+        this.configHandler = plugin.getConfigHandler();
     }
 
     public Connection getConnection() throws SQLException {

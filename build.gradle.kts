@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.aymanisam"
-version = "1.8.1"
+version = "1.8.2"
 val spigotAPIVersion = "1.20"
 
 repositories {
@@ -18,6 +18,7 @@ repositories {
     }
     maven("https://jitpack.io")
     maven("https://repo.codemc.io/repository/maven-releases/")
+    maven("https://repo.codemc.io/repository/maven-snapshots/")
 }
 
 dependencies {
@@ -50,8 +51,6 @@ tasks.withType<JavaCompile> {
 tasks.shadowJar {
     archiveFileName.set("Hungergames-$version.jar")
     relocate("org.bstats", "$group.bstats")
-    relocate("com.github.retrooper.packetevents", "$group.packetevents.api")
-    relocate("io.github.retrooper.packetevents", "$group.packetevents.impl")
     relocate("fr.mrmicky.fastboard", "$group.fastboard")
     archiveClassifier.set("")
     destinationDirectory.set(file(System.getenv("OUTPUT_DIR")))
