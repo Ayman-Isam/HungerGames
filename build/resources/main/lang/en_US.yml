@@ -116,7 +116,7 @@ setspawn:
 
 spectate:
   spectating-player: "&dYou are now spectating"
-  no-player: "&cNo players to telep1ort to!"
+  no-player: "&cNo players to teleport to!"
   null-player: "&cPlayer not found!"
   teleported: "&bTeleported to &b{0}"
   not-spectator: "&cYou are not a spectator!"

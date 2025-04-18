@@ -34,13 +34,6 @@ public final class HungerGames extends JavaPlugin {
     private DatabaseHandler database;
     private BukkitAudiences adventure;
 
-    @Override
-    public void onLoad() {
-        // PacketEvents code
-        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
-        PacketEvents.getAPI().load();
-    }
-
     public DatabaseHandler getDatabase() {
         return database;
     }
@@ -164,8 +157,6 @@ public final class HungerGames extends JavaPlugin {
 
         configHandler.validateSettingsKeys();
 
-        PacketEvents.getAPI().init();
-
         // Checks if the current version is the latest version
         int spigotPluginId = 111936;
 
@@ -202,8 +193,6 @@ public final class HungerGames extends JavaPlugin {
         for (World world: Bukkit.getWorlds()) {
             gameSequenceHandler.endGame(true, world);
         }
-
-        PacketEvents.getAPI().terminate();
 
         if (this.database != null) {
             this.database.closeConnection();

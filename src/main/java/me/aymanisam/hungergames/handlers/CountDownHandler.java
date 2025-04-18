@@ -9,8 +9,10 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 
+import static me.aymanisam.hungergames.HungerGames.customTeams;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.*;
 import static me.aymanisam.hungergames.handlers.SetSpawnHandler.autoStartTasks;
+import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.listeners.TeamVotingListener.playerVotes;
 
 public class CountDownHandler {
@@ -98,7 +100,16 @@ public class CountDownHandler {
     private void runAfterDelay(World world) {
         List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
-        teamsHandler.createTeam(world);
+        if (!configHandler.getPluginSettings().getBoolean("custom-teams")) {
+            teamsHandler.createTeam(world);
+        } else {
+            List<List<Player>> worldTeams = teams.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+            worldTeams.clear();
+
+            for (Map.Entry<String, List<Player>> customTeam: customTeams.entrySet()) {
+                worldTeams.add(customTeam.getValue());
+            }
+        }
 
         int countDownDuration = configHandler.getWorldConfig(world).getInt("countdown");
 

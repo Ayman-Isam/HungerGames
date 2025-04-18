@@ -22,6 +22,7 @@ import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive
 public class TeamsHandler {
     private final LangHandler langHandler;
     private final ConfigHandler configHandler;
+    private final PacketAdapter packetAdapter;
 
     public static final Map<String, List<List<Player>>> teams = new HashMap<>();
     public static final Map<String, List<List<Player>>> teamsAlive = new HashMap<>();
@@ -29,6 +30,15 @@ public class TeamsHandler {
     public TeamsHandler(HungerGames plugin, LangHandler langHandler) {
         this.langHandler = langHandler;
         this.configHandler = plugin.getConfigHandler();
+
+        PacketAdapter adapter;
+        try {
+            Class.forName("com.github.retrooper.packetevents.PacketEvents");
+            adapter = new PacketEventsAdapter();
+        } catch (ClassNotFoundException e) {
+            adapter = new DummyPacketAdapter();
+        }
+        this.packetAdapter = adapter;
     }
 
     public void createTeam(World world) {
@@ -148,21 +158,7 @@ public class TeamsHandler {
             return;
         }
 
-        byte glowingEffectValue;
-
-        if (glow) {
-            glowingEffectValue = (byte) 0x40; // Bit mask value for glowing effect
-        } else {
-            glowingEffectValue = (byte) 0x00; // Bit mask value for removing effect
-        }
-
-        EntityData metadata = new EntityData(0, EntityDataTypes.BYTE, glowingEffectValue);
-
-        List<EntityData> metadataList = Collections.singletonList(metadata);
-
-        WrapperPlayServerEntityMetadata entityMetadataPacket = new WrapperPlayServerEntityMetadata(playerToGlow.getEntityId(), metadataList);
-
-        PacketEvents.getAPI().getPlayerManager().sendPacket(playerToSeeGlow, entityMetadataPacket);
+        packetAdapter.setGlowing(playerToGlow, playerToSeeGlow, glow);
     }
 
     public void removeGlowFromAllPlayers(World world) {

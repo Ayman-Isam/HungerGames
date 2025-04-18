@@ -47,7 +47,7 @@ public class CompassHandler {
         int loopCount = 0;
         Player teammate = playerTeam.get(index);
 
-        while (teammate != null && (!teammate.isOnline() || teammate.getGameMode() != GameMode.ADVENTURE || teammate.isDead())) {
+        while (teammate != null && (!teammate.isOnline() || (teammate.getGameMode() != GameMode.ADVENTURE && teammate.getGameMode() != GameMode.SURVIVAL) || teammate.isDead())) {
             // Putting teammates into worldTeammateIndexMap
             index = (index + 1) % playerTeam.size();
             if (loopCount++ >= playerTeam.size()) {
