@@ -7,12 +7,14 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static me.aymanisam.hungergames.HungerGames.customTeams;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.*;
 import static me.aymanisam.hungergames.handlers.SetSpawnHandler.autoStartTasks;
-import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.listeners.TeamVotingListener.playerVotes;
 
 public class CountDownHandler {
@@ -89,12 +91,14 @@ public class CountDownHandler {
             worldCountDownTasks.add(task);
         }
 
-        int maxTeamSize = customTeams.values().stream()
-                .mapToInt(List::size)
-                .max()
-                .orElse(0);
-        plugin.getConfigHandler().getWorldConfig(world).set("players-per-team", maxTeamSize);
-        plugin.getConfigHandler().saveWorldConfig(world);
+        if (configHandler.getPluginSettings().getBoolean("custom-teams")) {
+            int maxTeamSize = customTeams.values().stream()
+                    .mapToInt(List::size)
+                    .max()
+                    .orElse(0);
+            plugin.getConfigHandler().getWorldConfig(world).set("players-per-team", maxTeamSize);
+            plugin.getConfigHandler().saveWorldConfig(world);
+        }
 
         playersPerTeam = configHandler.getWorldConfig(world).getInt("players-per-team");
 

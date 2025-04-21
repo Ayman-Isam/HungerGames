@@ -1,7 +1,5 @@
 package me.aymanisam.hungergames;
 
-import com.github.retrooper.packetevents.PacketEvents;
-import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import me.aymanisam.hungergames.handlers.*;
 import me.aymanisam.hungergames.listeners.*;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -46,16 +44,7 @@ public final class HungerGames extends JavaPlugin {
     }
 
     @Override
-    public void onLoad() {
-        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
-        PacketEvents.getAPI().load();
-    }
-
-    @Override
     public void onEnable() {
-        if (getServer().getPluginManager().getPlugin("PacketEvents") != null) {
-            PacketEvents.getAPI().init();
-        }
 
         getServer().getConsoleSender().sendMessage("""
                 \n
@@ -200,8 +189,6 @@ public final class HungerGames extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        PacketEvents.getAPI().terminate();
-
         for (World world: Bukkit.getWorlds()) {
             gameSequenceHandler.endGame(true, world);
         }
