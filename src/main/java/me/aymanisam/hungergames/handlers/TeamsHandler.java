@@ -18,15 +18,13 @@ import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive
 
 public class TeamsHandler {
     private final LangHandler langHandler;
-    private final ConfigHandler configHandler;
-    private final PacketAdapter packetAdapter;
+	private final PacketAdapter packetAdapter;
 
     public static final Map<String, List<List<Player>>> teams = new HashMap<>();
     public static final Map<String, List<List<Player>>> teamsAlive = new HashMap<>();
 
     public TeamsHandler(HungerGames plugin, LangHandler langHandler) {
         this.langHandler = langHandler;
-        this.configHandler = plugin.getConfigHandler();
 
         PacketAdapter adapter;
         if (plugin.getServer().getPluginManager().getPlugin("PacketEvents") != null) {
@@ -158,10 +156,6 @@ public class TeamsHandler {
     }
 
     public void playerGlow(Player playerToGlow, Player playerToSeeGlow, Boolean glow) {
-        if (!configHandler.getPluginSettings().getBoolean("packetevents")) {
-            return;
-        }
-
         packetAdapter.setGlowing(playerToGlow, playerToSeeGlow, glow);
     }
 

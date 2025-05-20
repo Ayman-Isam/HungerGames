@@ -58,8 +58,9 @@ public class DisplayStatsCommand implements CommandExecutor {
 					playerStats.getSoloGamesStarted() + playerStats.getTeamGamesStarted(),
 					playerStats.getSoloGamesPlayed() + playerStats.getTeamGamesPlayed(),
 					playerStats.getSoloGamesWon() + playerStats.getTeamGamesWon()));
+			double kdRatio = playerStats.getDeaths() > 0 ? (double) playerStats.getKills() / playerStats.getDeaths() : 0;
 			player.sendMessage(langHandler.getMessage(player, "stats.general-2", playerStats.getKills(),
-					playerStats.getDeaths(), playerStats.getKillAssists(), playerStats.getKills() / playerStats.getDeaths()));
+					playerStats.getDeaths(), playerStats.getKillAssists(), kdRatio));
 			player.sendMessage(langHandler.getMessage(player, "stats.general-3",
 					df.format(playerStats.getSecondsPlayed() / 3600), playerStats.getLastLogout()));
 			player.sendMessage(langHandler.getMessage(player, "stats.solo-title"));

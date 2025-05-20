@@ -14,7 +14,7 @@ min-supply-drop-content: 2
 max-supply-drop-content: 6
 # Players Per Team
 players-per-team: 1
-# Length of the game in seconds (default: 900)
+# Length of the game in seconds (default: 900), do not set to lower than 1
 game-time: 900
 # Length of the countdown before game in seconds, use less than 5 for no countdown
 countdown: 20
