@@ -89,14 +89,28 @@ public class GameSequenceHandler {
         worldBorderHandler.startWorldBorder(world);
 
         for (Player player : world.getPlayers()) {
+            player.sendTitle("", langHandler.getMessage(player, "game.start"), 5, 20, 10);
+            player.sendMessage(langHandler.getMessage(player, "game.grace-start"));
+        }
+
+        int gracePeriod = configHandler.getWorldConfig(world).getInt("grace-period");
+        int worldGracePeriodTaskId = plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            world.setPVP(true);
+            for (Player player : world.getPlayers()) {
+                player.sendMessage(langHandler.getMessage(player, "game.grace-end"));
+                player.sendTitle("", langHandler.getMessage(player, "game.grace-end"), 5, 20, 10);
+                player.playSound(player.getLocation(), Sound.ENTITY_ELDER_GUARDIAN_CURSE, 1.0f, 1.0f);
+            }
+        }, gracePeriod * 20L);
+
+        gracePeriodTaskId.put(world.getName(), worldGracePeriodTaskId);
+
+        for (Player player : worldPlayersAlive) {
             worldStartingPlayers.add(player);
 
             if (configHandler.getWorldConfig(world).getBoolean("break-blocks.enabled")) {
                 player.setGameMode(GameMode.SURVIVAL);
             }
-
-            player.sendTitle("", langHandler.getMessage(player, "game.start"), 5, 20, 10);
-            player.sendMessage(langHandler.getMessage(player, "game.grace-start"));
 
             if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
                 try {
@@ -116,21 +130,7 @@ public class GameSequenceHandler {
 
             Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
             totalTimeSpent.put(player, timeSpent);
-        }
 
-        int gracePeriod = configHandler.getWorldConfig(world).getInt("grace-period");
-        int worldGracePeriodTaskId = plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-            world.setPVP(true);
-            for (Player player : world.getPlayers()) {
-                player.sendMessage(langHandler.getMessage(player, "game.grace-end"));
-                player.sendTitle("", langHandler.getMessage(player, "game.grace-end"), 5, 20, 10);
-                player.playSound(player.getLocation(), Sound.ENTITY_ELDER_GUARDIAN_CURSE, 1.0f, 1.0f);
-            }
-        }, gracePeriod * 20L);
-
-        gracePeriodTaskId.put(world.getName(), worldGracePeriodTaskId);
-
-        for (Player player : worldPlayersAlive) {
             BossBar bossBar = plugin.getServer().createBossBar(langHandler.getMessage(player, "time-remaining"), BarColor.GREEN, BarStyle.SOLID);
             bossBar.addPlayer(player);
 
