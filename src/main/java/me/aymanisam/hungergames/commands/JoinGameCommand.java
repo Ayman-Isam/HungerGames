@@ -79,11 +79,6 @@ public class JoinGameCommand implements CommandExecutor {
             }
         }
 
-        if (worldSpawnPointMap.containsValue(player) || worldStartingPlayers.contains(player)) {
-            player.sendMessage(langHandler.getMessage(player, "game.already-joined"));
-            return true;
-        }
-
         if (gameStarted.getOrDefault(worldName, false)) {
             player.sendMessage(langHandler.getMessage(player, "startgame.started"));
             teleportPlayerForSpectating(player, worldName, world, configHandler, scoreBoardHandler, langHandler);
@@ -93,6 +88,11 @@ public class JoinGameCommand implements CommandExecutor {
         if (gameStarting.getOrDefault(worldName, false)) {
             player.sendMessage(langHandler.getMessage(player, "startgame.starting"));
             teleportPlayerForSpectating(player, worldName, world, configHandler, scoreBoardHandler, langHandler);
+            return true;
+        }
+
+        if ((worldSpawnPointMap.containsValue(player) || worldStartingPlayers.contains(player))) {
+            player.sendMessage(langHandler.getMessage(player, "game.already-joined"));
             return true;
         }
 

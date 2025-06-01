@@ -161,6 +161,8 @@ public class GameSequenceHandler {
         BukkitTask worldChestRefillTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> chestRefillHandler.refillChests(world), 0, chestRefillInterval);
         chestRefillTask.put(world.getName(), worldChestRefillTask);
 
+        System.out.println(worldStartingPlayers);
+
         mainGame(world);
     }
 
