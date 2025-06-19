@@ -105,14 +105,17 @@ public class LobbyReturnCommand implements CommandExecutor {
         totalTimeSpent.put(player, timeAlive + timeSpent);
 
         resetPlayerHandler.resetPlayer(player, world);
-        Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
-        BossBar bossBar = worldPlayerBossBar.get(player);
+        if (configHandler.getWorldConfig(world).getBoolean("display-bossbar")) {
+            Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
-        if (bossBar != null) {
-            bossBar.removePlayer(player);
-            worldPlayerBossBar.remove(player);
-            bossBar.setVisible(false);
+            BossBar bossBar = worldPlayerBossBar.get(player);
+
+            if (bossBar != null) {
+                bossBar.removePlayer(player);
+                worldPlayerBossBar.remove(player);
+                bossBar.setVisible(false);
+            }
         }
 
         Map<Player, String> worldPlayerVotes = playerVotes.computeIfAbsent(world.getName(), k -> new HashMap<>());

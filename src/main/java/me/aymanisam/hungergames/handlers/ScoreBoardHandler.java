@@ -47,6 +47,9 @@ public class ScoreBoardHandler {
     }
 
     public void createBoard(Player player) {
+        if (!configHandler.getWorldConfig(player.getWorld()).getBoolean("display-scoreboard")) {
+            return;
+        }
         FastBoard board = new FastBoard(player);
         if (playersPerTeam == 1) {
             board.updateTitle(langHandler.getMessage(player, "score.name-solo"));
@@ -58,6 +61,10 @@ public class ScoreBoardHandler {
     }
 
     public void updateBoard(FastBoard board, World world) {
+        if (!configHandler.getWorldConfig(world).getBoolean("display-scoreboard")) {
+            return;
+        }
+
         FileConfiguration worldConfig = configHandler.getWorldConfig(world);
         int gameTimeConfig = worldConfig.getInt("game-time");
         int borderShrinkTimeConfig = worldConfig.getInt("border.start-time");

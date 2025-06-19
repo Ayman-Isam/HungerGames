@@ -131,12 +131,14 @@ public class GameSequenceHandler {
             Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
             totalTimeSpent.put(player, timeSpent);
 
-            BossBar bossBar = plugin.getServer().createBossBar(langHandler.getMessage(player, "time-remaining"), BarColor.GREEN, BarStyle.SOLID);
-            bossBar.addPlayer(player);
+            if (configHandler.getWorldConfig(world).getBoolean("display-bossbar")) {
+                BossBar bossBar = plugin.getServer().createBossBar(langHandler.getMessage(player, "time-remaining"), BarColor.GREEN, BarStyle.SOLID);
+                bossBar.addPlayer(player);
 
-            Map<Player, BossBar> worldPlayerBossBars = playerBossBars.computeIfAbsent(world.getName(), k -> new HashMap<>());
+                Map<Player, BossBar> worldPlayerBossBars = playerBossBars.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
-            worldPlayerBossBars.put(player, bossBar);
+                worldPlayerBossBars.put(player, bossBar);
+            }
 
             if (configHandler.getWorldConfig(world).getBoolean("bedrock-buff.enabled") && player.getName().startsWith(".")) {
                 List<String> effectNames = configHandler.getWorldConfig(world).getStringList("bedrock-buff.effects");
@@ -161,8 +163,6 @@ public class GameSequenceHandler {
         BukkitTask worldChestRefillTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> chestRefillHandler.refillChests(world), 0, chestRefillInterval);
         chestRefillTask.put(world.getName(), worldChestRefillTask);
 
-        System.out.println(worldStartingPlayers);
-
         mainGame(world);
     }
 
@@ -177,8 +177,12 @@ public class GameSequenceHandler {
         List<List<Player>> worldTeamsAlive = teamsAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
+        boolean displayBossbars = configHandler.getWorldConfig(world).getBoolean("display-bossbar");
+
         int worldTimerTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-            updateBossBars(world);
+            if (displayBossbars) {
+                updateBossBars(world);
+            }
             int currentTimeLeft = timeLeft.get(world.getName());
             currentTimeLeft--;
             timeLeft.put(world.getName(), currentTimeLeft);
