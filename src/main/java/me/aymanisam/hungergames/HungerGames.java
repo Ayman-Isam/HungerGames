@@ -126,33 +126,9 @@ public final class HungerGames extends JavaPlugin {
         BlockBreakListener blockBreakListener = new BlockBreakListener(this);
         getServer().getPluginManager().registerEvents(blockBreakListener, this);
 
-        File serverDirectory = new File(".");
-        File[] files = serverDirectory.listFiles();
+	    loadWorldFiles();
 
-        // Checking Files for World Files
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    File levelDat = new File(file, "level.dat");
-                    if (levelDat.exists()) {
-                        String worldName = file.getName();
-                        worldNames.add(worldName);
-                        FileConfiguration settings = configHandler.getPluginSettings();
-                        if (!settings.getBoolean("whitelist-worlds")) {
-                            if (!settings.getStringList("ignored-worlds").contains(worldName)) {
-                                hgWorldNames.add(worldName);
-                            }
-                        } else {
-                            if (settings.getStringList("ignored-worlds").contains(worldName)) {
-                                hgWorldNames.add(worldName);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        hgWorldNames.remove(configHandler.getPluginSettings().getString("lobby-world"));
+	    hgWorldNames.remove(configHandler.getPluginSettings().getString("lobby-world"));
 
         configHandler.validateSettingsKeys();
 
@@ -183,7 +159,34 @@ public final class HungerGames extends JavaPlugin {
         configHandler.loadSignLocations();
     }
 
-    public ConfigHandler getConfigHandler() {
+	public void loadWorldFiles() {
+		File serverDirectory = new File(".");
+		File[] files = serverDirectory.listFiles();
+
+		if (files != null) {
+		    for (File file : files) {
+		        if (file.isDirectory()) {
+		            File levelDat = new File(file, "level.dat");
+		            if (levelDat.exists()) {
+		                String worldName = file.getName();
+		                worldNames.add(worldName);
+		                FileConfiguration settings = configHandler.getPluginSettings();
+		                if (!settings.getBoolean("whitelist-worlds")) {
+		                    if (!settings.getStringList("ignored-worlds").contains(worldName)) {
+		                        hgWorldNames.add(worldName);
+		                    }
+		                } else {
+		                    if (settings.getStringList("ignored-worlds").contains(worldName)) {
+		                        hgWorldNames.add(worldName);
+		                    }
+		                }
+		            }
+		        }
+		    }
+		}
+	}
+
+	public ConfigHandler getConfigHandler() {
         return configHandler;
     }
 

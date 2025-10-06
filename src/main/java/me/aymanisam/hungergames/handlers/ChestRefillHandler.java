@@ -79,7 +79,9 @@ public class ChestRefillHandler {
 
     @SuppressWarnings("unchecked")
     public void refillInventory(List<Location> locations, String itemKey, YamlConfiguration itemsConfig, int minContent, int maxContent) {
-        for (Location location : locations) {
+	    Random rand = new Random();
+
+	    for (Location location : locations) {
             Block block = location.getBlock();
             Inventory blockInventory;
 
@@ -100,8 +102,17 @@ public class ChestRefillHandler {
                     .flatMap(itemMap -> {
                         String type = (String) itemMap.get("type");
 
-                        Integer amountObj = (Integer) itemMap.get("amount");
-                        int amount = (amountObj != null) ? amountObj : 1;
+                        Object amountObj = itemMap.get("amount");
+
+						int amount;
+						if (amountObj instanceof Map) {
+							int minAmount = (int) ((Map<?, ?>) amountObj).get("min");
+							int maxAmount = (int) ((Map<?, ?>) amountObj).get("max");
+							amount = rand.nextInt(maxAmount - minAmount) + minAmount;
+							System.out.println(amount);
+						} else {
+							amount = (amountObj != null) ? (Integer) amountObj : 1;
+						}
 
                         Integer weightObj = (Integer) itemMap.get("weight");
                         int weight = (weightObj != null) ? weightObj : 1;
@@ -220,7 +231,7 @@ public class ChestRefillHandler {
 
             blockInventory.clear();
 
-            Random rand = new Random();
+
             int inventorySize = rand.nextInt(maxContent - minContent + 1) + minContent;
             Collections.shuffle(items);
 
