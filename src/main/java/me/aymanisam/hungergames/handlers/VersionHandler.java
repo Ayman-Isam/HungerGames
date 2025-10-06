@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 
 public class VersionHandler {
     private static final String SPIGET_API_URL = "https://api.spiget.org/v2/resources/%d/versions/latest";
@@ -17,6 +18,7 @@ public class VersionHandler {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(String.format(SPIGET_API_URL, pluginId)))
+		        .timeout(Duration.ofSeconds(5))
                 .build();
 
         try {
