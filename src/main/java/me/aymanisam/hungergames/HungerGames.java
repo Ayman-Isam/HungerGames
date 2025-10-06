@@ -84,7 +84,7 @@ public final class HungerGames extends JavaPlugin {
         CompassListener compassListener = new CompassListener(this, langHandler, compassHandler);
         TeamsHandler teamsHandler = new TeamsHandler(this, langHandler);
         this.gameSequenceHandler = new GameSequenceHandler(this, langHandler, setSpawnHandler, compassListener, teamsHandler);
-        CountDownHandler countDownHandler = new CountDownHandler(this, langHandler, setSpawnHandler, gameSequenceHandler, teamVotingListener);
+        CountDownHandler countDownHandler = new CountDownHandler(this, langHandler, gameSequenceHandler, teamVotingListener);
         setSpawnHandler.setCountDownHandler(countDownHandler);
         WorldBorderHandler worldBorderHandler = new WorldBorderHandler(this, langHandler);
 

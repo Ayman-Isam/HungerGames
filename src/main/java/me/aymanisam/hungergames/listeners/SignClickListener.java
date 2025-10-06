@@ -21,6 +21,7 @@ import static me.aymanisam.hungergames.commands.JoinGameCommand.isPlayerInAnyCus
 import static me.aymanisam.hungergames.commands.JoinGameCommand.teleportPlayerForSpectating;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.startingPlayers;
+import static me.aymanisam.hungergames.handlers.SetSpawnHandler.spawnPointMap;
 
 public class SignClickListener implements Listener {
     private final HungerGames plugin;
@@ -65,7 +66,7 @@ public class SignClickListener implements Listener {
                             return; // Don't send another message if within cooldown
                         }
 
-                        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(worldName, k -> new HashMap<>());
+                        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(worldName, k -> new HashMap<>());
                         List<Player> worldStartingPlayers = startingPlayers.computeIfAbsent(worldName, k -> new ArrayList<>());
 
                         if (configHandler.getPluginSettings().getBoolean("custom-teams")) {

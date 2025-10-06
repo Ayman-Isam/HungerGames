@@ -11,6 +11,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,28 +52,41 @@ public class WorldResetHandler {
         File worldDirectory = world.getWorldFolder();
         File templateDirectory = new File(plugin.getDataFolder(), "templates" + File.separator + world.getName());
 
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            if (!templateDirectory.exists()) {
-                Bukkit.getLogger().severe("Template directory does not exist");
-                return;
-            }
+	    if (!templateDirectory.exists()) {
+		    Bukkit.getLogger().severe("Template directory does not exist");
+		    return;
+	    }
 
+        Bukkit.getScheduler().runTask(plugin, () -> {
             boolean unloaded = Bukkit.unloadWorld(world, false);
             if (!unloaded) {
                 plugin.getLogger().log(Level.SEVERE, "Could not unload world");
                 return;
             }
 
-            try {
-                FileUtils.deleteDirectory(worldDirectory);
-                FileUtils.copyDirectory(templateDirectory, worldDirectory);
-            } catch (IOException e) {
-                plugin.getLogger().log(Level.SEVERE, "Could not copy world folders");
-            }
+            new BukkitRunnable() {
+                int attempts = 0;
 
-            WorldCreator worldCreator = new WorldCreator(world.getName());
-            Bukkit.createWorld(worldCreator);
-            worldBorderHandler.resetWorldBorder(world);
+                @Override
+                public void run() {
+                    try {
+                        FileUtils.deleteDirectory(worldDirectory);
+                        FileUtils.copyDirectory(templateDirectory, worldDirectory);
+                        WorldCreator worldCreator = new WorldCreator(world.getName());
+                        Bukkit.createWorld(worldCreator);
+                        worldBorderHandler.resetWorldBorder(world);
+                        cancel();
+                    } catch (IOException e) {
+                        attempts++;
+
+                        System.out.println(attempts);
+                        if (attempts >= 40) {
+                            plugin.getLogger().log(Level.SEVERE, "Failed to reset world '" + world.getName() + "' after " + attempts + " attempts.", e);
+                            cancel();
+                        }
+                    }
+                }
+            }.runTaskTimer(plugin, 2L, 2L);
         });
     }
 

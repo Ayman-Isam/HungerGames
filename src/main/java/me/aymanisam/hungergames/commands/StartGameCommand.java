@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
+import static me.aymanisam.hungergames.handlers.SetSpawnHandler.spawnPointMap;
 
 public class StartGameCommand implements CommandExecutor {
     private final HungerGames plugin;
@@ -95,7 +96,7 @@ public class StartGameCommand implements CommandExecutor {
 
         int minPlayers = configHandler.getWorldConfig(world).getInt("min-players");
 
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
+        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
         if (worldSpawnPointMap.size() < minPlayers) {
             sender.sendMessage(langHandler.getMessage(player, "startgame.min-players", minPlayers));

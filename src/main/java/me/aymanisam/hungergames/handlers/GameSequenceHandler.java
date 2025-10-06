@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;
 import static me.aymanisam.hungergames.handlers.ScoreBoardHandler.boards;
+import static me.aymanisam.hungergames.handlers.SetSpawnHandler.spawnPointMap;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teamsAlive;
 import static me.aymanisam.hungergames.listeners.PlayerListener.playerKills;
@@ -76,7 +77,7 @@ public class GameSequenceHandler {
         gameStarted.put(world.getName(), true);
         gameStarting.put(world.getName(), false);
 
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
+        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
         List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         List<Player> worldStartingPlayers = startingPlayers.computeIfAbsent(world.getName(), k -> new ArrayList<>());

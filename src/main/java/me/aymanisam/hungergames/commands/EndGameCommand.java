@@ -4,7 +4,6 @@ import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.CountDownHandler;
 import me.aymanisam.hungergames.handlers.GameSequenceHandler;
 import me.aymanisam.hungergames.handlers.LangHandler;
-import me.aymanisam.hungergames.handlers.SetSpawnHandler;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.command.Command;
@@ -19,21 +18,20 @@ import java.util.stream.Collectors;
 import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.startingPlayers;
+import static me.aymanisam.hungergames.handlers.SetSpawnHandler.spawnPointMap;
 
 public class EndGameCommand implements CommandExecutor {
     private final HungerGames plugin;
 	private final LangHandler langHandler;
     private final GameSequenceHandler gameSequenceHandler;
     private final CountDownHandler countDownHandler;
-    private final SetSpawnHandler setSpawnHandler;
 
-	public EndGameCommand(HungerGames plugin, LangHandler langHandler, GameSequenceHandler gameSequenceHandler, CountDownHandler countDownHandler, SetSpawnHandler setSpawnHandler) {
+	public EndGameCommand(HungerGames plugin, LangHandler langHandler, GameSequenceHandler gameSequenceHandler, CountDownHandler countDownHandler) {
 		this.plugin = plugin;
 		this.langHandler = langHandler;
         this.gameSequenceHandler = gameSequenceHandler;
         this.countDownHandler = countDownHandler;
-        this.setSpawnHandler = setSpawnHandler;
-    }
+	}
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
@@ -76,7 +74,7 @@ public class EndGameCommand implements CommandExecutor {
             onlinePlayer.sendTitle("", langHandler.getMessage(onlinePlayer, "game.ended"), 5, 20, 10);
         }
 
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
+        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         List<Player> worldStartingPlayers = startingPlayers.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         gameStarting.put(world.getName(), false);

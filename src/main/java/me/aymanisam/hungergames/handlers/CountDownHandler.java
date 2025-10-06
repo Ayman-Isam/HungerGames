@@ -15,6 +15,7 @@ import java.util.Map;
 import static me.aymanisam.hungergames.HungerGames.customTeams;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.*;
 import static me.aymanisam.hungergames.handlers.SetSpawnHandler.autoStartTasks;
+import static me.aymanisam.hungergames.handlers.SetSpawnHandler.spawnPointMap;
 import static me.aymanisam.hungergames.listeners.TeamVotingListener.playerVotes;
 
 public class CountDownHandler {
@@ -22,20 +23,18 @@ public class CountDownHandler {
     private final LangHandler langHandler;
     private final GameSequenceHandler gameSequenceHandler;
     private final TeamsHandler teamsHandler;
-    private final SetSpawnHandler setSpawnHandler;
-    private final TeamVotingListener teamVotingListener;
+	private final TeamVotingListener teamVotingListener;
     private final ConfigHandler configHandler;
     private final Map<String, List<BukkitTask>> countDownTasks = new HashMap<>();
 
     public static int playersPerTeam;
 
-    public CountDownHandler(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener) {
+    public CountDownHandler(HungerGames plugin, LangHandler langHandler, GameSequenceHandler gameSequenceHandler, TeamVotingListener teamVotingListener) {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.gameSequenceHandler = gameSequenceHandler;
         this.teamsHandler = new TeamsHandler(plugin, langHandler);
-        this.setSpawnHandler = setSpawnHandler;
-        this.teamVotingListener = teamVotingListener;
+	    this.teamVotingListener = teamVotingListener;
         this.configHandler = plugin.getConfigHandler();
     }
 
@@ -102,7 +101,7 @@ public class CountDownHandler {
 
         playersPerTeam = configHandler.getWorldConfig(world).getInt("players-per-team");
 
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
+        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
         worldPlayersAlive.addAll(worldSpawnPointMap.values());

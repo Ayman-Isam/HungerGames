@@ -36,6 +36,10 @@ min-players: 2
 # Enable voting for solo, duo, trio
 voting: false
   # Changes game from adventure to survival mode allowing players to break blocks
+# Display scoreboard during the game
+display-scoreboard: true
+# Display bossbar during the game
+display-bossbar: true
 break-blocks:
   enabled: false
   drop: true # Drop block when broken

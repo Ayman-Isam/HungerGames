@@ -13,13 +13,13 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static me.aymanisam.hungergames.HungerGames.*;
-import static me.aymanisam.hungergames.handlers.GameSequenceHandler.startingPlayers;
+import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
+import static me.aymanisam.hungergames.handlers.SetSpawnHandler.spawnPointMap;
 
 public class JoinGameCommand implements CommandExecutor {
     private final HungerGames plugin;
@@ -65,8 +65,10 @@ public class JoinGameCommand implements CommandExecutor {
 
         World world = Bukkit.getWorld(worldName);
 
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(worldName, k -> new HashMap<>());
-        List<Player> worldStartingPlayers = startingPlayers.computeIfAbsent(worldName, k -> new ArrayList<>());
+        if (isPlayerInGame(player)) {
+            player.sendMessage(langHandler.getMessage(player, "game.already-joined"));
+            return true;
+        }
 
         if (configHandler.getPluginSettings().getBoolean("custom-teams")) {
             if (!teamsFinalized) {
@@ -88,11 +90,6 @@ public class JoinGameCommand implements CommandExecutor {
         if (gameStarting.getOrDefault(worldName, false)) {
             player.sendMessage(langHandler.getMessage(player, "startgame.starting"));
             teleportPlayerForSpectating(player, worldName, world, configHandler, scoreBoardHandler, langHandler);
-            return true;
-        }
-
-        if ((worldSpawnPointMap.containsValue(player) || worldStartingPlayers.contains(player))) {
-            player.sendMessage(langHandler.getMessage(player, "game.already-joined"));
             return true;
         }
 
@@ -124,6 +121,22 @@ public class JoinGameCommand implements CommandExecutor {
             player.setGameMode(GameMode.SPECTATOR);
             player.sendMessage(langHandler.getMessage(player, "spectate.spectating-player"));
         }
+    }
+
+    public static boolean isPlayerInGame(Player player) {
+        for (List<Player> players : playersAlive.values()) {
+            if (players.contains(player)) {
+                return true;
+            }
+        }
+
+        for (Map<String, Player> players : spawnPointMap.values()) {
+            if (players.containsValue(player)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static boolean isPlayerInAnyCustomTeam(Player player) {

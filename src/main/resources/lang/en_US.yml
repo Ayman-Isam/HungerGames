@@ -54,7 +54,7 @@ game:
   grace-end: "&cThe grace period has ended! PvP is enabled."
   not-started: "&cThe game has not started yet!"
   ended: "&6The game has been ended by an admin."
-  already-joined: "&cYou have already joined the game!"
+  already-joined: "&cYou have already joined a game!"
   auto-join: "&bYou have been automatically joined to the game!"
   join-fail: "&cNot enough spawnpoints to join!"
   not-lobby: "&cYou are still in the lobby!"

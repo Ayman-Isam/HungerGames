@@ -32,7 +32,7 @@ public class SetSpawnHandler {
 
 	public FileConfiguration setSpawnConfig;
     public Map<String, List<String>> spawnPoints;
-    public Map<String, Map<String, Player>> spawnPointMap;
+    public static Map<String, Map<String, Player>> spawnPointMap;
     public Map<String, List<Player>> playersWaiting;
     private File setSpawnFile;
     public static final Map<String, List<BukkitTask>> autoStartTasks = new HashMap<>();
@@ -41,7 +41,7 @@ public class SetSpawnHandler {
         this.plugin = plugin;
         this.langHandler = langHandler;
 	    this.spawnPoints = new HashMap<>();
-        this.spawnPointMap = new HashMap<>();
+        spawnPointMap = new HashMap<>();
         this.playersWaiting = new HashMap<>();
         this.resetPlayerHandler = new ResetPlayerHandler();
         this.teamVotingListener = new TeamVotingListener(langHandler);

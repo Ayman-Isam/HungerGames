@@ -20,6 +20,7 @@ import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.*;
+import static me.aymanisam.hungergames.handlers.SetSpawnHandler.spawnPointMap;
 import static me.aymanisam.hungergames.listeners.TeamVotingListener.playerVotes;
 
 public class LobbyReturnCommand implements CommandExecutor {
@@ -70,7 +71,7 @@ public class LobbyReturnCommand implements CommandExecutor {
 
         List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
-        Map<String, Player> worldSpawnPointMap = setSpawnHandler.spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
+        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
         List<String> worldSpawnPoints = setSpawnHandler.spawnPoints.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         List<Player> worldPlayersPlacement = playerPlacements.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
 
