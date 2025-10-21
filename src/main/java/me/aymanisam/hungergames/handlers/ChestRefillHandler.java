@@ -109,7 +109,6 @@ public class ChestRefillHandler {
 							int minAmount = (int) ((Map<?, ?>) amountObj).get("min");
 							int maxAmount = (int) ((Map<?, ?>) amountObj).get("max");
 							amount = rand.nextInt(maxAmount - minAmount) + minAmount;
-							System.out.println(amount);
 						} else {
 							amount = (amountObj != null) ? (Integer) amountObj : 1;
 						}

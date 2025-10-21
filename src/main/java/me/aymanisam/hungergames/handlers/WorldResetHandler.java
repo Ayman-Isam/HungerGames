@@ -79,7 +79,6 @@ public class WorldResetHandler {
                     } catch (IOException e) {
                         attempts++;
 
-                        System.out.println(attempts);
                         if (attempts >= 40) {
                             plugin.getLogger().log(Level.SEVERE, "Failed to reset world '" + world.getName() + "' after " + attempts + " attempts.", e);
                             cancel();

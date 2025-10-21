@@ -16,10 +16,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.*;
@@ -123,7 +120,7 @@ public class GameSequenceHandler {
                         playerStats.setSoloGamesPlayed(playerStats.getSoloGamesPlayed() + 1);
                     }
 
-                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+					playerStats.setDirty();
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, e.toString());
                 }
@@ -257,13 +254,18 @@ public class GameSequenceHandler {
         if (winner != null) {
             worldPlayerPlacements.add(winner);
 
+	        String command = Objects.requireNonNull(configHandler.getWorldConfig(world).getString("end-command")).replace("{player}", winner.getName());
+	        if (!command.isEmpty()) {
+		        plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), command);
+	        }
+
             if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
                 try {
                     PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(winner);
 
                     playerStats.setSoloGamesWon(playerStats.getSoloGamesWon() + 1);
 
-                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+	                playerStats.setDirty();
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, e.toString());
                 }
@@ -335,7 +337,7 @@ public class GameSequenceHandler {
 
                         playerStats.setTeamGamesWon(playerStats.getTeamGamesWon() + 1);
 
-                        this.plugin.getDatabase().updatePlayerStats(playerStats);
+	                    playerStats.setDirty();
                     } catch (SQLException e) {
                         plugin.getLogger().log(Level.SEVERE, e.toString());
                     }
@@ -426,7 +428,7 @@ public class GameSequenceHandler {
                             double netPercentile = (playerStats.getSoloPercentile() * playerStats.getSoloGamesPlayed() + percentile) / (playerStats.getSoloGamesPlayed() + 1);
                             playerStats.setSoloPercentile(netPercentile);
 
-                            this.plugin.getDatabase().updatePlayerStats(playerStats);
+	                        playerStats.setDirty();
                         } catch (SQLException e) {
                             plugin.getLogger().log(Level.SEVERE, e.toString());
                         }
@@ -448,7 +450,7 @@ public class GameSequenceHandler {
 
                                 playerStats.setTeamPercentile(netPercentile);
 
-                                this.plugin.getDatabase().updatePlayerStats(playerStats);
+	                            playerStats.setDirty();
                             } catch (SQLException e) {
                                 plugin.getLogger().log(Level.SEVERE, e.toString());
                             }

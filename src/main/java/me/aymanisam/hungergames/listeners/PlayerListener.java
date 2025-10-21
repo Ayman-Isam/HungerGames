@@ -73,25 +73,36 @@ public class PlayerListener implements Listener {
         }
 
         if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
-            try {
-                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
-                playerStats.setLastLogout(new Date());
+	        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+		        try {
+			        PlayerStatsHandler playerStats;
+			        if (statsMap.containsKey(player.getUniqueId())) {
+				        playerStats = statsMap.get(player.getUniqueId());
+			        } else {
+				        playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+				        statsMap.put(player.getUniqueId(), playerStats);
+			        }
 
-                if (totalTimeSpent.containsKey(player)) {
-                    int timeAlive = 0;
-                    if (!player.getWorld().getName().equals(configHandler.getPluginSettings().getString("lobby-world"))) {
-                        timeAlive = configHandler.getWorldConfig(player.getWorld()).getInt("game-time") - timeLeft.get(player.getWorld().getName());
-                    }
-                    Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
-                    playerStats.setSecondsPlayed(playerStats.getSecondsPlayed() + timeAlive + timeSpent);
-                    playerStats.setSecondsPlayedMonth(playerStats.getSecondsPlayedMonth() + timeAlive + timeSpent);
-                    totalTimeSpent.remove(player);
-                }
+			        playerStats.setLastLogout(new Date());
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
-            } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, e.toString());
-            }
+			        if (totalTimeSpent.containsKey(player)) {
+				        int timeAlive = 0;
+				        if (!player.getWorld().getName().equals(configHandler.getPluginSettings().getString("lobby-world"))) {
+					        timeAlive = configHandler.getWorldConfig(player.getWorld()).getInt("game-time") - timeLeft.get(player.getWorld().getName());
+				        }
+				        Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
+				        playerStats.setSecondsPlayed(playerStats.getSecondsPlayed() + timeAlive + timeSpent);
+				        playerStats.setSecondsPlayedMonth(playerStats.getSecondsPlayedMonth() + timeAlive + timeSpent);
+				        totalTimeSpent.remove(player);
+			        }
+
+			        playerStats.setDirty();
+
+			        this.plugin.getDatabase().updatePlayerStats(playerStats);
+		        } catch (SQLException e) {
+			        plugin.getLogger().log(Level.SEVERE, e.toString());
+		        }
+	        });
         }
 
         removeFromTeam(player);
@@ -152,17 +163,25 @@ public class PlayerListener implements Listener {
         event.setJoinMessage(null);
 
         if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
-            try {
-                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+				try {
+					PlayerStatsHandler playerStats;
+					if (statsMap.containsKey(player.getUniqueId())) {
+						playerStats = statsMap.get(player.getUniqueId());
+					} else {
+						playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+						statsMap.put(player.getUniqueId(), playerStats);
+					}
 
-                playerStats.setUsername(player.getName());
+					playerStats.setUsername(player.getName());
 
-                playerStats.setLastLogin(new Date());
+					playerStats.setLastLogin(new Date());
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
-            } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, e.toString());
-            }
+					playerStats.setDirty();
+				} catch (SQLException e) {
+					plugin.getLogger().log(Level.SEVERE, e.toString());
+				}
+			});
         }
     }
 
@@ -200,7 +219,7 @@ public class PlayerListener implements Listener {
                         playerStats.setEnvironmentDeaths(playerStats.getEnvironmentDeaths() + 1);
                     }
 
-                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+	                playerStats.setDirty();
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, e.toString());
                 }
@@ -236,7 +255,7 @@ public class PlayerListener implements Listener {
 
                         playerStats.setKillAssists(playerStats.getKillAssists() + 1);
 
-                        this.plugin.getDatabase().updatePlayerStats(playerStats);
+	                    playerStats.setDirty();
                     } catch (SQLException e) {
                         plugin.getLogger().log(Level.SEVERE, e.toString());
                     }
@@ -264,7 +283,7 @@ public class PlayerListener implements Listener {
 
                     playerStats.setKills(playerStats.getKills() + 1);
 
-                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+	                playerStats.setDirty();
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, e.toString());
                 }
@@ -346,7 +365,7 @@ public class PlayerListener implements Listener {
                         playerStats.setProjectileDamageDealt(playerStats.getProjectileDamageDealt() + event.getDamage());
                     }
 
-                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+	                playerStats.setDirty();
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, e.toString());
                 }
@@ -367,7 +386,7 @@ public class PlayerListener implements Listener {
                     playerStats.setProjectileDamageTaken(playerStats.getProjectileDamageTaken() + event.getDamage());
                 }
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
+	            playerStats.setDirty();
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, e.toString());
             }
@@ -383,7 +402,7 @@ public class PlayerListener implements Listener {
 
                     playerStats.setAttacksBlocked(playerStats.getAttacksBlocked() + 1);
 
-                    this.plugin.getDatabase().updatePlayerStats(playerStats);
+	                playerStats.setDirty();
                 } catch (SQLException e) {
                     plugin.getLogger().log(Level.SEVERE, e.toString());
                 }
@@ -418,7 +437,7 @@ public class PlayerListener implements Listener {
 
                         playerStats.setChestsOpened(playerStats.getChestsOpened() + 1);
 
-                        this.plugin.getDatabase().updatePlayerStats(playerStats);
+	                    playerStats.setDirty();
                     } catch (SQLException e) {
                         plugin.getLogger().log(Level.SEVERE, e.toString());
                     }
@@ -430,7 +449,7 @@ public class PlayerListener implements Listener {
 
                         playerStats.setSupplyDropsOpened(playerStats.getSupplyDropsOpened() + 1);
 
-                        this.plugin.getDatabase().updatePlayerStats(playerStats);
+	                    playerStats.setDirty();
                     } catch (SQLException e) {
                         plugin.getLogger().log(Level.SEVERE, e.toString());
                     }
@@ -462,7 +481,7 @@ public class PlayerListener implements Listener {
                     playerStats.setFireworksShot(playerStats.getFireworksShot() + 1);
                 }
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
+	            playerStats.setDirty();
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, e.toString());
             }
@@ -495,7 +514,7 @@ public class PlayerListener implements Listener {
                     playerStats.setFireworksLanded(playerStats.getFireworksLanded() + 1);
                 }
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
+	            playerStats.setDirty();
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, e.toString());
             }
@@ -516,7 +535,7 @@ public class PlayerListener implements Listener {
 
                 playerStats.setHealthRegenerated(playerStats.getHealthRegenerated() + healthRegenerated);
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
+	            playerStats.setDirty();
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, e.toString());
             }
@@ -538,7 +557,7 @@ public class PlayerListener implements Listener {
                     playerStats.setFoodConsumed(playerStats.getFoodConsumed() + 1);
                 }
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
+	            playerStats.setDirty();
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, e.toString());
             }
@@ -557,7 +576,7 @@ public class PlayerListener implements Listener {
 
                 playerStats.setPotionsUsed(playerStats.getPotionsUsed() + 1);
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
+	            playerStats.setDirty();
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, e.toString());
             }
@@ -576,7 +595,7 @@ public class PlayerListener implements Listener {
 
                 playerStats.setPotionsUsed(playerStats.getPotionsUsed() + 1);
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
+	            playerStats.setDirty();
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, e.toString());
             }
@@ -600,7 +619,7 @@ public class PlayerListener implements Listener {
 
                 playerStats.setTotemsPopped(playerStats.getTotemsPopped() + 1);
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
+	            playerStats.setDirty();
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, e.toString());
             }

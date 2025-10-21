@@ -1,8 +1,10 @@
 package me.aymanisam.hungergames.handlers;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class PlayerStatsHandler {
+	private boolean dirty;
     private final String uuid;
     private String username;
     private int deaths;
@@ -352,4 +354,16 @@ public class PlayerStatsHandler {
     public void setSecondsPlayedMonth(Long secondsPlayedMonth) {
         this.secondsPlayedMonth = secondsPlayedMonth;
     }
+
+	public boolean isDirty() {
+		return dirty;
+	}
+
+	public void setDirty() {
+		dirty = true;
+	}
+
+	public void setClean() {
+		dirty = false;
+	}
 }

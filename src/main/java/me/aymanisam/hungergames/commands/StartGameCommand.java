@@ -117,7 +117,7 @@ public class StartGameCommand implements CommandExecutor {
                     playerStats.setSoloGamesStarted(playerStats.getSoloGamesStarted() + 1);
                 }
 
-                this.plugin.getDatabase().updatePlayerStats(playerStats);
+	            playerStats.setDirty();
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, e.toString());
             }

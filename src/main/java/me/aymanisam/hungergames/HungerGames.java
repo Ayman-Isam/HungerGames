@@ -14,6 +14,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.handlers.VersionHandler.getLatestPluginVersion;
@@ -25,6 +26,7 @@ public final class HungerGames extends JavaPlugin {
     public static List<String> worldNames = new ArrayList<>();
     public static Map<Player, Long> totalTimeSpent = new HashMap<>();
     public static Map<String, List<Player>> customTeams = new HashMap<>();
+	public static Map<UUID, PlayerStatsHandler> statsMap = new ConcurrentHashMap<>();
     public static boolean teamsFinalized = false;
 
     private GameSequenceHandler gameSequenceHandler;
@@ -156,6 +158,11 @@ public final class HungerGames extends JavaPlugin {
             tipsHandler.startSendingTips(600);
         }
 
+	    if (this.getConfigHandler().getPluginSettings().getBoolean("database.enabled")) {
+			int interval = this.getConfigHandler().getPluginSettings().getInt("database.interval");
+		    getServer().getScheduler().runTaskTimerAsynchronously(this, this::saveToDatabase, 20L * interval, 20L * interval);
+	    }
+
         configHandler.loadSignLocations();
     }
 
@@ -204,6 +211,10 @@ public final class HungerGames extends JavaPlugin {
             this.adventure.close();
             this.adventure = null;
         }
+
+		if (this.getConfigHandler().getPluginSettings().getBoolean("database.enabled")) {
+			saveToDatabase();
+		}
     }
 
     public File getPluginFile() {
@@ -214,4 +225,19 @@ public final class HungerGames extends JavaPlugin {
         return gameStarted.getOrDefault(worldName, false) ||
                 gameStarting.getOrDefault(worldName, false);
     }
+
+	private void saveToDatabase() {
+		this.getServer().getScheduler().runTaskAsynchronously(this, () -> {
+			try {
+				for (PlayerStatsHandler playerStats : statsMap.values()) {
+					if (playerStats.isDirty()) {
+						getDatabase().updatePlayerStats(playerStats);
+						playerStats.setClean();
+					}
+				}
+			} catch (SQLException e) {
+				this.getLogger().log(Level.SEVERE, e.toString());
+			}
+		});
+	}
 }

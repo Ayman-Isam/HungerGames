@@ -76,7 +76,9 @@ chest-items:
     weight: 2
 
   - type: ARROW
-    amount: 16
+    amount:
+      min: 8
+      max: 16
     weight: 2
 
   - type: MILK_BUCKET
