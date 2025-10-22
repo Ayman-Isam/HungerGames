@@ -108,19 +108,15 @@ public class StartGameCommand implements CommandExecutor {
         countDownHandler.startCountDown(world);
 
         if (player != null && configHandler.getPluginSettings().getBoolean("database.enabled")) {
-            try {
-                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+	        PlayerStatsHandler playerStats = statsMap.get(player.getUniqueId());
 
-                if (playersPerTeam != 1) {
-                    playerStats.setTeamGamesStarted(playerStats.getTeamGamesStarted() + 1);
-                } else {
-                    playerStats.setSoloGamesStarted(playerStats.getSoloGamesStarted() + 1);
-                }
+	        if (playersPerTeam != 1) {
+	            playerStats.setTeamGamesStarted(playerStats.getTeamGamesStarted() + 1);
+	        } else {
+	            playerStats.setSoloGamesStarted(playerStats.getSoloGamesStarted() + 1);
+	        }
 
-	            playerStats.setDirty();
-            } catch (SQLException e) {
-                plugin.getLogger().log(Level.SEVERE, e.toString());
-            }
+	        playerStats.setDirty();
         }
 
         return true;

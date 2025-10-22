@@ -52,11 +52,11 @@ public class DatabaseHandler {
     }
 
     public PlayerStatsHandler getPlayerStatsFromDatabase(Player player) throws SQLException {
-        PlayerStatsHandler stats = this.plugin.getDatabase().findPlayerStatsByUUID(player.getUniqueId().toString());
+        PlayerStatsHandler stats = plugin.getDatabase().findPlayerStatsByUUID(player.getUniqueId().toString());
 
         if (stats == null) {
             stats = new PlayerStatsHandler(player.getUniqueId().toString(), player.getName(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0, 0.0, 0.0, 0.0, 0.0, 50.0, 50.0, new java.util.Date(), new java.util.Date(), 0L, 0L);
-            this.plugin.getDatabase().createPlayerStats(stats);
+            plugin.getDatabase().createPlayerStats(stats);
         }
 
         return stats;

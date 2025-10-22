@@ -160,7 +160,8 @@ public final class HungerGames extends JavaPlugin {
 
 	    if (this.getConfigHandler().getPluginSettings().getBoolean("database.enabled")) {
 			int interval = this.getConfigHandler().getPluginSettings().getInt("database.interval");
-		    getServer().getScheduler().runTaskTimerAsynchronously(this, this::saveToDatabase, 20L * interval, 20L * interval);
+		    System.out.println("Interval: " + interval);
+		    getServer().getScheduler().runTaskTimerAsynchronously(this, () -> saveToDatabase(false), 20L * interval, 20L * interval);
 	    }
 
         configHandler.loadSignLocations();
@@ -213,7 +214,7 @@ public final class HungerGames extends JavaPlugin {
         }
 
 		if (this.getConfigHandler().getPluginSettings().getBoolean("database.enabled")) {
-			saveToDatabase();
+			saveToDatabase(true);
 		}
     }
 
@@ -226,18 +227,27 @@ public final class HungerGames extends JavaPlugin {
                 gameStarting.getOrDefault(worldName, false);
     }
 
-	private void saveToDatabase() {
-		this.getServer().getScheduler().runTaskAsynchronously(this, () -> {
+	private void saveToDatabase(Boolean stopping) {
+		System.out.println("Saving to database");
+		Runnable saveTask = () -> {
 			try {
 				for (PlayerStatsHandler playerStats : statsMap.values()) {
 					if (playerStats.isDirty()) {
+						System.out.println("Dirty player");
 						getDatabase().updatePlayerStats(playerStats);
+						System.out.println(playerStats.getChestsOpened());
 						playerStats.setClean();
 					}
 				}
 			} catch (SQLException e) {
 				this.getLogger().log(Level.SEVERE, e.toString());
 			}
-		});
+		};
+
+		if (stopping) {
+			saveTask.run();
+		} else {
+			getServer().getScheduler().runTaskAsynchronously(this, saveTask);
+		}
 	}
 }

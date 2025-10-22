@@ -111,19 +111,15 @@ public class GameSequenceHandler {
             }
 
             if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
-                try {
-                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+	            PlayerStatsHandler playerStats = statsMap.get(player.getUniqueId());
 
-                    if (playersPerTeam != 1) {
-                        playerStats.setTeamGamesPlayed(playerStats.getTeamGamesPlayed() + 1);
-                    } else {
-                        playerStats.setSoloGamesPlayed(playerStats.getSoloGamesPlayed() + 1);
-                    }
+	            if (playersPerTeam != 1) {
+	                playerStats.setTeamGamesPlayed(playerStats.getTeamGamesPlayed() + 1);
+	            } else {
+	                playerStats.setSoloGamesPlayed(playerStats.getSoloGamesPlayed() + 1);
+	            }
 
-					playerStats.setDirty();
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, e.toString());
-                }
+	            playerStats.setDirty();
             }
 
             Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
@@ -260,15 +256,11 @@ public class GameSequenceHandler {
 	        }
 
             if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
-                try {
-                    PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(winner);
+	            PlayerStatsHandler playerStats = statsMap.get(winner.getUniqueId());
 
-                    playerStats.setSoloGamesWon(playerStats.getSoloGamesWon() + 1);
+	            playerStats.setSoloGamesWon(playerStats.getSoloGamesWon() + 1);
 
-	                playerStats.setDirty();
-                } catch (SQLException e) {
-                    plugin.getLogger().log(Level.SEVERE, e.toString());
-                }
+	            playerStats.setDirty();
             }
         }
 
@@ -332,15 +324,11 @@ public class GameSequenceHandler {
 
             if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
                 for (Player player : winningTeam) {
-                    try {
-                        PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+	                PlayerStatsHandler playerStats = statsMap.get(player.getUniqueId());
 
-                        playerStats.setTeamGamesWon(playerStats.getTeamGamesWon() + 1);
+	                playerStats.setTeamGamesWon(playerStats.getTeamGamesWon() + 1);
 
-	                    playerStats.setDirty();
-                    } catch (SQLException e) {
-                        plugin.getLogger().log(Level.SEVERE, e.toString());
-                    }
+	                playerStats.setDirty();
                 }
             }
         }
@@ -422,16 +410,12 @@ public class GameSequenceHandler {
 				    double percentile = (1 - (playerIndex / (worldPlayerPlacements.size() - 1.0))) * 100.0;
 
                     if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
-                        try {
-                            PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+	                    PlayerStatsHandler playerStats = statsMap.get(player.getUniqueId());
 
-                            double netPercentile = (playerStats.getSoloPercentile() * playerStats.getSoloGamesPlayed() + percentile) / (playerStats.getSoloGamesPlayed() + 1);
-                            playerStats.setSoloPercentile(netPercentile);
+	                    double netPercentile = (playerStats.getSoloPercentile() * playerStats.getSoloGamesPlayed() + percentile) / (playerStats.getSoloGamesPlayed() + 1);
+	                    playerStats.setSoloPercentile(netPercentile);
 
-	                        playerStats.setDirty();
-                        } catch (SQLException e) {
-                            plugin.getLogger().log(Level.SEVERE, e.toString());
-                        }
+	                    playerStats.setDirty();
                     }
 			    }
 		    }
@@ -443,17 +427,13 @@ public class GameSequenceHandler {
 
                     if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
                         for (Player player : team) {
-                            try {
-                                PlayerStatsHandler playerStats = databaseHandler.getPlayerStatsFromDatabase(player);
+	                        PlayerStatsHandler playerStats = statsMap.get(player.getUniqueId());
 
-                                double netPercentile = (playerStats.getTeamPercentile() * playerStats.getTeamGamesPlayed() + percentile) / (playerStats.getTeamGamesPlayed() + 1);
+	                        double netPercentile = (playerStats.getTeamPercentile() * playerStats.getTeamGamesPlayed() + percentile) / (playerStats.getTeamGamesPlayed() + 1);
 
-                                playerStats.setTeamPercentile(netPercentile);
+	                        playerStats.setTeamPercentile(netPercentile);
 
-	                            playerStats.setDirty();
-                            } catch (SQLException e) {
-                                plugin.getLogger().log(Level.SEVERE, e.toString());
-                            }
+	                        playerStats.setDirty();
                         }
                     }
 			    }

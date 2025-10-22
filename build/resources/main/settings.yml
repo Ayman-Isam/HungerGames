@@ -26,3 +26,4 @@ database:
   url: ""
   user: ""
   password: ""
+  interval: 60 # Time in seconds after which data is saved to database
