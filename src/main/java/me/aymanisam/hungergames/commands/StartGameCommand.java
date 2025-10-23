@@ -2,6 +2,7 @@ package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.*;
+import me.aymanisam.hungergames.stats.PlayerStatsHandler;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,9 +10,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.SQLException;
-import java.util.*;
-import java.util.logging.Level;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static me.aymanisam.hungergames.HungerGames.*;
@@ -25,17 +27,15 @@ public class StartGameCommand implements CommandExecutor {
     private final ArenaHandler arenaHandler;
     private final CountDownHandler countDownHandler;
     private final ConfigHandler configHandler;
-    private final DatabaseHandler databaseHandler;
 
-    public StartGameCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, CountDownHandler countDownHandler) {
+	public StartGameCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, CountDownHandler countDownHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.arenaHandler = new ArenaHandler(plugin, langHandler);
         this.countDownHandler = countDownHandler;
         this.configHandler = plugin.getConfigHandler();
-        this.databaseHandler = new DatabaseHandler(plugin);
-    }
+	}
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {

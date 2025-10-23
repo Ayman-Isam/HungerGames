@@ -4,10 +4,6 @@ lobby-world: "world"
 tips: true
 # If enabled, only worlds listed here will be included in HungerGames
 whitelist-worlds: false
-# Enables the use of an external library
-# Used to make players glow and change name colors
-# Disable if getting errors in plugin
-packetevents: false
 # Worlds that will be excluded from list
 ignored-worlds:
   - "world_nether"

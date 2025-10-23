@@ -1,6 +1,7 @@
-package me.aymanisam.hungergames.handlers;
+package me.aymanisam.hungergames.stats;
 
 import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.handlers.ConfigHandler;
 import org.bukkit.entity.Player;
 
 

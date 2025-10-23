@@ -1,7 +1,6 @@
-package me.aymanisam.hungergames.handlers;
+package me.aymanisam.hungergames.stats;
 
 import java.util.Date;
-import java.util.Objects;
 
 public class PlayerStatsHandler {
 	private boolean dirty;

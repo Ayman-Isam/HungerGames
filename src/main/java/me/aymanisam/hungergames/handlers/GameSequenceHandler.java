@@ -3,6 +3,8 @@ package me.aymanisam.hungergames.handlers;
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.listeners.CompassListener;
 import me.aymanisam.hungergames.listeners.SignClickListener;
+import me.aymanisam.hungergames.stats.DatabaseHandler;
+import me.aymanisam.hungergames.stats.PlayerStatsHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
@@ -15,9 +17,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.sql.SQLException;
 import java.util.*;
-import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.handlers.CountDownHandler.playersPerTeam;

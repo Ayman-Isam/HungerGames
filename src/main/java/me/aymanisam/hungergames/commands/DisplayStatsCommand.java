@@ -2,31 +2,28 @@ package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.*;
+import me.aymanisam.hungergames.stats.DatabaseHandler;
+import me.aymanisam.hungergames.stats.DisplayStatsHandler;
+import me.aymanisam.hungergames.stats.PlayerStatsHandler;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.logging.Level;
 
 import static me.aymanisam.hungergames.HungerGames.statsMap;
 
 public class DisplayStatsCommand implements CommandExecutor {
-	private final HungerGames plugin;
 	private final LangHandler langHandler;
 	private final ConfigHandler configHandler;
 	private final DisplayStatsHandler displayStatsHandler;
-	private final DatabaseHandler databaseHandler;
 
 	public DisplayStatsCommand(HungerGames plugin, LangHandler langHandler) {
-		this.plugin = plugin;
 		this.langHandler = langHandler;
 		this.configHandler = plugin.getConfigHandler();
 		this.displayStatsHandler = new DisplayStatsHandler(plugin, langHandler);
-		this.databaseHandler = new DatabaseHandler(plugin);
 	}
 
 	@Override

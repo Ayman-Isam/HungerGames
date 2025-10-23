@@ -2,6 +2,8 @@ package me.aymanisam.hungergames.listeners;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.*;
+import me.aymanisam.hungergames.stats.DatabaseHandler;
+import me.aymanisam.hungergames.stats.PlayerStatsHandler;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;

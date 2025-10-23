@@ -6,6 +6,7 @@ authors: [ 'AymanIsam' ]
 website: 'github.com/AymanIsam/Hunger-Games'
 softdepend:
   - packetevents
+  - PlaceholderAPI
 
 commands:
   hg:

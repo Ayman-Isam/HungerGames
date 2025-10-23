@@ -2,6 +2,9 @@ package me.aymanisam.hungergames;
 
 import me.aymanisam.hungergames.handlers.*;
 import me.aymanisam.hungergames.listeners.*;
+import me.aymanisam.hungergames.stats.DatabaseHandler;
+import me.aymanisam.hungergames.stats.HungerGamesExpansion;
+import me.aymanisam.hungergames.stats.PlayerStatsHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -101,6 +104,11 @@ public final class HungerGames extends JavaPlugin {
             }
         }
 
+		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+			new HungerGamesExpansion(this).register();
+			System.out.println("Placeholder API expansion registered");
+		}
+
         // Registering command handler
         Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamsHandler, scoreBoardHandler, countDownHandler, arenaHandler, worldBorderHandler));
 
@@ -160,7 +168,6 @@ public final class HungerGames extends JavaPlugin {
 
 	    if (this.getConfigHandler().getPluginSettings().getBoolean("database.enabled")) {
 			int interval = this.getConfigHandler().getPluginSettings().getInt("database.interval");
-		    System.out.println("Interval: " + interval);
 		    getServer().getScheduler().runTaskTimerAsynchronously(this, () -> saveToDatabase(false), 20L * interval, 20L * interval);
 	    }
 
@@ -228,14 +235,11 @@ public final class HungerGames extends JavaPlugin {
     }
 
 	private void saveToDatabase(Boolean stopping) {
-		System.out.println("Saving to database");
 		Runnable saveTask = () -> {
 			try {
 				for (PlayerStatsHandler playerStats : statsMap.values()) {
 					if (playerStats.isDirty()) {
-						System.out.println("Dirty player");
 						getDatabase().updatePlayerStats(playerStats);
-						System.out.println(playerStats.getChestsOpened());
 						playerStats.setClean();
 					}
 				}
