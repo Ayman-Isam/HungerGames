@@ -30,6 +30,7 @@ public final class HungerGames extends JavaPlugin {
     public static Map<Player, Long> totalTimeSpent = new HashMap<>();
     public static Map<String, List<Player>> customTeams = new HashMap<>();
 	public static Map<UUID, PlayerStatsHandler> statsMap = new ConcurrentHashMap<>();
+	public static Map<String, LinkedHashMap<UUID, Double>> leaderboards = new ConcurrentHashMap<>();
     public static boolean teamsFinalized = false;
 
     private GameSequenceHandler gameSequenceHandler;
@@ -92,6 +93,7 @@ public final class HungerGames extends JavaPlugin {
         CountDownHandler countDownHandler = new CountDownHandler(this, langHandler, gameSequenceHandler, teamVotingListener);
         setSpawnHandler.setCountDownHandler(countDownHandler);
         WorldBorderHandler worldBorderHandler = new WorldBorderHandler(this, langHandler);
+	    DatabaseHandler databaseHandler = new DatabaseHandler(this);
 
         if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
             // Database
@@ -104,9 +106,18 @@ public final class HungerGames extends JavaPlugin {
             }
         }
 
-		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null && configHandler.getPluginSettings().getBoolean("database.enabled")) {
 			new HungerGamesExpansion(this).register();
-			System.out.println("Placeholder API expansion registered");
+			try {
+				databaseHandler.getPlayerLeaderboards();
+			} catch (SQLException e) {
+				this.getLogger().log(Level.SEVERE ,"Unable to get leaderboards in PlaceholderAPI");
+				this.getLogger().log(Level.SEVERE, e.toString());
+			}
+
+			for (LinkedHashMap<UUID, Double> leaderboard: leaderboards.values()) {
+				System.out.println(leaderboard + " : " + leaderboard.values());
+			}
 		}
 
         // Registering command handler
@@ -167,6 +178,11 @@ public final class HungerGames extends JavaPlugin {
         }
 
 	    if (this.getConfigHandler().getPluginSettings().getBoolean("database.enabled")) {
+			try {
+				databaseHandler.changeSecondsPlayedType();
+			} catch (SQLException e) {
+				this.getLogger().log(Level.SEVERE, e.toString());
+			}
 			int interval = this.getConfigHandler().getPluginSettings().getInt("database.interval");
 		    getServer().getScheduler().runTaskTimerAsynchronously(this, () -> saveToDatabase(false), 20L * interval, 20L * interval);
 	    }

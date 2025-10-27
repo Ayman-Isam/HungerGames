@@ -8,8 +8,12 @@ import org.bukkit.entity.Player;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.logging.Level;
+
+import static me.aymanisam.hungergames.HungerGames.leaderboards;
 
 public class DatabaseHandler {
     private final HungerGames plugin;
@@ -41,7 +45,7 @@ public class DatabaseHandler {
 
     public void initializeDatabase() throws SQLException {
         Statement statement = getConnection().createStatement();
-        String sql = "CREATE TABLE IF NOT EXISTS player_stats(uuid char(36) primary key, username varchar(16), deaths int, kills int, killAssists int, soloGamesStarted int, soloGamesPlayed int, soloGamesWon int, teamGamesStarted int, teamGamesPlayed int, teamGamesWon int, chestsOpened int, supplyDropsOpened int, environmentDeaths int, borderDeaths int, playerDeaths int, arrowsShot int, arrowsLanded int, fireworksShot int, fireworksLanded int, attacksBlocked int, potionsUsed int, foodConsumed int, totemsPopped int, damageDealt double, projectileDamageDealt double, damageTaken double, projectileDamageTaken double, healthRegenerated double, soloPercentile double, teamPercentile double, lastLogin DATE, lastLogout DATE, secondsPlayed LONG)";
+        String sql = "CREATE TABLE IF NOT EXISTS player_stats(uuid char(36) primary key, username varchar(16), deaths int, kills int, killAssists int, soloGamesStarted int, soloGamesPlayed int, soloGamesWon int, teamGamesStarted int, teamGamesPlayed int, teamGamesWon int, chestsOpened int, supplyDropsOpened int, environmentDeaths int, borderDeaths int, playerDeaths int, arrowsShot int, arrowsLanded int, fireworksShot int, fireworksLanded int, attacksBlocked int, potionsUsed int, foodConsumed int, totemsPopped int, damageDealt double, projectileDamageDealt double, damageTaken double, projectileDamageTaken double, healthRegenerated double, soloPercentile double, teamPercentile double, lastLogin DATE, lastLogout DATE, secondsPlayed int)";
         statement.execute(sql);
 
         sql = "CREATE TABLE IF NOT EXISTS player_monthly_playtime(uuid char(36) primary key, username varchar(16))";
@@ -247,9 +251,52 @@ public class DatabaseHandler {
     public void addMonthColumn(String monthYear) throws SQLException {
         String sql = "ALTER TABLE player_monthly_playtime ADD COLUMN " + monthYear + " INT DEFAULT 0";
         Statement statement = getConnection().createStatement();
-        statement.execute(sql);
+        statement.executeQuery(sql);
         statement.close();
     }
+
+	public void getPlayerLeaderboards () throws SQLException {
+		String[] stats = {"deaths", "kills", "soloGamesPlayed", "teamGamesPlayed", "soloGamesWon", "teamGamesWon", "secondsPlayed", "secondsPlayedMonth"};
+
+		for (String stat : stats) {
+			LinkedHashMap<UUID, Double> leaderboardMap = new LinkedHashMap<>();
+
+			String sql;
+			if (!stat.equals("secondsPlayedMonth")) {
+				sql = "SELECT uuid, " + stat + " FROM player_stats ORDER BY " + stat + " DESC LIMIT 20";
+			} else {
+				String columnName = LocalDate.now().getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH).toLowerCase() + "_" + LocalDate.now().getYear();
+				sql = "SELECT uuid, " + columnName + " FROM player_monthly_playtime ORDER BY " + columnName + " DESC LIMIT 20";
+			}
+			PreparedStatement statement = getConnection().prepareStatement(sql);
+
+			ResultSet results = statement.executeQuery();
+
+			while (results.next()) {
+				leaderboardMap.put(UUID.fromString(results.getString(1)), results.getDouble(2));
+			}
+
+			leaderboards.put(stat, leaderboardMap);
+		}
+	}
+
+	public void changeSecondsPlayedType() throws SQLException {
+		String sql = "SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'player_stats' AND COLUMN_NAME = 'secondsPlayed'";
+		PreparedStatement statement = getConnection().prepareStatement(sql);
+
+		ResultSet results = statement.executeQuery();
+
+		if (results.next()) {
+			if ((results.getString(1)).equalsIgnoreCase("int")) {
+				return;
+			}
+
+			sql = "ALTER TABLE player_stats MODIFY secondsPlayed INT NOT NULL DEFAULT 0";
+			statement = getConnection().prepareStatement(sql);
+			statement.executeUpdate();
+			statement.close();
+		}
+	}
 
     public void closeConnection() {
         if (this.connection != null) {
