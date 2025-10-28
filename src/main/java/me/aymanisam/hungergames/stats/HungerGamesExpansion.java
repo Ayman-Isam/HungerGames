@@ -2,9 +2,18 @@ package me.aymanisam.hungergames.stats;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static me.aymanisam.hungergames.HungerGames.leaderboards;
 import static me.aymanisam.hungergames.HungerGames.statsMap;
 
 public class HungerGamesExpansion extends PlaceholderExpansion {
@@ -36,6 +45,52 @@ public class HungerGamesExpansion extends PlaceholderExpansion {
 
 	@Override
 	public String onRequest(OfflinePlayer player, @NotNull String params) {
+		if (params.isEmpty()) return "";
+
+		if (params.startsWith("leaderboard_top_")) {
+			String content = params.substring("leaderboard_top_".length());
+
+			Matcher matcher = Pattern.compile("(\\d+)_(\\w+)_(name|value)").matcher(content);
+
+			if (matcher.matches()) {
+				System.out.println("Matcher Matched");
+				int rank;
+				try {
+					rank = Integer.parseInt(matcher.group(1)) - 1;
+				} catch (NumberFormatException e) {
+					return "";
+				}
+
+				String stat = matcher.group(2);
+				String type = matcher.group(3);
+
+				LinkedHashMap<UUID, Double> leaderboard = leaderboards.get(stat);
+				if (leaderboard == null) return "";
+
+				List<UUID> uuids = new ArrayList<>(leaderboard.keySet());
+				if (rank < 0 || rank >= uuids.size()) return "";
+
+				UUID targetUUID = uuids.get(rank);
+
+				if (type.equals("name")) {
+					return Bukkit.getOfflinePlayer(targetUUID).getName();
+				} else {
+					Double value = leaderboard.get(targetUUID);
+					if (value == null) {
+						return "0";
+					}
+
+					if (value % 1 == 0) {
+						return String.valueOf(value.intValue());
+					} else {
+					    return String.format("%.2f", value);
+					}
+				}
+			}
+
+			return "";
+		}
+
 		if (player == null) return "";
 
 		PlayerStatsHandler playerStats = statsMap.get(player.getUniqueId());

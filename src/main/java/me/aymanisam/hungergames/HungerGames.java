@@ -100,10 +100,14 @@ public final class HungerGames extends JavaPlugin {
             try {
                 this.database = new DatabaseHandler(this);
                 database.initializeDatabase();
+	            databaseHandler.changeSecondsPlayedType();
             } catch (SQLException e) {
                 this.getLogger().log(Level.SEVERE ,"Unable to connect to database and create tables.");
                 this.getLogger().log(Level.SEVERE, e.toString());
             }
+
+	        int interval = configHandler.getPluginSettings().getInt("database.interval");
+	        getServer().getScheduler().runTaskTimerAsynchronously(this, () -> saveToDatabase(false), 20L * interval, 20L * interval);
         }
 
 		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null && configHandler.getPluginSettings().getBoolean("database.enabled")) {
@@ -176,16 +180,6 @@ public final class HungerGames extends JavaPlugin {
         if (configHandler.getPluginSettings().getBoolean("tips")) {
             tipsHandler.startSendingTips(600);
         }
-
-	    if (this.getConfigHandler().getPluginSettings().getBoolean("database.enabled")) {
-			try {
-				databaseHandler.changeSecondsPlayedType();
-			} catch (SQLException e) {
-				this.getLogger().log(Level.SEVERE, e.toString());
-			}
-			int interval = this.getConfigHandler().getPluginSettings().getInt("database.interval");
-		    getServer().getScheduler().runTaskTimerAsynchronously(this, () -> saveToDatabase(false), 20L * interval, 20L * interval);
-	    }
 
         configHandler.loadSignLocations();
     }
