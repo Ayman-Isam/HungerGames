@@ -118,10 +118,6 @@ public final class HungerGames extends JavaPlugin {
 				this.getLogger().log(Level.SEVERE ,"Unable to get leaderboards in PlaceholderAPI");
 				this.getLogger().log(Level.SEVERE, e.toString());
 			}
-
-			for (LinkedHashMap<UUID, Double> leaderboard: leaderboards.values()) {
-				System.out.println(leaderboard + " : " + leaderboard.values());
-			}
 		}
 
         // Registering command handler

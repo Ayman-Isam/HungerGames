@@ -53,7 +53,6 @@ public class HungerGamesExpansion extends PlaceholderExpansion {
 			Matcher matcher = Pattern.compile("(\\d+)_(\\w+)_(name|value)").matcher(content);
 
 			if (matcher.matches()) {
-				System.out.println("Matcher Matched");
 				int rank;
 				try {
 					rank = Integer.parseInt(matcher.group(1)) - 1;

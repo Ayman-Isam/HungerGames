@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.aymanisam"
-version = "1.8.5"
+version = "1.9.0-beta"
 val spigotAPIVersion = "1.20"
 
 repositories {
