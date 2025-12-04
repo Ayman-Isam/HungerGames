@@ -184,7 +184,7 @@ team:
   voted-highest: "&bThe highest voted gamemode was {0}"
   close-inv: "&cClose"
   no-args: "&cUsage: /hg team <action> <team> <player>"
-  no-action: "&cInvalid action. Use add or remove."
+  no-action: "&cInvalid action. Use add, remove, list, finalize or reset"
   added: "&dPlayer &b{0} &dhas been added to team &e{1}."
   removed: "&dPlayer &b{0} &dhas been removed from team &e{1}."
   no-removed: "&cPlayer &d{0} &c does not exist in team &e{1}."

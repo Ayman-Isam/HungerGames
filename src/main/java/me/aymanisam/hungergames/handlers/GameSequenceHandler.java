@@ -250,9 +250,11 @@ public class GameSequenceHandler {
         if (winner != null) {
             worldPlayerPlacements.add(winner);
 
-	        String command = Objects.requireNonNull(configHandler.getWorldConfig(world).getString("end-command")).replace("{player}", winner.getName());
-	        if (!command.isEmpty()) {
-		        plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), command);
+	        List<String> commands = Objects.requireNonNull(configHandler.getWorldConfig(world).getStringList("end-command"));
+	        if (!commands.isEmpty()) {
+				for (String command : commands) {
+					plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), command.replace("{player}", winner.getName()));
+				}
 	        }
 
             if (configHandler.getPluginSettings().getBoolean("database.enabled")) {

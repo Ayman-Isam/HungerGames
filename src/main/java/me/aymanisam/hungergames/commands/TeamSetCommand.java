@@ -25,25 +25,30 @@ public class TeamSetCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        Player player = null;
+	    Player player = null;
 
-        if (sender instanceof Player) {
-            player = ((Player) sender);
-        }
+	    if (sender instanceof Player) {
+		    player = ((Player) sender);
+	    }
 
-        if (player != null && !player.hasPermission("hungergames.team")) {
-            player.sendMessage(langHandler.getMessage(player, "no-permission"));
-            return true;
-        }
+	    if (player != null && !player.hasPermission("hungergames.team")) {
+		    player.sendMessage(langHandler.getMessage(player, "no-permission"));
+		    return true;
+	    }
 
-        if (args.length < 1) {
-            sender.sendMessage(langHandler.getMessage(player, "team.no-args"));
-            return true;
-        }
+	    if (args.length < 1) {
+		    sender.sendMessage(langHandler.getMessage(player, "team.no-args"));
+		    return true;
+	    }
 
-        String action = args[0];
+	    String action = args[0];
 
-        if (action.equalsIgnoreCase("list")) {
+		List<String> validActions = List.of("add", "remove", "list", "finalize", "remove");
+
+		if (!validActions.contains(action.toLowerCase())) {
+			sender.sendMessage(langHandler.getMessage(player, "team.no-action"));
+			return true;
+        } else if (action.equalsIgnoreCase("list")) {
             for (Map.Entry<String, List<Player>> entry : customTeams.entrySet()) {
                 String team = entry.getKey();
                 List<Player> members = entry.getValue();
