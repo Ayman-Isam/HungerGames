@@ -46,7 +46,7 @@ public class SetSpawnHandler {
         this.resetPlayerHandler = new ResetPlayerHandler();
         this.teamVotingListener = new TeamVotingListener(langHandler);
         this.configHandler = plugin.getConfigHandler();
-	    this.signHandler = new SignHandler(plugin);
+	    this.signHandler = new SignHandler(plugin, this);
         this.signClickListener = new SignClickListener(plugin, langHandler, this, arenaHandler, scoreBoardHandler);
     }
 
@@ -158,7 +158,7 @@ public class SetSpawnHandler {
 
         worldSpawnPointMap.put(spawnPoint, player);
         worldPlayersWaiting.add(player);
-        signClickListener.setSignContent(signHandler.loadSignLocations());
+        signHandler.setSignContent();
 
         String[] coords = spawnPoint.split(",");
         double x = Double.parseDouble(coords[1]) + 0.5;

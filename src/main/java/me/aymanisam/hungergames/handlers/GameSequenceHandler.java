@@ -65,7 +65,7 @@ public class GameSequenceHandler {
         this.worldResetHandler = new WorldResetHandler(plugin, worldBorderHandler);
         this.compassListener = compassListener;
         this.teamsHandler = teamsHandler;
-        this.signHandler = new SignHandler(plugin);
+        this.signHandler = new SignHandler(plugin, setSpawnHandler);
         this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, new ArenaHandler(plugin, langHandler), scoreBoardHandler);
         this.databaseHandler = new DatabaseHandler(plugin);
     }
@@ -82,7 +82,7 @@ public class GameSequenceHandler {
         worldPlayersWaiting.clear();
         worldSpawnPointMap.clear();
 
-        signClickListener.setSignContent(signHandler.loadSignLocations());
+        signHandler.setSignContent();
 
         worldBorderHandler.startWorldBorder(world);
 
@@ -520,7 +520,7 @@ public class GameSequenceHandler {
         worldStartingPlayers.clear();
         worldPlayerVotes.clear();
 
-        signClickListener.setSignContent(signHandler.loadSignLocations());
+        signHandler.setSignContent();
 
         if (plugin.isEnabled()) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {

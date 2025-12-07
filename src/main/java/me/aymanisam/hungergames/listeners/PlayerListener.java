@@ -47,7 +47,7 @@ public class PlayerListener implements Listener {
         this.langHandler = langHandler;
         this.configHandler = plugin.getConfigHandler();
 	    ArenaHandler arenaHandler = new ArenaHandler(plugin, langHandler);
-        this.signHandler = new SignHandler(plugin);
+        this.signHandler = new SignHandler(plugin, setSpawnHandler);
         this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler, scoreBoardHandler);
 	    this.databaseHandler = new DatabaseHandler(plugin);
         this.resetPlayerHandler = new ResetPlayerHandler();
@@ -109,7 +109,7 @@ public class PlayerListener implements Listener {
 
         removeFromTeam(player);
 
-        signClickListener.setSignContent(signHandler.loadSignLocations());
+        signHandler.setSignContent();
     }
 
     private void removeFromTeam(Player player) {
@@ -231,7 +231,7 @@ public class PlayerListener implements Listener {
         removeFromTeam(player);
         removeBossBar(player);
 
-        signClickListener.setSignContent(signHandler.loadSignLocations());
+        signHandler.setSignContent();
 
         if (configHandler.getPluginSettings().getBoolean("spectating")) {
             if (gameStarted.getOrDefault(world.getName(), false)) {

@@ -100,8 +100,8 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 case "saveworld":
                     executor = new SaveWorldCommand(plugin, langHandler, worldBorderHandler);
                     break;
-                case "setsign":
-                    executor = new SignSetCommand(plugin, langHandler, setSpawnHandler, arenaHandler, scoreBoardHandler);
+                case "slot":
+                    executor = new SignSetCommand(plugin, langHandler, setSpawnHandler);
                     break;
                 default:
                     sender.sendMessage(langHandler.getMessage(sender instanceof Player ? (Player) sender : null, "unknown-subcommand", args[0]));
@@ -120,7 +120,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 List<String> completions = new ArrayList<>();
-                String[] commands = {"join", "lobby", "start", "spectate", "stats", "select", "end", "teamchat", "teleport", "saveworld", "team", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig", "setsign"};
+                String[] commands = {"join", "lobby", "start", "spectate", "stats", "select", "end", "teamchat", "teleport", "saveworld", "team", "chestrefill", "supplydrop", "setspawn", "create", "scanarena", "border", "reloadconfig", "slot"};
 
                 for (String subcommand : commands) {
                     if (sender.hasPermission("hungergames." + subcommand)) {
@@ -175,6 +175,16 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     }
                     return onlinePlayers;
                 }
+            } else if (args[0].equalsIgnoreCase("slot")) {
+				if (args.length == 2) {
+					return List.of("create", "remove", "assign");
+				}
+				if (args.length == 3) {
+					return List.of("<slotname>");
+				}
+				if (args.length == 4) {
+					return List.of("<worldname>");
+				}
             }
         }
         return new ArrayList<>();

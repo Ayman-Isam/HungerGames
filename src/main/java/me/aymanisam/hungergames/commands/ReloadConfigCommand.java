@@ -62,7 +62,7 @@ public class ReloadConfigCommand implements CommandExecutor {
 	    assert world != null;
 	    configHandler.validateConfigKeys(world);
         configHandler.loadItemsConfig(world);
-        configHandler.loadSignLocations();
+        configHandler.loadSignFile();
         configHandler.createWorldConfig(world);
         configHandler.createPluginSettings();
         configHandler.validateSettingsKeys();

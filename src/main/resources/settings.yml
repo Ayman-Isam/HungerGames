@@ -19,7 +19,7 @@ custom-teams: false
 # THIS FEATURE IS IN BETA! BUGS REGARDING THIS ARE TO BE EXPECTED
 database:
   enabled: false
-  url: ""
+  url: "jdbc:mysql://localhost:3306/hungergames"
   user: ""
   password: ""
   interval: 60 # Time in seconds after which data is saved to database

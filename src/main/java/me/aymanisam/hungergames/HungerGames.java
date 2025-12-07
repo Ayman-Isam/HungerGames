@@ -94,6 +94,7 @@ public final class HungerGames extends JavaPlugin {
         setSpawnHandler.setCountDownHandler(countDownHandler);
         WorldBorderHandler worldBorderHandler = new WorldBorderHandler(this, langHandler);
 	    DatabaseHandler databaseHandler = new DatabaseHandler(this);
+	    SignHandler signHandler = new SignHandler(this, setSpawnHandler);
 
         if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
             // Database
@@ -178,6 +179,7 @@ public final class HungerGames extends JavaPlugin {
         }
 
         configHandler.loadSignLocations();
+		configHandler.loadSlots();
     }
 
 	public void loadWorldFiles() {

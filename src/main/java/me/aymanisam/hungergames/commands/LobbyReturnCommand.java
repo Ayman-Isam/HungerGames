@@ -40,7 +40,7 @@ public class LobbyReturnCommand implements CommandExecutor {
         this.setSpawnHandler = setSpawnHandler;
         this.configHandler = plugin.getConfigHandler();
         this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler, scoreBoardHandler);
-        this.signHandler = new SignHandler(plugin);
+        this.signHandler = new SignHandler(plugin, setSpawnHandler);
         this.countDownHandler = countDownHandler;
         this.resetPlayerHandler = new ResetPlayerHandler();
         this.scoreBoardHandler = scoreBoardHandler;
@@ -136,7 +136,7 @@ public class LobbyReturnCommand implements CommandExecutor {
             worldPlayersWaiting.remove(player);
         }
 
-        signClickListener.setSignContent(signHandler.loadSignLocations());
+        signHandler.setSignContent();
 
         return true;
     }

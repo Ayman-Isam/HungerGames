@@ -32,7 +32,7 @@ public class SetSpawnListener implements Listener {
         this.setSpawnHandler = setSpawnHandler;
         this.configHandler = plugin.getConfigHandler();
 	    this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler, scoreBoardHandler);
-        this.signHandler = new SignHandler(plugin);
+        this.signHandler = new SignHandler(plugin, setSpawnHandler);
     }
 
     @EventHandler
@@ -61,7 +61,7 @@ public class SetSpawnListener implements Listener {
                 }
 
                 worldSpawnPoints.add(newSpawnPoint);
-                signClickListener.setSignContent(signHandler.loadSignLocations());
+                signHandler.setSignContent();
 
                 setSpawnHandler.saveSetSpawnConfig(player.getWorld());
                 player.sendMessage(langHandler.getMessage(player, "setspawn.pos-set", worldSpawnPoints.size(), location.getBlockX(), location.getBlockY(), location.getBlockZ()));
@@ -78,7 +78,7 @@ public class SetSpawnListener implements Listener {
 
                 player.sendMessage(langHandler.getMessage(player, "setspawn.pos-removed", worldSpawnPoints.size(), location.getBlockX(), location.getBlockY(), location.getBlockZ()));
                 worldSpawnPoints.remove(newSpawnPoint);
-                signClickListener.setSignContent(signHandler.loadSignLocations());
+                signHandler.setSignContent();
                 setSpawnHandler.saveSetSpawnConfig(player.getWorld());
                 updateGoldBlocksViewForPlayer(player);
             }

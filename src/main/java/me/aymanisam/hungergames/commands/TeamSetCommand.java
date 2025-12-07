@@ -48,7 +48,9 @@ public class TeamSetCommand implements CommandExecutor {
 		if (!validActions.contains(action.toLowerCase())) {
 			sender.sendMessage(langHandler.getMessage(player, "team.no-action"));
 			return true;
-        } else if (action.equalsIgnoreCase("list")) {
+        }
+
+		if (action.equalsIgnoreCase("list")) {
             for (Map.Entry<String, List<Player>> entry : customTeams.entrySet()) {
                 String team = entry.getKey();
                 List<Player> members = entry.getValue();

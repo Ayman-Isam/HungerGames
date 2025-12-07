@@ -1,6 +1,8 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -9,16 +11,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
+
+import static me.aymanisam.hungergames.commands.SignSetCommand.slots;
+import static me.aymanisam.hungergames.handlers.SignHandler.signLocations;
 
 public class ConfigHandler {
     private final HungerGames plugin;
 
     private File worldFile;
+	private File signFile;
     private final Map<String, FileConfiguration> worldConfigs = new HashMap<>();
     private FileConfiguration pluginSettings;
 
@@ -110,8 +113,8 @@ public class ConfigHandler {
         return YamlConfiguration.loadConfiguration(itemsFile);
     }
 
-    public void loadSignLocations() {
-        File signFile = new File(plugin.getDataFolder(), "signs.yml");
+    public FileConfiguration loadSignFile() {
+        signFile = new File(plugin.getDataFolder(), "signs.yml");
         if (!signFile.exists()) {
             plugin.saveResource("signs.yml", true);
             try {
@@ -120,8 +123,61 @@ public class ConfigHandler {
                 plugin.getLogger().log(Level.SEVERE, "Could not create sign file for world " + e);
             }
         }
-        YamlConfiguration.loadConfiguration(signFile);
+        return YamlConfiguration.loadConfiguration(signFile);
     }
+
+	public void saveSignLocations() {
+		FileConfiguration config = loadSignFile();
+		List<String> locations = new ArrayList<>();
+		for (Map.Entry<String, Location> entry : signLocations.entrySet()) {
+			Location location = entry.getValue();
+			String locString = Objects.requireNonNull(location.getWorld()).getName() + "," + location.getX() + "," + location.getY() + "," + location.getZ() + "," + entry.getKey();
+			locations.add(locString);
+		}
+		config.set("signs", locations);
+		try {
+			config.save(signFile);
+		} catch (IOException e) {
+			plugin.getLogger().log(Level.SEVERE, "Could not save sign.yml", e);
+		}
+	}
+
+	public void loadSignLocations() {
+		List<String> locations = loadSignFile().getStringList("signs");
+		for (String locString : locations) {
+			String[] parts = locString.split(",");
+			World world = Bukkit.getWorld(parts[0]);
+			double x = Double.parseDouble(parts[1]);
+			double y = Double.parseDouble(parts[2]);
+			double z = Double.parseDouble(parts[3]);
+			String slot = parts[4];
+			signLocations.put(slot, new Location(world, x, y, z));
+		}
+	}
+
+	public void loadSlots() {
+		for (String slot : loadSignFile().getStringList("slots")) {
+			String[] parts = slot.split(",");
+			slots.put(parts[0], parts[1]);
+		}
+	}
+
+	public void setSlots() {
+		List<String> items = new ArrayList<>();
+		FileConfiguration config = loadSignFile();
+
+		for (Map.Entry<String, String> entry : slots.entrySet()) {
+			items.add(entry.getKey() + "," + entry.getValue());
+		}
+
+		config.set("slots", items);
+
+		try {
+			config.save(signFile);
+		} catch (IOException e) {
+			plugin.getLogger().log(Level.SEVERE, "Could not save sign.yml", e);
+		}
+	}
 
     public void validateConfigKeys(World world) {
         YamlConfiguration pluginConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(plugin.getResource("config.yml"))));
