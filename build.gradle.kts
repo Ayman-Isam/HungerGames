@@ -23,7 +23,6 @@ dependencies {
     implementation("commons-io:commons-io:2.14.0")
     implementation("org.bstats:bstats-bukkit:2.2.1")
     compileOnly("com.github.retrooper:packetevents-spigot:2.7.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.4")
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
     implementation("fr.mrmicky:fastboard:2.1.5")
     compileOnly("me.clip:placeholderapi:2.11.6")

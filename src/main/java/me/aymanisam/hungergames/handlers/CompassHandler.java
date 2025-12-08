@@ -1,7 +1,8 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
-import net.kyori.adventure.text.Component;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -68,9 +69,9 @@ public class CompassHandler {
 
         if (message) {
             if (teammate != null) {
-                plugin.adventure().player(player).sendActionBar(Component.text(langHandler.getMessage(player, "arena.compass-teammate", teammate.getName())));
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(langHandler.getMessage(player, "arena.compass-teammate", teammate.getName())));
             } else {
-                plugin.adventure().player(player).sendActionBar(Component.text(langHandler.getMessage(player, "arena.compass-nomates")));
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(langHandler.getMessage(player, "arena.compass-nomates")));
             }
         }
 
@@ -104,7 +105,8 @@ public class CompassHandler {
         }
 
         if (closestPlayer != null && message) {
-            plugin.adventure().player(player).sendActionBar(Component.text(langHandler.getMessage(player, "arena.compass-enemy", closestPlayer.getName())));
+	        System.out.println("Called actionbar");
+	        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(langHandler.getMessage(player, "arena.compass-enemy", closestPlayer.getName())));
         }
 
         return closestPlayer;

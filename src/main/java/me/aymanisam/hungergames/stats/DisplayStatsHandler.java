@@ -4,9 +4,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.LangHandler;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.TextColor;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.entity.Player;
 
 import javax.imageio.ImageIO;
@@ -48,8 +48,8 @@ public class DisplayStatsHandler {
 			return;
 		}
 
-		Component headComponent = getHeadAsTextComponent(playerHead);
-		plugin.adventure().player(player).sendMessage(headComponent);
+		BaseComponent[] headComponent = getHeadAsTextComponent(playerHead);
+		player.spigot().sendMessage(headComponent);
 	}
 
 	private String getPlayerUUID(String username) {
@@ -101,21 +101,19 @@ public class DisplayStatsHandler {
 		}
 	}
 
-	private Component getHeadAsTextComponent(BufferedImage headImage) {
-		if (headImage == null) return Component.text("⚠ Could not load head");
+	private BaseComponent[] getHeadAsTextComponent(BufferedImage headImage) {
+		if (headImage == null) return new ComponentBuilder("⚠ Could not load head").create();
 
-		TextComponent.Builder textBuilder = Component.text().content("");
-
-		textBuilder.append(Component.newline());
+		ComponentBuilder builder = new ComponentBuilder("").append("\n");
 
 		for (int y = 0; y < headImage.getHeight(); y++) {
 			for (int x = 0; x < headImage.getWidth(); x++) {
 				int color = headImage.getRGB(x, y) & 0xFFFFFF;
-				TextColor textColor = TextColor.color(color);
-				textBuilder.append(Component.text("█").color(textColor));
+				ChatColor textColor = ChatColor.of(String.format("#%06X", color));
+				builder.append("█").color(textColor);
 			}
-			textBuilder.append(Component.newline());
+			builder.append("\n");
 		}
-		return textBuilder.build();
+		return builder.create();
 	}
 }

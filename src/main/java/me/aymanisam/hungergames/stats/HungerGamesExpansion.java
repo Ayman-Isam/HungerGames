@@ -88,7 +88,11 @@ public class HungerGamesExpansion extends PlaceholderExpansion {
 			}
 
 			return "";
+		} else if (params.startsWith("slot")) {
+
 		}
+
+
 
 		if (player == null) return "";
 

@@ -5,14 +5,12 @@ import me.aymanisam.hungergames.listeners.*;
 import me.aymanisam.hungergames.stats.DatabaseHandler;
 import me.aymanisam.hungergames.stats.HungerGamesExpansion;
 import me.aymanisam.hungergames.stats.PlayerStatsHandler;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -36,17 +34,9 @@ public final class HungerGames extends JavaPlugin {
     private GameSequenceHandler gameSequenceHandler;
     private ConfigHandler configHandler;
     private DatabaseHandler database;
-    private BukkitAudiences adventure;
 
     public DatabaseHandler getDatabase() {
         return database;
-    }
-
-    public @NonNull BukkitAudiences adventure() {
-        if(this.adventure == null) {
-            throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
-        }
-        return this.adventure;
     }
 
     @Override
@@ -70,9 +60,6 @@ public final class HungerGames extends JavaPlugin {
         // Bstats
         int bstatsPluginId = 21512;
         new Metrics(this, bstatsPluginId);
-
-        // Adventure
-        this.adventure = BukkitAudiences.create(this);
 
         LangHandler langHandler = new LangHandler(this);
         langHandler.saveLanguageFiles();
@@ -221,11 +208,6 @@ public final class HungerGames extends JavaPlugin {
 
         if (this.database != null) {
             this.database.closeConnection();
-        }
-
-        if (this.adventure != null) {
-            this.adventure.close();
-            this.adventure = null;
         }
 
 		if (this.getConfigHandler().getPluginSettings().getBoolean("database.enabled")) {
