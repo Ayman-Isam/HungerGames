@@ -17,6 +17,7 @@ import java.util.List;
 
 import static me.aymanisam.hungergames.HungerGames.hgWorldNames;
 import static me.aymanisam.hungergames.HungerGames.worldNames;
+import static me.aymanisam.hungergames.commands.SignSetCommand.slots;
 
 public class CommandDispatcher implements CommandExecutor, TabCompleter {
     private final HungerGames plugin;
@@ -180,10 +181,16 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
 					return List.of("create", "remove", "assign");
 				}
 				if (args.length == 3) {
-					return List.of("<slotname>");
+					List<String> allSlots;
+					if (!args[1].equalsIgnoreCase("create")) {
+						allSlots = new ArrayList<>(slots.keySet());
+					} else {
+						allSlots = List.of("<slotName>");
+					}
+					return allSlots;
 				}
 				if (args.length == 4) {
-					return List.of("<worldname>");
+					return hgWorldNames;
 				}
             }
         }

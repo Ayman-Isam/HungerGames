@@ -251,7 +251,7 @@ public class DatabaseHandler {
     public void addMonthColumn(String monthYear) throws SQLException {
         String sql = "ALTER TABLE player_monthly_playtime ADD COLUMN " + monthYear + " INT DEFAULT 0";
         Statement statement = getConnection().createStatement();
-        statement.executeQuery(sql);
+        statement.executeUpdate(sql);
         statement.close();
     }
 

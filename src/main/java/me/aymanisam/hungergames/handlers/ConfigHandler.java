@@ -150,6 +150,7 @@ public class ConfigHandler {
 			double x = Double.parseDouble(parts[1]);
 			double y = Double.parseDouble(parts[2]);
 			double z = Double.parseDouble(parts[3]);
+			// TODO Add check for people updating to new sign system
 			String slot = parts[4];
 			signLocations.put(slot, new Location(world, x, y, z));
 		}

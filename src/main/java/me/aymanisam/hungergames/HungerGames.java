@@ -14,6 +14,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.TextStyle;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -73,7 +75,7 @@ public final class HungerGames extends JavaPlugin {
         ArenaHandler arenaHandler = new ArenaHandler(this, langHandler);
         ScoreBoardHandler scoreBoardHandler = new ScoreBoardHandler(this, langHandler);
         SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this, langHandler, arenaHandler, scoreBoardHandler);
-        CompassHandler compassHandler = new CompassHandler(this, langHandler);
+        CompassHandler compassHandler = new CompassHandler(langHandler);
         CompassListener compassListener = new CompassListener(this, langHandler, compassHandler);
         TeamsHandler teamsHandler = new TeamsHandler(this, langHandler);
         this.gameSequenceHandler = new GameSequenceHandler(this, langHandler, setSpawnHandler, compassListener, teamsHandler);
@@ -81,7 +83,6 @@ public final class HungerGames extends JavaPlugin {
         setSpawnHandler.setCountDownHandler(countDownHandler);
         WorldBorderHandler worldBorderHandler = new WorldBorderHandler(this, langHandler);
 	    DatabaseHandler databaseHandler = new DatabaseHandler(this);
-	    SignHandler signHandler = new SignHandler(this, setSpawnHandler);
 
         if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
             // Database
@@ -99,12 +100,16 @@ public final class HungerGames extends JavaPlugin {
         }
 
 		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null && configHandler.getPluginSettings().getBoolean("database.enabled")) {
-			new HungerGamesExpansion(this).register();
+			new HungerGamesExpansion(this, setSpawnHandler).register();
 			try {
 				databaseHandler.getPlayerLeaderboards();
 			} catch (SQLException e) {
-				this.getLogger().log(Level.SEVERE ,"Unable to get leaderboards in PlaceholderAPI");
-				this.getLogger().log(Level.SEVERE, e.toString());
+				String monthYear = LocalDate.now().getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH).toLowerCase() + "_" + LocalDate.now().getYear();
+				try {
+					databaseHandler.addMonthColumn(monthYear);
+				} catch (SQLException ex) {
+					this.getLogger().log(Level.SEVERE, ex.toString());
+				}
 			}
 		}
 
@@ -206,13 +211,13 @@ public final class HungerGames extends JavaPlugin {
             gameSequenceHandler.endGame(true, world);
         }
 
+	    if (this.getConfigHandler().getPluginSettings().getBoolean("database.enabled")) {
+		    saveToDatabase(true);
+	    }
+
         if (this.database != null) {
             this.database.closeConnection();
         }
-
-		if (this.getConfigHandler().getPluginSettings().getBoolean("database.enabled")) {
-			saveToDatabase(true);
-		}
     }
 
     public File getPluginFile() {

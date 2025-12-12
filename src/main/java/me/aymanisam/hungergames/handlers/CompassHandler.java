@@ -15,18 +15,16 @@ import java.util.Map;
 import static me.aymanisam.hungergames.handlers.TeamsHandler.teams;
 
 public class CompassHandler {
-    private final HungerGames plugin;
     private final LangHandler langHandler;
 
     private final Map<String, Map<Player, Integer>> teammateIndexMap = new HashMap<>();
 
-    public CompassHandler(HungerGames plugin, LangHandler langHandler) {
-        this.plugin = plugin;
+    public CompassHandler(LangHandler langHandler) {
         this.langHandler = langHandler;
     }
 
     public Player findNearestTeammate(Player player, Boolean message, World world) {
-        List<Player> playerTeam = null;
+	    List<Player> playerTeam = null;
         List<List<Player>> worldTeams = teams.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         Map<Player, Integer> worldTeammateIndexMap = teammateIndexMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
@@ -79,6 +77,7 @@ public class CompassHandler {
     }
 
     public Player findNearestEnemy(Player player, Boolean message, World world) {
+	    System.out.println("Locating nearest enemy for player " + player.getName());
         double closestDistance = Double.MAX_VALUE;
         Player closestPlayer = null;
 

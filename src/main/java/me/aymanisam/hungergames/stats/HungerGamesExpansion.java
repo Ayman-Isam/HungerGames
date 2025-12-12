@@ -1,9 +1,11 @@
 package me.aymanisam.hungergames.stats;
 
 import me.aymanisam.hungergames.HungerGames;
+import me.aymanisam.hungergames.handlers.SetSpawnHandler;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -13,14 +15,17 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static me.aymanisam.hungergames.HungerGames.leaderboards;
-import static me.aymanisam.hungergames.HungerGames.statsMap;
+import static me.aymanisam.hungergames.HungerGames.*;
+import static me.aymanisam.hungergames.commands.SignSetCommand.slots;
+import static me.aymanisam.hungergames.handlers.GameSequenceHandler.playersAlive;
 
 public class HungerGamesExpansion extends PlaceholderExpansion {
 	private final HungerGames plugin;
+	private final SetSpawnHandler setSpawnHandler;
 
-	public HungerGamesExpansion(HungerGames plugin) {
+	public HungerGamesExpansion(HungerGames plugin, SetSpawnHandler setSpawnHandler) {
 		this.plugin = plugin;
+		this.setSpawnHandler = setSpawnHandler;
 	}
 
 	@Override
@@ -88,8 +93,49 @@ public class HungerGamesExpansion extends PlaceholderExpansion {
 			}
 
 			return "";
-		} else if (params.startsWith("slot")) {
+		} else if (params.startsWith("slot_")) {
+			String content = params.substring("slot_".length());
 
+			System.out.println(content);
+
+			Matcher matcher = Pattern.compile("(\\w+)_(world|progress|players)").matcher(content);
+
+			if (matcher.matches()) {
+				String slotName = matcher.group(1);
+				String type = matcher.group(2);
+
+				System.out.println(slotName + " : " + type);
+
+				if (!slots.containsKey(slotName)) return "";
+
+				System.out.println("Slotname: " + slotName);
+
+				String worldName = slots.get(slotName);
+
+				System.out.println("Worldname: " + worldName);
+
+				int worldPlayersWaitingSize = setSpawnHandler.playersWaiting.computeIfAbsent(worldName, k -> new ArrayList<>()).size();
+				int worldSpawnPointSize = setSpawnHandler.spawnPoints.computeIfAbsent(worldName, k -> new ArrayList<>()).size();
+				List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(worldName, k -> new ArrayList<>());
+
+				if (type.equals("world")) {
+					return worldName;
+				} else if (type.equals("progress")) {
+					if (isGameStartingOrStarted(worldName)) {
+						return "In Progress";
+					} else {
+						return "Waiting";
+					}
+				} else {
+					if (isGameStartingOrStarted(worldName)) {
+						return "[" + worldPlayersWaitingSize + "/" + worldSpawnPointSize + "]";
+					} else {
+						return "" + worldPlayersAlive.size();
+					}
+				}
+			}
+
+			return "";
 		}
 
 

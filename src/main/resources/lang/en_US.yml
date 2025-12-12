@@ -73,7 +73,7 @@ game:
   left: "&b{0} &dhas left &2[{1}/{2}]"
   worldsaved: "&aWorld &b{0} &ahas been saved!"
   not-team: "&cThis command cannot be run in a solo game"
-  placed: "&bYou placed {0}th"
+  placed: "&bYou placed #{0}"
 
 teleport:
   no-player: "&cPlease enter a player to teleport or all to teleport everyone!"
