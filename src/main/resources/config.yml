@@ -65,9 +65,20 @@ border:
   # X and Z Coordinates of the center of the border, (default: 0, 0)
   center-x: 0
   center-z: 0
-# Command run at the end of the game
-# Use "{winner}" for placeholder for the winner
-end-command: ""
+# Command(s) run at the beginning/end of the game
+# Commands will be run as full operator privilege, enable at own risk
+custom-commands:
+  enabled: false
+  start:
+    global:
+      - "time set day"
+    foreach-player:
+      - "give {player} gold 2"
+  end:
+    global:
+      - "time set night"
+    foreach-winner:
+      - "say Winner: {winner}"
 # Buffing bedrock players when playing using geyser
 bedrock-buff:
   enabled: false

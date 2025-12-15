@@ -2,8 +2,6 @@ package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.listeners.CompassListener;
-import me.aymanisam.hungergames.listeners.SignClickListener;
-import me.aymanisam.hungergames.stats.DatabaseHandler;
 import me.aymanisam.hungergames.stats.PlayerStatsHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -40,8 +38,6 @@ public class GameSequenceHandler {
     private final CompassListener compassListener;
     private final TeamsHandler teamsHandler;
     private final SignHandler signHandler;
-    private final SignClickListener signClickListener;
-    private final DatabaseHandler databaseHandler;
 
     public Map<String, Integer> gracePeriodTaskId = new HashMap<>();
     public Map<String, Integer> timerTaskId = new HashMap<>();
@@ -66,8 +62,6 @@ public class GameSequenceHandler {
         this.compassListener = compassListener;
         this.teamsHandler = teamsHandler;
         this.signHandler = new SignHandler(plugin, setSpawnHandler);
-        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, new ArenaHandler(plugin, langHandler), scoreBoardHandler);
-        this.databaseHandler = new DatabaseHandler(plugin);
     }
 
     public void startGame(World world) {
@@ -200,6 +194,9 @@ public class GameSequenceHandler {
             }
         }, 0L, 20L);
         timerTaskId.put(world.getName(), worldTimerTaskId);
+
+        runCustomGlobalCommands(false, world);
+        runCustomPlayerCommands(false, world, worldPlayersAlive);
     }
 
     private void updateBossBars(World world) {
@@ -250,13 +247,6 @@ public class GameSequenceHandler {
         if (winner != null) {
             worldPlayerPlacements.add(winner);
 
-	        List<String> commands = Objects.requireNonNull(configHandler.getWorldConfig(world).getStringList("end-command"));
-	        if (!commands.isEmpty()) {
-				for (String command : commands) {
-					plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), command.replace("{player}", winner.getName()));
-				}
-	        }
-
             if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
 	            PlayerStatsHandler playerStats = statsMap.get(winner.getUniqueId());
 
@@ -271,7 +261,10 @@ public class GameSequenceHandler {
                 player.sendMessage(langHandler.getMessage(player, "game.winner", winner.getName()));
                 player.sendTitle("", langHandler.getMessage(player, "game.winner", winner.getName()), 5, 20, 10);
                 player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+
+                runCustomPlayerCommands(true, world, List.of(winner));
             } else {
+                player.sendTitle("", langHandler.getMessage(player, "game.team-no-winner"), 5, 20, 10);
                 player.sendMessage(langHandler.getMessage(player, "game.team-no-winner"));
             }
         }
@@ -302,12 +295,14 @@ public class GameSequenceHandler {
             if (winner != null) {
                 player.sendTitle("", langHandler.getMessage(player, "game.solo-kills", winner.getName()), 5, 20, 10);
                 player.sendMessage(langHandler.getMessage(player, "game.solo-kills", winner.getName()));
+                player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+
+                runCustomPlayerCommands(true, world, List.of(winner));
             } else {
                 player.sendTitle("", langHandler.getMessage(player, "game.team-no-winner"), 5, 20, 10);
                 player.sendMessage(langHandler.getMessage(player, "game.team-no-winner"));
             }
 
-            player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
         }
         endGame(false, world);
     }
@@ -323,6 +318,8 @@ public class GameSequenceHandler {
                 player.sendMessage(langHandler.getMessage(player, titleKey, allNames));
                 player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
             }
+            
+            runCustomPlayerCommands(true, world, winningTeam);
 
             if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
                 for (Player player : winningTeam) {
@@ -402,10 +399,11 @@ public class GameSequenceHandler {
         gameStarted.put(world.getName(), false);
 
 	    List<Player> worldPlayerPlacements = playerPlacements.computeIfAbsent(world.getName(), k -> new ArrayList<>());
+        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         List<Player> worldStartingPlayers = startingPlayers.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 	    List<List<Player>> worldTeamPlacements = teamPlacements.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
-	    if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
+        if (configHandler.getWorldConfig(world).getInt("players-per-team") == 1) {
 		    if (startingPlayers != null && worldPlayerPlacements.size() == worldStartingPlayers.size()) {
 			    for (Player player : worldPlayerPlacements) {
 				    int playerIndex = worldPlayerPlacements.indexOf(player);
@@ -486,6 +484,9 @@ public class GameSequenceHandler {
 
         world.setPVP(false);
 
+
+        runCustomGlobalCommands(true, world);
+
         if (gracePeriodTaskId.containsKey(world.getName())) {
             int worldGracePeriodTaskId = gracePeriodTaskId.get(world.getName());
             plugin.getServer().getScheduler().cancelTask(worldGracePeriodTaskId);
@@ -510,7 +511,6 @@ public class GameSequenceHandler {
         compassListener.cancelGlowTask(world);
         teamsHandler.removeGlowFromAllPlayers(world);
 
-        List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         Map<Player, Integer> worldPlayerKills = playerKills.computeIfAbsent(world.getName(), k -> new HashMap<>());
         Map<Player, String> worldPlayerVotes = playerVotes.computeIfAbsent(world.getName(), k -> new HashMap<>());
         worldStartingPlayers = startingPlayers.computeIfAbsent(world.getName(), k -> new ArrayList<>());
@@ -529,6 +529,47 @@ public class GameSequenceHandler {
                     player.sendTitle("", langHandler.getMessage(player, "game.join-instruction"), 5, 20, 10);
                 }
             }, 100L);
+        }
+    }
+
+    private void runCustomPlayerCommands(Boolean end, World world, List<Player> players) {
+        if (configHandler.getWorldConfig(world).getBoolean("custom-commands.enabled")) {
+            return;
+        }
+
+        List<String> commands;
+        if (end) {
+            commands = Objects.requireNonNull(configHandler.getWorldConfig(world).getStringList("custom-commands.end.foreach-winner"));
+        } else {
+            commands = Objects.requireNonNull(configHandler.getWorldConfig(world).getStringList("custom-commands.start.foreach-player"));
+        }
+        
+        if (!commands.isEmpty()) {
+            for (String command : commands) {
+                for (Player player : players) {
+                    plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), command.replace("{winner}", player.getName()));
+                }
+            }
+        }
+    }
+
+    private void runCustomGlobalCommands(Boolean end, World world) {
+        if (configHandler.getWorldConfig(world).getBoolean("custom-commands.enabled")) {
+            return;
+        }
+
+        List<String> commands;
+
+        if (end) {
+            commands = Objects.requireNonNull(configHandler.getWorldConfig(world).getStringList("custom-commands.end.global"));
+        } else {
+            commands = Objects.requireNonNull(configHandler.getWorldConfig(world).getStringList("custom-commands.start.global"));
+        }
+
+        if (!commands.isEmpty()) {
+            for (String command : commands) {
+                plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), command);
+            }
         }
     }
 
