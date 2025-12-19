@@ -56,6 +56,7 @@ game:
   created-slot: "&aCreated slot with name &6{0}&a and linked to world &6{1}"
   assigned-slot: "&bAssigned slot with name &6{0}&b to sign"
   slot-exists: "&cSlot with name &6{0}&c already exists"
+  no-list: "&cCould not find any slots to list"
   auto-start: "&aMinimum players to automatically start game has been reached, starting game in &b{0} &aseconds"
   grace-start: "&6The grace period has started! PvP is disabled."
   grace-end: "&cThe grace period has ended! PvP is enabled."

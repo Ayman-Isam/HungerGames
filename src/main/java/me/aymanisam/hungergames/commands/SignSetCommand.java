@@ -51,21 +51,34 @@ public class SignSetCommand implements CommandExecutor {
 
 		String action = args[0];
 
-	    List<String> validActions = List.of("create", "remove", "assign");
+	    List<String> validActions = List.of("create", "remove", "assign", "list");
 
 	    if (!validActions.contains(action.toLowerCase())) {
 		    sender.sendMessage(langHandler.getMessage(player, "game.no-args"));
 		    return true;
 	    }
 
-		if (args.length < 2) {
-			sender.sendMessage(langHandler.getMessage(player, "game.no-args"));
+		if (action.equalsIgnoreCase("list")) {
+			if (slots.isEmpty()) {
+				sender.sendMessage(langHandler.getMessage(player, "game.no-list"));
+				return true;
+			}
+
+			for (Map.Entry<String, String> entry : slots.entrySet()) {
+				sender.sendMessage(entry.getKey() + " - " + entry.getValue());
+			}
+
 			return true;
 		}
 
-		String slotName = args[1];
+	    if (args.length < 2) {
+		    sender.sendMessage(langHandler.getMessage(player, "game.no-args"));
+		    return true;
+	    }
 
-		if (action.equalsIgnoreCase("remove")) {
+	    String slotName = args[1];
+
+	    if (action.equalsIgnoreCase("remove")) {
 			if (!slots.containsKey(slotName)) {
 				sender.sendMessage(langHandler.getMessage(player, "game.no-slot"), slotName);
 				return true;

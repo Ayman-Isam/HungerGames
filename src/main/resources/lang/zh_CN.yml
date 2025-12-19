@@ -1,4 +1,5 @@
 time-remaining: "&e剩余时间"
+no-world: "&c请输入世界名称以执行操作！"
 no-permission: "&c您没有权限执行此命令"
 no-server: "&c此命令只能由玩家执行"
 no-database: "&c该插件未启用数据库来跟踪统计数据"
@@ -55,6 +56,7 @@ game:
   created-slot: "&a已创建名称为 &6{0}&a 的槽位并绑定到世界 &6{1}"
   assigned-slot: "&b已将名称为 &6{0}&b 的槽位分配给告示牌"
   slot-exists: "&c名称为 &6{0}&c 的槽位已存在"
+  no-list: "&c未找到可列出的任何槽位"
   auto-start: "&a已达到自动开始游戏的最低玩家数量，游戏将在 &b{0} &a秒后开始"
   grace-start: "&6和平期已开始！PvP已禁用。"
   grace-end: "&c和平期已结束！PvP已启用。"

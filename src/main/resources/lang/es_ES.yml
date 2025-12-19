@@ -1,4 +1,5 @@
 time-remaining: "Tiempo restante"
+no-world: "&c¡Por favor, ingresa el nombre del mundo para realizar la acción!"
 no-permission: "&cNo tienes permiso para ejecutar este comando"
 no-server: "&cEste comando solo puede ser ejecutado por jugadores"
 no-database: "&cEl plugin no tiene una base de datos habilitada para el seguimiento de estadísticas"
@@ -55,6 +56,7 @@ game:
   created-slot: "&aSe creó la ranura con el nombre &6{0}&a y se vinculó al mundo &6{1}"
   assigned-slot: "&bSe asignó la ranura con el nombre &6{0}&b al cartel"
   slot-exists: "&cLa ranura con el nombre &6{0}&c ya existe"
+  no-list: "&cNo se pudo encontrar ninguna ranura para listar"
   auto-start: "&aSe ha alcanzado el mínimo de jugadores para iniciar automáticamente el juego, comenzando en &b{0} &a segundos"
   grace-start: "&6¡El período de gracia ha comenzado! PvP está deshabilitado."
   grace-end: "&c¡El período de gracia ha terminado! PvP está habilitado."

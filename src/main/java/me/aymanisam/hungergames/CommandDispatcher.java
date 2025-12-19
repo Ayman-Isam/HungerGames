@@ -178,7 +178,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                 }
             } else if (args[0].equalsIgnoreCase("slot")) {
 				if (args.length == 2) {
-					return List.of("create", "remove", "assign");
+					return List.of("create", "remove", "assign", "list");
 				}
 				if (args.length == 3) {
 					List<String> allSlots;

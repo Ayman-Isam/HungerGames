@@ -1,4 +1,5 @@
 time-remaining: "Temps restant"
+no-world: "&cVeuillez entrer le nom du monde pour effectuer l'action !"
 no-permission: "&cVous n'avez pas la permission d'exécuter cette commande"
 no-server: "&cCette commande ne peut être exécutée que par des joueurs"
 no-database: "&cLe plugin n'a pas de base de données activée pour le suivi des statistiques"
@@ -55,6 +56,7 @@ game:
   created-slot: "&aL'emplacement nommé &6{0}&a a été créé et lié au monde &6{1}"
   assigned-slot: "&bL'emplacement nommé &6{0}&b a été attribué au panneau"
   slot-exists: "&cL'emplacement nommé &6{0}&c existe déjà"
+  no-list: "&cImpossible de trouver des emplacements à lister"
   auto-start: "&aLe nombre minimum de joueurs pour démarrer automatiquement la partie a été atteint, démarrage dans &b{0} &a secondes"
   grace-start: "&6La période de grâce a commencé ! Le PvP est désactivé."
   grace-end: "&cLa période de grâce est terminée ! Le PvP est activé."

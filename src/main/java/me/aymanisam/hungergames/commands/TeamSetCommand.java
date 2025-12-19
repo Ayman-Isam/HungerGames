@@ -51,15 +51,18 @@ public class TeamSetCommand implements CommandExecutor {
         }
 
 		if (action.equalsIgnoreCase("list")) {
+			if (customTeams.isEmpty()) {
+				sender.sendMessage(langHandler.getMessage(player, "team.no-list"));
+				return true;
+			}
+
             for (Map.Entry<String, List<Player>> entry : customTeams.entrySet()) {
                 String team = entry.getKey();
                 List<Player> members = entry.getValue();
                 List<String> memberNames = members.stream().map(Player::getName).collect(Collectors.toList());
                 sender.sendMessage(team + ": " + String.join(", ", memberNames));
             }
-            if (customTeams.isEmpty()) {
-                sender.sendMessage(langHandler.getMessage(player, "team.no-list"));
-            }
+
             return true;
         } else if (action.equalsIgnoreCase("reset")) {
             customTeams.clear();

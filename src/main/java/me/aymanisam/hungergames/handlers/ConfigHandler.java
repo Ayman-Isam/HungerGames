@@ -150,8 +150,13 @@ public class ConfigHandler {
 			double x = Double.parseDouble(parts[1]);
 			double y = Double.parseDouble(parts[2]);
 			double z = Double.parseDouble(parts[3]);
-			// TODO Add check for people updating to new sign system
-			String slot = parts[4];
+			String slot = "";
+			try {
+				 slot = parts[4];
+			} catch (IndexOutOfBoundsException e) {
+				plugin.getLogger().log(Level.SEVERE, "Your signs.yml file is using the old signs system. To migrate to the new system, delete the file, restart the server and follow the instructions here https://hungergames.aymanisam.me/docs/setup/signs.");
+				plugin.getPluginLoader().disablePlugin(plugin);
+			}
 			signLocations.put(slot, new Location(world, x, y, z));
 		}
 	}
