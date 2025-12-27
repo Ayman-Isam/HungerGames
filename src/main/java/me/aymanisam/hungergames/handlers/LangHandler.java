@@ -70,9 +70,16 @@ public class LangHandler {
         String locale = player.getLocale();
         if (langConfigs.containsKey(locale)) {
             return langConfigs.get(locale);
-        } else {
-            return langConfigs.get("en_us");
         }
+
+        String languageOnly = locale.split("_")[0];
+        for (String key : langConfigs.keySet()) {
+            if (key.startsWith(languageOnly + "_")) {
+                return langConfigs.get(key);
+            }
+        }
+
+        return langConfigs.get(plugin.getConfigHandler().getPluginSettings().getString("default-language"));
     }
 
     public YamlConfiguration getLangConfig() {
@@ -80,7 +87,7 @@ public class LangHandler {
             loadLanguageConfigs();
         }
 
-        YamlConfiguration config = langConfigs.get("en_us");
+        YamlConfiguration config = langConfigs.get(plugin.getConfigHandler().getPluginSettings().getString("default-language"));
         if (config == null) {
             config = new YamlConfiguration();
         }
@@ -120,7 +127,10 @@ public class LangHandler {
         }
 
         for (File langFile : langFiles) {
-            YamlConfiguration pluginLangConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("lang/en_US.yml"))));
+            String pluginLang = plugin.getConfigHandler().getPluginSettings().getString("default-language");
+	        assert pluginLang != null;
+	        String capitalizedLang = pluginLang.substring(0, pluginLang.indexOf('_') + 1) + pluginLang.substring(pluginLang.indexOf('_') + 1).toUpperCase();
+            YamlConfiguration pluginLangConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("lang/" + capitalizedLang + ".yml"))));
             YamlConfiguration langConfig = YamlConfiguration.loadConfiguration(langFile);
             boolean updated = false;
 
