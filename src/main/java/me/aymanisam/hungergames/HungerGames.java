@@ -63,13 +63,11 @@ public final class HungerGames extends JavaPlugin {
         int bstatsPluginId = 21512;
         new Metrics(this, bstatsPluginId);
 
-        LangHandler langHandler = new LangHandler(this);
-        langHandler.saveLanguageFiles();
-        langHandler.validateLanguageKeys();
-        langHandler.loadLanguageConfigs();
+	    this.configHandler = new ConfigHandler(this);
+	    configHandler.validateSettingsKeys();
 
         // Initializing shared classes
-        this.configHandler = new ConfigHandler(this);
+	    LangHandler langHandler = new LangHandler(this);
         TeamVotingListener teamVotingListener = new TeamVotingListener(langHandler);
         getServer().getPluginManager().registerEvents(teamVotingListener, this);
         ArenaHandler arenaHandler = new ArenaHandler(this, langHandler);
@@ -83,6 +81,11 @@ public final class HungerGames extends JavaPlugin {
         setSpawnHandler.setCountDownHandler(countDownHandler);
         WorldBorderHandler worldBorderHandler = new WorldBorderHandler(this, langHandler);
 	    DatabaseHandler databaseHandler = new DatabaseHandler(this);
+
+	    langHandler.normalizeFileNames();
+	    langHandler.saveLanguageFiles();
+	    langHandler.validateLanguageKeys();
+	    langHandler.loadLanguageConfigs();
 
         if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
             // Database
@@ -143,8 +146,6 @@ public final class HungerGames extends JavaPlugin {
 	    loadWorldFiles();
 
 	    hgWorldNames.remove(configHandler.getPluginSettings().getString("lobby-world"));
-
-        configHandler.validateSettingsKeys();
 
         // Checks if the current version is the latest version
         int spigotPluginId = 111936;

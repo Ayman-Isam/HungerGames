@@ -16,7 +16,7 @@ spectating: true
 # Allows the creation of custom teams
 custom-teams: false
 # Sets the default language if client language doesn't exist
-default-language: en_US
+default-language: en_us
 # Database Settings, used for stats tracking
 # THIS FEATURE IS IN BETA! BUGS REGARDING THIS ARE TO BE EXPECTED
 database:

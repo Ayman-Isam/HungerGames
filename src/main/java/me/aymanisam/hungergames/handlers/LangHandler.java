@@ -8,10 +8,7 @@ import org.bukkit.entity.Player;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -119,6 +116,21 @@ public class LangHandler {
         }
     }
 
+    public void normalizeFileNames() {
+        File langFolder = new File(plugin.getDataFolder(), "lang");
+        for (File langFile : Objects.requireNonNull(langFolder.listFiles())) {
+            String langFileName = langFile.getName();
+            if (!langFileName.equals(langFileName.toLowerCase(Locale.ROOT))) {
+                String newFileName = langFileName.toLowerCase(Locale.ROOT);
+                if (langFile.renameTo(new File(newFileName))) {
+                    plugin.getLogger().log(Level.WARNING, "Migrated legacy language file " + langFileName + " → " + newFileName);
+                } else {
+                    plugin.getLogger().log(Level.SEVERE, "Could not rename legacy language file" + langFileName);
+                }
+            }
+        }
+    }
+
     public void validateLanguageKeys() {
         File langFolder = new File(plugin.getDataFolder(), "lang");
         File[] langFiles = langFolder.listFiles(((dir, name) -> name.endsWith(".yml")));
@@ -128,9 +140,7 @@ public class LangHandler {
 
         for (File langFile : langFiles) {
             String pluginLang = plugin.getConfigHandler().getPluginSettings().getString("default-language");
-	        assert pluginLang != null;
-	        String capitalizedLang = pluginLang.substring(0, pluginLang.indexOf('_') + 1) + pluginLang.substring(pluginLang.indexOf('_') + 1).toUpperCase();
-            YamlConfiguration pluginLangConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("lang/" + capitalizedLang + ".yml"))));
+            YamlConfiguration pluginLangConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("lang/" + pluginLang + ".yml"))));
             YamlConfiguration langConfig = YamlConfiguration.loadConfiguration(langFile);
             boolean updated = false;
 
