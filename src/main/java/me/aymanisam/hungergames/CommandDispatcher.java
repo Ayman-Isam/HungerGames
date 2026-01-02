@@ -15,8 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static me.aymanisam.hungergames.HungerGames.hgWorldNames;
-import static me.aymanisam.hungergames.HungerGames.worldNames;
+import static me.aymanisam.hungergames.HungerGames.*;
 import static me.aymanisam.hungergames.commands.SignSetCommand.slots;
 
 public class CommandDispatcher implements CommandExecutor, TabCompleter {
@@ -167,7 +166,15 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     return List.of("list", "add", "remove", "finalize", "reset");
                 }
                 if (args.length == 3) {
-                    return List.of("<team_name>");
+                    List<String> teamNames;
+                    if (List.of("list", "finalize", "reset").contains(args[1])) {
+                        teamNames = new ArrayList<>();
+                    } else if (args[1].equalsIgnoreCase("add")) {
+                        teamNames = List.of("team_name");
+                    } else {
+                        teamNames = new ArrayList<>(customTeams.keySet());
+                    }
+                    return teamNames;
                 }
                 if (args.length == 4) {
                     List<String> onlinePlayers = new ArrayList<>();
