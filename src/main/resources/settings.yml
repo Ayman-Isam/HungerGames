@@ -18,6 +18,7 @@ custom-teams: false
 # Sets the default language if client language doesn't exist
 default-language: en_us
 # Database Settings, used for stats tracking
+# This requires the creation of a table called hungergames
 database:
   enabled: false
   url: "jdbc:mysql://localhost:3306/hungergames"
