@@ -82,10 +82,10 @@ public final class HungerGames extends JavaPlugin {
         WorldBorderHandler worldBorderHandler = new WorldBorderHandler(this, langHandler);
 	    DatabaseHandler databaseHandler = new DatabaseHandler(this);
 
-	    langHandler.normalizeFileNames();
 	    langHandler.saveLanguageFiles();
 	    langHandler.validateLanguageKeys();
 	    langHandler.loadLanguageConfigs();
+	    langHandler.normalizeFileNames();
 
         if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
             // Database

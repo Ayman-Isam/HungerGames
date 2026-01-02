@@ -51,7 +51,7 @@ break-blocks:
     - OAK_LOG
     - OAK_LEAVES
     # Add more as required, use "ALL" for all blocks
-    # For more information on blocks, see https://github.com/cantankerous-ally/Hunger-Games/wiki/Cheat-Sheets/
+    # For the full list of blocks, see https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
 # Border settings
 border:
   # Border size in blocks, use size bigger than arena for no border, (default: 700)
@@ -97,4 +97,4 @@ killer-effects:
   - effect: ABSORPTION
     duration: 300
     level: 0
-# For more information on changing potion effects, see https://github.com/cantankerous-ally/Hunger-Games/wiki/Cheat-Sheets/
+# For the complete list of available potion effects, see https://hub.spigotmc.org/javadocs/spigot/org/bukkit/potion/PotionType.html

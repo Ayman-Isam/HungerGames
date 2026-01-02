@@ -533,7 +533,7 @@ public class GameSequenceHandler {
     }
 
     private void runCustomPlayerCommands(Boolean end, World world, List<Player> players) {
-        if (configHandler.getWorldConfig(world).getBoolean("custom-commands.enabled")) {
+        if (!configHandler.getWorldConfig(world).getBoolean("custom-commands.enabled")) {
             return;
         }
 
@@ -554,7 +554,7 @@ public class GameSequenceHandler {
     }
 
     private void runCustomGlobalCommands(Boolean end, World world) {
-        if (configHandler.getWorldConfig(world).getBoolean("custom-commands.enabled")) {
+        if (!configHandler.getWorldConfig(world).getBoolean("custom-commands.enabled")) {
             return;
         }
 

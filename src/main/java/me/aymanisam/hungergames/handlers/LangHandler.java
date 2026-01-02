@@ -39,7 +39,7 @@ public class LangHandler {
             return ChatColor.translateAlternateColorCodes('&', message);
         }
 
-        plugin.getLogger().log(Level.WARNING, "Missing translation for key: " + key + ". For more information on how to fix this error and update language keys, visit: https://github.com/Ayman-Isam/wiki/Language#language-errors ");
+        plugin.getLogger().log(Level.WARNING, "Missing translation for key: " + key + ". For more information on how to fix this error and update language keys, visit: https://hungergames.aymanisam.me/docs/languages/overview#language-errors ");
         return (ChatColor.RED + "Missing translation for " + key);
     }
 
@@ -122,7 +122,8 @@ public class LangHandler {
             String langFileName = langFile.getName();
             if (!langFileName.equals(langFileName.toLowerCase(Locale.ROOT))) {
                 String newFileName = langFileName.toLowerCase(Locale.ROOT);
-                if (langFile.renameTo(new File(newFileName))) {
+                File newFile = new File(langFolder, newFileName);
+                if (langFile.renameTo(newFile)) {
                     plugin.getLogger().log(Level.WARNING, "Migrated legacy language file " + langFileName + " → " + newFileName);
                 } else {
                     plugin.getLogger().log(Level.SEVERE, "Could not rename legacy language file" + langFileName);

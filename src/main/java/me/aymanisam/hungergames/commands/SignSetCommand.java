@@ -39,7 +39,7 @@ public class SignSetCommand implements CommandExecutor {
             return true;
         }
 
-        if (!(player.hasPermission("hungergames.setsign"))) {
+        if (!(player.hasPermission("hungergames.slot"))) {
             sender.sendMessage(langHandler.getMessage(player, "no-permission"));
             return true;
         }
