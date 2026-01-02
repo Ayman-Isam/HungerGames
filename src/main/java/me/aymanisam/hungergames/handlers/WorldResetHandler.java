@@ -36,6 +36,8 @@ public class WorldResetHandler {
             }
         }
 
+        world.save();
+
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 FileUtils.copyDirectory(worldDirectory, templateDirectory, pathname -> {
