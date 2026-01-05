@@ -1,48 +1,44 @@
-# HungerGames Wiki
+# HungerGames
 
-Welcome to the HungerGames Wiki! This is a contemporary Spigot plugin, drawing inspiration from the original 2012 Minecraft HungerGames. The HungerGames plugin is a thrilling survival game based on the renowned Hunger Games book/movie series. In this free-for-all battle, players must hunt for food and resources, and strive to outlast others in a high-stakes game of survival. The ultimate goal? Be the last one standing and claim victory.
+---
 
-This plugin is perfect for group play, whether it’s a friendly gathering or a club event. It's also suited for public and private servers with support for different maps and arenas.
+HungerGames is a modern Minecraft plugin inspired by the classic 2012 Hunger Games game mode. It provides a fast-paced environment where players compete for resources, fight opponents and aim to be the last person alive. Designed for flexibility, it supports multiple arenas, game modes and extensive customization.
+
+![Minecraft](https://img.shields.io/badge/Minecraft-1.20+-brightgreen)
+![Platform](https://img.shields.io/badge/Platform-Spigot%20%7C%20Paper-orange)
+![Modrinth Downloads](https://img.shields.io/modrinth/dt/hungergames?logo=modrinth)
+![bStats Servers](https://img.shields.io/bstats/servers/21512)
+![Discord](https://img.shields.io/discord/1183793646194139229?label=Discord&logo=discord)
+![License](https://img.shields.io/github/license/Ayman-Isam/Hunger-Games)
+
 
 ## Hunger Games Plugin Features
 - Robust announcement system with customizable messages
 - Customizable arena allowing for all types of maps to work
 - 4 different tiers of chests, each with customizable loot
+- Customizable world border that shrinks over time
 - Automatic chest refills and supply drops at intervals
-- Scoreboard with various information related to the game
+- Individual scoreboard with various information related to the game
 - Allowing players to spectate after death and teleport to players alive
 - Support for Solo, Duo, Trios and Versus modes with option to vote for game mode
-- Automatic allocation of players to teams with teammate tracking
+- Integration with MySQL to store player stats persistently
+- Integration with Placeholder API for individual player stats and top global stats
+- Automatic and manual allocation of players to teams with teammate tracking
 - Team chat option to make messages only be seen by teammates
 - Customizable display of tips to assist players
 - Support for multiple maps and easy switching between maps
 - Reloading of plugin config files through a single command
 - Customizable language support for individual players
+- Support for breaking blocks in the arena and restoring them after the game
+- Compass for tracking nearest enemies and teammates
+- Ability to run custom commands in the beginning and end of games
 
 ## Installation
 The latest releases of HungerGames are published to [Modrinth](https://modrinth.com/plugin/hungergames)
 
 ## Join the Community
-There is an official server for this plugin on [Discord](https://discord.gg/qcRfPHnZtp). You can also use [Github Issues](https://github.com/Ayman-Isam/Hunger-Games/issues) to discuss the plugin.
+There is an official server for this plugin on [Discord](https://discord.gg/qcRfPHnZtp). You can also use [GitHub Issues](https://github.com/Ayman-Isam/Hunger-Games/issues) to discuss the plugin.
 
-## Setup:
-To set up the game, check out the [Setup Wiki](https://github.com/Ayman-Isam/Hunger-Games/wiki/Setup). You can find guides on how to set up arena dimensions, world border, starting points, etc.
-
-## Gameplay
-To understand how the game works better, check out the [Gameplay Wiki](https://github.com/Ayman-Isam/Hunger-Games/wiki/Gameplay). You can find information about how the game works, different strategies etc.
-
-## Config:
-To change the settings for the game, check out the [Config Wiki](https://github.com/Ayman-Isam/Hunger-Games/wiki/Config). You can find guides on how to change game settings such as game time, border shrink rate, chest item numbers, frequency and number of supply drops, etc.
-
-## Items:
-To change the items that spawn in the arena chests, visit the [Items Wiki](https://github.com/Ayman-Isam/Hunger-Games/wiki/Items). You can find guides on changing loot, changing potion effects, changing enchantment of items, changing number of items, etc. for three different tiers of chests.
-
-## Commands:
-To find a list of the commands that are in this plugin, check out the [Command Wiki](https://github.com/Ayman-Isam/Hunger-Games/wiki/Commands). You can find information on all the commands along with their arguments, usage and permissions, for example, /start, /stop, /supplydrop etc.
-
-## Cheat Sheets
-To find references needed for editing items and configs, visit the [Cheat Sheets Wiki](https://github.com/Ayman-Isam/Hunger-Games/wiki/Cheat-Sheets). You can find guides on how to edit potion effects, firework effects, item enchantments etc.
-
-## Language
-To find more information about the language support of this plugin and how You can contribute to this plugin by adding more languages, visit the [Language Wiki](https://github.com/Ayman-Isam/Hunger-Games/wiki/Language) wiki. You can find guides on how to add your own languages to the plugin.
+## Wiki
+There is a full [Wiki](https://hungergames.aymanisam.me/docs/introduction) for this plugin, powered by Docusaurus. 
 

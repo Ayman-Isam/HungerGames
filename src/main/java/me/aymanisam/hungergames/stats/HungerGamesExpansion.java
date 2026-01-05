@@ -120,7 +120,7 @@ public class HungerGamesExpansion extends PlaceholderExpansion {
 					}
 				} else {
 					if (isGameStartingOrStarted(worldName)) {
-						return "" + worldPlayersAlive.size();
+						return worldPlayersAlive.size() + " Alive";
 					} else {
 						return "[" + worldPlayersWaitingSize + "/" + worldSpawnPointSize + "]";
 					}
