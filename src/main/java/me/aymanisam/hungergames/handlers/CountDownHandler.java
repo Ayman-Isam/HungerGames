@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import static me.aymanisam.hungergames.HungerGames.customTeams;
+import static me.aymanisam.hungergames.HungerGames.gameStarting;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.*;
 import static me.aymanisam.hungergames.handlers.SetSpawnHandler.autoStartTasks;
 import static me.aymanisam.hungergames.handlers.SetSpawnHandler.spawnPointMap;
@@ -110,7 +111,9 @@ public class CountDownHandler {
     private void runAfterDelay(World world) {
         List<BukkitTask> worldCountDownTasks = countDownTasks.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
-	    teamsHandler.createTeam(world, configHandler.getPluginSettings().getBoolean("custom-teams"));
+        if (configHandler.getPluginSettings().getInt("players-per-team") != 1) {
+	        teamsHandler.createTeam(world, configHandler.getPluginSettings().getBoolean("custom-teams"));
+        }
 
         int countDownDuration = configHandler.getWorldConfig(world).getInt("countdown");
 
@@ -181,5 +184,7 @@ public class CountDownHandler {
         worldPlayersAlive.clear();
         worldStartingPlayers.clear();
         worldPlayerVotes.clear();
+
+        gameStarting.put(world.getName(), false);
     }
 }

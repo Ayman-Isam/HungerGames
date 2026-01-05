@@ -1,6 +1,5 @@
 package me.aymanisam.hungergames.handlers;
 
-import me.aymanisam.hungergames.HungerGames;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.GameMode;
@@ -77,7 +76,6 @@ public class CompassHandler {
     }
 
     public Player findNearestEnemy(Player player, Boolean message, World world) {
-	    System.out.println("Locating nearest enemy for player " + player.getName());
         double closestDistance = Double.MAX_VALUE;
         Player closestPlayer = null;
 
@@ -104,7 +102,6 @@ public class CompassHandler {
         }
 
         if (closestPlayer != null && message) {
-	        System.out.println("Called actionbar");
 	        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(langHandler.getMessage(player, "arena.compass-enemy", closestPlayer.getName())));
         }
 

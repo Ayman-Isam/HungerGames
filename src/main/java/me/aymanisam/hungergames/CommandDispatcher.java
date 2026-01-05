@@ -26,10 +26,9 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
     private final TeamsHandler teamsHandler;
     private final ScoreBoardHandler scoreBoardHandler;
     private final CountDownHandler countDownHandler;
-    private final ArenaHandler arenaHandler;
     private final WorldBorderHandler worldBorderHandler;
 
-    public CommandDispatcher(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamsHandler teamsHandler, ScoreBoardHandler scoreBoardHandler, CountDownHandler countDownHandler, ArenaHandler arenaHandler, WorldBorderHandler worldBorderHandler) {
+    public CommandDispatcher(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, GameSequenceHandler gameSequenceHandler, TeamsHandler teamsHandler, ScoreBoardHandler scoreBoardHandler, CountDownHandler countDownHandler,  WorldBorderHandler worldBorderHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
@@ -37,7 +36,6 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
         this.teamsHandler = teamsHandler;
         this.scoreBoardHandler = scoreBoardHandler;
         this.countDownHandler = countDownHandler;
-        this.arenaHandler = arenaHandler;
 	    this.worldBorderHandler = worldBorderHandler;
     }
 
@@ -50,7 +48,7 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
                     executor = new JoinGameCommand(plugin, langHandler, setSpawnHandler, scoreBoardHandler);
                     break;
                 case "lobby":
-                    executor = new LobbyReturnCommand(plugin, langHandler, setSpawnHandler, arenaHandler, countDownHandler, scoreBoardHandler);
+                    executor = new LobbyReturnCommand(plugin, langHandler, setSpawnHandler, scoreBoardHandler);
                     break;
                 case "start":
                     executor = new StartGameCommand(plugin, langHandler, setSpawnHandler, countDownHandler);

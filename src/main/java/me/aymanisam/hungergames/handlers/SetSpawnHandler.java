@@ -1,7 +1,6 @@
 package me.aymanisam.hungergames.handlers;
 
 import me.aymanisam.hungergames.HungerGames;
-import me.aymanisam.hungergames.listeners.SignClickListener;
 import me.aymanisam.hungergames.listeners.TeamVotingListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -27,27 +26,25 @@ public class SetSpawnHandler {
     private final TeamVotingListener teamVotingListener;
     private final ConfigHandler configHandler;
     private final SignHandler signHandler;
-    private final SignClickListener signClickListener;
 	private CountDownHandler countDownHandler;
 
-	public FileConfiguration setSpawnConfig;
+    public FileConfiguration setSpawnConfig;
     public Map<String, List<String>> spawnPoints;
     public static Map<String, Map<String, Player>> spawnPointMap;
     public Map<String, List<Player>> playersWaiting;
     private File setSpawnFile;
     public static final Map<String, List<BukkitTask>> autoStartTasks = new HashMap<>();
 
-    public SetSpawnHandler(HungerGames plugin, LangHandler langHandler, ArenaHandler arenaHandler, ScoreBoardHandler scoreBoardHandler) {
+    public SetSpawnHandler(HungerGames plugin, LangHandler langHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
-	    this.spawnPoints = new HashMap<>();
+        this.spawnPoints = new HashMap<>();
         spawnPointMap = new HashMap<>();
         this.playersWaiting = new HashMap<>();
         this.resetPlayerHandler = new ResetPlayerHandler();
         this.teamVotingListener = new TeamVotingListener(langHandler);
         this.configHandler = plugin.getConfigHandler();
-	    this.signHandler = new SignHandler(plugin, this);
-        this.signClickListener = new SignClickListener(plugin, langHandler, this, arenaHandler, scoreBoardHandler);
+        this.signHandler = new SignHandler(plugin, this);
     }
 
     public void setCountDownHandler(CountDownHandler countDownHandler) {
@@ -103,7 +100,7 @@ public class SetSpawnHandler {
         List<String> shuffledSpawnPoints = new ArrayList<>(worldSpawnPoints);
         Collections.shuffle(shuffledSpawnPoints);
 
-        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k-> new HashMap<>());
+        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
         if (configHandler.getPluginSettings().getBoolean("custom-teams")) {
             int playerIndex = 0;
@@ -132,7 +129,7 @@ public class SetSpawnHandler {
     }
 
     public void removePlayerFromSpawnPoint(Player player, World world) {
-        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k-> new HashMap<>());
+        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
 
         Iterator<Map.Entry<String, Player>> iterator = worldSpawnPointMap.entrySet().iterator();
 
@@ -152,7 +149,7 @@ public class SetSpawnHandler {
             return;
         }
 
-        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k-> new HashMap<>());
+        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
         List<Player> worldPlayersWaiting = playersWaiting.computeIfAbsent(world.getName(), k -> new ArrayList<>());
         List<String> worldSpawnPoints = spawnPoints.computeIfAbsent(world.getName(), k -> new ArrayList<>());
 
@@ -181,7 +178,7 @@ public class SetSpawnHandler {
             onlinePlayer.sendMessage(langHandler.getMessage(onlinePlayer, "setspawn.joined-message", player.getName(), worldSpawnPointMap.size(), worldSpawnPoints.size()));
         }
 
-        resetPlayerHandler.resetPlayer(player, world);
+        resetPlayerHandler.resetPlayer(player);
 
         if (configHandler.getWorldConfig(world).getBoolean("voting")) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
@@ -209,6 +206,21 @@ public class SetSpawnHandler {
                     countDownHandler.startCountDown(world);
                 }, autoStartDelay * 20L);
                 worldAutoStartTasks.add(task);
+            }
+        }
+    }
+
+    public void checkEnoughPlayers(World world) {
+        Map<String, Player> worldSpawnPointMap = spawnPointMap.computeIfAbsent(world.getName(), k -> new HashMap<>());
+
+        int minPlayers = configHandler.getWorldConfig(world).getInt("min-players");
+
+        if (worldSpawnPointMap.size() < minPlayers) {
+            if (gameStarting.getOrDefault(world.getName(), false)) {
+                countDownHandler.cancelCountDown(world);
+                for (Player p : world.getPlayers()) {
+                    p.sendMessage(langHandler.getMessage(p, "startgame.cancelled"));
+                }
             }
         }
     }

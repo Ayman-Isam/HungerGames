@@ -2,7 +2,6 @@ package me.aymanisam.hungergames.commands;
 
 import me.aymanisam.hungergames.HungerGames;
 import me.aymanisam.hungergames.handlers.*;
-import me.aymanisam.hungergames.listeners.SignClickListener;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.boss.BossBar;
@@ -18,7 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import static me.aymanisam.hungergames.HungerGames.*;
+import static me.aymanisam.hungergames.HungerGames.isGameStartingOrStarted;
+import static me.aymanisam.hungergames.HungerGames.totalTimeSpent;
 import static me.aymanisam.hungergames.handlers.GameSequenceHandler.*;
 import static me.aymanisam.hungergames.handlers.SetSpawnHandler.spawnPointMap;
 import static me.aymanisam.hungergames.listeners.TeamVotingListener.playerVotes;
@@ -27,21 +27,17 @@ public class LobbyReturnCommand implements CommandExecutor {
     private final HungerGames plugin;
     private final LangHandler langHandler;
     private final SetSpawnHandler setSpawnHandler;
-    private final SignClickListener signClickListener;
     private final ConfigHandler configHandler;
     private final SignHandler signHandler;
-    private final CountDownHandler countDownHandler;
     private final ResetPlayerHandler resetPlayerHandler;
     private final ScoreBoardHandler scoreBoardHandler;
 
-    public LobbyReturnCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ArenaHandler arenaHandler, CountDownHandler countDownHandler, ScoreBoardHandler scoreBoardHandler) {
+    public LobbyReturnCommand(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ScoreBoardHandler scoreBoardHandler) {
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.setSpawnHandler = setSpawnHandler;
         this.configHandler = plugin.getConfigHandler();
-        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler, scoreBoardHandler);
         this.signHandler = new SignHandler(plugin, setSpawnHandler);
-        this.countDownHandler = countDownHandler;
         this.resetPlayerHandler = new ResetPlayerHandler();
         this.scoreBoardHandler = scoreBoardHandler;
     }
@@ -80,17 +76,7 @@ public class LobbyReturnCommand implements CommandExecutor {
             p.sendMessage(langHandler.getMessage(player, "game.left", player.getName(), worldSpawnPointMap.size(), worldSpawnPoints.size()));
         }
 
-        int minPlayers = configHandler.getWorldConfig(world).getInt("min-players");
-
-        if (worldSpawnPointMap.size() < minPlayers) {
-            if (gameStarting.getOrDefault(world.getName(), false)) {
-                countDownHandler.cancelCountDown(world);
-                for (Player p : world.getPlayers()) {
-                    p.sendMessage(langHandler.getMessage(p, "startgame.cancelled"));
-                }
-            }
-            gameStarting.put(world.getName(), false);
-        }
+        setSpawnHandler.checkEnoughPlayers(world);
 
         assert lobbyWorldName != null;
         World lobbyWorld = Bukkit.getWorld(lobbyWorldName);
@@ -105,7 +91,7 @@ public class LobbyReturnCommand implements CommandExecutor {
         Long timeSpent = totalTimeSpent.getOrDefault(player, 0L);
         totalTimeSpent.put(player, timeAlive + timeSpent);
 
-        resetPlayerHandler.resetPlayer(player, world);
+        resetPlayerHandler.resetPlayer(player);
 
         if (configHandler.getWorldConfig(world).getBoolean("display-bossbar")) {
             Map<Player, BossBar> worldPlayerBossBar = playerBossBars.computeIfAbsent(world.getName(), k -> new HashMap<>());

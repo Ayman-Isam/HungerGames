@@ -33,7 +33,6 @@ public class PlayerListener implements Listener {
     private final LangHandler langHandler;
     private final ConfigHandler configHandler;
     private final SignHandler signHandler;
-    private final SignClickListener signClickListener;
 	private final DatabaseHandler databaseHandler;
     private final ResetPlayerHandler resetPlayerHandler;
 
@@ -41,14 +40,12 @@ public class PlayerListener implements Listener {
     private final Map<Player, Set<Player>> playerDamagers = new HashMap<>();
     public static final Map<String, Map<Player, Integer>> playerKills = new HashMap<>();
 
-    public PlayerListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler, ScoreBoardHandler scoreBoardHandler) {
+    public PlayerListener(HungerGames plugin, LangHandler langHandler, SetSpawnHandler setSpawnHandler) {
         this.setSpawnHandler = setSpawnHandler;
         this.plugin = plugin;
         this.langHandler = langHandler;
         this.configHandler = plugin.getConfigHandler();
-	    ArenaHandler arenaHandler = new ArenaHandler(plugin, langHandler);
         this.signHandler = new SignHandler(plugin, setSpawnHandler);
-        this.signClickListener = new SignClickListener(plugin, langHandler, setSpawnHandler, arenaHandler, scoreBoardHandler);
 	    this.databaseHandler = new DatabaseHandler(plugin);
         this.resetPlayerHandler = new ResetPlayerHandler();
     }
@@ -58,7 +55,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         event.setQuitMessage(null);
 
-        resetPlayerHandler.resetPlayer(player, player.getWorld());
+        resetPlayerHandler.resetPlayer(player);
 
         List<Player> worldPlayersWaiting = setSpawnHandler.playersWaiting.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
         List<Player> worldPlayersAlive = playersAlive.computeIfAbsent(player.getWorld().getName(), k -> new ArrayList<>());
@@ -73,6 +70,8 @@ public class PlayerListener implements Listener {
             setSpawnHandler.removePlayerFromSpawnPoint(player, player.getWorld());
             worldPlayersWaiting.remove(player);
         }
+
+	    setSpawnHandler.checkEnoughPlayers(player.getWorld());
 
         if (configHandler.getPluginSettings().getBoolean("database.enabled")) {
 	        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {

@@ -72,7 +72,7 @@ public final class HungerGames extends JavaPlugin {
         getServer().getPluginManager().registerEvents(teamVotingListener, this);
         ArenaHandler arenaHandler = new ArenaHandler(this, langHandler);
         ScoreBoardHandler scoreBoardHandler = new ScoreBoardHandler(this, langHandler);
-        SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this, langHandler, arenaHandler, scoreBoardHandler);
+        SetSpawnHandler setSpawnHandler = new SetSpawnHandler(this, langHandler);
         CompassHandler compassHandler = new CompassHandler(langHandler);
         CompassListener compassListener = new CompassListener(this, langHandler, compassHandler);
         TeamsHandler teamsHandler = new TeamsHandler(this, langHandler);
@@ -117,7 +117,7 @@ public final class HungerGames extends JavaPlugin {
 		}
 
         // Registering command handler
-        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamsHandler, scoreBoardHandler, countDownHandler, arenaHandler, worldBorderHandler));
+        Objects.requireNonNull(getCommand("hg")).setExecutor(new CommandDispatcher(this, langHandler, setSpawnHandler, gameSequenceHandler, teamsHandler, scoreBoardHandler, countDownHandler, worldBorderHandler));
 
         // Registering Listeners
         ArenaSelectListener arenaSelectListener = new ArenaSelectListener(this, langHandler);
@@ -129,7 +129,7 @@ public final class HungerGames extends JavaPlugin {
         SignClickListener signClickListener = new SignClickListener(this, langHandler, setSpawnHandler, arenaHandler, scoreBoardHandler);
         getServer().getPluginManager().registerEvents(signClickListener, this);
 
-        PlayerListener playerListener = new PlayerListener(this, langHandler, setSpawnHandler, scoreBoardHandler);
+        PlayerListener playerListener = new PlayerListener(this, langHandler, setSpawnHandler);
         getServer().getPluginManager().registerEvents(playerListener, this);
 
         SpectateGuiListener spectateGuiListener = new SpectateGuiListener(langHandler);

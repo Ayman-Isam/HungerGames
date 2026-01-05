@@ -96,23 +96,15 @@ public class HungerGamesExpansion extends PlaceholderExpansion {
 		} else if (params.startsWith("slot_")) {
 			String content = params.substring("slot_".length());
 
-			System.out.println(content);
-
 			Matcher matcher = Pattern.compile("(\\w+)_(world|progress|players)").matcher(content);
 
 			if (matcher.matches()) {
 				String slotName = matcher.group(1);
 				String type = matcher.group(2);
 
-				System.out.println(slotName + " : " + type);
-
 				if (!slots.containsKey(slotName)) return "";
 
-				System.out.println("Slotname: " + slotName);
-
 				String worldName = slots.get(slotName);
-
-				System.out.println("Worldname: " + worldName);
 
 				int worldPlayersWaitingSize = setSpawnHandler.playersWaiting.computeIfAbsent(worldName, k -> new ArrayList<>()).size();
 				int worldSpawnPointSize = setSpawnHandler.spawnPoints.computeIfAbsent(worldName, k -> new ArrayList<>()).size();
@@ -128,9 +120,9 @@ public class HungerGamesExpansion extends PlaceholderExpansion {
 					}
 				} else {
 					if (isGameStartingOrStarted(worldName)) {
-						return "[" + worldPlayersWaitingSize + "/" + worldSpawnPointSize + "]";
-					} else {
 						return "" + worldPlayersAlive.size();
+					} else {
+						return "[" + worldPlayersWaitingSize + "/" + worldSpawnPointSize + "]";
 					}
 				}
 			}
