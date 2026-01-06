@@ -1,17 +1,12 @@
 # HungerGames
 
----
-
 HungerGames is a modern Minecraft plugin inspired by the classic 2012 Hunger Games game mode. It provides a fast-paced environment where players compete for resources, fight opponents and aim to be the last person alive. Designed for flexibility, it supports multiple arenas, game modes and extensive customization.
 
-![Minecraft](https://img.shields.io/badge/Minecraft-1.20+-brightgreen)
-![Platform](https://img.shields.io/badge/Platform-Spigot%20%7C%20Paper-orange)
-![Modrinth Downloads](https://img.shields.io/modrinth/dt/hungergames?logo=modrinth)
-![bStats Servers](https://img.shields.io/bstats/servers/21512)
-![Discord](https://img.shields.io/discord/1183793646194139229?label=Discord&logo=discord)
-![License](https://img.shields.io/github/license/Ayman-Isam/Hunger-Games)
-
-
+![Minecraft](https://img.shields.io/badge/Minecraft-1.20+-brightgreen?logo=minecraft&style=for-the-badge)
+![Platform](https://img.shields.io/badge/Platform-Spigot-orange?logo=spigotmc&style=for-the-badge)
+![Modrinth Downloads](https://img.shields.io/modrinth/dt/hungergames?logo=modrinth&style=for-the-badge)
+![bStats Servers](https://img.shields.io/bstats/servers/21512?logo=googleanalytics&style=for-the-badge)
+![Discord](https://img.shields.io/discord/1183793646194139229?label=Discord&logo=discord&style=for-the-badge)
 ## Hunger Games Plugin Features
 - Robust announcement system with customizable messages
 - Customizable arena allowing for all types of maps to work
