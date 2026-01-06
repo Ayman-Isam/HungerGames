@@ -1,12 +1,13 @@
 # HungerGames
 
-HungerGames is a modern Minecraft plugin inspired by the classic 2012 Hunger Games game mode. It provides a fast-paced environment where players compete for resources, fight opponents and aim to be the last person alive. Designed for flexibility, it supports multiple arenas, game modes and extensive customization.
+HungerGames is a modern Minecraft plugin for spigot servers inspired by the classic 2012 Hunger Games game mode. It provides a fast-paced environment where players compete for resources, fight opponents and aim to be the last person alive. Designed for flexibility, it supports multiple arenas, game modes and extensive customization.
 
-![Minecraft](https://img.shields.io/badge/Minecraft-1.20+-brightgreen?logo=minecraft&style=for-the-badge)
-![Platform](https://img.shields.io/badge/Platform-Spigot-orange?logo=spigotmc&style=for-the-badge)
-![Modrinth Downloads](https://img.shields.io/modrinth/dt/hungergames?logo=modrinth&style=for-the-badge)
-![bStats Servers](https://img.shields.io/bstats/servers/21512?logo=googleanalytics&style=for-the-badge)
-![Discord](https://img.shields.io/discord/1183793646194139229?label=Discord&logo=discord&style=for-the-badge)
+![Minecraft](https://img.shields.io/badge/Minecraft-1.20+-brightgreen?label=MC&style=for-the-badge)
+![Version](https://img.shields.io/modrinth/v/hungergames?&style=for-the-badge)
+[![Modrinth Downloads](https://img.shields.io/modrinth/dt/hungergames?logo=modrinth&style=for-the-badge)](https://modrinth.com/plugin/hungergames)
+[![bStats Servers](https://img.shields.io/bstats/servers/21512?logo=googleanalytics&style=for-the-badge)](https://bstats.org/plugin/bukkit/HungerGames%20-%20Ayman/21512)
+[![Discord](https://img.shields.io/discord/1183793646194139229?&logo=discord&label=chat&style=for-the-badge)](https://discord.gg/qcRfPHnZtp)
+
 ## Hunger Games Plugin Features
 - Robust announcement system with customizable messages
 - Customizable arena allowing for all types of maps to work
