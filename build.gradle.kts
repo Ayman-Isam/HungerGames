@@ -22,9 +22,9 @@ dependencies {
     compileOnly("org.spigotmc:spigot-api:$spigotAPIVersion-R0.1-SNAPSHOT")
     implementation("commons-io:commons-io:2.14.0")
     implementation("org.bstats:bstats-bukkit:2.2.1")
-    compileOnly("com.github.retrooper:packetevents-spigot:2.7.0")
+    compileOnly("com.github.retrooper:packetevents-spigot:2.14.0")
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
-    implementation("fr.mrmicky:fastboard:2.1.5")
+    implementation("fr.mrmicky:fastboard:2.2.2")
     compileOnly("me.clip:placeholderapi:2.11.6")
 }
 
