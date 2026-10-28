@@ -176,29 +176,37 @@ public final class HungerGames extends JavaPlugin {
     }
 
 	public void loadWorldFiles() {
-		File serverDirectory = new File(".");
+		FileConfiguration settings = configHandler.getPluginSettings();
+		File serverDirectory;
+		boolean legacyStructure = settings.getBoolean("legacy-world-structure");
+
+		if (!legacyStructure) {
+			serverDirectory = new File ("world/dimensions/minecraft");
+		} else{
+			serverDirectory = new File(".");
+		}
+
 		File[] files = serverDirectory.listFiles();
 
 		if (files != null) {
-		    for (File file : files) {
-		        if (file.isDirectory()) {
-		            File levelDat = new File(file, "level.dat");
-		            if (levelDat.exists()) {
-		                String worldName = file.getName();
-		                worldNames.add(worldName);
-		                FileConfiguration settings = configHandler.getPluginSettings();
-		                if (!settings.getBoolean("whitelist-worlds")) {
-		                    if (!settings.getStringList("ignored-worlds").contains(worldName)) {
-		                        hgWorldNames.add(worldName);
-		                    }
-		                } else {
-		                    if (settings.getStringList("ignored-worlds").contains(worldName)) {
-		                        hgWorldNames.add(worldName);
-		                    }
-		                }
-		            }
-		        }
-		    }
+			for (File file : files) {
+				if (file.isDirectory()) {
+					File levelDat = new File(file, "level.dat");
+					if (levelDat.exists() || !legacyStructure) {
+						String worldName = file.getName();
+						worldNames.add(worldName);
+						if (!settings.getBoolean("whitelist-worlds")) {
+							if (!settings.getStringList("ignored-worlds").contains(worldName)) {
+								hgWorldNames.add(worldName);
+							}
+						} else {
+							if (settings.getStringList("ignored-worlds").contains(worldName)) {
+								hgWorldNames.add(worldName);
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 

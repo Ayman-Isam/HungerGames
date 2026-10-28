@@ -69,9 +69,13 @@ public class WorldTeleportCommand implements CommandExecutor {
             return false;
         }
 
+        if (worldName.equals("overworld")) {
+
+        }
+
         World world = Bukkit.getWorld(worldName);
 
-        if (world == null) {
+        if (world == null && !worldName.equals("overworld")) {
             world = Bukkit.createWorld(WorldCreator.name(worldName));
             assert world != null;
             arenaHandler.loadWorldFiles(world);
@@ -79,18 +83,28 @@ public class WorldTeleportCommand implements CommandExecutor {
 
         if (playerToTeleport.equalsIgnoreCase("all")) {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                if (worldName.equals("overworld")) {
+                    world = Bukkit.getWorlds().get(0);
+                }
                 onlinePlayer.teleport(world.getSpawnLocation());
                 onlinePlayer.sendMessage(langHandler.getMessage(onlinePlayer, "teleport.teleported", world.getName()));
             }
 
-            sender.sendMessage(langHandler.getMessage(player, "teleport.sender", "Everyone" , world.getName()));
+	        assert world != null;
+	        sender.sendMessage(langHandler.getMessage(player, "teleport.sender", "Everyone" , world.getName()));
             return true;
         }
 
         Player p = Bukkit.getPlayer(playerToTeleport);
         assert p != null;
+	    assert world != null;
+        if (worldName.equals("overworld")) {
+            world = Bukkit.getWorlds().get(0);
+        }
         p.teleport(world.getSpawnLocation());
+
         p.sendMessage(langHandler.getMessage(p, "teleport.teleported", world.getName()));
+        sender.sendMessage(langHandler.getMessage(player, "teleport.sender", p.getName() , world.getName()));
 
         return true;
     }
