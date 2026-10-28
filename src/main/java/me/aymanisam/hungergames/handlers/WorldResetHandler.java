@@ -66,28 +66,39 @@ public class WorldResetHandler {
                 return;
             }
 
+            System.gc();
+
             new BukkitRunnable() {
                 int attempts = 0;
 
                 @Override
                 public void run() {
-                    try {
-                        FileUtils.deleteDirectory(worldDirectory);
-                        FileUtils.copyDirectory(templateDirectory, worldDirectory);
-                        WorldCreator worldCreator = new WorldCreator(world.getName());
-                        Bukkit.createWorld(worldCreator);
-                        worldBorderHandler.resetWorldBorder(world);
-                        cancel();
-                    } catch (IOException e) {
-                        attempts++;
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        try {
+                            FileUtils.deleteDirectory(worldDirectory);
+                            FileUtils.copyDirectory(templateDirectory, worldDirectory);
 
-                        if (attempts >= 40) {
-                            plugin.getLogger().log(Level.SEVERE, "Failed to reset world '" + world.getName() + "' after " + attempts + " attempts.", e);
+                            Bukkit.getScheduler().runTask(plugin, () -> {
+                                WorldCreator worldCreator = new WorldCreator(world.getName());
+                                World freshWorld = Bukkit.createWorld(worldCreator);
+                                if (freshWorld != null) {
+                                    worldBorderHandler.resetWorldBorder(freshWorld);
+                                    plugin.getLogger().info("Successfully reset world: " + world.getName());
+                                }
+                            });
+
                             cancel();
+                        } catch (IOException e) {
+                            attempts++;
+
+                            if (attempts >= 10) {
+                                plugin.getLogger().log(Level.SEVERE, "Failed to reset world '" + world.getName() + "' after " + attempts + " attempts.", e);
+                                cancel();
+                            }
                         }
-                    }
+                    });
                 }
-            }.runTaskTimer(plugin, 2L, 2L);
+            }.runTaskTimer(plugin, 20L, 10L);
         });
     }
 
