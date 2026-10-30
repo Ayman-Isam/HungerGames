@@ -34,8 +34,6 @@ public class PlayerListener implements Listener {
     private final ConfigHandler configHandler;
     private final SignHandler signHandler;
 	private final DatabaseHandler databaseHandler;
-    private final ResetPlayerHandler resetPlayerHandler;
-
 	private final Map<String, Map<Player, Location>> deathLocations = new HashMap<>();
     private final Map<Player, Set<Player>> playerDamagers = new HashMap<>();
     public static final Map<String, Map<Player, Integer>> playerKills = new HashMap<>();
@@ -47,7 +45,6 @@ public class PlayerListener implements Listener {
         this.configHandler = plugin.getConfigHandler();
         this.signHandler = new SignHandler(plugin, setSpawnHandler);
 	    this.databaseHandler = new DatabaseHandler(plugin);
-        this.resetPlayerHandler = new ResetPlayerHandler();
     }
 
     @EventHandler
@@ -281,8 +278,8 @@ public class PlayerListener implements Listener {
         }
 
         Location location = player.getLocation();
-        world.spawnParticle(Particle.EXPLOSION_LARGE, player.getLocation(), 10);
-        world.spawnParticle(Particle.REDSTONE, location, 50, new Particle.DustOptions(Color.RED, 10f));
+        world.spawnParticle(Particle.EXPLOSION_LARGE, location, 10);
+        world.spawnParticle(Particle.REDSTONE, location, 50, new Particle.DustOptions(Color.RED, 4f));
         world.playSound(player.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.4f, 1.0f);
 
         if (gameStarted.getOrDefault(world.getName(), false)) {

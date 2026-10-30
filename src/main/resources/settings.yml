@@ -1,7 +1,8 @@
 # Lobby world
 lobby-world: "world"
 # Legacy world structure, Minecraft 1.21.11 and lower
-legacy-world-structure: false
+# Disable this for worlds that are 26.1 and above and has been converted
+legacy-world-structure: true
 # Enable tips to let players get displayed tips periodically
 tips: true
 # If enabled, only worlds listed here will be included in HungerGames

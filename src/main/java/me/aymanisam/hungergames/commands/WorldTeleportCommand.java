@@ -69,10 +69,6 @@ public class WorldTeleportCommand implements CommandExecutor {
             return false;
         }
 
-        if (worldName.equals("overworld")) {
-
-        }
-
         World world = Bukkit.getWorld(worldName);
 
         if (world == null && !worldName.equals("overworld")) {
